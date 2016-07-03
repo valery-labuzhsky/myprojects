@@ -1,0 +1,20 @@
+5  grain
+10 meat
+4  fish
+1  beer
+14 salt
+7  honey
+16 spices
+19 wine
+3  cloth
+15 skins
+18 whale oil
+17 timber
+8  iron goods
+9  leather
+20 wool
+12 pitch
+11 pig iron
+6  hemp
+13 pottery
+21 bricks
