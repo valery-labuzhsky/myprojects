@@ -1,0 +1,1 @@
+run once compile(list("turn", "precompile", "lib_stat", "stage")).

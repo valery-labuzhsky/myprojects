@@ -4,12 +4,55 @@ local ctrl_throt to 0.
 local ctrl_autostage to false.
 local ctrl_as_autostage to false.
 
+local ctrl_dv0 to 0.
+local ctrl_dv to 0.
+local ctrl_dv_started to false.
+local ctrl_dv_dt to 0.04.
+local ctrl_dv_t0 to 0.
+
+function start_throttle_dv {
+    set ctrl_dv_started to true.
+    set ctrl_dv_t0 to time:seconds.
+    when true then {
+        set ctrl_dv_dt to time:seconds - ctrl_dv_t0.
+        set ctrl_dv_t0 to time:seconds.
+        local twr to calc_max_twr().
+        if twr=0 {
+            lock throttle to ctrl_throt.
+        } else {
+            local cdv to ctrl_dv.
+            local tt to cdv/twr.
+            local th to tt/ctrl_dv_dt/16.
+            if th > ctrl_throt set th to ctrl_throt.
+            lock throttle to th.
+            set ctrl_dv to ctrl_dv - th*twr*ctrl_dv_dt.
+        }
+        if ctrl_dv_started preserve.
+        else lock throttle to ctrl_throt.
+    }
+}
+
+function set_throttle_dv {
+    parameter dv.
+
+    //log_log("set").
+    set ctrl_dv to dv - ctrl_dv0 + ctrl_dv.
+    set ctrl_dv0 to ctrl_dv.
+}
+
+function stop_throttle_dv {
+    set ctrl_dv_started to false.
+    lock throttle to ctrl_throt.
+}
+
 function set_throttle {
     parameter thr.
     if thr<0 set thr to 0.
     if thr>1 set thr to 1.
     set ctrl_throt to thr.
-    lock throttle to ctrl_throt.
+    if not ctrl_dv_started {
+        lock throttle to ctrl_throt.
+    }
 }
 
 function release_throttle {
@@ -49,7 +92,9 @@ function warp_wait {
     warp_stop().
     set warpmode to "RAILS".
     WARPTO(TIME:SECONDS + t).
+    wait t.
     wait until warp = 0.
+    wait until kuniverse:timewarp:issettled.
 }
 
 function warp_phys {

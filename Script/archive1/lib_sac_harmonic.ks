@@ -1,50 +1,66 @@
 @LAZYGLOBAL off.
 
 set config:ipu to 2000.
+
 run once lib_math.
 run once lib_msmnt.
 
 local sac_started to false.
 local sac_stopped to true.
 
-local sac_cturn to r(0, 0, 90).
-
-local sac_facing_old to ship:facing.
-local sac_new_target to ship:facing.
-local sac_cur_follow to ship:facing.
-local sac_new_follow to ship:facing.
+local sac_cur_target to ship:facing.
+local sac_new_target to sac_cur_target.
+local sac_cur_follow to sac_cur_target.
+local sac_new_follow to sac_cur_target.
 local sac_pitch_arr to sac_init(50).
 local sac_yaw_arr to sac_init(50).
 local sac_roll_arr to sac_init(50).
-local sac_t to time:seconds.
 local sac_t0 to time:seconds.
+local sac_x0 to v(0, 0, 0).
+local sac_v0 to todeg(ship:facing:inverse * ship:angularvel).
+local sac_tar_sp to V(0, 0, 0).
 local sac_zero_x to r(0, 0, 0).
 local sac_zero_v to V(0, 0, 0).
 local sac_zero_a to v(0, 0, 0).
 local sac_ct0 to 0.25.
 local sac_ct to 0.25.
 local sac_w to 0.5/sac_ct.
+//local sac_w to 0.25/sac_ct. // TODO experimental
 local sac_warp to false.
 
 local sac_pitch_debug to false.
 local sac_yaw_debug to false.
 local sac_roll_debug to false.
 
-local sac_stat_av0 to v(0, 0, 0).
-local sac_stat_n to 0.
-local sac_stat_ar to v(0, 0, 0).
-local sac_stat_at to v(0, 0, 0).
-local sac_stat_ar2 to v(0, 0, 0).
-local sac_stat_at2 to v(0, 0, 0).
-local sac_stat_ar0 to v(0, 0, 0).
+local sac_facing_old to R(0, 0, 0).
+local sac_cturn to r(0, 0, 90).
+local sac_avc to v(0, 0, 0).
+local sac_t to 0.
+
+local sac_ra to v(0, 0, 0).
+
+// TODO check reset
+
+local sac_w_av0 to v(0, 0, 0).
+local sac_w_an to 0.
+local sac_w_ph to 0.
+local sac_w_t0 to 0.
+local sac_w_w to 0.
+local sac_w_wa0 to v(0, 0, 0).
+local sac_w_ta0 to v(0, 0, 0).
 
 log "poehali" to "stat.csv".
 deletepath("stat.csv").
-log "x, v, a0, a, ac, za, c, ra" to "stat.csv".
+log "x, v, a, ac, za, c" to "stat.csv".
 
-// TODO check reset
+log "poehali" to "tune.csv".
+deletepath("tune.csv").
+log "ac, za, c, acc, dza, dc, mz" to "tune.csv".
+
 function sac_reset {
+    set sac_cur_target to ship:facing.
     set sac_t0 to time:seconds.
+    set sac_tar_sp to V(0, 0, 0).
     set sac_zero_v to V(0, 0, 0).
 
     set sac_facing_old to ship:facing.
@@ -60,7 +76,7 @@ function sac_start {
 
     sac_reset().
 
-    log_log("sac started").
+    sac_log("sac started").
 
     when true then {
         local t to 0.
@@ -79,12 +95,13 @@ function sac_start {
 
         local dt to t - sac_t.
         set sac_t to t.
+        set sac_avc to sac_avc-control:rotation*sac_cturn:inverse*dt.
 
         local tt to t - sac_t0.
         local mf to sac_dir_to_rotvec(sac_rotvec_to_dir(sac_zero_x + (sac_zero_v + sac_zero_a*tt/2)*tt):inverse*(sac_facing_old:inverse * facing)).
 
-        local ra to (av - sac_stat_av0)/dt.
-        set sac_stat_av0 to av.
+        local wa to (av - sac_w_av0)/dt.
+        set sac_w_av0 to av.
 
         if tt > sac_ct {
             local tune to true.
@@ -107,120 +124,85 @@ function sac_start {
             set sac_w to 0.5/sac_ct.
 
             if tune {
-                sac_tune().
+                set sac_avc to sac_avc/tt.
+                sac_tune(tt, mf, sac_x0, sac_v0).
 
                 set sac_t0 to t.
                 set sac_facing_old to facing.
 
                 sac_follow_new_target().
-                local tar_sp to sac_dir_to_rotvec(sac_cur_follow:inverse * sac_new_follow)/sac_ct.
+                set sac_tar_sp to sac_dir_to_rotvec(sac_cur_follow:inverse * sac_new_follow)/sac_ct.
 
-                set sac_zero_v to tar_sp.
+                //local fin_v to sac_tar_sp.
+                //local fin_x to sac_dir_to_rotvec(ship:facing:inverse * sac_new_target).
+                //set sac_zero_a to v(0, 0, 0).
+                //set sac_zero_v to fin_v - sac_zero_a * sac_ct.
+                //set sac_zero_x to fin_x -(sac_zero_v + sac_zero_a*sac_ct/2)*sac_ct.
+                //set sac_x0 to -sac_zero_x.
+                //set sac_v0 to av - sac_zero_v.
+
+                set sac_zero_v to sac_tar_sp.
                 set sac_zero_x to sac_dir_to_rotvec(facing:inverse * sac_new_target) - sac_zero_v*sac_ct.
-                local x0 to -sac_zero_x.
-                local v0 to av - sac_zero_v.
+                set sac_x0 to -sac_zero_x.
+                set sac_v0 to av - sac_zero_v.
 
-                set sac_zero_a to sac_limit_a(x0, v0).
-                sac_nulify(x0, sac_zero_a).
-                sac_nulify(v0, sac_zero_a).
-                set sac_zero_x to -x0.
-                set sac_zero_v to av - v0.
+                //local ta to sac_calc_ta(sac_x0, sac_v0).
+                set sac_zero_a to sac_limit_a(sac_x0, sac_v0).
+                sac_nulify(sac_x0, sac_zero_a).
+                sac_nulify(sac_v0, sac_zero_a).
+                set sac_zero_x to -sac_x0.
+                set sac_zero_v to av - sac_v0.
 
+                set sac_cur_target to sac_new_target.
                 set sac_cur_follow to sac_new_follow.
+                set sac_avc to v(0, 0, 0).
             }
         } else {
+            //local ta to sac_calc_ta(mf, av - sac_zero_sp).
             local tv to av - (sac_zero_v + sac_zero_a*tt).
             local ta to sac_calc_ta(mf, tv) + sac_zero_a.
             local c to v(sac_seek_x(sac_pitch_arr, ta:x), sac_seek_x(sac_yaw_arr, ta:y), sac_seek_x(sac_roll_arr, ta:z)).
 
-            set sac_stat_n to sac_stat_n + 1.
-            set sac_stat_ar to sac_stat_ar + ra.
-            set sac_stat_at to sac_stat_at + ta.
-            sac_stat_a2(sac_stat_ar2, ra).
-            sac_stat_a2(sac_stat_at2, ta).
+            // TODO this can be used to fully control ac and za
+            local wan to arctan2((wa-sac_w_wa0):y, (ta-sac_w_ta0):y).
+            set sac_w_wa0 to wa.
+            set sac_w_ta0 to ta.
+            local dwan to wan-sac_w_an.
+            if dwan > 180 set dwan to dwan - 360.
+            else if dwan < -180 set dwan to dwan + 360.
+            local resw to dwan/dt.
+            set sac_w_an to wan.
+
+            if dwan < 0 {
+                set sac_w_w to 0.
+                set sac_w_ph to 0.
+                set sac_w_t0 to t.
+            } else {
+                set sac_w_ph to sac_w_ph + dwan.
+                if sac_w_ph > 360 {
+                    set sac_w_w to sac_w_ph/360/(t - sac_w_t0).
+                    local newc to sac_w_w/2/sac_w.
+                    if newc > 1
+                    //set sac_yaw_arr[0] to newc*sac_yaw_arr[0]. // TODO highly experimental feature
+
+                    set sac_w_ph to 0.
+                    set sac_w_t0 to t.
+                }
+            }
 
             if sac_yaw_debug {
-                log mf:y+", "+tv:y+", "+sac_zero_a:y+", "+ta:y+", "+sac_yaw_arr[0]+", "+sac_yaw_arr[1]+", "+c:y+", "+ ra:y to "stat.csv".
+                log mf:y+", "+tv:y+", "+ta:y+", "+sac_yaw_arr[0]+", "+sac_yaw_arr[1]+", "+c:y+
+                        ", " + wa:y + ", " + wan + ", " + sac_w_ph + ", " + sac_w_w
+                        to "stat.csv".
             }
 
             set ship:control:rotation to -c*sac_cturn.
         }
 
         if sac_started preserve.
-        else {
-            set sac_stopped to true.
-            set ship:control:rotation to v(0, 0, 0).
-        }
-        if not sac_started log_log("sac stoped").
+        else set sac_stopped to true.
+        if not sac_started sac_log("sac stoped").
     }
-}
-
-function sac_stat_a2 {
-    parameter sa.
-    parameter a.
-
-    set sa:x to sa:x + a:x^2.
-    set sa:y to sa:y + a:y^2.
-    set sa:z to sa:z + a:z^2.
-}
-
-function sac_tune {
-    local mra to sac_stat_ar/sac_stat_n.
-    local mta to sac_stat_at/sac_stat_n.
-
-    sac_tune_x(sac_pitch_arr, mra:x, mta:x, sac_stat_ar0:x, sac_stat_at2:x, sac_stat_ar2:x).
-    sac_tune_x(sac_yaw_arr, mra:y, mta:y, sac_stat_ar0:y, sac_stat_at2:y, sac_stat_ar2:y).
-    sac_tune_x(sac_roll_arr, mra:z, mta:z, sac_stat_ar0:z, sac_stat_at2:z, sac_stat_ar2:z).
-
-    set sac_stat_ar0 to mra.
-    set sac_stat_n to 0.
-    set sac_stat_ar to v(0, 0, 0).
-    set sac_stat_ar2 to v(0, 0, 0).
-    set sac_stat_at to v(0, 0, 0).
-    set sac_stat_at2 to v(0, 0, 0).
-}
-
-function sac_tune_x {
-    parameter arr.
-    parameter mra.
-    parameter mta.
-    parameter ar0.
-    parameter at2.
-    parameter ar2.
-
-    local ac0 to arr[0].
-    local za0 to arr[1].
-    local c0 to arr[2].
-
-    local c1 to (mta - za0)/ac0.
-    local dc to c1 - c0.
-
-    local mak to at2 - sac_stat_n*mta^2.
-    local dck to dc*ac0.
-
-    local acck to 1/(mak + dck^2). // TODO move 4 here somehow (probably +3*ac0)
-
-    local maacc to ar2 - sac_stat_n*mra^2. // It was S1/S2
-    if (maacc<0 or mak<0) {
-        log_log(maacc).
-        log_log(mak).
-    }
-    set maacc to (sqrt(maacc*mak)-mak)*acck/4 + 1.
-
-    local dcacc to mra - ar0.
-    set dcacc to (dcacc*dck-dck^2)*acck/4 + 1.
-
-    local acc to maacc*dcacc.
-
-    if acc < 0.5 set acc to 0.5.
-    else if acc > 2 set acc to 2.
-
-    local za to mra + (za0 - mta)*acc.
-    set za to za - mra/2 + mta/2.
-
-    set arr[0] to ac0 * acc.
-    set arr[1] to za.
-    set arr[2] to c1.
 }
 
 function sac_nulify {
@@ -313,13 +295,14 @@ function sac_max_a_x {
 
     local ac to arr[0].
     local za to arr[1].
-    //local c to arr[3].
+    local c to arr[3].
 
     local ba to s * ac + za.
 
-    //local ac2 to ac + c*za.
-    //set za to za * (1 - c^2).
-    //set ba to s*min(s*ba, ac2 + s*za). // There is no need to be too careful - coeffecients are real enough now
+    local ac2 to ac + c*za.
+    set za to za * (1 - c^2).
+
+    set ba to s*min(s*ba, ac2 + s*za).
 
     if ba * s < ac/2 set ba to s*ac/2. // 0. It doesn't allow control to leave limit position when it's 0
 
@@ -350,7 +333,13 @@ function sac_stop {
 
 function sac_init {
     parameter ac.
-    return list(ac, 0, 0).
+    return list(ac, 0, 0, 0, 1, 0).
+}
+
+function sac_log {
+    parameter text.
+
+    log_log(text).
 }
 
 function sac_x {
@@ -383,6 +372,78 @@ function sac_stat {
     }
 
     log x+", "+v+", "+ac+", "+(tc*100)+", "+za+", "+ta to f.
+}
+
+function sac_tune {
+    parameter tt.
+    parameter tx.
+    parameter x0.
+    parameter v0.
+
+    local e0 to constant():e ^ (-sac_w * tt).
+
+    local wt1 to 1 + sac_w * tt.
+    local edx to tx - (v0 * tt + wt1 * x0) * e0.
+    local zx to edx / (1 - wt1 * e0).
+    local dza to zx * sac_w * sac_w/2.
+
+    local ta to sac_calc_ta(x0, v0) + sac_zero_a.
+    local ra to ta + dza.
+    local dra to ra - sac_ra.
+
+    sac_tune_x(sac_pitch_arr, sac_avc:x,  ta:x, dza:x, dra:x, sac_pitch_debug).
+    sac_tune_x(sac_yaw_arr, sac_avc:y, ta:y, dza:y, dra:y, sac_yaw_debug).
+    sac_tune_x(sac_roll_arr, sac_avc:z, ta:z, dza:z, dra:z, sac_roll_debug).
+
+    set sac_ra to ra.
+}
+
+function sac_tune_x {
+    parameter arr.
+    parameter c.
+    parameter ta.
+    parameter dza.
+    parameter dra.
+    parameter deb.
+
+    local ac to arr[0].
+    local za to arr[1].
+    local ra0 to arr[2].
+    local c0 to arr[3].
+    local mz to arr[4].
+    local dza0 to arr[5].
+
+    local c to (ta - za)/ac.
+    local dc to c - c0.
+
+    local mzn to 1.
+    if abs(c)<0.9 and dza * dza0 > 0 { // TODO change mz
+        set mzn to mz * (1 + min(1, dza/dza0)).
+        if mzn*dc^2 > 4 set mzn to 4/dc^2.
+    } else {
+        set mz to 1.
+    }
+
+    local acc to 1 + (dc*dra/4/ac - dc^2/4)*mz. // 4 = max(dc)^2
+    //set acc to acc * (1 + dza * c * 0.5 / ac).
+    if acc < 0.5 set acc to 0.5.
+    else if acc > 2 set acc to 2.
+
+    set ac to ac * acc.
+
+    set za to (za - ta)*acc + ta.
+    set za to za + dza.// * (0.25/sac_ct).
+
+    if deb {
+        log ac+", "+za+", "+(c*100)+", "+(acc*100)+", "+dza+", "+(dc*100)+", "+mz to "tune.csv".
+    }
+
+    set arr[0] to ac.
+    set arr[1] to za.
+    set arr[2] to ra0.
+    set arr[3] to c.
+    set arr[4] to mzn.
+    set arr[5] to dza.
 }
 
 function sac_seek_x {

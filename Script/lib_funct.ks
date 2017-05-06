@@ -1,7 +1,7 @@
 @LAZYGLOBAL off.
 
 log "funct" to "funct.ks".
-delete "funct.ks".
+deletepath("funct.ks").
 log "parameter fun." to "funct.ks".
 log "parameter par." to "funct.ks".
 

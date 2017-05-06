@@ -3,73 +3,62 @@
 run once lib_calc.
 run once lib_sac.
 run once lib_ctrl.
+run once lib_gt.
+run once lib_msmnt.
+run once lib_math.
 
 local asc_autowarp to true.
 local asc_speedup to false.
 
-local st to false.
+//set sac_yaw_debug to true.
 
 function asc_start {
     parameter th.
 
-    set_throttle(1).
-    stage.
+    sac_start(ship:facing).
 
-    sac_start(HEADING3(90, 90, -90)).
-//auto_stage_start().
+    if ship:altitude < 25000 {
+        set_throttle(1).
+        stage.
 
-    set_throttle(1).
+        when ship:altitude > 25000 then {
+            release_throttle().
+            log_log("Main engine cut off").
+        }
+    }
+    if ship:altitude < 30000 {
+        log_log("Gravity turn").
+        if asc_speedup warp_phys(1).
+        asc_grav_turn_a(30000).//30000
 
-    if false {
-    //when ship:altitude > 25000 then {
         set_throttle(0).
         stage.
-        set st to true.
-    }
-    if false {
-    //when st and stage:ready then {
-        stage.
+        log_log("Stage separation").
+        set_throttle(0.01).
+        wait 1.
+        set_throttle(0.1).
+        wait 1.
         set_throttle(1).
-        set st to false.
+
+        log_log("Moving to transfer orbit").
+    //if asc_speedup warp_phys(1).
+        asc_inc_ap(th).
+        log_log("Transfer orbit").
+
+        if asc_speedup warp_phys(3).
+        if asc_autowarp {
+            log_log("Wait for warp").
+            asc_wait_ap(th, 70000).
+
+            log_log("Warp").
+            asc_warp_2_ap(th).
+        }
+
+        if asc_speedup warp_stop().
     }
 
-    when ship:altitude > 25000 then release_throttle().
-    log_log("Gravity turn").
-//if asc_speedup
-    //warp_phys(1).
-    asc_grav_turn_a(30000).//30000
-
-    set_throttle(0).
-    stage.
-    //close_terminal().
-//wait until stage:ready.
-    wait 4.
-//stage.
-//wait 1.
-    set_throttle(1).
-
-    log_log("Increase apoapsis").
-    if asc_speedup warp_phys(2).
-    asc_inc_ap(th).
-
-    if asc_speedup warp_phys(3).
-    if asc_autowarp {
-        log_log("Wait to warp").
-        asc_wait_ap(th, 70000).
-
-        log_log("Warp").
-        asc_warp_2_ap(th).
-    }
-
-    log_log("Wait to burn").
-    asc_wait_ap(th, th).
-
-    if asc_speedup warp_stop().
-    log_log("Burn to apoapsis").
+    log_log("Final maneuver").
     asc_burn_2_orb_ap(th).
-
-    log_log("Burn to orbit").
-    asc_burn_2_orb(th).
 
     log_log("Orbit").
 
@@ -81,23 +70,28 @@ function asc_start {
 function asc_grav_turn_a {
     parameter sal.
 
+    sac_follow({return heading(0, 90):vector.}).
+    sac_start_following().
+    sac_start_following_toggle().
+
     local a to 0.
-    until ship:altitude > sal {
-        set a to gt_nt_a(1.2*calc_max_twr(), 30000, a, 30 ). // 70!
-        sac_target(HEADING3(90, 90-a, -90)).
-    }
-}
+    local v to ship:velocity:surface.
+    local alt to ship:altitude.
+    until alt > sal {
+        msmnt_measure({
+            set v to ship:velocity:surface.
+            set alt to ship:altitude.
+        }).
 
-function asc_grav_turn_p {
-    parameter tal.
-
-    until ship:altitude > tal {
-        sac_target(HEADING3(90, calc_srf_ang(), -90)).
+        set a to gt_nt_a(1.2*calc_max_twr(), 30000, a, 25, v:MAG, alt). // 70!
+        sac_toggle(r(0, a, 0)).
     }
 }
 
 function asc_inc_ap {
     parameter tal.
+
+    sac_follow({return heading(90, 0):vector.}).
 
     local tpes to asc_init_tgt_pe(tal).
     local tap to calc_abs(tal).
@@ -105,8 +99,10 @@ function asc_inc_ap {
     until ship:obt:APOAPSIS > tal-1000 {
         local tpe to asc_tgt_pe(tap, tpes).
         local a to calc_ang_2_ap_pe(tap, tpe).
-        sac_target(heading3(90, a, -90)).
+        sac_toggle(r(0, -a, 0)).
     }
+
+    sac_stop_following().
 }
 
 function asc_init_tgt_pe {
@@ -120,6 +116,10 @@ function asc_init_tgt_pe {
 function asc_tgt_pe{
     parameter tap.
     parameter nlist.
+
+    local ap to calc_abs_ap().
+    local pe to calc_abs_pe().
+    local r to calc_abs_alt().
 
     return newton_next(nlist, asc_dv_dpe(tap, nlist[0]), asc_dv_dpe(tap, nlist[1])).
 }
@@ -147,7 +147,7 @@ function asc_dv_dpe {
     return dv1dr + dv2dr.
 }
 
-function asc_wait_ap {
+function asc_wait_ap { // TODO sac follow, new thrust, new directions
     parameter th.
     parameter sal.
 
@@ -155,29 +155,15 @@ function asc_wait_ap {
     local next to false.
     local tap to calc_abs(th).
     until next or ship:altitude > sal {
-        if calc_min_thr_time_2_orb(tap) + 2 > asc_ap_burn_time(th) {
+        if calc_min_thr_time_2_orb(tap) + 2 > calc_time_2_alt(tap) {
             sac_target(heading3(90, 0, -90)).
             set_throttle(0).
-            if calc_min_thr_time_2_orb(tap) > asc_ap_burn_time(th) set next to true.
+            if calc_min_thr_time_2_orb(tap) > calc_time_2_alt(tap) set next to true.
         } else {
             set_throttle(asc_thr_2_ap_wait(th)).
             sac_target(roll_dir(ship:prograde, -90)).
         }
     }
-}
-
-function asc_ap_burn_time {
-    parameter th.
-
-    local mu to ship:body:mu.
-    local x0 to ship:ALTITUDE + ship:body:RADIUS.
-    set th to th + ship:body:RADIUS.
-
-    local vv to ship:VERTICALSPEED.
-
-    local dth to th - x0.
-    if vv < 1 return 0.
-    return 2 * dth / vv.
 }
 
 function asc_thr_2_ap_wait {
@@ -195,98 +181,112 @@ function asc_thr_2_ap_wait {
 function asc_warp_2_ap {
     parameter th.
 
+    sac_follow({return ship:prograde:vector.}).
+    sac_start_following().
+
     set_throttle(0).
-    local wt to calc_time_2_ap() - calc_min_thr_time_2_orb(calc_abs(th))*2.
-    warp_wait(wt).
-    until not sac_warping() {
-        sac_target(roll_dir(ship:prograde, -90)).
+    local tr to calc_abs(th).
+    local wt to calc_time_2_alt(tr) - calc_min_thr_time_2_orb(tr).
+    if wt > 0 {
+        warp_wait(wt).
     }
-    set wt to time:seconds.
-    until time:seconds - wt > 3 {
-        sac_target(roll_dir(ship:prograde, -90)).
-    }
+
+    sac_stop_following().
 }
 
 function asc_burn_2_orb_ap {
     parameter th.
 
-    set_throttle(1).
-    local next to false.
-    until next {
-        local a to asc_ang_2_ap(th).
-        sac_target(heading3(90, a, -90)).
-        set_throttle(asc_thr_2_ap_burn(th)).
-        if th - ship:altitude < 1 or ship:velocity:orbit:MAG > calc_orb_vel() set next to true.
+    sac_follow({return heading(90, 0):vector.}).
+    sac_start_following().
+    sac_start_following_toggle().
+
+    local state to 0.
+
+    set_throttle(0).
+    start_throttle_dv().
+    until state = 3 {
+        // TODO run measure
+        local ta to torad(ship:obt:TRUEANOMALY).
+        local ap to calc_abs_ap().
+        local pe to calc_abs_pe().
+        local r to calc_abs_alt().
+        local mtwr to calc_max_twr().
+
+        // target altitude
+        local tr to calc_abs(th).
+        local tr0 to tr.
+
+        // target anomaly
+        local tta to ta.
+        if state < 2 {
+            set tta to calc_true_ano(ap, pe, tr).
+            if tta < ta set tta to pi2 - tta.
+            if tta < ta {
+                set state to 2.
+                set tta to ta.
+            }
+        }
+
+        if state = 2 {
+            set tr to r.
+        } else if ap < tr {
+            set tr to ap.
+        }
+
+        // dv
+        local vv0 to calc_vvel_ta(ap, pe, tr, tta).
+        local vh0 to calc_hvel(ap, pe, tr).
+        local vv to 0-vv0.
+        local vh to calc_hvel(tr, tr, tr)-vh0.
+        local dv to sqrt(vv^2 + vh^2).
+
+        // time of burning
+        local t to dv/mtwr.
+        // ending of burning
+        local pd to 10.
+        local thr to sqrt(2*t/pd).
+        if thr > 1 {
+            set thr to 1.
+            set t to t + pd/2.
+        } else {
+            set t to thr * pd.
+        }
+
+        if state < 2 {
+            // time to target
+            local p to calc_time_2_tr_ano(ta, tta, ap, pe, ship:body).
+            local tthr to (t/p/2)^2.
+            if state = 0 {
+                if tthr >= 1 {
+                    set state to 1.
+                }
+            }
+            set thr to thr * tthr.
+
+            // angle of attack
+            local a to arctan2(vv, vh) - todeg(tta - ta).
+            if thr > 1 {
+                local t2 to t/2.
+                local ac to 2*(tr0-r - calc_vvel_ta(ap, pe, r, ta)*t2)/t2^2 - calc_vacc(ap, pe, r).
+                local na2 to mtwr^2 - ac^2*cos(a)^2.
+                if na2 > 0 {// it's not worth it close to 0
+                    local na to sqrt(na2) - ac*sin(a).
+                    set a to arctan2(ac+na*sin(a), na*cos(a)).
+                }
+            }
+            sac_toggle(r(0, -a, 0)).
+        }
+
+        // set thrust
+        if state > 0 {
+            set_throttle(thr).
+            set_throttle_dv(dv).
+        }
+        if ta < torad(90) or ta > torad(270) or pe > tr0 set state to 3. // Maybe angle(dv, facing) is better but it's fine
     }
-}
 
-function asc_ang_2_ap {
-    parameter th.
-
-    local mu to ship:body:mu.
-    local ap to ship:obt:APOAPSIS + ship:body:RADIUS.
-    local r to ship:ALTITUDE + ship:body:RADIUS.
-    local v to ship:velocity:orbit:MAG.
-
-    local ta to 180 - ship:obt:TRUEANOMALY.
-    local sa to ship:VERTICALSPEED/v.
-    local ca to sqrt(1 - sa ^ 2).
-    local san to sa * cos(ta) + ca * sin(ta).
-
-    local vv to v * san.
-    local vh to v * ca.
-
-    local x0 to (ship:body:RADIUS + ship:ALTITUDE) * cos(ta).
-
-    local dth to ship:body:RADIUS + th - x0.
-    local dap to ap - x0.
-
-    local a to -ta.
-    if dth>1 and dap>1 and vv>0 {
-        return a + calc_ang_2_vacc(vv * vv * (((ship:body:RADIUS + th - ap)/dap)/dth)/2).
-    } else {
-        return a.
-    }
-}
-
-function asc_thr_2_ap_burn {
-    parameter th.
-
-    local tat to asc_ap_burn_time(th).
-    if tat > 1 {
-        return (calc_min_thr_time_2_orb(calc_abs(th)) / tat) * 10 - 9.
-    } else {
-        local tt to calc_min_thr_time_2_orb(calc_abs(th))/4.
-        if tt < 0 return 0.
-        return sqrt(tt).
-    }
-}
-
-function asc_burn_2_orb {
-    parameter th.
-
-    until ship:velocity:orbit:MAG > calc_orb_vel() {
-        local a to asc_seek_ap(th).
-        set_throttle(asc_thr_2_ap_burn(th)).
-        sac_target(heading3(90, a, -90)).
-    }
-}
-
-function asc_seek_ap {
-    parameter th.
-
-    local w to 0.5 * get_throttle().
-    local r to ship:ALTITUDE + ship:body:RADIUS.
-    local vv to ship:VERTICALSPEED.
-    local v2 to ship:velocity:orbit:SQRMAGNITUDE.
-    local vh2 to v2 - vv ^ 2.
-    local a0 to ship:body:mu / (r ^ 2) - vh2 / r.
-
-    local ap to calc_abs_ap().
-    local pe to calc_abs_pe().
-    set vv to calc_vvel(ap, pe, r).
-    if ship:obt:MEANANOMALYATEPOCH > 180 set vv to -vv.
-    set a0 to -calc_vacc(ap, pe, r).
-
-    return calc_ang_2_vacc(a0 - 2 * w * vv - w * w * (ship:ALTITUDE - th)).
+    set_throttle(0).
+    stop_throttle_dv().
+    sac_stop_following().
 }

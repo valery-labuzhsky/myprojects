@@ -1,7 +1,8 @@
 @LAZYGLOBAL off.
 
+local e to constant:e.
 local pi to constant:pi.
-local pi_2 to constant:pi.
+local pi_2 to pi/2.
 local pi2 to pi*2.
 
 function heading3 {
@@ -67,7 +68,7 @@ function asin2 {
     if h = 0 return 0.
     if s > h return pi_2.
     if s < -h return -pi_2.
-    return arcsin(s/h).
+    return torad(arcsin(s/h)).
 }
 
 function acos2 {
@@ -77,6 +78,7 @@ function acos2 {
     if h = 0 return 0.
     if s > h return 0.
     if s < -h return pi.
+
     return torad(arccos(s/h)).
 }
 

@@ -40,10 +40,10 @@ local sac_max_ra to v(0, 0, 0).
 local sac_max_ra_n to v(0, 0, 0).
 
 log "poehali" to "stat.csv".
-delete "stat.csv".
+deletepath("stat.csv").
 
 log "poehali" to "tune.csv".
-delete "tune.csv".
+deletepath("tune.csv").
 log "dc, c, dac, acc" to "tune.csv".
 
 function sac_reset {

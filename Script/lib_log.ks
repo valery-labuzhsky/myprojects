@@ -8,7 +8,7 @@ local log_file to not omit(log_name).
 
 if log_file {
   log "poehali" to log_name.
-  delete log_name.
+  deletepath(log_name).
 }
 
 function log_log {

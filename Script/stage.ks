@@ -1,160 +1,298 @@
 @LAZYGLOBAL off.
 
-run lib_misc.
+run once precompile.
+run once lib_misc.
 run lib_log("stage.log").
-run lib_sac.
-run lib_math.
-run lib_ctrl.
-run lib_calc.
-run lib_gt.
+run once lib_sac.
+run once lib_math.
+run once lib_ctrl.
+run once lib_calc.
+run once lib_gt.
 run once lib_desc.
+run once lib_desc_.
+run once lib_msmnt.
+run once lib_stat.
 
 local base to LATLNG(-0.097208003409217, -74.5576396864113).
 
-//when ship:altitude > 20000 then warp_stop().
-wait until ship:altitude > 30000.
+wait until ship:unpacked.
 
-set_throttle(0).
+local main_proc to 0.
+local all_processors to 0.
+list processors in all_processors.
+for processor in all_processors {
+    if processor:part:uid <> core:part:uid {
+        set main_proc to core.
+        break.
+    }
+}
+
+if main_proc<>0 {
+    if ship:altitude < 20000 {
+        warp_phys(1).
+        when ship:altitude > 20000 then warp_stop().
+    }
+    wait until ship:altitude > 30000.
+
+    set_throttle(0).
+
+    log_log("change vessel").
+    KUniverse:FORCESETACTIVEVESSEL(ship). // it not always works
+    //KUniverse:activevessel <> ship
+}
 
 open_terminal().
 log_log("Stage").
 
+wait until ship:unpacked.
 wait until ship:velocity:surface:MAG > 0.
 
-KUniverse:FORCESETACTIVEVESSEL(ship).
+//set sac_yaw_debug to true.
 
-set sac_yaw_debug to true.
+sac_start(lookdirup(heading(-90, 0):vector, heading(180, 0):vector)).
 
-sac_start(heading3(-90, 0, 90)).
+wait 1.
 
-wait 3.
+sac_follow({return heading(-90, 0):vector.}).
+sac_start_following().
 
-local sa to V(0, 0, 0).
-local sat to time:seconds.
-local sav to V(0, 0, 0).
+if vectorangle(ship:facing:vector, ship:SRFRETROGRADE:vector) > vectorangle(ship:facing:vector, heading(-90, 0):vector) {
+    local sa to V(0, 0, 0).
+    local sat to time:seconds.
+    local sav to V(0, 0, 0).
 
-local va to V(0, 0, 0).
-when false then {
-    CLEARVECDRAWS().
-    set sat to time:seconds - sat.
+    local va to V(0, 0, 0).
+    when false then {
+        CLEARVECDRAWS().
+        set sat to time:seconds - sat.
 
-    set sa to (ship:velocity:surface - sav)/sat.
-    draw(sa, rgb(1, 0, 0)).
+        set sa to (ship:velocity:surface - sav)/sat.
+        draw(sa, rgb(1, 0, 0)).
 
-    local gv to gt_g() * heading(0, -90):vector.
-    draw(gv, rgb(1, 1, 0)).
+        local gv to gt_g() * heading(0, -90):vector.
+        draw(gv, rgb(1, 1, 0)).
 
-    set sa to sa - gv.
-    draw(sa, rgb(0, 1, 0)).
+        set sa to sa - gv.
+        draw(sa, rgb(0, 1, 0)).
 
-    set sa to VECTOREXCLUDE(sav,sa).
-    draw(sa, rgb(0, 0, 1)).
+        set sa to VECTOREXCLUDE(sav,sa).
+        draw(sa, rgb(0, 0, 1)).
 
-    set sav to ship:velocity:surface:vec.
-    set sat to time:seconds.
-    preserve.
+        set sav to ship:velocity:surface:vec.
+        set sat to time:seconds.
+        preserve.
+    }
+
+    start_throttle_dv().
+
+    local bdv to 1.
+    local ba to 180.
+    local dvz to 0.
+    until bdv < 0 {
+        sac_toggle(r(arctan2(dvz, bdv), (180-ba), 0)).
+        set_throttle_dv(bdv).
+
+        desc_dist_newton3(base, bdv, torad(ba), {
+            parameter ndv.
+            parameter nda.
+            parameter ndvz.
+
+            set bdv to ndv.
+            set ba to todeg(nda).
+            set dvz to ndvz.
+        }).
+        //log_log("a = "+(180-ba)).
+        //log_log("dv = "+bdv).
+        //log_log("dvz = "+dvz).
+        //log_log(" ").
+
+        local tt to bdv/calc_max_twr().
+        if tt > 1 set tt to 1.
+        if tt < 0 set tt to 0.
+        local ac to sac_new_target:vector * ship:facing:vector.
+        if ac > 1 set ac to 1.
+        set_throttle((1-arccos(ac)/180)^4).
+    }
+    set_throttle(0).
+    stop_throttle_dv().
 }
 
-sac_target(heading3(-90, 0, 90)).
-
-local bdv to 1.
-until bdv < 0 {
-    local tar to lookdirup(heading(base:heading+get_a(), 0):vector, heading(180, 0):vector).
-    sac_target(tar).
-    set bdv to base_dv().
-    local tt to bdv/calc_max_twr().
-    if tt > 1 set tt to 1.
-    if tt < 0 set tt to 0.
-    local ac to tar:vector * ship:facing:vector.
-    if ac > 1 set ac to 1.
-    set_throttle((1-arccos(ac)/180)^2*sqrt(tt)).
+if ship:altitude > 10000 {
+    warp_phys(1).
+    when ship:altitude < 10000 then warp_stop().
 }
-set_throttle(0).
 
-//warp_phys(1).
-//when ship:altitude < 10000 then warp_stop().
+//msmnt_acc_start().
 
-local alt to ship:altitude.
-local tt to time:seconds.
-local last_v to ship:GROUNDSPEED.
+local dragr to 180.
+local liftr to 2. // 2
+local ldr to 0.5.
 
-local twr to calc_max_twr().
+local degt to 5. // 1
+set degt to 1.
+
+local dv to 0.
+local ddv to 1.
+local zdv to 0.
+local land_t to 0.
+
+local an to 0.
+local anz to 0.
+
+local twr to calc_max_twr()/2.
+
+sac_follow({return ship:SRFRETROGRADE:vector.}).
 
 until twr > calc_max_twr() {
-    sac_target(srfretrograde(R(fall_right()*10, fall_up()*20, 0))).
-    if ship:verticalspeed < 0 {
-        if alt - ship:altitude > 100 {
-            set tt to time:seconds - tt.
-            local g to ship:body:mu / (ship:body:radius + ship:altitude)^2.
-            local vh to ship:GROUNDSPEED.
-            local vv to ship:verticalspeed.
-            set vv to vv + g*tt.
-            local v to sqrt(vh^2 + vv^2).
-            local f to (last_v - v)/tt.
+    //set anz to fall_right()*10.
 
-        //log_log(ship:altitude + " " + ship:velocity:surface:mag).
+    //if false {
+    //    if msmnt_liftr > 0 {
+    //        set dragr to msmnt_dragr.
+    //        set liftr to msmnt_liftr.
+    //    }
+    //}
 
-            set alt to ship:altitude.
-            set tt to time:seconds.
-            set last_v to ship:velocity:surface:mag.
-        }
-    } else {
-        set alt to ship:altitude.
-        set tt to time:seconds.
-    }
-//log_log("twr = "+ (twr/calc_max_twr())).
+    local q to ship:q.
+    local drag to dragr*q*abs(an)*degt/ship:mass.
+    desc_dist_atm_newton(base,
+            dv, ddv,
+            drag,
+            {
+                parameter ndv.
+                parameter nddv.
+                parameter nzdv.
+                parameter t.
+
+                set dv to ndv.
+                set ddv to nddv.
+                //log_log("dv = "+(zdv-nzdv)).
+                set zdv to nzdv.
+                set land_t to t.
+            }).
+
+    //set an to lift_an(dv, liftr, degt).
+    set an to lift_an_a(dv, liftr, land_t).
+    //set anz to -lift_an(zdv, liftr, degt).
+    set anz to -lift_an_a(zdv, liftr, land_t).
+
+    sac_toggle(r(anz, an, 0)).
+    //sac_toggle(r(5, 0, 0)).
+
+    log_log("d = "+base_desc_dist()).
+    log_log("an = "+an).
+    //log_log("zdv = "+zdv).
+    //log_log("anz = "+anz).
+    log_log(" ").
+
     set twr to gt_twr(twr).
-//log_log("a = "+calc_srf_ang()).
 }
 
-log "poehali" to "stage.csv".
-delete "stage.csv".
-log "v, a, c, t, y" to "stage.csv".
+function lift_an {
+    parameter dv.
+    parameter liftr.
+    parameter degt.
+
+    if ship:q=0 return 0.
+    local an to dv*ship:mass/liftr/degt/ship:q.
+    if an > 0 {
+        set an to sqrt(an).
+        if an > 10 set an to 10.
+    } else {
+        set an to -sqrt(-an).
+        if an < -10 set an to -10.
+    }
+    return an.
+}
+
+function lift_an_a {
+    parameter dv.
+    parameter liftr.
+    parameter t.
+
+    if ship:q=0 return 0.
+    local a to dv*4/t.
+
+    local an to a*ship:mass/liftr/ship:q.
+    set an to an*e^(-ship:altitude/30000).// altitude correction
+    if an > 10 set an to 10.
+    else if an < -10 set an to -10.
+    return an.
+}
+
+//msmnt_acc_stop().
+
+//log "poehali" to "stage.csv".
+//deletepath("stage.csv").
+//log "v, a, c, t, y" to "stage.csv".
+
+set anz to 0.
+set degt to 1.
+
+local zddv to 1.
+
+sac_start_following_toggle().
 
 until base_alt() < 10 {
     set twr to gt_twr(twr).
-    set_throttle(((twr)*1.1/calc_max_twr())*10-9).
+    //set_throttle(((twr)*1.1/calc_max_twr())*10-9).
+    local a to (twr-dragr*ship:q/ship:mass)*1.1.
+    local mtwr to calc_max_twr().
+    if a > mtwr set a to mtwr.
+    set_throttle(a/mtwr).
 
-    //local d to heading3(-90, 0, 90):VECTOR *(ship:geoposition:altitudeposition(base:TERRAINHEIGHT) - base:position).
-    local d to vxcl(ship:velocity:surface, heading(90, 90):vector):normalized * (ship:geoposition:altitudeposition(base:TERRAINHEIGHT) - base:position).
-    local g to gt_dist(twr).
+    gt_dist_newton(twr, 0,
+            dv, ddv,
+            {
+                parameter ndv.
+                parameter nddv.
+                //parameter az.
 
-    log_log("d = " + (g + d)).
+                set dv to ndv.
+                set ddv to nddv.
+                //set anz to -calc_ang_2_vacc(az)*2.
+            }).
+    set an to lift_twr_an(dv, a, liftr, degt).
 
-    local san to -steer_south().
-    local ca to calc_ang_2_vacc((g+d)*0.1).
+    gt_dist_newton(twr, -90,
+            zdv, zddv,
+            {
+                parameter ndv.
+                parameter nddv.
+            //parameter az.
 
-    local cc to (ship:velocity:surface:mag - 300)/50.
-    if cc > 1 set cc to 1.
-    else if cc < -1 set cc to -1.
-    set san to cc*san.
-    set ca to cc*ca.
-
-
-    local srf to srfretrograde(r(0,0,0)).
-    //log_log("v = " + ship:velocity:surface:mag).
-    //log_log("a = " + normX((ship:facing:inverse*srf):yaw, 0)).
-    //log_log("c = "+(ca)).
-    //log_log("t = "+normX((sac_cur_target:inverse*srf):yaw, 0)).
-    //log_log(" ").
-    log ship:velocity:surface:mag+", "+ normX((ship:facing:inverse*srf):yaw, 0)+", "+
-            ca+", "+normX((sac_cur_target:inverse*srf):yaw, 0) + ", " +(SHIP:CONTROL:YAW*10) to "stage.csv".
-
-    sac_target(srfretrograde(R(san, -ca, 0))).
+                set zdv to ndv.
+                set zddv to nddv.
+            //set anz to -calc_ang_2_vacc(az)*2.
+            }).
+    set anz to lift_twr_an(zdv, a, liftr, degt).
+    sac_toggle(r(anz, an, 0)).
 }
 
-function normX {
-    parameter x.
-    parameter ox.
+function lift_twr_an {
+    parameter dv.
+    parameter twr.
+    parameter liftr.
+    parameter degt.
 
-    until x - ox < 180 {
-        set x to x - 360.
+    local lifta to liftr*ship:q/ship:mass.
+    set twr to torad(twr).
+    
+    //log_log("la = "+lifta).
+    //log_log("twr = "+twr).
+
+    local an to dv*(lifta-twr)/degt/(lifta+twr)^2.
+    if an > 0 {
+        set an to sqrt(an).
+        if an > 10 set an to 10.
+    } else {
+        set an to -sqrt(-an).
+        if an < -10 set an to -10.
     }
-    until x - ox > -180 {
-        set x to x + 360.
-    }
-    return x.
+    return an.
 }
+
+sac_stop_following().
 
 local h to base_alt().
 until h < 1 {
@@ -175,6 +313,7 @@ until ship:verticalspeed >= 0 {
 
 set_throttle(0).
 
+log_log("Distance "+(vectorexclude(heading(0, 90):vector, base:position)):mag).
 log_log("Fuel left "+SHIP:LIQUIDFUEL).
 
 until ship:ANGULARMOMENTUM:mag < 0.1 and arccos(HEADING3(90, 90, -90):vector * ship:facing:vector) < 0.5 {
@@ -198,17 +337,24 @@ function draw {
 
 function gt_twr {
     parameter twr.
-    local dh to base_alt()-5.
 
-    if dh < 1 return gt_g() - ship:verticalspeed - 1.
+    local dh to 0.
+    local sa to 0.
+    local v to 0.
+    msmnt_measure({
+        set dh to base_alt()-5.
+        set sa to calc_srf_ang().
+        set v to ship:velocity:surface:mag.
+    }).
 
-    local a to 90 + calc_srf_ang().
+    //if dh < 1 return gt_g() - ship:verticalspeed - 1.
+
+    local a to 90 + sa.
     if a > 90 return twr.
-    local v to ship:velocity:surface:mag.
     return gt_nt_twr(twr, dh, a, v).
 }
 
-function gt_dist {
+function gt_dist_self {
     parameter twr.
 
     local g to gt_g().
@@ -220,59 +366,98 @@ function gt_dist {
     return gt_dist_0(g, n, c, z).
 }
 
-function get_a {
-    local w to 0.5 * get_throttle().
-    local vv to heading3(base:heading+90, 0, 90):VECTOR * ship:velocity:surface.
-    return calc_ang_2_vacc(- 2 * w * vv).
+function gt_dist {
+    parameter twr.
+    parameter g.
+    parameter ang.
+    parameter v.
+
+    local n to gt_n(twr, g).
+    local z to gt_z(ang).
+    if z = 0 return 0.
+    local s to 1.
+    if z < 0 {
+        set s to -1.
+        set z to -z.
+    }
+    local c to gt_c(n, v, z).
+    return s*gt_dist_0(g, n, c, z).
 }
 
-function fall_t {
-//return desc_fall_t_simple().
+function gt_dist_newton {
+    parameter twr.
+    parameter dir.
+    parameter dv.
+    parameter ddv.
+    parameter ret.
 
-    local v to ship:verticalspeed.
-    local g to ship:body:mu / (ship:body:radius + ship:altitude)^2.
-//local g to ship:body:mu / (ship:body:radius)^2.
-    local x to base_alt().
+    local g to 0.
+    local up to 0.
+    local north to 0.
+    local sv to 0.
+    local bp to 0.
+    local facing to 0. // stat
+    local w to 0.
+    local m to 0.
+    msmnt_measure({
+        set g to gt_g().
+        set sv to ship:velocity:surface.
+        set up to heading(0, 90):vector.
+        set north to heading(dir, 0):vector.
+        set bp to base:position.
+        set facing to ship:facing:vector. // stat
+        set w to ship:angularvel.
+        set m to ship:mass.
+    }).
 
-    if x < 0 return 1.
+    set sv to vectorexclude(north, sv).
+    set bp to vectorexclude(north, bp).
 
-    return (sqrt(v^2+2*g*x) + v)/g.
+    local fwd to vectorcrossproduct(north, up).
+
+    local sa to 90-arccos(fwd*sv:normalized).
+
+    local d to fwd*vectorexclude(up, bp).
+    local v to sv:mag.
+
+    // TODO calculate it using ship parts
+    local vw1 to 2.7.
+    //local vw to 5. // magic balance
+    local vw2 to 8.4.
+
+    local m1 to 3.3712570667.
+    local m2 to 2.9772133827.
+    local vwa to (vw1-vw2)/(m1-m2).
+    local vwb to vw1 - vwa*m1.
+    local vw to vwa*m + vwb.
+
+    local fa to 90-arccos(fwd*facing:normalized).
+    set d to d - torad(fa)*vw.
+
+    local wx to vectorexclude(sv, north):normalized * w.
+    local dvw to wx*vw.
+
+    local d1 to gt_dist(twr, g, sa+arctan2(dv+dvw-ddv/2, v), v)-d.
+    local d2 to gt_dist(twr, g, sa+arctan2(dv+dvw+ddv/2, v), v)-d.
+
+    set ddv to -d1*ddv/(d2-d1).
+    set dv to dv+ddv.
+
+    if dir = -90 {
+        local gd to gt_dist(twr, g, sa, v)-d.
+        stat_create("land", list("anz", "fa", "sa", "dv", "gd", "d", "w", "m")).
+        stat_log("land", list(anz, fa, sa, dv, gd, d, wx, m)).
+    }
+
+    ret(dv, ddv).
 }
 
-function base_dv {
-    local hv to heading3(base:heading, 0, 90):VECTOR * ship:velocity:surface.
-//local hv to heading3(base:heading, 0, 90):VECTOR * ground_speed().
-    local d to (base:position - ship:geoposition:altitudeposition(base:TERRAINHEIGHT)):mag.
-    local t to fall_t().
-    local dv to d/t - hv.
-    set dv to base_dist()/t.
-    return dv.
-}
-
-function ground_speed {
-    return (ship:velocity:surface - ship:velocity:orbit)*ship:body:radius/calc_abs_alt() + ship:velocity:orbit.
+function base_desc_dist {
+    return desc_dist_self(base, 0, 0) + 3.
 }
 
 function base_dist {
-    return desc_dist(base, 0, 0) + 3.
-}
-
-function fall_up {
-    local dd to base_dist().
-
-    log_log("d = "+dd).
-    log_log(" ").
-
-    local a to arctan2(dd, base:distance).
-    return a.
-}
-
-function fall_right {
-    local vv to heading3(base:heading+90, 0, 90):VECTOR * ship:velocity:surface.
-    local t to fall_t().
-    local dd to vv*t.
-    local a to arctan2(dd, base:distance).
-    return a.
+    return heading(-90, 0):VECTOR *(ship:geoposition:altitudeposition(base:TERRAINHEIGHT) - base:position).
 }
 
 function steer_west {

@@ -4,7 +4,7 @@ skip:add("compiled").
 
 run once compiled.
 
-delete "compiled.ks".
+deletepath("compiled.ks").
 log "local compiled_list to lexicon()." to "compiled.ks".
 
 local files to archive:files:values.
