@@ -18,6 +18,5 @@ set compiled_list["lib_misc"] to 471.
 set compiled_list["lib_msmnt"] to 5363.
 set compiled_list["lib_rt"] to 392.
 set compiled_list["lib_sac"] to 11256.
-set compiled_list["lib_sac_harmonic"] to 13305.
 set compiled_list["perf"] to 1858.
 set compiled_list["test"] to 6672.
