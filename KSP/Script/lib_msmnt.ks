@@ -36,28 +36,22 @@ local msmnt_liftr to 0.
 function msmnt_acc_start {
     set msmnt_acc_started to true.
 
-    if msmnt_log {
-        log "poehali" to "measure.csv".
-        deletepath("measure.csv").
-        log "q, f, v, m, h, dk, d, l, lk, an" to "measure.csv".
-    }
-
     msmnt_acc_measure().
-    set msmnt_e to -ship:body:mu*msmnt_m/(msmnt_ap + msmnt_pe).
-    set msmnt_w to sqrt(-2*msmnt_ap*msmnt_pe*msmnt_e*msmnt_m).
+    set msmnt_e to -ship:body:mu/(msmnt_ap + msmnt_pe).
+    set msmnt_w to sqrt(2*msmnt_ap*msmnt_pe*ship:body:mu/(msmnt_ap + msmnt_pe)).
     msmnt_acc_save().
 
     when msmnt_acc_started then {
         msmnt_acc_measure().
 
-        set msmnt_e to -ship:body:mu*msmnt_m/(msmnt_ap + msmnt_pe).
-        local de to msmnt_e - msmnt_e0.
+        set msmnt_e to -ship:body:mu/(msmnt_ap + msmnt_pe).
+        local de to (msmnt_e - msmnt_e0)*msmnt_m.
         if de<>0 {
             local dt to msmnt_t - msmnt_t0.
             local dx to msmnt_v:mag*dt.
             local fe to de/dx.
-            set msmnt_w to sqrt(2*msmnt_ap*msmnt_pe*ship:body:mu/(msmnt_ap + msmnt_pe))*msmnt_m.
-            local dw to msmnt_w - msmnt_w0.
+            set msmnt_w to sqrt(2*msmnt_ap*msmnt_pe*ship:body:mu/(msmnt_ap + msmnt_pe)).
+            local dw to (msmnt_w - msmnt_w0)*msmnt_m.
             local r to msmnt_pos:mag.
             local fw to dw/dt/r. // torad(vang(pos2, pos)).
             local vsin to msmnt_v:normalized*msmnt_up.
@@ -82,10 +76,10 @@ function msmnt_acc_start {
             set msmnt_dragr to msmnt_drag/msmnt_q.
             set msmnt_liftr to msmnt_lift/msmnt_q/an.
 
-            local north to vectorcrossproduct(msmnt_up, msmnt_v):normalized.
-            set an to -arcsin(msmnt_fcng * north).
-            set msmnt_lift to (msmnt_v-msmnt_v0)*north/dt.
-            set msmnt_liftr to (msmnt_v-msmnt_v0)*north*msmnt_m/msmnt_q/an/dt.
+            //local north to vectorcrossproduct(msmnt_up, msmnt_v):normalized.
+            //set an to -arcsin(msmnt_fcng * north).
+            //set msmnt_lift to (msmnt_v-msmnt_v0)*north/dt.
+            //set msmnt_liftr to (msmnt_v-msmnt_v0)*north*msmnt_m/msmnt_q/an/dt.
 
             //CLEARVECDRAWS().
             //draw(50*fw*hor, rgb(1, 0, 0)).
@@ -97,7 +91,8 @@ function msmnt_acc_start {
             local vel to ship:velocity:surface:mag.
             set vel to ship:velocity:orbit:mag.
             if msmnt_log {
-                log ship:q+", "+ msmnt_f:mag+", "+ vel+", "+ship:mass+", "+ ship:ALTITUDE+", "+msmnt_dragr+", "+msmnt_drag+", "+msmnt_lift+", "+msmnt_liftr+", "+an to "measure.csv".
+                stat_create("measure", list("g", "q", "f", "v", "m", "h", "dk", "d", "l", "lk", "an")).
+                stat_log("measure", list(ship:body:mu/r^2, ship:q,  msmnt_f:mag,  vel, msmnt_m,  ship:ALTITUDE, msmnt_dragr, msmnt_drag, msmnt_lift, msmnt_liftr, an)).
             }
 
             //log_log("fe = "+fe).

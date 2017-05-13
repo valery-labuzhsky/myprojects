@@ -1,1 +1,1 @@
-run once compile(list("turn", "precompile", "lib_stat", "stage")).
+run once compile(list("turn", "precompile", "lib_stat", "stage", "lib_asc", "lib_desc")).

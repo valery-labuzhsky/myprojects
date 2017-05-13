@@ -199,22 +199,6 @@ function calc_ang_2_vacc {
     return a.
 }
 
-function calc_ang_2_ap_pe {
-    parameter tap.
-    parameter tpe.
-
-    local r to calc_abs_alt().
-    local pe to calc_abs_pe().
-    local ap to calc_abs_ap().
-
-    local vv to calc_vvel(tap, tpe, r).
-    local vh to calc_hvel(tap, tpe, r).
-    local vv0 to calc_vvel(ap, pe, r).
-    local vh0 to calc_hvel(ap, pe, r).
-
-    return arctan2(vv-vv0, vh-vh0).
-}
-
 // Lengthes
 
 function calc_gvt_pe_2_ap {

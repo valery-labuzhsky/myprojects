@@ -12,7 +12,7 @@ run lib_asc.
 run lib_funct.
 run lib_gt.
 
-open_terminal().
+//open_terminal().
 
 if ship:altitude < 99000 {
     asc_start(100000).

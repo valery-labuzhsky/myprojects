@@ -134,7 +134,7 @@ function desc_dist_atm_newton {
     }).
     local dd to d2-d1.
     if dd<>0 {
-        set ddv to -(d1+3)*ddv/(d2-d1). // TODO it's a little bit wrong
+        set ddv to -(d1+6)*ddv/(d2-d1). // TODO it's a little bit wrong
         set dv to dv+ddv.
     }
 

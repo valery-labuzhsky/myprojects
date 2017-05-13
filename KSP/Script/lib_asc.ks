@@ -7,7 +7,8 @@ run once lib_gt.
 run once lib_msmnt.
 run once lib_math.
 
-local asc_autowarp to true.
+local switch_active to false.
+local asc_autowarp to false.
 local asc_speedup to false.
 
 //set sac_yaw_debug to true.
@@ -15,15 +16,24 @@ local asc_speedup to false.
 function asc_start {
     parameter th.
 
+    if ship:altitude < 25000 {
+        wait 5.
+        from {local c is 5.} until c = 0 step {set c to c - 1.} do {
+            HUDTEXT(c, 1, 2, 18, RGB(0.5,1.0,0.0), false).
+            wait 1.
+        }
+    }
+
     sac_start(ship:facing).
 
     if ship:altitude < 25000 {
         set_throttle(1).
         stage.
+        HUD_TEXT("Lift off").
 
         when ship:altitude > 25000 then {
             release_throttle().
-            log_log("Main engine cut off").
+            HUD_TEXT("Main engine cutoff").
         }
     }
     if ship:altitude < 30000 {
@@ -33,34 +43,35 @@ function asc_start {
 
         set_throttle(0).
         stage.
-        log_log("Stage separation").
+        hud_text("Stage separation").
         set_throttle(0.01).
         wait 1.
         set_throttle(0.1).
         wait 1.
         set_throttle(1).
+        if not switch_active hud_text("Second engine startup").
 
         log_log("Moving to transfer orbit").
     //if asc_speedup warp_phys(1).
         asc_inc_ap(th).
-        log_log("Transfer orbit").
+        if not switch_active hud_text("Second engine cutoff").
 
-        if asc_speedup warp_phys(3).
+        if asc_speedup and not switch_active warp_phys(3).
         if asc_autowarp {
             log_log("Wait for warp").
             asc_wait_ap(th, 70000).
-
             log_log("Warp").
             asc_warp_2_ap(th).
         }
 
-        if asc_speedup warp_stop().
+        if asc_speedup and not switch_active warp_stop().
     }
 
     log_log("Final maneuver").
     asc_burn_2_orb_ap(th).
 
-    log_log("Orbit").
+    if not switch_active hud_text("Second engine cutoff (2)").
+    if not switch_active hud_text("Orbit").
 
     sac_target(heading3(90, 0, -90)).
     set_throttle(0).
@@ -77,11 +88,23 @@ function asc_grav_turn_a {
     local a to 0.
     local v to ship:velocity:surface.
     local alt to ship:altitude.
+    local q to 0.
+    local q0 to 0.
+    local mq to false.
     until alt > sal {
         msmnt_measure({
             set v to ship:velocity:surface.
             set alt to ship:altitude.
+            set q to ship:q.
         }).
+        if not mq {
+            if q < q0 and v:mag > 10 {
+                hud_text("Max Q").
+                set mq to true.
+            } else {
+                set q0 to q.
+            }
+        }
 
         set a to gt_nt_a(1.2*calc_max_twr(), 30000, a, 25, v:MAG, alt). // 70!
         sac_toggle(r(0, a, 0)).
@@ -96,11 +119,26 @@ function asc_inc_ap {
     local tpes to asc_init_tgt_pe(tal).
     local tap to calc_abs(tal).
 
-    until ship:obt:APOAPSIS > tal-1000 {
+    start_throttle_dv().
+    set_throttle(1).
+    until ship:obt:APOAPSIS > tal - 1 { // TODO remove -1000
         local tpe to asc_tgt_pe(tap, tpes).
-        local a to calc_ang_2_ap_pe(tap, tpe).
+
+        local r to calc_abs_alt().
+        local pe to calc_abs_pe().
+        local ap to calc_abs_ap().
+
+        local vv0 to calc_vvel(ap, pe, r).
+        local vh0 to calc_hvel(ap, pe, r).
+        local vv to calc_vvel(tap, tpe, r)-vv0.
+        local vh to calc_hvel(tap, tpe, r)-vh0.
+
+        local a to arctan2(vv, vh).
         sac_toggle(r(0, -a, 0)).
+        set_throttle_dv(sqrt(vv^2 + vh^2)).
     }
+    set_throttle(0).
+    stop_throttle_dv().
 
     sac_stop_following().
 }
@@ -260,6 +298,7 @@ function asc_burn_2_orb_ap {
             if state = 0 {
                 if tthr >= 1 {
                     set state to 1.
+                    if not switch_active hud_text("Second engine startup (2)").
                 }
             }
             set thr to thr * tthr.

@@ -13,6 +13,9 @@ run once lib_desc_.
 run once lib_msmnt.
 run once lib_stat.
 
+local switch_active to false.
+local stage_speedup to switch_active and false.
+
 local base to LATLNG(-0.097208003409217, -74.5576396864113).
 
 wait until ship:unpacked.
@@ -27,25 +30,37 @@ for processor in all_processors {
     }
 }
 
+log_log(KUniverse:activevessel).
+log_log(ship).
+log_log(KUniverse:activevessel = ship).
+
 if main_proc<>0 {
-    if ship:altitude < 20000 {
-        warp_phys(1).
-        when ship:altitude > 20000 then warp_stop().
-    }
     wait until ship:altitude > 30000.
 
     set_throttle(0).
 
     log_log("change vessel").
-    KUniverse:FORCESETACTIVEVESSEL(ship). // it not always works
+    //if switch_active KUniverse:FORCESETACTIVEVESSEL(ship). // it not always works
     //KUniverse:activevessel <> ship
 }
 
-open_terminal().
+log_log(KUniverse:activevessel).
+log_log(ship).
+log_log(KUniverse:activevessel = ship).
+
+//open_terminal().
 log_log("Stage").
 
 wait until ship:unpacked.
 wait until ship:velocity:surface:MAG > 0.
+
+log_log(KUniverse:activevessel).
+log_log(ship).
+log_log(KUniverse:activevessel = ship).
+
+if switch_active {
+    until KUniverse:activevessel = ship KUniverse:FORCESETACTIVEVESSEL(ship).
+}
 
 //set sac_yaw_debug to true.
 
@@ -55,6 +70,8 @@ wait 1.
 
 sac_follow({return heading(-90, 0):vector.}).
 sac_start_following().
+
+if switch_active hud_text("Flip maneuver").
 
 if vectorangle(ship:facing:vector, ship:SRFRETROGRADE:vector) > vectorangle(ship:facing:vector, heading(-90, 0):vector) {
     local sa to V(0, 0, 0).
@@ -111,21 +128,27 @@ if vectorangle(ship:facing:vector, ship:SRFRETROGRADE:vector) > vectorangle(ship
         if tt < 0 set tt to 0.
         local ac to sac_new_target:vector * ship:facing:vector.
         if ac > 1 set ac to 1.
+        if ac > 0.8 {
+            if switch_active hud_text("Boostback burn").
+        }
         set_throttle((1-arccos(ac)/180)^4).
     }
     set_throttle(0).
     stop_throttle_dv().
 }
 
-if ship:altitude > 10000 {
+//if false {
+if ship:altitude > 10000 and stage_speedup {
     warp_phys(1).
     when ship:altitude < 10000 then warp_stop().
 }
 
+when ship:altitude < 30000 then if switch_active hud_text("Aerodynamic guidance").
+
 //msmnt_acc_start().
 
-local dragr to 180.
-local liftr to 2. // 2
+local dragr to 120.
+local liftr to 3. // 2
 local ldr to 0.5.
 
 local degt to 5. // 1
@@ -179,11 +202,13 @@ until twr > calc_max_twr() {
     sac_toggle(r(anz, an, 0)).
     //sac_toggle(r(5, 0, 0)).
 
-    log_log("d = "+base_desc_dist()).
-    log_log("an = "+an).
+    if true {
+        log_log("d = "+base_desc_dist()).
+        log_log("an = "+an).
     //log_log("zdv = "+zdv).
     //log_log("anz = "+anz).
-    log_log(" ").
+        log_log(" ").
+    }
 
     set twr to gt_twr(twr).
 }
@@ -226,17 +251,23 @@ function lift_an_a {
 //deletepath("stage.csv").
 //log "v, a, c, t, y" to "stage.csv".
 
+if switch_active hud_text("Landing burn").
+
 set anz to 0.
-set degt to 1.
+set degt to 1.//0.3.
 
 local zddv to 1.
 
 sac_start_following_toggle().
 
+//msmnt_acc_start().
+set liftr to 15. // TODO hack
+set dragr to 120.
+
 until base_alt() < 10 {
     set twr to gt_twr(twr).
     //set_throttle(((twr)*1.1/calc_max_twr())*10-9).
-    local a to (twr-dragr*ship:q/ship:mass)*1.1.
+    local a to (twr-dragr*ship:q/ship:mass).
     local mtwr to calc_max_twr().
     if a > mtwr set a to mtwr.
     set_throttle(a/mtwr).
@@ -267,7 +298,9 @@ until base_alt() < 10 {
             }).
     set anz to lift_twr_an(zdv, a, liftr, degt).
     sac_toggle(r(anz, an, 0)).
+    //sac_toggle(r(anz, 0, 0)).
 }
+//msmnt_acc_stop().
 
 function lift_twr_an {
     parameter dv.
@@ -312,6 +345,8 @@ until ship:verticalspeed >= 0 {
 }
 
 set_throttle(0).
+
+if switch_active hud_text("Landed").
 
 log_log("Distance "+(vectorexclude(heading(0, 90):vector, base:position)):mag).
 log_log("Fuel left "+SHIP:LIQUIDFUEL).
@@ -396,28 +431,29 @@ function gt_dist_newton {
     local north to 0.
     local sv to 0.
     local bp to 0.
-    local facing to 0. // stat
+    local facing to 0.
     local w to 0.
     local m to 0.
     msmnt_measure({
-        set g to gt_g().
+        set g to gt_g().//*0.7. // magic constant, it can be balance, but doesn't look this way, I may chekc it on the moon
+        //set g to ship:body:mu/calc_abs_alt()^2. // didn't help
         set sv to ship:velocity:surface.
         set up to heading(0, 90):vector.
         set north to heading(dir, 0):vector.
-        set bp to base:position.
-        set facing to ship:facing:vector. // stat
+        set bp to base:altitudeposition(ship:altitude).
+        set facing to ship:facing:vector.
         set w to ship:angularvel.
         set m to ship:mass.
     }).
 
     set sv to vectorexclude(north, sv).
-    set bp to vectorexclude(north, bp).
+    //set bp to vectorexclude(north, bp).
 
     local fwd to vectorcrossproduct(north, up).
 
     local sa to 90-arccos(fwd*sv:normalized).
 
-    local d to fwd*vectorexclude(up, bp).
+    local d to fwd*bp.
     local v to sv:mag.
 
     // TODO calculate it using ship parts
@@ -432,10 +468,17 @@ function gt_dist_newton {
     local vw to vwa*m + vwb.
 
     local fa to 90-arccos(fwd*facing:normalized).
-    set d to d - torad(fa)*vw.
+    //set d to d - torad(fa)*vw.
 
-    local wx to vectorexclude(sv, north):normalized * w.
+    local wx to vectorexclude(sv, north):normalized * w. // TODO remove exclude
     local dvw to wx*vw.
+
+    if dir = 0 {
+        local n to twr/g.
+        local we to desc_rot_spd().
+        local igtd to -2/3*v^3*we/(n - 1)/(2*n - 1)/g^2.
+        set d to d - igtd.
+    }
 
     local d1 to gt_dist(twr, g, sa+arctan2(dv+dvw-ddv/2, v), v)-d.
     local d2 to gt_dist(twr, g, sa+arctan2(dv+dvw+ddv/2, v), v)-d.
@@ -443,17 +486,22 @@ function gt_dist_newton {
     set ddv to -d1*ddv/(d2-d1).
     set dv to dv+ddv.
 
-    if dir = -90 {
-        local gd to gt_dist(twr, g, sa, v)-d.
-        stat_create("land", list("anz", "fa", "sa", "dv", "gd", "d", "w", "m")).
-        stat_log("land", list(anz, fa, sa, dv, gd, d, wx, m)).
+    //if false {
+    if dir = 0 {
+        local n to twr/g.
+        local we to desc_rot_spd().
+        local igtd to -2/3*v^3*we/(n - 1)/(2*n - 1)/g^2.
+
+        local gd to gt_dist(twr, g, sa+arctan2(dvw, v), v)-d. // a - 0.1
+        stat_create("land", list("an", "anz", "fa", "sa", "dv", "gd", "d", "w", "m", "v", "da", "q", "twr", "ba", "dgd")).
+        stat_log("land", list(an, anz, fa, sa, dv, gd, d, wx, m, v, -fa-sa, ship:q, twr, todeg(desc_base_ang(base)), igtd)).
     }
 
     ret(dv, ddv).
 }
 
 function base_desc_dist {
-    return desc_dist_self(base, 0, 0) + 3.
+    return desc_dist_self(base, 0, 0) + 6.
 }
 
 function base_dist {
