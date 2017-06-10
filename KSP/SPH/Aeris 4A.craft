@@ -1,6 +1,6 @@
-ship = Aeris 4A
+﻿ship = #autoLOC_501176 //#autoLOC_501176 = Aeris 4A
 version = 1.2.0
-description = The Aeris 4A is a spaceplane capable of reaching orbit, if flown correctly.¨¨
+description = #autoLOC_501177 //#autoLOC_501177 = The Aeris 4A is a spaceplane capable of reaching orbit, if flown correctly.¨¨
 type = SPH
 size = 11.3635263,4.16972065,12.7015896
 PART

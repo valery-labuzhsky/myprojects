@@ -1,6 +1,6 @@
-ship = Rover + Skycrane
+﻿ship = #autoLOC_501242 //#autoLOC_501242 = Rover + Skycrane
 version = 1.2.0
-description = This craft is one of the most ambitious designs found in the Kerlington catalog, especially if one takes the prospect of using it on another planet seriously. ¨¨It requires a launch vehicle to get it into space (and beyond), but its four rockets do have enough thrust for short test runs at the pad.¨¨The operations manual says "approach ground slowly, try not to break the rover when you drop it".
+description = #autoLOC_501243 //#autoLOC_501243 = This craft is one of the most ambitious designs found in the Kerlington catalog, especially if one takes the prospect of using it on another planet seriously. ¨¨It requires a launch vehicle to get it into space (and beyond), but its four rockets do have enough thrust for short test runs at the pad.¨¨The operations manual says "approach ground slowly, try not to break the rover when you drop it".
 type = VAB
 size = 1.88325727,2.17120457,1.98302257
 PART

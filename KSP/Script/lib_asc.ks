@@ -11,6 +11,8 @@ local switch_active to false.
 local asc_autowarp to false.
 local asc_speedup to false.
 
+local base to LATLNG(-0.097208003409217, -74.5576396864113).
+local start_time to 0.
 //set sac_yaw_debug to true.
 
 function asc_start {
@@ -36,6 +38,7 @@ function asc_start {
             HUD_TEXT("Main engine cutoff").
         }
     }
+    set start_time to time:seconds.
     if ship:altitude < 30000 {
         log_log("Gravity turn").
         if asc_speedup warp_phys(1).
@@ -234,6 +237,16 @@ function asc_warp_2_ap {
 
 function asc_burn_2_orb_ap {
     parameter th.
+
+    when time:seconds - start_time > 5*60 + 25 then {
+        log_log(base:position:mag).
+    }
+    when time:seconds - start_time > 5*60 + 35 then {
+        log_log(base:position:mag).
+    }
+    when time:seconds - start_time > 5*60 + 45 then {
+        log_log(base:position:mag).
+    }
 
     sac_follow({return heading(90, 0):vector.}).
     sac_start_following().

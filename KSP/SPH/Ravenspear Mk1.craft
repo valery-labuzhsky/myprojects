@@ -1,6 +1,6 @@
-ship = Ravenspear Mk1
+﻿ship = #autoLOC_501194 //#autoLOC_501194 = Ravenspear Mk1
 version = 1.2.0
-description = The first model of the Ravenspear series of fast, high-altitude aircraft, the Mk1 is fitted with three engines: One central one that is most efficient at low speeds, and two afterburning turbofans that are almost as efficient in dry thrust but provide quite a kick (at quite a cost) in wet mode.¨¨Its canard design has been called "very flyable, actually" by a few famous test pilots, although they also warn of the tendency to strike the tail on takeoff if pulling up too eagerly. Although they remark "it's good that there are more engines, if you break that middle one".
+description = #autoLOC_501195 //#autoLOC_501195 = The first model of the Ravenspear series of fast, high-altitude aircraft, the Mk1 is fitted with three engines: One central one that is most efficient at low speeds, and two afterburning turbofans that are almost as efficient in dry thrust but provide quite a kick (at quite a cost) in wet mode.¨¨Its canard design has been called "very flyable, actually" by a few famous test pilots, although they also warn of the tendency to strike the tail on takeoff if pulling up too eagerly. Although they remark "it's good that there are more engines, if you break that middle one".
 type = SPH
 size = 12.4884968,3.67764282,12.002224
 PART

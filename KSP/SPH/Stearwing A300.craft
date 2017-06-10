@@ -1,6 +1,6 @@
-ship = Stearwing A300
+﻿ship = #autoLOC_501206 //#autoLOC_501206 = Stearwing A300
 version = 1.2.0
-description = The Stearwing A300 is a large aircraft, built to carry heavy payloads and a large number of passengers. Don't expect it to reach very impressive altitudes or speeds though. Wings may shear off under excessive stress. Warranty does not cover damage from attempted aerobatics.
+description = #autoLOC_501207 //#autoLOC_501207 = The Stearwing A300 is a large aircraft, built to carry heavy payloads and a large number of passengers. Don't expect it to reach very impressive altitudes or speeds though. Wings may shear off under excessive stress. Warranty does not cover damage from attempted aerobatics.
 type = SPH
 size = 33.2041893,9.15447617,31.6725197
 PART

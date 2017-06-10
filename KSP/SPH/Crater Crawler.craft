@@ -1,6 +1,6 @@
-ship = Crater Crawler
+﻿ship = #autoLOC_501182 //#autoLOC_501182 = Crater Crawler
 version = 1.2.0
-description = While the Crater Crawler can be used on Kerbin if you're gentle, it really shines on a low G moon such as the Mun, where the built in thrusters allow an unparalleled level of manoeuvrability.
+description = #autoLOC_501183 //#autoLOC_501183 = While the Crater Crawler can be used on Kerbin if you're gentle, it really shines on a low G moon such as the Mun, where the built in thrusters allow an unparalleled level of manoeuvrability.
 type = SPH
 size = 3.81423664,5.10559845,6.59604502
 PART

@@ -1,6 +1,6 @@
-ship = Rocket-power VTOL
+﻿ship = #autoLOC_501200 //#autoLOC_501200 = Rocket-power VTOL
 version = 1.2.0
-description = This craft is an experimental test platform for rocket-powered flight. ¨¨Used primarily in training pilots to land on places where parachute descents aren't an option, it's also found a use in telling the ace pilots apart from the 'ok' ones, by the simple expedient of putting them in one of these, and calling "Ace" any that make it out afterwards.
+description = #autoLOC_501201 //#autoLOC_501201 = This craft is an experimental test platform for rocket-powered flight. ¨¨Used primarily in training pilots to land on places where parachute descents aren't an option, it's also found a use in telling the ace pilots apart from the 'ok' ones, by the simple expedient of putting them in one of these, and calling "Ace" any that make it out afterwards.
 type = SPH
 size = 4.30180216,2.59601593,8.47310257
 PART

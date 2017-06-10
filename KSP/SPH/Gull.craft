@@ -1,6 +1,6 @@
-ship = Gull
+﻿ship = #autoLOC_501186 //#autoLOC_501186 = Gull
 version = 1.2.0
-description = A small and light seaplane, the Gull makes an excellent basic trainer for kerbals who aren't exactly sure when or where they will be landing (or "landing"). It can take off and land at shockingly low speeds (slower than some hotrodded rovers seen being driven around KSC by certain unnamed test pilots) thanks to its inner-wing flaps.
+description = #autoLOC_501187 //#autoLOC_501187 = A small and light seaplane, the Gull makes an excellent basic trainer for kerbals who aren't exactly sure when or where they will be landing (or "landing"). It can take off and land at shockingly low speeds (slower than some hotrodded rovers seen being driven around KSC by certain unnamed test pilots) thanks to its inner-wing flaps.
 type = SPH
 size = 11.8653908,3.77990532,10.7631702
 PART

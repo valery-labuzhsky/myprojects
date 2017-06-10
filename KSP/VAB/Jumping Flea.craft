@@ -1,6 +1,6 @@
-ship = Jumping Flea
+﻿ship = #autoLOC_501224 //#autoLOC_501224 = Jumping Flea
 version = 1.2.0
-description = The Jumping Flea was originally named after the carnival ride that we salvaged most of its parts from. It might not get us all the way to space, but it will definitely get us started there with a bang!
+description = #autoLOC_501225 //#autoLOC_501225 = The Jumping Flea was originally named after the carnival ride that we salvaged most of its parts from. It might not get us all the way to space, but it will definitely get us started there with a bang!
 type = VAB
 size = 2.02643776,3.03346634,1.80881047
 PART

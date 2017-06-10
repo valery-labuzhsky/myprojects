@@ -4,21 +4,24 @@ function stat_create {
     parameter name.
     parameter header.
 
-    if not stat_files:contains(name) {
-        stat_files:add(name).
+    stat_files:add(name).
 
-        local filename to name + ".csv".
-        log "poehali" to filename.
-        deletepath(filename).
+    local filename to name + ".csv".
+    log "poehali" to filename.
+    deletepath(filename).
 
-        local text to stat_string(header).
-        log text to filename.
-    }
+    local text to stat_string(header).
+    log text to filename.
 }
 
 function stat_log {
     parameter name.
+    parameter header.
     parameter data.
+
+    if not stat_files:contains(name) {
+        stat_create(name, header()).
+    }
 
     local filename to name + ".csv".
 

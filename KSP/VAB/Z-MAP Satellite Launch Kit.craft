@@ -1,6 +1,6 @@
-ship = Z-MAP Satellite Launch Kit
+﻿ship = #autoLOC_501256 //#autoLOC_501256 = Z-MAP Satellite Launch Kit
 version = 1.2.0
-description = The Z-Map Satellite kit is a complete spacecraft capable of actually putting its payload into orbit! ¨¨Set includes: Payload satellite with booster stage,¨Liquid-fueled fin-stabilized launcher and two detachable boosters.¨¨Return from orbit not guaranteed. Orbit also not guaranteed. Survival also not guaranteed. Keep out of reach of children and irresponsible adults.
+description = #autoLOC_501257 //#autoLOC_501257 = The Z-Map Satellite kit is a complete spacecraft capable of actually putting its payload into orbit! ¨¨Set includes: Payload satellite with booster stage,¨Liquid-fueled fin-stabilized launcher and two detachable boosters.¨¨Return from orbit not guaranteed. Orbit also not guaranteed. Survival also not guaranteed. Keep out of reach of children and irresponsible adults.
 type = VAB
 size = 4.15776157,17.9288597,3.13741446
 PART

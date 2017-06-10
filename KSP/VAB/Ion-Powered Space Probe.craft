@@ -1,6 +1,6 @@
-ship = Ion-Powered Space Probe
+﻿ship = #autoLOC_501222 //#autoLOC_501222 = Ion-Powered Space Probe
 version = 1.2.0
-description = This small probe may look cute and unimpressive, but once it deploys its long-range antenna, it looks pretty much the same.¨¨Its Ion engine is very efficient for a spacecraft this small, so it can go very far indeed, as long as something helps it get into orbit first, of course.
+description = #autoLOC_501223 //#autoLOC_501223 = This small probe may look cute and unimpressive, but once it deploys its long-range antenna, it looks pretty much the same.¨¨Its Ion engine is very efficient for a spacecraft this small, so it can go very far indeed, as long as something helps it get into orbit first, of course.
 type = VAB
 size = 1.99743319,1.33557129,1.19218922
 PART

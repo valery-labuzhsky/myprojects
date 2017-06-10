@@ -1,6 +1,6 @@
-ship = Orbiter 1A
+﻿ship = #autoLOC_501236 //#autoLOC_501236 = Orbiter 1A
 version = 1.2.0
-description = The Orbiter 1A is a training craft for orbital maneuvering. Despite not being able to reach orbit on its own, it's a very maneuverable and fun to fly ship once it gets there.
+description = #autoLOC_501237 //#autoLOC_501237 = The Orbiter 1A is a training craft for orbital maneuvering. Despite not being able to reach orbit on its own, it's a very maneuverable and fun to fly ship once it gets there.
 type = VAB
 size = 5.14855671,7.05818367,4.4587841
 PART

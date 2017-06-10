@@ -1,6 +1,6 @@
-ship = Velociteze
+﻿ship = #autoLOC_501212 //#autoLOC_501212 = Velociteze
 version = 1.2.0
-description = A small personnel transport using two small basic jets. Nowhere as efficient as turbofans, they nonetheless provide sterling service in this role (and are far less thirsty than an afterburner or turboramjet). The Velociteze is a well-tempered aircraft, fit for trainees versed on the Gull and Aeris 3A who want to step up to a multi-engine aircraft (and do some useful service ferrying passengers besides).
+description = #autoLOC_501213 //#autoLOC_501213 = A small personnel transport using two small basic jets. Nowhere as efficient as turbofans, they nonetheless provide sterling service in this role (and are far less thirsty than an afterburner or turboramjet). The Velociteze is a well-tempered aircraft, fit for trainees versed on the Gull and Aeris 3A who want to step up to a multi-engine aircraft (and do some useful service ferrying passengers besides).
 type = SPH
 size = 9.79253674,3.69255066,11.3782578
 PART

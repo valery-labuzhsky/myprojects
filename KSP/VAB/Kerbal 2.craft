@@ -1,6 +1,6 @@
-ship = Kerbal 2
+﻿ship = #autoLOC_501230 //#autoLOC_501230 = Kerbal 2
 version = 1.2.0
-description = The Kerbal 2 was built as a 'trainer' rocket. It's not meant to reach very far, but it does feature most of the important systems found in the larger vessels.¨¨It also comes with a parachute. Most astronauts agree that that's one of its best features.
+description = #autoLOC_501231 //#autoLOC_501231 = The Kerbal 2 was built as a 'trainer' rocket. It's not meant to reach very far, but it does feature most of the important systems found in the larger vessels.¨¨It also comes with a parachute. Most astronauts agree that that's one of its best features.
 type = VAB
 size = 4.80578756,8.53033829,4.16193581
 PART

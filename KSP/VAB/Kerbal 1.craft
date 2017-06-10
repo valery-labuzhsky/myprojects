@@ -1,6 +1,6 @@
-ship = Kerbal 1
+﻿ship = #autoLOC_501228 //#autoLOC_501228 = Kerbal 1
 version = 1.2.0
-description = An exercise in rocket construction, just right for teaching the basics.¨¨It flies, what more do you need?
+description = #autoLOC_501229 //#autoLOC_501229 = An exercise in rocket construction, just right for teaching the basics.¨¨It flies, what more do you need?
 type = VAB
 size = 4.15970993,11.0055733,2.99147558
 PART

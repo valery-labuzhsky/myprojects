@@ -1,6 +1,6 @@
-ship = Orbiter One
+﻿ship = #autoLOC_501238 //#autoLOC_501238 = Orbiter One
 version = 1.2.0
-description = We're not sure if the engineers named this craft for its series, or for the number of boosters, and our pilots call it "The Unfinished".¨Whatever the reason for the name, it's an interesting craft to fly.
+description = #autoLOC_501239 //#autoLOC_501239 = We're not sure if the engineers named this craft for its series, or for the number of boosters, and our pilots call it "The Unfinished".¨Whatever the reason for the name, it's an interesting craft to fly.
 type = VAB
 size = 3.09959412,13.93573,1.63214099
 PART

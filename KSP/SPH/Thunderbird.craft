@@ -1,6 +1,6 @@
-ship = Thunderbird
+﻿ship = #autoLOC_501210 //#autoLOC_501210 = Thunderbird
 version = 1.2.0
-description = The Thunderbird is a muscle-car of an aircraft. Broadly similar in performance to the Osprey, it lacks the Osprey's graceful lines (and abilities as a seaplane) in exchange for a higher top speed. Indeed the Thunderbird is basically an engine with a cockpit and some wings bolted on...and therefore a huge success with the test pilots. Make sure you drop the droptanks when they empty to achieve best speed!
+description = #autoLOC_501211 //#autoLOC_501211 = The Thunderbird is a muscle-car of an aircraft. Broadly similar in performance to the Osprey, it lacks the Osprey's graceful lines (and abilities as a seaplane) in exchange for a higher top speed. Indeed the Thunderbird is basically an engine with a cockpit and some wings bolted on...and therefore a huge success with the test pilots. Make sure you drop the droptanks when they empty to achieve best speed!
 type = SPH
 size = 10.2533455,4.08062363,12.7454872
 PART

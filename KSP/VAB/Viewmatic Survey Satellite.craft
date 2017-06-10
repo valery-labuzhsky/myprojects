@@ -1,6 +1,6 @@
-ship = Viewmatic Survey Satellite
+﻿ship = #autoLOC_501254 //#autoLOC_501254 = Viewmatic Survey Satellite
 version = 1.2.0
-description = The Viewmatic Survey Satellite was mysteriously found in low orbit around Kerbin. Its original purpose is unknown, but the space center has found it very useful for making sure that their staff are not using company phones for personal use.
+description = #autoLOC_501255 //#autoLOC_501255 = The Viewmatic Survey Satellite was mysteriously found in low orbit around Kerbin. Its original purpose is unknown, but the space center has found it very useful for making sure that their staff are not using company phones for personal use.
 type = VAB
 size = 16.1552219,20.718338,5.98029804
 PART

@@ -1,6 +1,6 @@
-ship = AeroEquus
+﻿ship = #autoLOC_501214 //#autoLOC_501214 = AeroEquus
 version = 1.2.0
-description = The flying four legged neighing landcreature.¨¨Legend has it that the Equus can be ridden by brave Kerbals, all we know is that it takes a brave Kerbal to ride this four booster beast past the Mun, or if really foolhardy, past Minmus.
+description = #autoLOC_501215 //#autoLOC_501215 = The flying four legged neighing landcreature.¨¨Legend has it that the Equus can be ridden by brave Kerbals, all we know is that it takes a brave Kerbal to ride this four booster beast past the Mun, or if really foolhardy, past Minmus.
 type = VAB
 size = 4.09717846,11.6881657,4.09717989
 PART

@@ -1,6 +1,6 @@
-ship = Bug-E Buggy
+﻿ship = #autoLOC_501180 //#autoLOC_501180 = Bug-E Buggy
 version = 1.2.0
-description = Bug-E is built to boldly go where no Kerman has gone before...¨EZ Attach Decoupler Included for quick integration to transport Vehicle.¨Warranty Void if used at nighttime.
+description = #autoLOC_501181 //#autoLOC_501181 = Bug-E is built to boldly go where no Kerman has gone before...¨EZ Attach Decoupler Included for quick integration to transport Vehicle.¨Warranty Void if used at nighttime.
 type = SPH
 size = 2.27936125,1.64369392,2.36605501
 PART

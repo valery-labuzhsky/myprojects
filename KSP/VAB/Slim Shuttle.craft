@@ -1,6 +1,6 @@
-ship = Slim Shuttle
+﻿ship = #autoLOC_501246 //#autoLOC_501246 = Slim Shuttle
 version = 1.2.0
-description = A partially reusable launch system for orbital tourism.
+description = #autoLOC_501247 //#autoLOC_501247 = A partially reusable launch system for orbital tourism.
 type = VAB
 size = 4.62249851,18.3200836,8.50701714
 PART

@@ -1,6 +1,6 @@
-ship = Stratolauncher
+﻿ship = #autoLOC_501208 //#autoLOC_501208 = Stratolauncher
 version = 1.2.0
-description = A Large drone plane designed to carry a rocket to an altitude of 10km and launch it from there. The drone can then theoretically return to the runway to be reused, provided avionics work.
+description = #autoLOC_501209 //#autoLOC_501209 = A Large drone plane designed to carry a rocket to an altitude of 10km and launch it from there. The drone can then theoretically return to the runway to be reused, provided avionics work.
 type = SPH
 size = 31.0926857,9.48873138,17.9044647
 PART

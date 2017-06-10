@@ -1,6 +1,6 @@
-ship = Prospector Rover
+﻿ship = #autoLOC_501192 //#autoLOC_501192 = Prospector Rover
 version = 1.2.0
-description = General Purpose Open Vacuum Rover for all your prospecting needs!¨Fuel Cell Power system for KM's of Range. ¨Prospecting Science Package standard, and plenty of room for expansion on the Flatbed.¨Manufacturer recommends keeping brown parts facing ground.
+description = #autoLOC_501193 //#autoLOC_501193 = General Purpose Open Vacuum Rover for all your prospecting needs!¨Fuel Cell Power system for KM's of Range. ¨Prospecting Science Package standard, and plenty of room for expansion on the Flatbed.¨Manufacturer recommends keeping brown parts facing ground.
 type = SPH
 size = 2.19305515,2.35176086,2.83818388
 PART

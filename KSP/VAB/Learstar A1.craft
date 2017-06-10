@@ -1,6 +1,6 @@
-ship = Learstar A1
+﻿ship = #autoLOC_501234 //#autoLOC_501234 = Learstar A1
 version = 1.2.0
-description = SSTO is overrated, payload capability and comfortable seats are all the rage these days.
+description = #autoLOC_501235 //#autoLOC_501235 = SSTO is overrated, payload capability and comfortable seats are all the rage these days.
 type = VAB
 size = 10.604517,27.1664505,7.78326893
 PART

@@ -1,6 +1,6 @@
-ship = Two-Stage Lander
+﻿ship = #autoLOC_501252 //#autoLOC_501252 = Two-Stage Lander
 version = 1.2.0
-description = Be the first to put a flag up on your favorite moon with this very sensible and mostly-survivable Lander Module.¨¨The first stage is meant to get it down to the surface, and can be jettisoned off for the ascent.¨¨Launch/return vehicle sold separately. Works best at low gravity and with no atmosphere around it.
+description = #autoLOC_501253 //#autoLOC_501253 = Be the first to put a flag up on your favorite moon with this very sensible and mostly-survivable Lander Module.¨¨The first stage is meant to get it down to the surface, and can be jettisoned off for the ascent.¨¨Launch/return vehicle sold separately. Works best at low gravity and with no atmosphere around it.
 type = VAB
 size = 5.37762642,4.72811317,5.37762737
 PART

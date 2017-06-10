@@ -1,6 +1,6 @@
-ship = Kerbal 1-5
+﻿ship = #autoLOC_501226 //#autoLOC_501226 = Kerbal 1-5
 version = 1.2.0
-description = A nice little Sunday runabout, the Kerbal 1-5 is just right for day trips to low Kerbin orbit.¨¨This model includes the optional docking port and RCS upgrade package, perfect for joining with your friends in space.
+description = #autoLOC_501227 //#autoLOC_501227 = A nice little Sunday runabout, the Kerbal 1-5 is just right for day trips to low Kerbin orbit.¨¨This model includes the optional docking port and RCS upgrade package, perfect for joining with your friends in space.
 type = VAB
 size = 4.99725342,10.2625618,2.34464288
 PART

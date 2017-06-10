@@ -1,6 +1,6 @@
-ship = Skywinder AE1
+﻿ship = #autoLOC_501204 //#autoLOC_501204 = Skywinder AE1
 version = 1.2.0
-description = The Skywinder AE1 is a sleek and agile plane that was originally used in air races and stunt shows sponsored by Green Kraken energy snacks. The front canards, thrust reversers, and built in safety parachute allowed daredevils to perform all sorts of creative maneuvers that sensible pilots would never even consider! ¨¨Following a series of unfortunate events, it has since been donated to the space center for recreational use.
+description = #autoLOC_501205 //#autoLOC_501205 = The Skywinder AE1 is a sleek and agile plane that was originally used in air races and stunt shows sponsored by Green Kraken energy snacks. The front canards, thrust reversers, and built in safety parachute allowed daredevils to perform all sorts of creative maneuvers that sensible pilots would never even consider! ¨¨Following a series of unfortunate events, it has since been donated to the space center for recreational use.
 type = SPH
 size = 13.0039043,3.80895615,9.07145023
 PART

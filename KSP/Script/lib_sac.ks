@@ -3,6 +3,7 @@
 set config:ipu to 2000.
 run once lib_math.
 run once lib_msmnt.
+run once lib_stat.
 
 local sac_started to false.
 local sac_stopped to true.
@@ -31,11 +32,15 @@ local sac_yaw_debug to false.
 local sac_roll_debug to false.
 
 local sac_stat_av0 to v(0, 0, 0).
+local sac_stat_ta0 to v(0, 0, 0).
+local sac_stat_ra0 to v(0, 0, 0).
+
 local sac_stat_n to 0.
 local sac_stat_ar to v(0, 0, 0).
 local sac_stat_at to v(0, 0, 0).
 local sac_stat_ar2 to v(0, 0, 0).
 local sac_stat_at2 to v(0, 0, 0).
+local sac_stat_art to v(0, 0, 0).
 local sac_stat_ar0 to v(0, 0, 0).
 
 log "poehali" to "stat.csv".
@@ -44,7 +49,8 @@ log "x, v, a0, a, ac, za, c, ra" to "stat.csv".
 
 // TODO check reset
 function sac_reset {
-    set sac_t0 to time:seconds.
+    set sac_t to time:seconds.
+    set sac_t0 to sac_t.
     set sac_zero_v to V(0, 0, 0).
 
     set sac_facing_old to ship:facing.
@@ -83,8 +89,11 @@ function sac_start {
         local tt to t - sac_t0.
         local mf to sac_dir_to_rotvec(sac_rotvec_to_dir(sac_zero_x + (sac_zero_v + sac_zero_a*tt/2)*tt):inverse*(sac_facing_old:inverse * facing)).
 
-        local ra to (av - sac_stat_av0)/dt.
-        set sac_stat_av0 to av.
+        local ra to facing:inverse * todeg(angularvel - sac_stat_av0)/dt.
+        local dra to ra - sac_stat_ta0.
+        local ra1 to angularvel - sac_stat_av0.
+        local ra2 to angularvel.
+        set sac_stat_av0 to angularvel.
 
         if tt > sac_ct {
             local tune to true.
@@ -133,14 +142,23 @@ function sac_start {
             local ta to sac_calc_ta(mf, tv) + sac_zero_a.
             local c to v(sac_seek_x(sac_pitch_arr, ta:x), sac_seek_x(sac_yaw_arr, ta:y), sac_seek_x(sac_roll_arr, ta:z)).
 
+            local ta2 to ta + dra*dt*sac_w. // *2 // TODO looks good but why 2 times less? dta = ta0 + dra*k - (ta0 - dra*k) => dta = 2*dta*k?
+            set sac_stat_ta0 to ta2.
+            //set ta2 to ta2 + dra*dt^2*sac_w^2/2. // TODO didn't change anything?
+
             set sac_stat_n to sac_stat_n + 1.
             set sac_stat_ar to sac_stat_ar + ra.
-            set sac_stat_at to sac_stat_at + ta.
+            set sac_stat_at to sac_stat_at + ta2.
             sac_stat_a2(sac_stat_ar2, ra).
-            sac_stat_a2(sac_stat_at2, ta).
+            sac_stat_a2(sac_stat_at2, ta2).
+            //sac_stat_ab(sac_stat_art, ra, ta2).
+            sac_stat_ab(sac_stat_art, ra, sac_stat_ra0).
+            set sac_stat_ra0 to ra. // TODO for corr ai and ai+1
+
+            // TODO keep ac in sence limits => za shouldn't be much more then ra when |c| ~ 1
 
             if sac_yaw_debug {
-                log mf:y+", "+tv:y+", "+sac_zero_a:y+", "+ta:y+", "+sac_yaw_arr[0]+", "+sac_yaw_arr[1]+", "+c:y+", "+ ra:y to "stat.csv".
+                log mf:y+", "+tv:y+", "+sac_zero_a:y+", "+ta:y+", "+sac_yaw_arr[0]+", "+sac_yaw_arr[1]+", "+c:y+", "+ ra:y+", "+ ta2:y to "stat.csv".
             }
 
             set ship:control:rotation to -c*sac_cturn.
@@ -164,13 +182,23 @@ function sac_stat_a2 {
     set sa:z to sa:z + a:z^2.
 }
 
+function sac_stat_ab {
+    parameter sa.
+    parameter a.
+    parameter b.
+
+    set sa:x to sa:x + a:x*b:x.
+    set sa:y to sa:y + a:y*b:y.
+    set sa:z to sa:z + a:z*b:z.
+}
+
 function sac_tune {
     local mra to sac_stat_ar/sac_stat_n.
     local mta to sac_stat_at/sac_stat_n.
 
-    sac_tune_x(sac_pitch_arr, mra:x, mta:x, sac_stat_ar0:x, sac_stat_at2:x, sac_stat_ar2:x).
-    sac_tune_x(sac_yaw_arr, mra:y, mta:y, sac_stat_ar0:y, sac_stat_at2:y, sac_stat_ar2:y).
-    sac_tune_x(sac_roll_arr, mra:z, mta:z, sac_stat_ar0:z, sac_stat_at2:z, sac_stat_ar2:z).
+    sac_tune_x(sac_pitch_arr, mra:x, mta:x, sac_stat_ar0:x, sac_stat_at2:x, sac_stat_ar2:x, sac_stat_art:x, sac_pitch_debug).
+    sac_tune_x(sac_yaw_arr, mra:y, mta:y, sac_stat_ar0:y, sac_stat_at2:y, sac_stat_ar2:y, sac_stat_art:y, sac_yaw_debug).
+    sac_tune_x(sac_roll_arr, mra:z, mta:z, sac_stat_ar0:z, sac_stat_at2:z, sac_stat_ar2:z, sac_stat_art:z, sac_roll_debug).
 
     set sac_stat_ar0 to mra.
     set sac_stat_n to 0.
@@ -178,6 +206,7 @@ function sac_tune {
     set sac_stat_ar2 to v(0, 0, 0).
     set sac_stat_at to v(0, 0, 0).
     set sac_stat_at2 to v(0, 0, 0).
+    set sac_stat_art to v(0, 0, 0).
 }
 
 function sac_tune_x {
@@ -187,6 +216,8 @@ function sac_tune_x {
     parameter ar0.
     parameter at2.
     parameter ar2.
+    parameter art.
+    parameter debug.
 
     local ac0 to arr[0].
     local za0 to arr[1].
@@ -195,17 +226,23 @@ function sac_tune_x {
     local c1 to (mta - za0)/ac0.
     local dc to c1 - c0.
 
-    local mak to at2 - sac_stat_n*mta^2.
-    local dck to dc*ac0.
-
-    local acck to 1/(mak + dck^2). // TODO move 4 here somehow (probably +3*ac0)
-
-    local maacc to ar2 - sac_stat_n*mra^2. // It was S1/S2
-    if (maacc<0 or mak<0) {
-        log_log(maacc).
-        log_log(mak).
+    local sta2 to at2/sac_stat_n - mta^2.
+    local sra2 to ar2/sac_stat_n - mra^2. // It was S1/S2
+    if (sra2<0 or sta2<0) {
+        log_log(sra2).
+        log_log(sta2).
     }
-    set maacc to (sqrt(maacc*mak)-mak)*acck/4 + 1.
+    local sart to sqrt(sra2*sta2).
+    //set sta2 to sta2 * corr^2.
+    //set sra2 to sra2 * corr^2.
+    //set sart to sart * corr.
+
+    //set sra2 to sta2 + (sra2 - sta2)*corr^2. // TODO it should be without squares, but just to try
+    //set sart to sqrt(sra2*sta2).
+
+    local dck to dc*ac0.
+    local acck to 1/(sta2 + dck^2). // TODO move 4 here somehow (probably +3*ac0)
+    local maacc to (sart-sta2)*acck/4 + 1.
 
     local dcacc to mra - ar0.
     set dcacc to (dcacc*dck-dck^2)*acck/4 + 1.
@@ -217,6 +254,16 @@ function sac_tune_x {
 
     local za to mra + (za0 - mta)*acc.
     set za to za - mra/2 + mta/2.
+
+    //if false {
+    if debug {
+        //local corr to (art/sac_stat_n - mra*mta)/sart.
+        local corr to (art/sac_stat_n - mra^2)/sra2.
+        //local corr to 0.
+        stat_log("tune",
+        {return list("mra", "mta", "sra", "sta", "corr").},
+                list(mra, mta, sqrt(sra2), sqrt(sta2), corr)).
+    }
 
     set arr[0] to ac0 * acc.
     set arr[1] to za.

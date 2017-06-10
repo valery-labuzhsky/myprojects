@@ -62,7 +62,48 @@ if switch_active {
     until KUniverse:activevessel = ship KUniverse:FORCESETACTIVEVESSEL(ship).
 }
 
-//set sac_yaw_debug to true.
+local distances TO ship:LOADDISTANCE.
+log_log("escaping distances:").
+log_log("    load: " + distances:ESCAPING:LOAD + "m").
+log_log("  unload: " + distances:ESCAPING:UNLOAD + "m").
+log_log("  unpack: " + distances:ESCAPING:UNPACK + "m").
+log_log("    pack: " + distances:ESCAPING:PACK + "m").
+log_log("flying distances:").
+log_log("    load: " + distances:FLYING:LOAD + "m").
+log_log("  unload: " + distances:FLYING:UNLOAD + "m").
+log_log("  unpack: " + distances:FLYING:UNPACK + "m").
+log_log("    pack: " + distances:FLYING:PACK + "m").
+log_log("landed distances:").
+log_log("    load: " + distances:LANDED:LOAD + "m").
+log_log("  unload: " + distances:LANDED:UNLOAD + "m").
+log_log("  unpack: " + distances:LANDED:UNPACK + "m").
+log_log("    pack: " + distances:LANDED:PACK + "m").
+log_log("orbit distances:").
+log_log("    load: " + distances:ORBIT:LOAD + "m").
+log_log("  unload: " + distances:ORBIT:UNLOAD + "m").
+log_log("  unpack: " + distances:ORBIT:UNPACK + "m").
+log_log("    pack: " + distances:ORBIT:PACK + "m").
+log_log("prelaunch distances:").
+log_log("    load: " + distances:PRELAUNCH:LOAD + "m").
+log_log("  unload: " + distances:PRELAUNCH:UNLOAD + "m").
+log_log("  unpack: " + distances:PRELAUNCH:UNPACK + "m").
+log_log("    pack: " + distances:PRELAUNCH:PACK + "m").
+log_log("splashed distances:").
+log_log("    load: " + distances:SPLASHED:LOAD + "m").
+log_log("  unload: " + distances:SPLASHED:UNLOAD + "m").
+log_log("  unpack: " + distances:SPLASHED:UNPACK + "m").
+log_log("    pack: " + distances:SPLASHED:PACK + "m").
+log_log("suborbital distances:").
+log_log("    load: " + distances:SUBORBITAL:LOAD + "m").
+log_log("  unload: " + distances:SUBORBITAL:UNLOAD + "m").
+log_log("  unpack: " + distances:SUBORBITAL:UNPACK + "m").
+log_log("    pack: " + distances:SUBORBITAL:PACK + "m").
+
+set ship:LOADDISTANCE:FLYING:UNLOAD to 322034.705598598.
+wait 0.001.
+set ship:LOADDISTANCE:FLYING:PACK to 304593.202303569.
+
+set sac_yaw_debug to true.
 
 sac_start(lookdirup(heading(-90, 0):vector, heading(180, 0):vector)).
 
@@ -493,8 +534,9 @@ function gt_dist_newton {
         local igtd to -2/3*v^3*we/(n - 1)/(2*n - 1)/g^2.
 
         local gd to gt_dist(twr, g, sa+arctan2(dvw, v), v)-d. // a - 0.1
-        stat_create("land", list("an", "anz", "fa", "sa", "dv", "gd", "d", "w", "m", "v", "da", "q", "twr", "ba", "dgd")).
-        stat_log("land", list(an, anz, fa, sa, dv, gd, d, wx, m, v, -fa-sa, ship:q, twr, todeg(desc_base_ang(base)), igtd)).
+        stat_log("land",
+        {return list("an", "anz", "fa", "sa", "dv", "gd", "d", "w", "m", "v", "da", "q", "twr", "ba", "dgd").},
+                list(an, anz, fa, sa, dv, gd, d, wx, m, v, -fa-sa, ship:q, twr, todeg(desc_base_ang(base)), igtd)).
     }
 
     ret(dv, ddv).

@@ -1,6 +1,6 @@
-ship = Aeris 3A
+﻿ship = #autoLOC_501174 //#autoLOC_501174 = Aeris 3A
 version = 1.2.0
-description = The Aeris 3A is a small and nimble one-seater plane, mostly used as a training craft for fixed-wing flight, and to annoy ground staff by 'buzzing' the space center facilities. ¨¨
+description = #autoLOC_501175 //#autoLOC_501175 = The Aeris 3A is a small and nimble one-seater plane, mostly used as a training craft for fixed-wing flight, and to annoy ground staff by 'buzzing' the space center facilities. ¨¨
 type = SPH
 size = 8.54607391,3.10917664,8.48044586
 PART

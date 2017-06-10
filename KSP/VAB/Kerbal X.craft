@@ -1,6 +1,6 @@
-ship = Kerbal X
+﻿ship = #autoLOC_501232 //#autoLOC_501232 = Kerbal X
 version = 1.2.0
-description = The Kerbal X is one of the most successful rockets that can be ordered from a catalog. Despite the original design having been meant for a plastic model, it's proved itself quite dependable as a full-sized craft.¨¨The X is capable of achieving orbit around Kerbin, and even features a very optimistic set of landing legs on its upper stage.
+description = #autoLOC_501233 //#autoLOC_501233 = The Kerbal X is one of the most successful rockets that can be ordered from a catalog. Despite the original design having been meant for a plastic model, it's proved itself quite dependable as a full-sized craft.¨¨The X is capable of achieving orbit around Kerbin, and even features a very optimistic set of landing legs on its upper stage.
 type = VAB
 size = 5.28324223,21.5305347,5.25201702
 PART

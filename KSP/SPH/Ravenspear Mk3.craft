@@ -1,6 +1,6 @@
-ship = Ravenspear Mk3
+﻿ship = #autoLOC_501196 //#autoLOC_501196 = Ravenspear Mk3
 version = 1.2.0
-description = The Ravenspear Mk3 is a longer-range high-altitude spaceplane, with a novel wing geometry that provides large amounts of lift at high altitudes. ¨¨It is capable of sub-orbital flights, which makes it a decent test platform for high-altitude experimental engines and other such sciency things.
+description = #autoLOC_501197 //#autoLOC_501197 = The Ravenspear Mk3 is a longer-range high-altitude spaceplane, with a novel wing geometry that provides large amounts of lift at high altitudes. ¨¨It is capable of sub-orbital flights, which makes it a decent test platform for high-altitude experimental engines and other such sciency things.
 type = SPH
 size = 16.1602345,3.95178795,14.2837868
 PART

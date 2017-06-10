@@ -1,6 +1,6 @@
-ship = Ravenspear Mk4
+﻿ship = #autoLOC_501198 //#autoLOC_501198 = Ravenspear Mk4
 version = 1.2.0
-description = The Mk4 marks a bit of a change in direction from previous Ravenspear models. ¨¨Instead of focusing on high-altitude flight, the Mk4 is primarily geared towards making the most out of its four afterburning turbofans. In dry mode, however, it is capable of considerable range.¨¨Being capable of very high-speed flight at low altitudes, it's a favorite among the bravest test pilots, and quite the opposite for the not-so-brave ones.¨
+description = #autoLOC_501199 //#autoLOC_501199 = The Mk4 marks a bit of a change in direction from previous Ravenspear models. ¨¨Instead of focusing on high-altitude flight, the Mk4 is primarily geared towards making the most out of its four afterburning turbofans. In dry mode, however, it is capable of considerable range.¨¨Being capable of very high-speed flight at low altitudes, it's a favorite among the bravest test pilots, and quite the opposite for the not-so-brave ones.¨
 type = SPH
 size = 12.475915,3.67759323,12.074894
 PART

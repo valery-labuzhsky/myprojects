@@ -1,6 +1,6 @@
-ship = Albatross 3
+﻿ship = #autoLOC_501178 //#autoLOC_501178 = Albatross 3
 version = 1.2.0
-description = The Albatross 3 is a low-speed, long-range aircraft, capable of stable sustained flight for hours on end. ¨¨Its very long wings will flex quite a bit, but the flight operations handbook says that's "most likely normal".¨¨It also recommends always using rudder and ailerons combined to turn it.¨
+description = #autoLOC_501179 //#autoLOC_501179 = The Albatross 3 is a low-speed, long-range aircraft, capable of stable sustained flight for hours on end. ¨¨Its very long wings will flex quite a bit, but the flight operations handbook says that's "most likely normal".¨¨It also recommends always using rudder and ailerons combined to turn it.¨
 type = SPH
 size = 37.431427,3.66632462,18.4778881
 PART

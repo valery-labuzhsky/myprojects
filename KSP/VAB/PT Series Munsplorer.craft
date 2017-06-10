@@ -1,6 +1,6 @@
-ship = PT Series Munsplorer
+﻿ship = #autoLOC_501240 //#autoLOC_501240 = PT Series Munsplorer
 version = 1.2.0
-description = PT Munsplorer: No frills super economy class launcher/lander for Mun/Minmus.¨¨Batteries, fins and science sold separately.
+description = #autoLOC_501241 //#autoLOC_501241 = PT Munsplorer: No frills super economy class launcher/lander for Mun/Minmus.¨¨Batteries, fins and science sold separately.
 type = VAB
 size = 4.11673355,16.4784241,1.59413862
 PART

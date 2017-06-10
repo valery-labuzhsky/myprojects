@@ -1,6 +1,6 @@
-ship = Science Jr
+﻿ship = #autoLOC_501244 //#autoLOC_501244 = Science Jr
 version = 1.2.0
-description = A beginner's experimentation kit, complete with goggles, spatula and launch vehicle.¨¨For ages 3+.
+description = #autoLOC_501245 //#autoLOC_501245 = A beginner's experimentation kit, complete with goggles, spatula and launch vehicle.¨¨For ages 3+.
 type = VAB
 size = 1.74335289,16.7799091,4.39288759
 PART

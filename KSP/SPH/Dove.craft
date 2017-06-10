@@ -1,6 +1,6 @@
-ship = Dove
+﻿ship = #autoLOC_501184 //#autoLOC_501184 = Dove
 version = 1.2.0
-description = A Prototype Spaceplane capable of reaching Orbit. It has not yet been outfitted with any mission equipment.
+description = #autoLOC_501185 //#autoLOC_501185 = A Prototype Spaceplane capable of reaching Orbit. It has not yet been outfitted with any mission equipment.
 type = SPH
 size = 8.69923973,4.27737427,9.36485004
 PART

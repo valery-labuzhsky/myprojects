@@ -1,6 +1,6 @@
-ship = Mallard
+﻿ship = #autoLOC_501188 //#autoLOC_501188 = Mallard
 version = 1.2.0
-description = The Mallard is a large seaplane with twin high-efficiency turbofans mounted high on the fuselage to clear the spray. It is somewhat slow but very steady in flight. A full suite of flaps on the trailing edges of the main wings give it exceptional low-speed lift, and small hydroplane steps mounted on each side of the fuselage bottom help lift it out of the water (lowering water drag) during takeoff runs. Its entire fuselage, absent the cockpit forward, is one long cargobay, with a ramp at the tail end. This allows rovers (and boats) to come aboard or leave while the Mallard is landed. It's a bit low on fuel, so you might consider adding some to the cargo bay for long flights, or make them at high altitude.
+description = #autoLOC_501189 //#autoLOC_501189 = The Mallard is a large seaplane with twin high-efficiency turbofans mounted high on the fuselage to clear the spray. It is somewhat slow but very steady in flight. A full suite of flaps on the trailing edges of the main wings give it exceptional low-speed lift, and small hydroplane steps mounted on each side of the fuselage bottom help lift it out of the water (lowering water drag) during takeoff runs. Its entire fuselage, absent the cockpit forward, is one long cargobay, with a ramp at the tail end. This allows rovers (and boats) to come aboard or leave while the Mallard is landed. It's a bit low on fuel, so you might consider adding some to the cargo bay for long flights, or make them at high altitude.
 type = SPH
 size = 25.786972,6.54485321,29.1988049
 PART

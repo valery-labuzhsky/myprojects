@@ -1,6 +1,6 @@
-ship = GDLV3
+﻿ship = #autoLOC_501220 //#autoLOC_501220 = GDLV3
 version = 1.2.0
-description = The Generally Designed Launch Vehicle 3 is an adaptable design that the customer can tailor to their needs, in fact the GDLV3 is in such wide use no one can say they actually own it.
+description = #autoLOC_501221 //#autoLOC_501221 = The Generally Designed Launch Vehicle 3 is an adaptable design that the customer can tailor to their needs, in fact the GDLV3 is in such wide use no one can say they actually own it.
 type = VAB
 size = 4.6883297,17.0162773,4.6883297
 PART

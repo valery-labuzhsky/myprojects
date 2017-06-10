@@ -15,7 +15,5 @@ set compiled_list["lib_math_"] to 1355.
 set compiled_list["lib_misc"] to 585.
 set compiled_list["lib_msmnt"] to 5310.
 set compiled_list["lib_rt"] to 392.
-set compiled_list["lib_sac"] to 11256.
 set compiled_list["perf"] to 1858.
-set compiled_list["test"] to 2686.
-set compiled_list["test_"] to 534.
+set compiled_list["test"] to 1033.

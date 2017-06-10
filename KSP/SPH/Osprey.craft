@@ -1,6 +1,6 @@
-ship = Osprey
+﻿ship = #autoLOC_501190 //#autoLOC_501190 = Osprey
 version = 1.2.0
-description = A high-performance (and high-risk) seaplane, the Osprey is designed for those daredevils who don't want to sacrifice performance but still want to be able to land anywhere wet or dry on Kerbin. The afterburning Panther turbofan provides high efficiency in dry mode and high thrust in wet mode, perfect for strolls and sprints both.¨¨The outriggers have a hydroplane stretching between them, allowing the Osprey to "step up" during its takeoff run in the water, massively lowering drag. Once you step up, it's safe to take off. The outriggers are jettisonable, but they have the landing gear too. So don't stage away the outriggers unless you're planning one final water landing, however (or one very final indeed land "landing").
+description = #autoLOC_501191 //#autoLOC_501191 = A high-performance (and high-risk) seaplane, the Osprey is designed for those daredevils who don't want to sacrifice performance but still want to be able to land anywhere wet or dry on Kerbin. The afterburning Panther turbofan provides high efficiency in dry mode and high thrust in wet mode, perfect for strolls and sprints both.¨¨The outriggers have a hydroplane stretching between them, allowing the Osprey to "step up" during its takeoff run in the water, massively lowering drag. Once you step up, it's safe to take off. The outriggers are jettisonable, but they have the landing gear too. So don't stage away the outriggers unless you're planning one final water landing, however (or one very final indeed land "landing").
 type = SPH
 size = 8.73975945,5.18106842,15.3465548
 PART

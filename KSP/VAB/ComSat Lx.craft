@@ -1,6 +1,6 @@
-ship = ComSat Lx
+﻿ship = #autoLOC_501216 //#autoLOC_501216 = ComSat Lx
 version = 1.2.0
-description = Tiny satalite with antenna and solar power?¨Launcher to bring it to space?¨¨Done and Done!
+description = #autoLOC_501217 //#autoLOC_501217 = Tiny satalite with antenna and solar power?¨Launcher to bring it to space?¨¨Done and Done!
 type = VAB
 size = 5.21457291,12.4897804,3.60379171
 PART

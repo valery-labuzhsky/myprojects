@@ -1,6 +1,6 @@
-ship = Super-Heavy Lander
+﻿ship = #autoLOC_501250 //#autoLOC_501250 = Super-Heavy Lander
 version = 1.2.0
-description = This lander may be heavy, but it packs a lot of RCS fuel and has a very funky boarding ladder.¨¨Launch vehicle sold separately.
+description = #autoLOC_501251 //#autoLOC_501251 = This lander may be heavy, but it packs a lot of RCS fuel and has a very funky boarding ladder.¨¨Launch vehicle sold separately.
 type = VAB
 size = 5.81258535,6.0574131,5.81258726
 PART

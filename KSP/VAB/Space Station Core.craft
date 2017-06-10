@@ -1,6 +1,6 @@
-ship = Space Station Core
+﻿ship = #autoLOC_501248 //#autoLOC_501248 = Space Station Core
 version = 1.2.0
-description = This Space Station Core shows just how ambitious the Kerlington model rocket catalog can be sometimes. ¨¨If you can manage to build a rocket capable of getting this into orbit, it is air-tight enough to let a few Kerbals live in it for long periods of time. ¨¨It also features a hub with five docking ports, so you can expand your station.
+description = #autoLOC_501249 //#autoLOC_501249 = This Space Station Core shows just how ambitious the Kerlington model rocket catalog can be sometimes. ¨¨If you can manage to build a rocket capable of getting this into orbit, it is air-tight enough to let a few Kerbals live in it for long periods of time. ¨¨It also features a hub with five docking ports, so you can expand your station.
 type = VAB
 size = 2.81005335,7.48163748,3.42438889
 PART

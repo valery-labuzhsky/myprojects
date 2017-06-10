@@ -1,6 +1,6 @@
-ship = Satellite Launcher
+﻿ship = #autoLOC_501202 //#autoLOC_501202 = Satellite Launcher
 version = 1.2.0
-description = A conventional jet equipped with a small rocket to demonstrate feasibility of rocket launches from high altitude.
+description = #autoLOC_501203 //#autoLOC_501203 = A conventional jet equipped with a small rocket to demonstrate feasibility of rocket launches from high altitude.
 type = SPH
 size = 8.72580147,5.44182587,11.4296904
 PART
