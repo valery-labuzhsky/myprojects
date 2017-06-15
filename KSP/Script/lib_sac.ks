@@ -24,7 +24,7 @@ local sac_zero_v to V(0, 0, 0).
 local sac_zero_a to v(0, 0, 0).
 local sac_ct0 to 0.25.
 local sac_ct to 0.25.
-local sac_w to 0.5/sac_ct.
+local sac_w to 0.5/sac_ct. // 2
 local sac_warp to false.
 
 local sac_pitch_debug to false.
@@ -34,18 +34,21 @@ local sac_roll_debug to false.
 local sac_stat_av0 to v(0, 0, 0).
 local sac_stat_ta0 to v(0, 0, 0).
 local sac_stat_ra0 to v(0, 0, 0).
+local sac_stat_ra1 to v(0, 0, 0).
 
 local sac_stat_n to 0.
+
+local sac_stat_ari to v(0, 0, 0).
 local sac_stat_ar to v(0, 0, 0).
-local sac_stat_at to v(0, 0, 0).
 local sac_stat_ar2 to v(0, 0, 0).
+local sac_stat_at to v(0, 0, 0).
 local sac_stat_at2 to v(0, 0, 0).
+
 local sac_stat_art to v(0, 0, 0).
 local sac_stat_ar0 to v(0, 0, 0).
 
-log "poehali" to "stat.csv".
-deletepath("stat.csv").
-log "x, v, a0, a, ac, za, c, ra" to "stat.csv".
+local sac_stat_l to 1. // TODO review usages
+local sac_stat_i to 1.
 
 // TODO check reset
 function sac_reset {
@@ -95,7 +98,7 @@ function sac_start {
         local ra2 to angularvel.
         set sac_stat_av0 to angularvel.
 
-        if tt > sac_ct {
+        if tt > sac_ct*sac_stat_l {
             local tune to true.
             if sac_warp {
                 if warp = 0 and kuniverse:timewarp:issettled {
@@ -113,7 +116,7 @@ function sac_start {
                 }
             }
             set sac_ct to sac_ct0 * kuniverse:timewarp:rate.
-            set sac_w to 0.5/sac_ct.
+            set sac_w to 0.5/sac_ct/sac_stat_l.
 
             if tune {
                 sac_tune().
@@ -122,10 +125,10 @@ function sac_start {
                 set sac_facing_old to facing.
 
                 sac_follow_new_target().
-                local tar_sp to sac_dir_to_rotvec(sac_cur_follow:inverse * sac_new_follow)/sac_ct.
+                local tar_sp to sac_dir_to_rotvec(sac_cur_follow:inverse * sac_new_follow)/sac_ct/sac_stat_l.
 
                 set sac_zero_v to tar_sp.
-                set sac_zero_x to sac_dir_to_rotvec(facing:inverse * sac_new_target) - sac_zero_v*sac_ct.
+                set sac_zero_x to sac_dir_to_rotvec(facing:inverse * sac_new_target) - sac_zero_v*sac_ct*sac_stat_l.
                 local x0 to -sac_zero_x.
                 local v0 to av - sac_zero_v.
 
@@ -142,23 +145,44 @@ function sac_start {
             local ta to sac_calc_ta(mf, tv) + sac_zero_a.
             local c to v(sac_seek_x(sac_pitch_arr, ta:x), sac_seek_x(sac_yaw_arr, ta:y), sac_seek_x(sac_roll_arr, ta:z)).
 
-            local ta2 to ta + dra*dt*sac_w. // *2 // TODO looks good but why 2 times less? dta = ta0 + dra*k - (ta0 - dra*k) => dta = 2*dta*k?
+            local ta2 to ta + dra*dt*sac_w.
             set sac_stat_ta0 to ta2.
-            //set ta2 to ta2 + dra*dt^2*sac_w^2/2. // TODO didn't change anything?
 
-            set sac_stat_n to sac_stat_n + 1.
-            set sac_stat_ar to sac_stat_ar + ra.
-            set sac_stat_at to sac_stat_at + ta2.
-            sac_stat_a2(sac_stat_ar2, ra).
-            sac_stat_a2(sac_stat_at2, ta2).
-            //sac_stat_ab(sac_stat_art, ra, ta2).
-            sac_stat_ab(sac_stat_art, ra, sac_stat_ra0).
-            set sac_stat_ra0 to ra. // TODO for corr ai and ai+1
+            set sac_stat_ari to sac_stat_ari + ra.
+            set sac_stat_i to sac_stat_i + 1.
+            if sac_stat_i > sac_stat_l {
+                set sac_stat_ari to sac_stat_ari/sac_stat_l.
 
-            // TODO keep ac in sence limits => za shouldn't be much more then ra when |c| ~ 1
+                if sac_stat_n = 0 {
+                    set sac_stat_ra1 to sac_stat_ra0. // TODO for corr ai and ai+1
+                } else {
+                    set sac_stat_ar to sac_stat_ar + sac_stat_ra0.
+                    sac_stat_a2(sac_stat_ar2, sac_stat_ra0).
+                }
 
-            if sac_yaw_debug {
-                log mf:y+", "+tv:y+", "+sac_zero_a:y+", "+ta:y+", "+sac_yaw_arr[0]+", "+sac_yaw_arr[1]+", "+c:y+", "+ ra:y+", "+ ta2:y to "stat.csv".
+                set sac_stat_n to sac_stat_n + 1.
+                set sac_stat_at to sac_stat_at + ta2.
+                sac_stat_a2(sac_stat_at2, ta2).
+                sac_stat_ab(sac_stat_art, sac_stat_ari, sac_stat_ra0).
+                set sac_stat_ra0 to sac_stat_ari. // TODO for corr ai and ai+1
+
+                // TODO keep ac in sence limits => za shouldn't be much more then ra when |c| ~ 1
+
+                if sac_yaw_debug {
+                    stat_log("stat",
+                            {return list("x, v, a0, a, ac, za, c, l, ta, ra, thr").},
+                            list(mf:y, tv:y, sac_zero_a:y, ta:y, sac_yaw_arr[0], sac_yaw_arr[1], c:y, sac_stat_l, ta2:y,  sac_stat_ari:y, ship:control:mainthrottle)).
+                }
+
+                set sac_stat_i to 1.
+                set sac_stat_ari to v(0, 0, 0).
+            }
+
+            if false {
+            //if sac_yaw_debug {
+                stat_log("tick",
+                        {return list("x, v, a0, a, ac, za, c, ta, ra").},
+                        list(mf:y, tv:y, sac_zero_a:y, ta:y, sac_yaw_arr[0], sac_yaw_arr[1], c:y,  ta2:y,  ra:y)).
             }
 
             set ship:control:rotation to -c*sac_cturn.
@@ -193,12 +217,48 @@ function sac_stat_ab {
 }
 
 function sac_tune {
-    local mra to sac_stat_ar/sac_stat_n.
     local mta to sac_stat_at/sac_stat_n.
+    set sac_stat_at2 to sac_stat_at2/sac_stat_n.
 
-    sac_tune_x(sac_pitch_arr, mra:x, mta:x, sac_stat_ar0:x, sac_stat_at2:x, sac_stat_ar2:x, sac_stat_art:x, sac_pitch_debug).
-    sac_tune_x(sac_yaw_arr, mra:y, mta:y, sac_stat_ar0:y, sac_stat_at2:y, sac_stat_ar2:y, sac_stat_art:y, sac_yaw_debug).
-    sac_tune_x(sac_roll_arr, mra:z, mta:z, sac_stat_ar0:z, sac_stat_at2:z, sac_stat_ar2:z, sac_stat_art:z, sac_roll_debug).
+    set sac_stat_art to sac_stat_art/sac_stat_n.
+
+    local mra to (sac_stat_ar + sac_stat_ra0)/sac_stat_n.
+    local ar2 to sac_stat_ar2:vec.
+    sac_stat_a2(ar2, sac_stat_ra0).
+    set ar2 to ar2/sac_stat_n.
+
+    local mpa to (sac_stat_ar + sac_stat_ra1)/sac_stat_n.
+    local ap2 to sac_stat_ar2:vec.
+    sac_stat_a2(ap2, sac_stat_ra1).
+    set ap2 to ap2/sac_stat_n.
+
+    local sar2 to ar2:y - mra:y^2.
+    local sap2 to ap2:y - mpa:y^2.
+    local sart to sqrt(sap2*sar2).
+    local corr to (sac_stat_art:y - mra:y*mpa:y)/sart.
+
+    // TODO use corr to correct sra
+    //set ar2 to ar2/2 + sac_stat_art/2.
+    set ar2:y to ar2:y + sar2/2*(corr - 1).
+
+//stat_log("corr",
+    //        {return list("ra1", "ra2", "sra1", "sra2", "corr").},
+    //        list(mra:y, sac_stat_ap:y, sqrt(sac_stat_ar2:y), sqrt(sac_stat_ap2:y), corr)).
+
+
+    if corr < 0 {
+        set sac_stat_l to sac_stat_l * 2.
+    } else if corr > 0.5 {
+        set sac_stat_l to sac_stat_l / 2.
+        if sac_stat_l < 1 set sac_stat_l to 1.
+    }
+    set sac_w to 0.5/sac_ct/sac_stat_l. // TODO remove dubplicate
+
+    sac_tune_x(sac_pitch_arr, mra:x, mta:x, sac_stat_ar0:x, sac_stat_at2:x, ar2:x, sac_stat_art:x, sac_pitch_debug).
+    sac_tune_x(sac_yaw_arr, mra:y, mta:y, sac_stat_ar0:y, sac_stat_at2:y, ar2:y, corr, sac_yaw_debug).
+    sac_tune_x(sac_roll_arr, mra:z, mta:z, sac_stat_ar0:z, sac_stat_at2:z, ar2:z, sac_stat_art:z, sac_roll_debug).
+
+    //local corr to (art - mra^2)/sra2.
 
     set sac_stat_ar0 to mra.
     set sac_stat_n to 0.
@@ -207,6 +267,9 @@ function sac_tune {
     set sac_stat_at to v(0, 0, 0).
     set sac_stat_at2 to v(0, 0, 0).
     set sac_stat_art to v(0, 0, 0).
+
+    set sac_stat_i to 1.
+    set sac_stat_ari to v(0, 0, 0).
 }
 
 function sac_tune_x {
@@ -226,8 +289,8 @@ function sac_tune_x {
     local c1 to (mta - za0)/ac0.
     local dc to c1 - c0.
 
-    local sta2 to at2/sac_stat_n - mta^2.
-    local sra2 to ar2/sac_stat_n - mra^2. // It was S1/S2
+    local sta2 to at2 - mta^2.
+    local sra2 to ar2 - mra^2. // It was S1/S2
     if (sra2<0 or sta2<0) {
         log_log(sra2).
         log_log(sta2).
@@ -258,7 +321,8 @@ function sac_tune_x {
     //if false {
     if debug {
         //local corr to (art/sac_stat_n - mra*mta)/sart.
-        local corr to (art/sac_stat_n - mra^2)/sra2.
+        //local corr to (art - mra^2)/sra2.
+        local corr to art.
         //local corr to 0.
         stat_log("tune",
         {return list("mra", "mta", "sra", "sta", "corr").},

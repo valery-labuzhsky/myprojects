@@ -1,5 +1,9 @@
 @LAZYGLOBAL off.
 
+set ship:control:neutralize to true.
+set ship:control:PILOTMAINTHROTTLE to 0.
+set ship:control:MAINTHROTTLE to 0.
+
 run once lib_calc.
 run once lib_sac.
 run once lib_ctrl.

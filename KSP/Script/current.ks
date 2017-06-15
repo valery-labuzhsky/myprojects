@@ -1,17 +1,23 @@
 @LAZYGLOBAL off.
 
+SET CONFIG:PAUSEONCOMPILE TO TRUE.
+
 run once precompile.
 
-run lib_misc.
-run lib_ctrl.
-run lib_log("main.log").
-//run lib_sac.
-run lib_math.
-run lib_calc.
-run lib_asc.
-run lib_funct.
-run lib_gt.
+local all_processors to 0.
+list processors in all_processors.
+for processor in all_processors {
+    if processor:part:uid <> core:part:uid {
+        print "message send".
+        processor:connection:sendmessage("compiled").
+        break.
+    }
+}
 
+run lib_log("main.log").
+run once lib_asc.
+
+run once lib_misc.
 //open_terminal().
 
 if ship:altitude < 99000 {

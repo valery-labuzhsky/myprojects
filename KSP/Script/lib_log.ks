@@ -14,8 +14,8 @@ if log_file {
 function log_log {
   parameter text.
 
-  //set text to TIME:CLOCK+": "+text.
-  set text to text.
+  set text to TIME:CLOCK+": "+text.
+  //set text to text.
   if log_file log text to log_name.
   print text.
 }

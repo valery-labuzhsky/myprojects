@@ -18,17 +18,17 @@ function start_throttle_dv {
         set ctrl_dv_t0 to time:seconds.
         local twr to calc_max_twr().
         if twr=0 {
-            lock throttle to ctrl_throt.
+            set ship:control:mainthrottle to ctrl_throt.
         } else {
             local cdv to ctrl_dv.
             local tt to cdv/twr.
             local th to tt/ctrl_dv_dt/16.
             if th > ctrl_throt set th to ctrl_throt.
-            lock throttle to th.
+            set ship:control:mainthrottle to th.
             set ctrl_dv to ctrl_dv - th*twr*ctrl_dv_dt.
         }
         if ctrl_dv_started preserve.
-        else lock throttle to ctrl_throt.
+        else set ship:control:mainthrottle to ctrl_throt.
     }
 }
 
@@ -42,7 +42,7 @@ function set_throttle_dv {
 
 function stop_throttle_dv {
     set ctrl_dv_started to false.
-    lock throttle to ctrl_throt.
+    set ship:control:mainthrottle to ctrl_throt.
 }
 
 function set_throttle {
@@ -51,13 +51,15 @@ function set_throttle {
     if thr>1 set thr to 1.
     set ctrl_throt to thr.
     if not ctrl_dv_started {
-        lock throttle to ctrl_throt.
+        set ship:control:mainthrottle to ctrl_throt.
+        set ship:control:pilotmainthrottle to ctrl_throt.
+        //lock throttle to ctrl_throt.
     }
 }
 
 function release_throttle {
     set_throttle(0).
-    unlock throttle.
+    //unlock throttle.
 }
 
 function get_throttle {
