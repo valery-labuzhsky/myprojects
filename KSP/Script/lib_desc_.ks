@@ -118,6 +118,18 @@ function desc_dist_newton3 {
     local body to ship:body.
     local ap to desc_appe(v, vh, r, body, 1).
     local pe to desc_appe(v, vh, r, body, -1).
+
+    //log_log("dap = "+ap).
+    //log_log("dpe = "+pe).
+    //log_log("dr = "+r).
+    //log_log(" ").
+
+    if ap < 0 {
+        log_log("ap < 0").
+        ret(dv/2, pi, -vz).
+        return.
+    }
+
     local s to sign(vh).
     local a to sign(vv)*calc_anomaly_wrong(ap, pe, r).
     local b to (calc_anomaly_wrong((ap), (pe), (ship:body:radius + base:TERRAINHEIGHT))).

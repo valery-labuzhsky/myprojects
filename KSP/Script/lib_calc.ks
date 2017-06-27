@@ -153,7 +153,7 @@ function calc_mean_ano {
     parameter ea. // eccentric anomaly
     parameter ec. // eccentricity
 
-    return ea - ec * (sinus((ea))).
+    return ea - ec*sinus(ea).
 }
 
 function calc_ecc_ano {

@@ -61,6 +61,7 @@ function desc_dist_time {
 
     local ap to desc_appe(v, vh, r, body, 1).
     if ap < 0 {
+        log_log("ap = "+ap).
         local fd to ship:body:radius*2*pi - ship:body:radius^2/ap.
         ret(fd, fd).
         return.
@@ -134,8 +135,10 @@ function desc_dist_atm_newton {
     }).
     local dd to d2-d1.
     if dd<>0 {
-        set ddv to -(d1+6)*ddv/(d2-d1). // TODO it's a little bit wrong
+        set ddv to -(d1+6+4)*ddv/(d2-d1). // TODO it's a little bit wrong
         set dv to dv+ddv.
+        log_log("ddv = "+ddv).
+        log_log("dv = "+dv).
     }
 
     ret(dv, ddv, -z/t-vz, t).
@@ -181,8 +184,20 @@ function desc_appe {
     parameter body.
     parameter aps. // 1/-1
 
+    if v > 1E10 {
+        log_log("v = "+v).
+        return -aps*v.
+    }
     local mrv2 to 2*body:mu - r*v^2.
-    local smrvm to sqrt(body:mu^2 - r*vh^2*mrv2).
+    // TODO separated to debug
+    local m2 to r*vh^2.
+    //log_log(v).
+    //log_log(vh).
+    //log_log(" ").
+    local m1 to m2*mrv2.
+    local smrvm2 to body:mu^2 - m1.
+    if smrvm2 < 0 log_log(smrvm2).
+    local smrvm to sqrt(smrvm2).
     if (aps>0) {
         return r*(body:mu + smrvm)/mrv2.
     } else {

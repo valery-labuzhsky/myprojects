@@ -2,7 +2,7 @@
 
 run once lib_calc.
 
-local msmnt_acc_started to false.
+local msmnt_lift_started to false.
 
 local msmnt_log to true.
 
@@ -33,16 +33,16 @@ local msmnt_lift to 0.
 local msmnt_dragr to 0.
 local msmnt_liftr to 0.
 
-function msmnt_acc_start {
-    set msmnt_acc_started to true.
+function msmnt_lift_start {
+    set msmnt_lift_started to true.
 
-    msmnt_acc_measure().
+    msmnt_lift_measure().
     set msmnt_e to -ship:body:mu/(msmnt_ap + msmnt_pe).
     set msmnt_w to sqrt(2*msmnt_ap*msmnt_pe*ship:body:mu/(msmnt_ap + msmnt_pe)).
-    msmnt_acc_save().
+    msmnt_lift_save().
 
-    when msmnt_acc_started then {
-        msmnt_acc_measure().
+    when msmnt_lift_started then {
+        msmnt_lift_measure().
 
         set msmnt_e to -ship:body:mu/(msmnt_ap + msmnt_pe).
         local de to (msmnt_e - msmnt_e0)*msmnt_m.
@@ -98,7 +98,7 @@ function msmnt_acc_start {
             //log_log("fe = "+fe).
             //log_log("fw = "+fw).
 
-            msmnt_acc_save().
+            msmnt_lift_save().
         }
 
         preserve.
@@ -106,10 +106,10 @@ function msmnt_acc_start {
 }
 
 function msmnt_acc_stop {
-    set msmnt_acc_started to false.
+    set msmnt_lift_started to false.
 }
 
-function msmnt_acc_measure {
+function msmnt_lift_measure {
     msmnt_measure({
         set msmnt_pos to ship:body:position.
         set msmnt_ap to calc_abs_ap().
@@ -125,7 +125,7 @@ function msmnt_acc_measure {
     }).
 }
 
-function msmnt_acc_save {
+function msmnt_lift_save {
     set msmnt_e0 to msmnt_e.
     set msmnt_w0 to msmnt_w.
     set msmnt_t0 to msmnt_t.

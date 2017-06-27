@@ -11,30 +11,14 @@ run once lib_desc.
 run once lib_desc_.
 run once lib_msmnt.
 run once lib_stat.
-
-local switch_active to false.
-local stage_speedup to switch_active and false.
+run once conf(false).
 
 local base to LATLNG(-0.097208003409217, -74.5576396864113).
 
-wait until ship:unpacked.
-
-local main_proc to 0.
-local all_processors to 0.
-list processors in all_processors.
-for processor in all_processors {
-    if processor:part:uid <> core:part:uid {
-        set main_proc to core.
-        break.
-    }
-}
-
-log_log(KUniverse:activevessel).
-log_log(ship).
-log_log(KUniverse:activevessel = ship).
+log_log("main "+main_proc).
 
 if main_proc<>0 {
-    wait until ship:altitude > 30000.
+    wait until ship:altitude > stage_alt.
 
     set_throttle(0).
 
@@ -50,6 +34,8 @@ log_log(KUniverse:activevessel = ship).
 //open_terminal().
 log_log("Stage").
 
+conf_stage().
+
 wait until ship:unpacked.
 wait until ship:velocity:surface:MAG > 0.
 
@@ -57,56 +43,20 @@ log_log(KUniverse:activevessel).
 log_log(ship).
 log_log(KUniverse:activevessel = ship).
 
-if switch_active {
+if conf_switch_active {
     until KUniverse:activevessel = ship KUniverse:FORCESETACTIVEVESSEL(ship).
 }
-
-local distances TO ship:LOADDISTANCE.
-log_log("escaping distances:").
-log_log("    load: " + distances:ESCAPING:LOAD + "m").
-log_log("  unload: " + distances:ESCAPING:UNLOAD + "m").
-log_log("  unpack: " + distances:ESCAPING:UNPACK + "m").
-log_log("    pack: " + distances:ESCAPING:PACK + "m").
-log_log("flying distances:").
-log_log("    load: " + distances:FLYING:LOAD + "m").
-log_log("  unload: " + distances:FLYING:UNLOAD + "m").
-log_log("  unpack: " + distances:FLYING:UNPACK + "m").
-log_log("    pack: " + distances:FLYING:PACK + "m").
-log_log("landed distances:").
-log_log("    load: " + distances:LANDED:LOAD + "m").
-log_log("  unload: " + distances:LANDED:UNLOAD + "m").
-log_log("  unpack: " + distances:LANDED:UNPACK + "m").
-log_log("    pack: " + distances:LANDED:PACK + "m").
-log_log("orbit distances:").
-log_log("    load: " + distances:ORBIT:LOAD + "m").
-log_log("  unload: " + distances:ORBIT:UNLOAD + "m").
-log_log("  unpack: " + distances:ORBIT:UNPACK + "m").
-log_log("    pack: " + distances:ORBIT:PACK + "m").
-log_log("prelaunch distances:").
-log_log("    load: " + distances:PRELAUNCH:LOAD + "m").
-log_log("  unload: " + distances:PRELAUNCH:UNLOAD + "m").
-log_log("  unpack: " + distances:PRELAUNCH:UNPACK + "m").
-log_log("    pack: " + distances:PRELAUNCH:PACK + "m").
-log_log("splashed distances:").
-log_log("    load: " + distances:SPLASHED:LOAD + "m").
-log_log("  unload: " + distances:SPLASHED:UNLOAD + "m").
-log_log("  unpack: " + distances:SPLASHED:UNPACK + "m").
-log_log("    pack: " + distances:SPLASHED:PACK + "m").
-log_log("suborbital distances:").
-log_log("    load: " + distances:SUBORBITAL:LOAD + "m").
-log_log("  unload: " + distances:SUBORBITAL:UNLOAD + "m").
-log_log("  unpack: " + distances:SUBORBITAL:UNPACK + "m").
-log_log("    pack: " + distances:SUBORBITAL:PACK + "m").
 
 set ship:control:neutralize to true.
 set ship:control:PILOTMAINTHROTTLE to 0.
 set ship:control:MAINTHROTTLE to 0.
 
-set ship:LOADDISTANCE:FLYING:UNLOAD to 322034.705598598.
+// TODO measure distances again
+set ship:LOADDISTANCE:FLYING:UNLOAD to 622034.705598598.
 wait 0.001.
-set ship:LOADDISTANCE:FLYING:PACK to 304593.202303569.
+set ship:LOADDISTANCE:FLYING:PACK to 604593.202303569.
 
-set sac_yaw_debug to true.
+//set sac_roll_debug to true.
 
 sac_start(lookdirup(heading(-90, 0):vector, heading(180, 0):vector)).
 
@@ -115,7 +65,27 @@ wait 1.
 sac_follow({return heading(-90, 0):vector.}).
 sac_start_following().
 
-if switch_active hud_text("Flip maneuver").
+if conf_switch_active hud_text("Flip maneuver").
+
+//if true {
+if not conf_switch_active {
+    set sac_manual_ac to true.
+    when true then {
+        local thr to get_throttle().
+        local ac_yaw to get_ac(thr, 8, 50).
+        local ac_roll to get_ac(thr, 200, 5000).
+        sac_ac(ac_yaw, ac_yaw, ac_roll).
+        preserve.
+    }
+}
+
+function get_ac {
+    parameter thr.
+    parameter min.
+    parameter max.
+
+    return min + (max - min)*thr.
+}
 
 if vectorangle(ship:facing:vector, ship:SRFRETROGRADE:vector) > vectorangle(ship:facing:vector, heading(-90, 0):vector) {
     local sa to V(0, 0, 0).
@@ -173,7 +143,7 @@ if vectorangle(ship:facing:vector, ship:SRFRETROGRADE:vector) > vectorangle(ship
         local ac to sac_new_target:vector * ship:facing:vector.
         if ac > 1 set ac to 1.
         if ac > 0.8 {
-            if switch_active hud_text("Boostback burn").
+            if conf_switch_active hud_text("Boostback burn").
         }
         set_throttle((1-arccos(ac)/180)^4).
     }
@@ -181,13 +151,18 @@ if vectorangle(ship:facing:vector, ship:SRFRETROGRADE:vector) > vectorangle(ship
     stop_throttle_dv().
 }
 
+log_log("Fall").
+
+set ship:control:PILOTMAINTHROTTLE to 0.
+set ship:control:MAINTHROTTLE to 0.
+
 //if false {
-if ship:altitude > 10000 and stage_speedup {
+if ship:altitude > 10000 and conf_speedup {
     warp_phys(1).
     when ship:altitude < 10000 then warp_stop().
 }
 
-when ship:altitude < 30000 then if switch_active hud_text("Aerodynamic guidance").
+when ship:altitude < stage_alt then if conf_switch_active hud_text("Aerodynamic guidance").
 
 //msmnt_acc_start().
 
@@ -283,7 +258,7 @@ function lift_an_a {
     local a to dv*4/t.
 
     local an to a*ship:mass/liftr/ship:q.
-    set an to an*e^(-ship:altitude/30000).// altitude correction
+    set an to an*e^(-ship:altitude/stage_alt).// altitude correction
     if an > 10 set an to 10.
     else if an < -10 set an to -10.
     return an.
@@ -295,7 +270,7 @@ function lift_an_a {
 //deletepath("stage.csv").
 //log "v, a, c, t, y" to "stage.csv".
 
-if switch_active hud_text("Landing burn").
+if conf_switch_active hud_text("Landing burn").
 
 set anz to 0.
 set degt to 1.//0.3.
@@ -308,7 +283,7 @@ sac_start_following_toggle().
 set liftr to 15. // TODO hack
 set dragr to 120.
 
-until base_alt() < 10 {
+until base_alt() < 10+10 {
     set twr to gt_twr(twr).
     //set_throttle(((twr)*1.1/calc_max_twr())*10-9).
     local a to (twr-dragr*ship:q/ship:mass).
@@ -390,7 +365,7 @@ until ship:verticalspeed >= 0 {
 
 set_throttle(0).
 
-if switch_active hud_text("Landed").
+if conf_switch_active hud_text("Landed").
 
 log_log("Distance "+(vectorexclude(heading(0, 90):vector, base:position)):mag).
 log_log("Fuel left "+SHIP:LIQUIDFUEL).
@@ -421,7 +396,7 @@ function gt_twr {
     local sa to 0.
     local v to 0.
     msmnt_measure({
-        set dh to base_alt()-5.
+        set dh to base_alt()-5-10.
         set sa to calc_srf_ang().
         set v to ship:velocity:surface:mag.
     }).
@@ -546,7 +521,7 @@ function gt_dist_newton {
 }
 
 function base_desc_dist {
-    return desc_dist_self(base, 0, 0) + 6.
+    return desc_dist_self(base, 0, 0) + 6 + 4.
 }
 
 function base_dist {

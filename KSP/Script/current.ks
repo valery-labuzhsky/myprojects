@@ -20,6 +20,7 @@ run once lib_asc.
 run once lib_misc.
 //open_terminal().
 
-if ship:altitude < 99000 {
+if ship:altitude < 99800 {
     asc_start(100000).
 }
+log_log("Out").

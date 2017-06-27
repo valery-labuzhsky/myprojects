@@ -42,7 +42,9 @@ function arccos_ {
 function acos_ {
     parameter x.
 
-    return -1/sqrt(1-x^2).
+    local x2 to 1-x^2.
+    if x2 < 0 return -1.
+    return -1/sqrt(x2).
 }
 
 function arctan2_ {

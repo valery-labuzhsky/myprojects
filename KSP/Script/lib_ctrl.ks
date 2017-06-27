@@ -22,7 +22,7 @@ function start_throttle_dv {
         } else {
             local cdv to ctrl_dv.
             local tt to cdv/twr.
-            local th to tt/ctrl_dv_dt/16.
+            local th to tt/ctrl_dv_dt/8. // 16
             if th > ctrl_throt set th to ctrl_throt.
             set ship:control:mainthrottle to th.
             set ctrl_dv to ctrl_dv - th*twr*ctrl_dv_dt.

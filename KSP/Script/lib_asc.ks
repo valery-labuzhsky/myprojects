@@ -1,5 +1,36 @@
 @LAZYGLOBAL off.
 
+// 25000, 25, 0.34, 32.32
+// 24000, 25, 5.7
+// 24000, 26, 4.66
+// 24000, 28, 5.15
+// 24000, 35, crash
+// 24000, 34, crash
+// 24000, 33, 0.03
+// 24000, 32, 2.0, 35.78
+// 23000, 32, 8.71
+// 23000, 35, 4.0
+// 23000, 36, 3.72
+// 23000, 37, 1.41, 37.44
+// 22000, 40, 4.73
+// 22000, 41, 2.75
+// 22000, 42, 1.44, 38.92, falls
+// 14000, 42, didn't make it to 30000
+// 18000, 42, 35.92, falls
+// 18000, 57, xxx, 1st stage didn't make it to landing zone, 2nd stage burnt in atmosphere
+// 18000, 50, 0,
+// 18000, 49, xxx, 1st stage didn't land, 2nd stage burnt in atmosphere
+// 18000, 45, ???, 27.26
+// 18000, 43, ???, 27.02
+// 18000, 40, ???, 27.13
+// 21000, 45, ???, 38.75
+// 21000, 46, 0, 39.40
+// follow prograde after cut off
+// 21000, 40, 2.88
+// 21000, 41, 0.99, 39.83
+// stage at 25000 and 29000
+// 21000, 41, it spins
+
 set ship:control:neutralize to true.
 set ship:control:PILOTMAINTHROTTLE to 0.
 set ship:control:MAINTHROTTLE to 0.
@@ -10,19 +41,18 @@ run once lib_ctrl.
 run once lib_gt.
 run once lib_msmnt.
 run once lib_math.
+run once conf(true).
 
-local switch_active to false.
-local asc_autowarp to false.
-local asc_speedup to false.
+local cutoff_alt to 21000.
+local target_angle to 40.
 
-local base to LATLNG(-0.097208003409217, -74.5576396864113).
-local start_time to 0.
 //set sac_yaw_debug to true.
 
 function asc_start {
     parameter th.
 
-    if ship:altitude < 25000 {
+    //if false {
+    if ship:altitude < cutoff_alt {
         wait 5.
         from {local c is 5.} until c = 0 step {set c to c - 1.} do {
             HUDTEXT(c, 1, 2, 18, RGB(0.5,1.0,0.0), false).
@@ -32,21 +62,22 @@ function asc_start {
 
     sac_start(ship:facing).
 
-    if ship:altitude < 25000 {
+    if ship:altitude < cutoff_alt {
         set_throttle(1).
         stage.
         HUD_TEXT("Lift off").
 
-        when ship:altitude > 25000 then {
+        when ship:altitude > cutoff_alt then {
+            if conf_speedup warp_stop().
             release_throttle().
             HUD_TEXT("Main engine cutoff").
         }
     }
-    set start_time to time:seconds.
-    if ship:altitude < 30000 {
+    if ship:altitude < stage_alt {
         log_log("Gravity turn").
-        if asc_speedup warp_phys(1).
-        asc_grav_turn_a(30000).//30000
+        if conf_speedup warp_phys(1).
+        asc_grav_turn_a(cutoff_alt).//30000
+        asc_follow_prograde(stage_alt).
 
         set_throttle(0).
         stage.
@@ -56,29 +87,33 @@ function asc_start {
         set_throttle(0.1).
         wait 1.
         set_throttle(1).
-        if not switch_active hud_text("Second engine startup").
+        if not conf_switch_active hud_text("Second engine startup").
+
+        conf_stage().
 
         log_log("Moving to transfer orbit").
     //if asc_speedup warp_phys(1).
         asc_inc_ap(th).
-        if not switch_active hud_text("Second engine cutoff").
+        if not conf_switch_active hud_text("Second engine cutoff").
 
-        if asc_speedup and not switch_active warp_phys(3).
-        if asc_autowarp {
+        if conf_speedup and not conf_switch_active warp_phys(3).
+        if conf_autowarp {
             log_log("Wait for warp").
             asc_wait_ap(th, 70000).
             log_log("Warp").
             asc_warp_2_ap(th).
+        } else {
+            asc_wait_ap(th, 99000).
         }
 
-        if asc_speedup and not switch_active warp_stop().
+        if conf_speedup and not conf_switch_active warp_stop().
     }
 
     log_log("Final maneuver").
     asc_burn_2_orb_ap(th).
 
-    if not switch_active hud_text("Second engine cutoff (2)").
-    if not switch_active hud_text("Orbit").
+    if not conf_switch_active hud_text("Second engine cutoff (2)").
+    if not conf_switch_active hud_text("Orbit").
 
     sac_target(heading3(90, 0, -90)).
     set_throttle(0).
@@ -113,9 +148,18 @@ function asc_grav_turn_a {
             }
         }
 
-        set a to gt_nt_a(1.2*calc_max_twr(), 30000, a, 25, v:MAG, alt). // 70!
+        set a to gt_nt_a(1.2*calc_max_twr(), sal, a, target_angle, v:MAG, alt). // 70!
         sac_toggle(r(0, a, 0)).
     }
+}
+
+function asc_follow_prograde {
+    parameter sal.
+
+    sac_follow({return ship:velocity:surface.}).
+    sac_toggle(r(0, 0, 0)).
+
+    wait until ship:altitude > sal.
 }
 
 function asc_inc_ap {
@@ -135,7 +179,7 @@ function asc_inc_ap {
         local pe to calc_abs_pe().
         local ap to calc_abs_ap().
 
-        local vv0 to calc_vvel(ap, pe, r).
+        local vv0 to sign(ship:verticalspeed)*calc_vvel(ap, pe, r).
         local vh0 to calc_hvel(ap, pe, r).
         local vv to calc_vvel(tap, tpe, r)-vv0.
         local vh to calc_hvel(tap, tpe, r)-vh0.
@@ -205,7 +249,7 @@ function asc_wait_ap { // TODO sac follow, new thrust, new directions
             set_throttle(0).
             if calc_min_thr_time_2_orb(tap) > calc_time_2_alt(tap) set next to true.
         } else {
-            set_throttle(asc_thr_2_ap_wait(th)).
+            //set_throttle(asc_thr_2_ap_wait(th)). // TODO uncomment me
             sac_target(roll_dir(ship:prograde, -90)).
         }
     }
@@ -231,7 +275,7 @@ function asc_warp_2_ap {
 
     set_throttle(0).
     local tr to calc_abs(th).
-    local wt to calc_time_2_alt(tr) - calc_min_thr_time_2_orb(tr).
+    local wt to calc_time_2_alt(tr) - calc_min_thr_time_2_orb(tr) - 10.
     if wt > 0 {
         warp_wait(wt).
     }
@@ -241,16 +285,6 @@ function asc_warp_2_ap {
 
 function asc_burn_2_orb_ap {
     parameter th.
-
-    when time:seconds - start_time > 5*60 + 25 then {
-        log_log(base:position:mag).
-    }
-    when time:seconds - start_time > 5*60 + 35 then {
-        log_log(base:position:mag).
-    }
-    when time:seconds - start_time > 5*60 + 45 then {
-        log_log(base:position:mag).
-    }
 
     sac_follow({return heading(90, 0):vector.}).
     sac_start_following().
@@ -315,14 +349,14 @@ function asc_burn_2_orb_ap {
             if state = 0 {
                 if tthr >= 1 {
                     set state to 1.
-                    if not switch_active hud_text("Second engine startup (2)").
+                    if not conf_switch_active hud_text("Second engine startup (2)").
                 }
             }
             set thr to thr * tthr.
 
             // angle of attack
             local a to arctan2(vv, vh) - todeg(tta - ta).
-            if thr > 1 {
+            if thr > 1 { // TODO
                 local t2 to t/2.
                 local ac to 2*(tr0-r - calc_vvel_ta(ap, pe, r, ta)*t2)/t2^2 - calc_vacc(ap, pe, r).
                 local na2 to mtwr^2 - ac^2*cos(a)^2.
@@ -332,6 +366,10 @@ function asc_burn_2_orb_ap {
                 }
             }
             sac_toggle(r(0, -a, 0)).
+
+            //stat_log("orb",
+                    //{return list("a", "state", "thr").},
+                    //list(a, state, thr)).
         }
 
         // set thrust
@@ -346,3 +384,13 @@ function asc_burn_2_orb_ap {
     stop_throttle_dv().
     sac_stop_following().
 }
+
+function calc_ecc_ano { // approximately
+    parameter dt. // time after ea
+    parameter ea. // eccentric anomaly
+    parameter ec. // eccentricity
+
+    local dt to ea - ec*sinus(ea).
+}
+
+
