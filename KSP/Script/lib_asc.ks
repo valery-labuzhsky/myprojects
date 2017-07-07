@@ -455,20 +455,23 @@ function asc_burn_2_orb_ap2 {
     local tr0 to calc_abs(th).
     local tr to tr0.
 
+    local ta to torad(ship:obt:TRUEANOMALY).
+    // target anomaly
+    local tta to ta.
+    local sta to ta.
+
     set_throttle(0).
     start_throttle_dv().
     until state = 3 {
     // TODO run measure
-        local ta to torad(ship:obt:TRUEANOMALY).
+        set ta to torad(ship:obt:TRUEANOMALY).
         local ap to calc_abs_ap().
         local pe to calc_abs_pe().
         local r to calc_abs_alt().
         local mtwr to calc_max_twr().
 
-    // target anomaly
-        local tta to ta.
-        //if false {
-        if state < 2 {
+        if false {
+        //if state < 2 {
             set tta to calc_true_ano(ap, pe, tr).
             if tta < ta set tta to pi2 - tta.
             //if false {
@@ -478,7 +481,8 @@ function asc_burn_2_orb_ap2 {
             }
         }
 
-        if state = 2 {
+        if true {
+        } else if state = 2 {
             set tr to r.
             //set tta to pi.
         } else if ap < tr {
@@ -486,15 +490,19 @@ function asc_burn_2_orb_ap2 {
         }
 
     // dv
-        local vv0 to calc_vvel_ta(ap, pe, tr, tta).
+        local vv0 to calc_vvel_ta(ap, pe, tr, sta).
         local vh0 to calc_hvel(ap, pe, tr).
         local vv to 0-vv0.
         local vh to calc_hvel(tr, tr, tr)-vh0.
         local dv to sqrt(vv^2 + vh^2).
+
+        set tta to calc_true_ano(ap, pe, tr0).
+        if tta < ta set tta to pi2 - tta.
+
         local p to calc_time_2_tr_ano(ta, tta, ap, pe, ship:body).
         //if p > pi set p to p - pi2. TODO
 
-        local a to -todeg(tta - ta). // TODO it doesn't work in state 2
+        local a to -todeg(sta - ta). // TODO it doesn't work in state 2
         if false {
         //if state = 2 { // TODO hack
             set a to  a + arctan2(vv, vh).
@@ -544,15 +552,21 @@ function asc_burn_2_orb_ap2 {
         }
 
         local dr to 0.
-        if dt <> 0 or tr = ap {
+        set tr to tr0.
+        set sta to tta.
+        if dt <> 0 or tr > ap {
             local n to calc_mean_motion(ap, pe, ship:body).
             local dma to dt*n.
             local ec to calc_ecc(ap, pe).
             local ea0 to calc_ecc_ano(tta, ec).
             local ea to calc_ecc_ano_dt(dma, ea0, ec).
-            set dr to calc_alt_ecc_ano(ea, ec, (ap+pe)/2) - tr0.
 
-            if dt <> 0 { // TODO replace it with a hint to next cycle
+            set tr to calc_alt_ecc_ano(ea, ec, (ap+pe)/2).
+            set dr to tr - tr0.
+
+            set sta to calc_true_ano_ecc(ea, ec).
+            if false {
+            //if dt <> 0 { // TODO replace it with a hint to next cycle
                 local ntr to tr0 + dr.
                 set vv0 to calc_vvel_ta(ap, pe, ntr, ea).
                 set vh0 to calc_hvel(ap, pe, ntr).
