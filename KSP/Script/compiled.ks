@@ -2,8 +2,8 @@ local compiled_list to lexicon().
 set compiled_list["compile"] to 728.
 set compiled_list["current"] to 476.
 set compiled_list["funct"] to 30.
-set compiled_list["lib_asc"] to 9981.
-set compiled_list["lib_calc"] to 5198.
+set compiled_list["lib_asc"] to 16627.
+set compiled_list["lib_calc"] to 5335.
 set compiled_list["lib_ctrl"] to 2527.
 set compiled_list["lib_desc"] to 4856.
 set compiled_list["lib_desc_"] to 10412.
@@ -21,4 +21,4 @@ set compiled_list["lib_stage"] to 13233.
 set compiled_list["lib_stat"] to 847.
 set compiled_list["perf"] to 1858.
 set compiled_list["stage"] to 489.
-set compiled_list["test"] to 624.
+set compiled_list["test"] to 129.

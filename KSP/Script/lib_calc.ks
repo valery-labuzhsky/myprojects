@@ -117,13 +117,20 @@ function calc_true_ano {
     return acos2(pe*(ap-r) - ap*(r - pe), r*(ap - pe)).
 }
 
+function calc_true_ano_ecc {
+    parameter ea.
+    parameter ec.
+
+    return 2*atan2(sqrt(1 + ec)*sinus(ea/2), sqrt(1 - ec)*cosin(ea/2)).
+}
+
 function calc_time_2_mean_ano {
     parameter ma_from. // rad
     parameter ma_to. // rad
     parameter n.
 
     local da to ma_to - ma_from.
-    if da < 0 set da to pi2 + da.
+    //if da < 0 set da to pi2 + da.
     return da/n.
 }
 

@@ -110,7 +110,7 @@ function asc_start {
     }
 
     log_log("Final maneuver").
-    asc_burn_2_orb_ap(th).
+    asc_burn_2_orb_ap2(th).
 
     if not conf_switch_active hud_text("Second engine cutoff (2)").
     if not conf_switch_active hud_text("Orbit").
@@ -385,12 +385,240 @@ function asc_burn_2_orb_ap {
     sac_stop_following().
 }
 
-function calc_ecc_ano { // approximately
-    parameter dt. // time after ea
+local asc_thr_start_time to 1.
+local asc_thr_end_time to 10.
+
+function asc_thr_stage {
+    parameter mtwr.
+    parameter dv0.
+    parameter dv1.
+
+    if dv1 < dv0 {
+        if dv0 > dv1 + mtwr*asc_thr_start_time/2 {
+            return 0. // min = /'''\ , max = '''\
+        } else {
+            return 1. // min = /\ , max = '\
+        }
+    } else {
+        return 2. // min = /\, max = \
+    }
+}
+
+function asc_max_thr_dx_1 {
+    parameter mtwr.
+    parameter dv0.
+    parameter dv1.
+    parameter dx1.
+
+    return dx1 + dv0^2/2/mtwr - dv1^2/2/mtwr.
+}
+
+function asc_max_thr_dx_2 {
+    parameter mtwr.
+    parameter t.
+
+    return mtwr*t^3/6/asc_thr_end_time.
+}
+
+function asc_time_to_stop {
+    parameter mtwr.
+    parameter dv0.
+
+    return sqrt(2*dv0*asc_thr_end_time/mtwr).
+}
+
+function asc_min_thr_dx_1 {
+    parameter mdx.
+    parameter mtwr.
+    parameter dv0.
+
+    return mdx + dv0*asc_thr_start_time/2 - mtwr*asc_thr_start_time^2/24.
+}
+
+function asc_min_thr_dx_2 {
+    parameter mdx. // result of asc_max_thr_dx_2
+
+    local st to asc_thr_start_time.
+    local et to asc_thr_end_time.
+    return mdx*(et + 2*st)/sqrt((et + st)*et).
+}
+
+function asc_burn_2_orb_ap2 {
+    parameter th.
+
+    sac_follow({return heading(90, 0):vector.}).
+    sac_start_following().
+    sac_start_following_toggle().
+
+    local state to 1. // TODO 0 is not needed
+
+    local tr0 to calc_abs(th).
+    local tr to tr0.
+
+    set_throttle(0).
+    start_throttle_dv().
+    until state = 3 {
+    // TODO run measure
+        local ta to torad(ship:obt:TRUEANOMALY).
+        local ap to calc_abs_ap().
+        local pe to calc_abs_pe().
+        local r to calc_abs_alt().
+        local mtwr to calc_max_twr().
+
+    // target anomaly
+        local tta to ta.
+        //if false {
+        if state < 2 {
+            set tta to calc_true_ano(ap, pe, tr).
+            if tta < ta set tta to pi2 - tta.
+            //if false {
+            if tta < ta {
+                set state to 2.
+                set tta to ta.
+            }
+        }
+
+        if state = 2 {
+            set tr to r.
+            //set tta to pi.
+        } else if ap < tr {
+            set tr to ap.
+        }
+
+    // dv
+        local vv0 to calc_vvel_ta(ap, pe, tr, tta).
+        local vh0 to calc_hvel(ap, pe, tr).
+        local vv to 0-vv0.
+        local vh to calc_hvel(tr, tr, tr)-vh0.
+        local dv to sqrt(vv^2 + vh^2).
+        local p to calc_time_2_tr_ano(ta, tta, ap, pe, ship:body).
+        //if p > pi set p to p - pi2. TODO
+
+        local a to -todeg(tta - ta). // TODO it doesn't work in state 2
+        if false {
+        //if state = 2 { // TODO hack
+            set a to  a + arctan2(vv, vh).
+            //set a to -todeg(pi-ta).
+        }
+
+        local thr to 0. // todo check usage
+
+        local st to 1. // TODO set
+        local et to 10.
+        local dx0 to dv*p.
+        local dv0 to dv.
+        local dv1 to mtwr*et/2.
+        local dx1 to mtwr*et^2/6.
+
+        local stg to asc_thr_stage(mtwr, dv0, dv1).
+
+        local mdx to 0.
+        local tts to et.
+        if stg < 2 {
+            set mdx to asc_max_thr_dx_1(mtwr, dv0, dv1, dx1).
+        } else {
+            set tts to asc_time_to_stop(mtwr, dv0).
+            set mdx to asc_max_thr_dx_2(mtwr, tts).
+        }
+
+        set thr to tts/et.
+
+        local dt to 0.
+        if dx0 > mdx {
+            local zdx to 0.
+            if stg = 0 {
+                set zdx to asc_min_thr_dx_1(mdx, mtwr, dv0).
+            } else if stg = 1 {
+                set zdx to asc_min_thr_dx_2((asc_max_thr_dx_2(mtwr, (asc_time_to_stop(mtwr, dv0))))).
+            } else {
+                set zdx to asc_min_thr_dx_2(mdx).
+            }
+
+            if dx0 > zdx {
+                set thr to 0.
+            } else {
+                set thr to thr * (zdx - dx0)/(zdx - mdx).
+            }
+        } else { // overshoot
+            set dt to mdx/dv - p.
+        }
+
+        local dr to 0.
+        if dt <> 0 or tr = ap {
+            local n to calc_mean_motion(ap, pe, ship:body).
+            local dma to dt*n.
+            local ec to calc_ecc(ap, pe).
+            local ea0 to calc_ecc_ano(tta, ec).
+            local ea to calc_ecc_ano_dt(dma, ea0, ec).
+            set dr to calc_alt_ecc_ano(ea, ec, (ap+pe)/2) - tr0.
+
+            if dt <> 0 { // TODO replace it with a hint to next cycle
+                local ntr to tr0 + dr.
+                set vv0 to calc_vvel_ta(ap, pe, ntr, ea).
+                set vh0 to calc_hvel(ap, pe, ntr).
+                set vv to 0-vv0.
+                set vh to calc_hvel(ntr, ntr, ntr)-vh0.
+
+                local ntta to calc_true_ano_ecc(ea, ec).
+                set a to -todeg(ntta - ta).
+            }
+            log_log("dt = "+dt).
+            log_log("dma = "+dma).
+            log_log("ec = "+ec).
+            log_log("ea0 = "+ea0).
+            log_log("ea = "+ea).
+            log_log("dr = "+dr).
+        }
+
+        if state < 2 {
+            set a to  a + arctan2(vv, vh).
+
+            if dr <> 0 {
+                local t to (p + dt)*2.
+                local acc to -4*dr/t^2.
+
+                set a to a + arctan2(acc, mtwr).
+                set thr to thr*sqrt(mtwr^2 + acc^2)/mtwr.
+            }
+
+            log_log("a = "+a).
+            log_log("thr = "+thr).
+            log_log(" ").
+
+            //sac_toggle(r(0, -a, 0)). // TODO it may cause little incorect orbit, but don't jiggle
+        }
+
+        sac_toggle(r(0, -a, 0)).
+
+        stat_log("orb",
+                {return list("a", "state", "thr", "ta", "tta", "dr", "dt", "ap", "pe", "alt", "stg", "dx0", "mdx").},
+                list(a, state, thr, ta, tta, dr, dt, (ap-ship:body:RADIUS), (pe-ship:body:RADIUS), (r-ship:body:RADIUS), stg, dx0, mdx)).
+
+    // set thrust
+        set_throttle(thr).
+        set_throttle_dv(dv).
+        if ta < torad(90) or ta > torad(270) or pe > tr0 set state to 3. // Maybe angle(dv, facing) is better but it's fine
+    }
+
+    set_throttle(0).
+    stop_throttle_dv().
+    sac_stop_following().
+}
+
+function calc_ecc_ano_dt { // approximately
+    parameter dma. // mean anomaly after ea (dt/n)
     parameter ea. // eccentric anomaly
     parameter ec. // eccentricity
 
-    local dt to ea - ec*sinus(ea).
+    return ea + dma/(1 - ec*cosin(ea)).
+}
+
+function calc_alt_ecc_ano {
+    parameter ea.
+    parameter ec. // calculate?
+    parameter a. // semimajor axis (ap + pe)/2
+
+    return a*(1 - ec*cosin(ea)).
 }
 
 
