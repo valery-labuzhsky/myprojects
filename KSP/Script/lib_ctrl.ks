@@ -4,26 +4,38 @@ local ctrl_throt to 0.
 local ctrl_autostage to false.
 local ctrl_as_autostage to false.
 
+local ctrl_udv to 0.
 local ctrl_dv0 to 0.
 local ctrl_dv to 0.
 local ctrl_dv_started to false.
 local ctrl_dv_dt to 0.04.
 local ctrl_dv_t0 to 0.
 
+local ctrl_state to 0.
+
+local ctrl_min_thrust to 0.00001.
+
 function start_throttle_dv {
     set ctrl_dv_started to true.
     set ctrl_dv_t0 to time:seconds.
+    set ctrl_state to 0.
+    set ctrl_dv to 0.
     when true then {
         set ctrl_dv_dt to time:seconds - ctrl_dv_t0.
         set ctrl_dv_t0 to time:seconds.
         local twr to calc_max_twr().
         if twr=0 {
             set ship:control:mainthrottle to ctrl_throt.
-        } else {
+        } else if ctrl_dv <> 0 {
             local cdv to ctrl_dv.
             local tt to cdv/twr.
-            local th to tt/ctrl_dv_dt/8. // 16
-            if th > ctrl_throt set th to ctrl_throt.
+            local th to tt/ctrl_dv_dt/16. // 16
+            if th > ctrl_throt {
+                set th to ctrl_throt.
+                set ctrl_state to 0.
+            } else {
+                set ctrl_state to 1.
+            }
             set ship:control:mainthrottle to th.
             set ctrl_dv to ctrl_dv - th*twr*ctrl_dv_dt.
         }
@@ -35,9 +47,14 @@ function start_throttle_dv {
 function set_throttle_dv {
     parameter dv.
 
-    //log_log("set").
     set ctrl_dv to dv - ctrl_dv0 + ctrl_dv.
+    local fin to false.
+    if ctrl_state = 1 and ctrl_udv < dv {
+        set fin to true.
+    }
     set ctrl_dv0 to ctrl_dv.
+    set ctrl_udv to dv.
+    return fin.
 }
 
 function stop_throttle_dv {

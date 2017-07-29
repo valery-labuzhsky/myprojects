@@ -141,6 +141,7 @@ function msmnt_measure {
         set t to time:seconds.
         f().
     }
+    return t.
 }
 
 function msmnt_anomaly_dv {

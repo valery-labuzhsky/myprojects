@@ -51,7 +51,7 @@ local target_angle to 40.
 function asc_start {
     parameter th.
 
-    //if false {
+//if false {
     if ship:altitude < cutoff_alt {
         wait 5.
         from {local c is 5.} until c = 0 step {set c to c - 1.} do {
@@ -93,7 +93,7 @@ function asc_start {
 
         log_log("Moving to transfer orbit").
     //if asc_speedup warp_phys(1).
-        asc_inc_ap(th).
+        asc_inc_ap(th + 100).
         if not conf_switch_active hud_text("Second engine cutoff").
 
         if conf_speedup and not conf_switch_active warp_phys(3).
@@ -110,7 +110,7 @@ function asc_start {
     }
 
     log_log("Final maneuver").
-    asc_burn_2_orb_ap2(th).
+    asc_burn_2_orb_ap(th).
 
     if not conf_switch_active hud_text("Second engine cutoff (2)").
     if not conf_switch_active hud_text("Orbit").
@@ -172,12 +172,19 @@ function asc_inc_ap {
 
     start_throttle_dv().
     set_throttle(1).
+
+    local r to 0.
+    local pe to 0.
+    local ap to 0.
+
     until ship:obt:APOAPSIS > tal - 1 { // TODO remove -1000
         local tpe to asc_tgt_pe(tap, tpes).
 
-        local r to calc_abs_alt().
-        local pe to calc_abs_pe().
-        local ap to calc_abs_ap().
+        msmnt_measure({
+            set r to calc_abs_alt().
+            set pe to calc_abs_pe().
+            set ap to calc_abs_ap().
+        }).
 
         local vv0 to sign(ship:verticalspeed)*calc_vvel(ap, pe, r).
         local vh0 to calc_hvel(ap, pe, r).
@@ -185,8 +192,9 @@ function asc_inc_ap {
         local vh to calc_hvel(tap, tpe, r)-vh0.
 
         local a to arctan2(vv, vh).
+        log_log(ship:obt:APOAPSIS).
         sac_toggle(r(0, -a, 0)).
-        set_throttle_dv(sqrt(vv^2 + vh^2)).
+        if set_throttle_dv(sqrt(vv^2 + vh^2)) break.
     }
     set_throttle(0).
     stop_throttle_dv().
@@ -249,7 +257,7 @@ function asc_wait_ap { // TODO sac follow, new thrust, new directions
             set_throttle(0).
             if calc_min_thr_time_2_orb(tap) > calc_time_2_alt(tap) set next to true.
         } else {
-            //set_throttle(asc_thr_2_ap_wait(th)). // TODO uncomment me
+        //set_throttle(asc_thr_2_ap_wait(th)). // TODO uncomment me
             sac_target(roll_dir(ship:prograde, -90)).
         }
     }
@@ -282,111 +290,6 @@ function asc_warp_2_ap {
 
     sac_stop_following().
 }
-
-function asc_burn_2_orb_ap {
-    parameter th.
-
-    sac_follow({return heading(90, 0):vector.}).
-    sac_start_following().
-    sac_start_following_toggle().
-
-    local state to 0.
-
-    set_throttle(0).
-    start_throttle_dv().
-    until state = 3 {
-        // TODO run measure
-        local ta to torad(ship:obt:TRUEANOMALY).
-        local ap to calc_abs_ap().
-        local pe to calc_abs_pe().
-        local r to calc_abs_alt().
-        local mtwr to calc_max_twr().
-
-        // target altitude
-        local tr to calc_abs(th).
-        local tr0 to tr.
-
-        // target anomaly
-        local tta to ta.
-        if state < 2 {
-            set tta to calc_true_ano(ap, pe, tr).
-            if tta < ta set tta to pi2 - tta.
-            if tta < ta {
-                set state to 2.
-                set tta to ta.
-            }
-        }
-
-        if state = 2 {
-            set tr to r.
-        } else if ap < tr {
-            set tr to ap.
-        }
-
-        // dv
-        local vv0 to calc_vvel_ta(ap, pe, tr, tta).
-        local vh0 to calc_hvel(ap, pe, tr).
-        local vv to 0-vv0.
-        local vh to calc_hvel(tr, tr, tr)-vh0.
-        local dv to sqrt(vv^2 + vh^2).
-
-        // time of burning
-        local t to dv/mtwr.
-        // ending of burning
-        local pd to 10.
-        local thr to sqrt(2*t/pd).
-        if thr > 1 {
-            set thr to 1.
-            set t to t + pd/2.
-        } else {
-            set t to thr * pd.
-        }
-
-        if state < 2 {
-            // time to target
-            local p to calc_time_2_tr_ano(ta, tta, ap, pe, ship:body).
-            local tthr to (t/p/2)^2.
-            if state = 0 {
-                if tthr >= 1 {
-                    set state to 1.
-                    if not conf_switch_active hud_text("Second engine startup (2)").
-                }
-            }
-            set thr to thr * tthr.
-
-            // angle of attack
-            local a to arctan2(vv, vh) - todeg(tta - ta).
-            if thr > 1 { // TODO
-                local t2 to t/2.
-                local ac to 2*(tr0-r - calc_vvel_ta(ap, pe, r, ta)*t2)/t2^2 - calc_vacc(ap, pe, r).
-                local na2 to mtwr^2 - ac^2*cos(a)^2.
-                if na2 > 0 {// it's not worth it close to 0
-                    local na to sqrt(na2) - ac*sin(a).
-                    set a to arctan2(ac+na*sin(a), na*cos(a)).
-                }
-            }
-            sac_toggle(r(0, -a, 0)).
-
-            //stat_log("orb",
-                    //{return list("a", "state", "thr").},
-                    //list(a, state, thr)).
-        }
-
-        // set thrust
-        if state > 0 {
-            set_throttle(thr).
-            set_throttle_dv(dv).
-        }
-        if ta < torad(90) or ta > torad(270) or pe > tr0 set state to 3. // Maybe angle(dv, facing) is better but it's fine
-    }
-
-    set_throttle(0).
-    stop_throttle_dv().
-    sac_stop_following().
-}
-
-local asc_thr_start_time to 1.
-local asc_thr_end_time to 10.
 
 function asc_thr_stage {
     parameter mtwr.
@@ -443,7 +346,10 @@ function asc_min_thr_dx_2 {
     return mdx*(et + 2*st)/sqrt((et + st)*et).
 }
 
-function asc_burn_2_orb_ap2 {
+local asc_thr_start_time to 2. // 1
+local asc_thr_end_time to 10.
+
+function asc_burn_2_orb_ap {
     parameter th.
 
     sac_follow({return heading(90, 0):vector.}).
@@ -456,68 +362,73 @@ function asc_burn_2_orb_ap2 {
     local tr to tr0.
 
     local ta to torad(ship:obt:TRUEANOMALY).
-    // target anomaly
+// target anomaly
     local tta to ta.
     local sta to ta.
+    local st to asc_thr_start_time.
+    local et to asc_thr_end_time.
+
+    local ap to 0.
+    local pe to 0.
+    local r to 0.
+    local mtwr to calc_max_twr().
+
+    local t to time:seconds.
+    local t0 to t.
+    local dt to 0.
+
+    local ra to 0.
+
+    local mw to 1000.
+    local s2dv to mtwr*mw/360*0.5. // It realy depends on eccentricity - how easiliy anomality can be changed
+
+    local trv to -0.1. // -0.05 if measured
+    local tr1 to tr0.
 
     set_throttle(0).
     start_throttle_dv().
     until state = 3 {
-    // TODO run measure
-        set ta to torad(ship:obt:TRUEANOMALY).
-        local ap to calc_abs_ap().
-        local pe to calc_abs_pe().
-        local r to calc_abs_alt().
-        local mtwr to calc_max_twr().
+        if state < 2 { // x
+        //if true {
+        // measure
+        set t to msmnt_measure({
+            set ta to torad(ship:obt:TRUEANOMALY).
+            set ap to calc_abs_ap().
+            set pe to calc_abs_pe().
+            set r to calc_abs_alt().
+            set mtwr to calc_max_twr().
+            set ra to arcsin(up:vector * ship:facing:vector).
+        }).
+        set dt to t - t0.
+        set t0 to t.
 
-        if false {
-        //if state < 2 {
-            set tta to calc_true_ano(ap, pe, tr).
-            if tta < ta set tta to pi2 - tta.
-            //if false {
-            if tta < ta {
-                set state to 2.
-                set tta to ta.
-            }
-        }
-
-        if true {
-        } else if state = 2 {
-            set tr to r.
-            //set tta to pi.
-        } else if ap < tr {
+        if tr > ap {
             set tr to ap.
+            set sta to pi.
         }
 
-    // dv
+        // dv
         local vv0 to calc_vvel_ta(ap, pe, tr, sta).
         local vh0 to calc_hvel(ap, pe, tr).
         local vv to 0-vv0.
         local vh to calc_hvel(tr, tr, tr)-vh0.
         local dv to sqrt(vv^2 + vh^2).
 
-        set tta to calc_true_ano(ap, pe, tr0).
-        if tta < ta set tta to pi2 - tta.
+        // angle
+        local a to -todeg(sta - ta).
+        set a to  a + arctan2(vv, vh).
 
+        // target true anomaly
+        set tta to calc_true_ano(ap, pe, tr1).
+        if sta > pi set tta to pi2 - tta.
         local p to calc_time_2_tr_ano(ta, tta, ap, pe, ship:body).
-        //if p > pi set p to p - pi2. TODO
 
-        local a to -todeg(sta - ta). // TODO it doesn't work in state 2
-        if false {
-        //if state = 2 { // TODO hack
-            set a to  a + arctan2(vv, vh).
-            //set a to -todeg(pi-ta).
-        }
-
-        local thr to 0. // todo check usage
-
-        local st to 1. // TODO set
-        local et to 10.
         local dx0 to dv*p.
         local dv0 to dv.
         local dv1 to mtwr*et/2.
         local dx1 to mtwr*et^2/6.
 
+        // stage and thrust
         local stg to asc_thr_stage(mtwr, dv0, dv1).
 
         local mdx to 0.
@@ -529,15 +440,15 @@ function asc_burn_2_orb_ap2 {
             set mdx to asc_max_thr_dx_2(mtwr, tts).
         }
 
-        set thr to tts/et.
+        local thr to tts/et.
 
-        local dt to 0.
+        local ot to 0.
         if dx0 > mdx {
             local zdx to 0.
             if stg = 0 {
                 set zdx to asc_min_thr_dx_1(mdx, mtwr, dv0).
             } else if stg = 1 {
-                set zdx to asc_min_thr_dx_2((asc_max_thr_dx_2(mtwr, (asc_time_to_stop(mtwr, dv0))))).
+                set zdx to asc_min_thr_dx_2(asc_max_thr_dx_2(mtwr, asc_time_to_stop(mtwr, dv0))).
             } else {
                 set zdx to asc_min_thr_dx_2(mdx).
             }
@@ -548,70 +459,114 @@ function asc_burn_2_orb_ap2 {
                 set thr to thr * (zdx - dx0)/(zdx - mdx).
             }
         } else { // overshoot
-            set dt to mdx/dv - p.
+            set ot to (mdx - dx0)/dv.
         }
+            set tts to 2*(p + ot).
+            set tr1 to tr0 - trv*tts.
 
-        local dr to 0.
-        set tr to tr0.
+        // stop anomaly and dr
+        set tr to tr1.
         set sta to tta.
-        if dt <> 0 or tr > ap {
+        if ot <> 0 {
             local n to calc_mean_motion(ap, pe, ship:body).
-            local dma to dt*n.
+            local dma to ot*n.
             local ec to calc_ecc(ap, pe).
             local ea0 to calc_ecc_ano(tta, ec).
             local ea to calc_ecc_ano_dt(dma, ea0, ec).
 
             set tr to calc_alt_ecc_ano(ea, ec, (ap+pe)/2).
-            set dr to tr - tr0.
-
             set sta to calc_true_ano_ecc(ea, ec).
-            if false {
-            //if dt <> 0 { // TODO replace it with a hint to next cycle
-                local ntr to tr0 + dr.
-                set vv0 to calc_vvel_ta(ap, pe, ntr, ea).
-                set vh0 to calc_hvel(ap, pe, ntr).
-                set vv to 0-vv0.
-                set vh to calc_hvel(ntr, ntr, ntr)-vh0.
-
-                local ntta to calc_true_ano_ecc(ea, ec).
-                set a to -todeg(ntta - ta).
-            }
-            log_log("dt = "+dt).
-            log_log("dma = "+dma).
-            log_log("ec = "+ec).
-            log_log("ea0 = "+ea0).
-            log_log("ea = "+ea).
-            log_log("dr = "+dr).
+        } else if tr > ap {
+            set tr to ap.
+            set sta to pi.
         }
 
-        if state < 2 {
-            set a to  a + arctan2(vv, vh).
+        local dra to 0. // TODO
+            local dr to 0.
+        // state fix
+        if stg=2
+            and ot > 0
+                and dv < s2dv
+                set state to 2.
+        if state = 2 {
+            local mthr to 360/abs(a-ra)*dv/mtwr/mw.
+            if thr > mthr {
+                set thr to mthr.
+            }
+            if thr < 0.00001 set state to 3.
+        } else {
+            set dr to tr - tr1.
+            if dr <> 0
+                    //and thr>0
+                    {
+                local t to dv/mtwr.
+                        //if stg = 2 set t to tts.
+                        //set t to tts. // TODO
 
-            if dr <> 0 {
-                local t to (p + dt)*2.
                 local acc to -4*dr/t^2.
 
+                set dra to arctan2(acc, mtwr).
                 set a to a + arctan2(acc, mtwr).
-                set thr to thr*sqrt(mtwr^2 + acc^2)/mtwr.
+                //set thr to thr*sqrt(mtwr^2 + acc^2)/mtwr.
             }
-
-            log_log("a = "+a).
-            log_log("thr = "+thr).
-            log_log(" ").
-
-            //sac_toggle(r(0, -a, 0)). // TODO it may cause little incorect orbit, but don't jiggle
         }
 
         sac_toggle(r(0, -a, 0)).
 
         stat_log("orb",
-                {return list("a", "state", "thr", "ta", "tta", "dr", "dt", "ap", "pe", "alt", "stg", "dx0", "mdx").},
-                list(a, state, thr, ta, tta, dr, dt, (ap-ship:body:RADIUS), (pe-ship:body:RADIUS), (r-ship:body:RADIUS), stg, dx0, mdx)).
+                {return list("t", "ra", "a", "dra", "dr", "state", "thr", "ta", "tta", "tts", "ot", "ap", "pe", "alt", "stg", "dx0", "mdx",
+                        "dt", "vv", "vh", "dv", "mtwr").},
+                list(t, ra, a, dra, dr, state, thr, todeg(ta), todeg(tta), tts, ot, (ap-ship:body:RADIUS), (pe-ship:body:RADIUS), (r-ship:body:RADIUS), stg, dx0, mdx,
+                        dt, vv, vh, dv, mtwr)).
 
-    // set thrust
         set_throttle(thr).
         set_throttle_dv(dv).
-        if ta < torad(90) or ta > torad(270) or pe > tr0 set state to 3. // Maybe angle(dv, facing) is better but it's fine
+        } else {
+        // measure
+            set t to msmnt_measure({
+                set ta to torad(ship:obt:TRUEANOMALY).
+                set ap to calc_abs_ap().
+                set pe to calc_abs_pe().
+                set r to calc_abs_alt().
+                set mtwr to calc_max_twr().
+                set ra to arcsin(up:vector * ship:facing:vector).
+            }).
+            set dt to t - t0.
+            set t0 to t.
+
+        // dv
+            local vv0 to calc_vvel_ta(ap, pe, r, ta).
+            local vh0 to calc_hvel(ap, pe, r).
+            local vv to 0-vv0.
+
+            local dr to abs(tr1 - r).
+            local vh to calc_hvel(tr1 + dr, tr1 - dr, r) - vh0.
+            local dv to sqrt(vv^2 + vh^2).
+
+            local tts to asc_time_to_stop(mtwr, dv).
+            local thr to tts/et.
+            set tr1 to tr0 - trv*dv/mtwr.
+
+            local av to -calc_vacc(ap, pe, r).
+            //return -2 * v * sac_w - x * sac_w * sac_w.
+            local avw to thr.
+            set av to av - 2* vv0 * avw - (r - tr1) * avw^2.
+
+            local a to arcsin(av/mtwr/thr).
+
+            sac_toggle(r(0, -a, 0)).
+
+            stat_log("orb",
+                    {return list("t", "ra", "a", "dra", "dr", "state", "thr", "ta", "tta", "tts", "ot", "ap", "pe", "alt", "stg", "dx0", "mdx",
+                            "dt", "vv", "vh", "dv", "mtwr").},
+                    list(t, ra, a, 0, 0, state, thr, todeg(ta), todeg(tta), tts, 0, (ap-ship:body:RADIUS), (pe-ship:body:RADIUS), (r-ship:body:RADIUS), 0, 0, 0,
+                            dt, vv, vh, dv, mtwr)).
+
+            set_throttle(thr).
+            set_throttle_dv(dv).
+
+            if vh < 0 set state to 3.
+        }
     }
 
     set_throttle(0).

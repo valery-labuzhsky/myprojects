@@ -18,7 +18,7 @@ function calc_abs_pe {
 }
 
 function calc_abs_alt {
-    return ship:ALTITUDE + ship:body:RADIUS.
+    return ship:body:position:mag.//ship:ALTITUDE + ship:body:RADIUS.
 }
 
 function calc_hvel {

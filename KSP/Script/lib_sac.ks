@@ -123,7 +123,7 @@ function sac_start {
                 local tar_sp to sac_dir_to_rotvec(sac_cur_follow:inverse * sac_new_follow)/sac_ct.
 
                 set sac_zero_v to tar_sp.
-                set sac_zero_x to sac_dir_to_rotvec(facing:inverse * sac_new_target) - sac_zero_v*sac_ct.
+                set sac_zero_x to sac_dir_to_rotvec(facing:inverse * sac_new_target).// - sac_zero_v*sac_ct.
                 local x0 to -sac_zero_x.
                 local v0 to av - sac_zero_v.
 
@@ -156,8 +156,8 @@ function sac_start {
             //if false {
             if sac_yaw_debug {
                 stat_log("stat",
-                        {return list("x, v, a0, a, ac, za, c, ta, ra").},
-                        list(mf:y, tv:y, sac_zero_a:y, ta:y, sac_yaw_arr[0], sac_yaw_arr[1], c:y,  ta2:y,  ra:y)).
+                        {return list("t", "x, v, a0, a, ac, za, c, ta, ra").},
+                        list(t, mf:y, tv:y, sac_zero_a:y, ta:y, sac_yaw_arr[0], sac_yaw_arr[1], c:y,  ta2:y,  ra:y)).
             }
 
             set ship:control:rotation to -c*sac_cturn.
