@@ -70,7 +70,8 @@ function desc_dist_time {
 
     local s to sign(vh).
     local a to sign(vv)*calc_true_ano(ap, pe, r).
-    local b to -calc_true_ano(ap, pe, ship:body:radius + base:TERRAINHEIGHT).
+    if a < 0 set a to pi2 + a.
+    local b to pi2-calc_true_ano(ap, pe, ship:body:radius + base:TERRAINHEIGHT).
 
     local n to calc_mean_motion(ap, pe, body).
     local ec to calc_ecc(ap, pe).
@@ -79,8 +80,7 @@ function desc_dist_time {
     local eab to calc_ecc_ano(b, ec).
 
     local t to calc_time_2_ecc_ano(eaa, eab, n, ec).
-    if a < 0 set a to pi2 + a.
-    local d to desc_dist_ang(s*desc_ang_dlt(a, pi2+b, s*ba, s*t)).
+    local d to desc_dist_ang(s*desc_ang_dlt(a, b, s*ba, s*t)).
 
     ret(d, t).
 }
@@ -137,8 +137,10 @@ function desc_dist_atm_newton {
     if dd<>0 {
         set ddv to -(d1+6+4)*ddv/(d2-d1). // TODO it's a little bit wrong
         set dv to dv+ddv.
+        if false {
         log_log("ddv = "+ddv).
         log_log("dv = "+dv).
+        }
     }
 
     ret(dv, ddv, -z/t-vz, t).

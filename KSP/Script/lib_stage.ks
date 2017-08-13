@@ -121,7 +121,7 @@ if vectorangle(ship:facing:vector, ship:SRFRETROGRADE:vector) > vectorangle(ship
     local dvz to 0.
     until bdv < 0 {
         sac_toggle(r(arctan2(dvz, bdv), (180-ba), 0)).
-        set_throttle_dv(bdv).
+        if set_throttle_dv(bdv) break.
 
         desc_dist_newton3(base, bdv, torad(ba), {
             parameter ndv.
@@ -221,7 +221,7 @@ until twr > calc_max_twr() {
     sac_toggle(r(anz, an, 0)).
     //sac_toggle(r(5, 0, 0)).
 
-    if true {
+    if false {
         log_log("d = "+base_desc_dist()).
         log_log("an = "+an).
     //log_log("zdv = "+zdv).
@@ -346,6 +346,8 @@ function lift_twr_an {
 
 sac_stop_following().
 
+log_log("alt1 = "+base_alt()).
+
 local h to base_alt().
 until h < 1 {
     set h to base_alt().
@@ -353,9 +355,16 @@ until h < 1 {
     local v0 to -1.
     local a to (v^2 - v0^2) / (2*h).
     set twr to a + gt_g().
+    log_log("mtwr = "+calc_max_twr()).
+    log_log("twr = "+twr).
+    log_log("sp = "+ship:verticalspeed).
+    log_log("h = "+h).
+    log_log(" ").
     set_throttle(twr/calc_max_twr()).
     sac_target(HEADING3(90, 90, -90)*R(steer_south(), -steer_west(), 0)).
 }
+
+log_log("alt2 = "+base_alt()).
 
 until ship:verticalspeed >= 0 {
     set twr to gt_g() - ship:verticalspeed + 5.
@@ -555,5 +564,6 @@ function steer {
 }
 
 function base_alt {
-    return ship:altitude - base:TERRAINHEIGHT - 10.
+    local alt to ship:altitude - base:TERRAINHEIGHT - 10.
+    return alt.
 }

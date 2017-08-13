@@ -29,7 +29,7 @@ function start_throttle_dv {
         } else if ctrl_dv <> 0 {
             local cdv to ctrl_dv.
             local tt to cdv/twr.
-            local th to tt/ctrl_dv_dt/16. // 16
+            local th to tt/ctrl_dv_dt/8. // 16
             if th > ctrl_throt {
                 set th to ctrl_throt.
                 set ctrl_state to 0.

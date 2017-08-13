@@ -130,7 +130,7 @@ function calc_time_2_mean_ano {
     parameter n.
 
     local da to ma_to - ma_from.
-    //if da < 0 set da to pi2 + da.
+    //if da < 0 set da to pi2 + da. // TODO it spoils final maneuver
     return da/n.
 }
 

@@ -55,7 +55,7 @@ function asc_start {
     if ship:altitude < cutoff_alt {
         wait 5.
         from {local c is 5.} until c = 0 step {set c to c - 1.} do {
-            HUDTEXT(c, 1, 2, 18, RGB(0.5,1.0,0.0), false).
+            //HUDTEXT(c, 1, 2, 18, RGB(0.5,1.0,0.0), false).
             wait 1.
         }
     }
@@ -356,7 +356,7 @@ function asc_burn_2_orb_ap {
     sac_start_following().
     sac_start_following_toggle().
 
-    local state to 1. // TODO 0 is not needed
+    local state to 0. // TODO 0 is not needed
 
     local tr0 to calc_abs(th).
     local tr to tr0.
@@ -457,6 +457,10 @@ function asc_burn_2_orb_ap {
                 set thr to 0.
             } else {
                 set thr to thr * (zdx - dx0)/(zdx - mdx).
+                if state = 0 {
+                    if not conf_switch_active hud_text("Second engine startup (2)").
+                    set state to 1.
+                }
             }
         } else { // overshoot
             set ot to (mdx - dx0)/dv.
