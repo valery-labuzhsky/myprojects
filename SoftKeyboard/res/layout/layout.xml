@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ViewFlipper
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+    <unicorn.truekeyboard.KeyboardView
+            android:id="@+id/english_keyboard"
+            android:layout_alignParentBottom="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            >
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="qwas"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="erdf"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="tygh"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="uijk"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="opl:"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="()#;#BS;"
+                />
+
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="#SHIFT;z#NUMBERS;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="xc#LANG;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="vb#SPACE;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="nm#ENTER;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="\@!#SMILES;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=".,?-"
+                />
+    </unicorn.truekeyboard.KeyboardView>
+
+    <unicorn.truekeyboard.KeyboardView
+            android:id="@+id/russian_keyboard"
+            android:layout_alignParentBottom="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            >
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="йцфы"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="уква"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="енпр"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="гшол"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="щздж"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="хъэ#BS;"
+                />
+
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="#SHIFT;я#NUMBERS;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="чс#LANG;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="ми#SPACE;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="ть#ENTER;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="бю#SMILES;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=".,?-"
+                />
+    </unicorn.truekeyboard.KeyboardView>
+
+    <unicorn.truekeyboard.KeyboardView
+            android:id="@+id/numbers_keyboard"
+            android:layout_alignParentBottom="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            >
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="12~@"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="34#;$"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="56%^"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="78&amp;*"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="90()"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="-+=#BS;"
+                />
+
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="!?#LETTERS;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=":;#LANG;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=".,#SPACE;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="&quot;'#ENTER;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="&lt;&gt;#SMILES;"
+                />
+
+        <unicorn.truekeyboard.FourKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="/\\_#ELLIPSIS;"
+                />
+    </unicorn.truekeyboard.KeyboardView>
+
+    <unicorn.truekeyboard.KeyboardView
+            android:id="@+id/smiles_keyboard"
+            android:layout_alignParentBottom="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            >
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="8-)"
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="=-O"
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=":-\"
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=":'-("
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=":-P"
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=";-)"
+                />
+
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="ABC"
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text="O:-)"
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=":-*"
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=":-D"
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=":-("
+                />
+
+        <unicorn.truekeyboard.SmileKey
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:text=":-)"
+                />
+    </unicorn.truekeyboard.KeyboardView>
+</ViewFlipper>

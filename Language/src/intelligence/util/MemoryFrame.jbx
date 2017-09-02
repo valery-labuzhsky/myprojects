@@ -1,0 +1,12 @@
+[PropertyInfo]
+jSplitPane1,JSplitPane,false,false, , ,false,<default>
+jTree1,JTree,false,false, , ,false,<default>
+jTree2,JTree,false,false, , ,false,<default>
+memory,Memory,false,false, , ,false,<default>
+root,ClassTreeNode,false,false, , ,false,<default>
+update,boolean,false,false, , ,false,<default>
+[IconNames]
+
+
+
+
