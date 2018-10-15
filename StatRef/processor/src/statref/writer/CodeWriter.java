@@ -19,8 +19,8 @@ public class CodeWriter {
 
     private static String indent(int intend) {
         StringBuilder builder = new StringBuilder();
-        for (int i=0; i<intend; i++) {
-            builder.append(' ');
+        for (int i = 0; i < intend; i++) {
+            builder.append("    ");
         }
         return builder.toString();
     }
@@ -44,10 +44,21 @@ public class CodeWriter {
     }
 
     public void write(String string) throws IOException {
-        if (newLine) {
-            writer.write(indent(indent));
-            newLine = false;
+        String[] split = string.split("\n", -1);
+        boolean first = true;
+        for (String s : split) {
+            if (!first) {
+                writeln();
+            } else {
+                first = false;
+            }
+            if (!s.isEmpty()) {
+                if (newLine) {
+                    writer.write(indent(indent));
+                    newLine = false;
+                }
+                writer.write(s);
+            }
         }
-        writer.write(string);
     }
 }

@@ -15,14 +15,9 @@ public class WModifiers extends WBase<Collection<Modifier>> {
 
     @Override
     public void write(CodeWriter writer, Collection<Modifier> element) throws IOException {
-        boolean first = true;
         for (Modifier modifier : element) {
-            if (!first) {
-                writer.write(" ");
-            } else {
-                first = false;
-            }
             writer.write(modifier.toString());
+            writer.write(" ");
         }
     }
 }

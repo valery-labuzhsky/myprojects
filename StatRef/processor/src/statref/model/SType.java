@@ -6,9 +6,7 @@ package statref.model;
  * @author ptasha
  */
 public interface SType {
-    default String getGenericTypename() {
-        return getGenericType().toString();
+    default SType getGenericType() {
+        return this;
     }
-
-    SType getGenericType();
 }

@@ -17,7 +17,7 @@ public class WBlock extends WBase<SBlock> {
         cw.writeln();
         cw.indent();
         for (SInstruction sInstruction : block.getInstructions()) {
-            WBase.instructionWriter().write(cw, sInstruction);
+            writeElement(sInstruction, cw);
         }
         cw.unindent();
         cw.write("}");

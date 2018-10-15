@@ -1,8 +1,9 @@
 package statref.model.mirror;
 
 import statref.model.SInstruction;
-import statref.model.SMethod;
+import statref.model.SMethodDeclaration;
 import statref.model.SType;
+import statref.model.SBaseVariableDeclaration;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -17,18 +18,18 @@ import java.util.Set;
  *
  * @author ptasha
  */
-public class MMethod implements SMethod {
+public class MMethodDeclaration implements SMethodDeclaration {
     private final ExecutableElement element;
 
-    public MMethod(ExecutableElement element) {
+    public MMethodDeclaration(ExecutableElement element) {
         this.element = element;
     }
 
     @Override
-    public List<MVariable> getParameters() {
-        ArrayList<MVariable> parameters = new ArrayList<>();
+    public List<SBaseVariableDeclaration> getParameters() {
+        ArrayList<SBaseVariableDeclaration> parameters = new ArrayList<>();
         for (VariableElement element : this.element.getParameters()) {
-            parameters.add(new MVariable(element));
+            parameters.add(new MBaseVariableDeclaration(element));
         }
         return parameters;
     }
@@ -45,7 +46,7 @@ public class MMethod implements SMethod {
 
     @Override
     public SType getReturnType() {
-        return MType.get(element.getReturnType());
+        return MBase.get(element.getReturnType());
     }
 
     @Override

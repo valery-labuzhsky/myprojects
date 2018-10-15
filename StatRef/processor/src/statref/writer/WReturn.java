@@ -13,7 +13,7 @@ public class WReturn extends WBase<SReturn> {
     @Override
     public void write(CodeWriter cw, SReturn element) throws IOException {
         cw.write("return ");
-        WBase.expressionWriter().write(cw, element.getExpression());
+        writeElement(element.getExpression(), cw);
         cw.write(";");
     }
 }

@@ -6,7 +6,7 @@ package statref.model;
  * @author ptasha
  */
 public interface SFieldUsage extends SExpression {
-    SClass getType();
+    SType getType();
 
     String getName();
 }

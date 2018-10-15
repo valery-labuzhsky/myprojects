@@ -1,8 +1,8 @@
 package statref.processor;
 
+import statref.api.Field;
 import statref.model.*;
-import statref.model.builder.BBase;
-import statref.model.mirror.MVariable;
+import statref.model.builder.*;
 import statref.writer.CodeWriter;
 import statref.writer.WBase;
 
@@ -10,9 +10,13 @@ import javax.annotation.processing.Filer;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static statref.model.builder.BBase.returnIt;
+import static statref.model.builder.BBase.*;
 import static statref.processor.StatRefProcessor.note;
 
 /**
@@ -21,20 +25,20 @@ import static statref.processor.StatRefProcessor.note;
  * @author ptasha
  */
 public class SRClass {
-    private final SClass sclass;
+    private final SClassDeclaration sclass;
 
-    private final HashMap<String, SMethod> getters = new HashMap<>();
-    private final HashMap<String, Map<String, SMethod>> setters = new HashMap<>();
+    private final HashMap<String, SMethodDeclaration> getters = new HashMap<>();
+    private final HashMap<String, Map<String, SMethodDeclaration>> setters = new HashMap<>();
 
-    public SRClass(SClass sclass) {
+    public SRClass(SClassDeclaration sclass) {
         this.sclass = sclass;
 
-        for (SMethod method : sclass.getMethods()) {
+        for (SMethodDeclaration method : sclass.getMethods()) {
             addMethod(method);
         }
     }
 
-    private void addMethod(SMethod method) {
+    private void addMethod(SMethodDeclaration method) {
         // TODO throws
         if (method.isPublic() && !method.isStatic()) {
             String name = method.getName();
@@ -45,10 +49,10 @@ public class SRClass {
             } else if (name.startsWith("set")) {
                 if (method.getParameters().size() == 1) {
                     // TODO deal with all possible types: classes, primitives, generics
-                    MVariable parameter = method.getParameters().get(0);
+                    SBaseVariableDeclaration parameter = method.getParameters().get(0);
                     String property = name.substring(3);
                     String type = parameter.getType().toString();
-                    Map<String, SMethod> settersMap = setters.computeIfAbsent(property, k -> new HashMap<>());
+                    Map<String, SMethodDeclaration> settersMap = setters.computeIfAbsent(property, k -> new HashMap<>());
                     settersMap.put(type, method);
                 }
             }
@@ -64,52 +68,88 @@ public class SRClass {
             cw.write("import java.lang.reflect.Type;\n");
             cw.write("import statref.api.Field;\n");
             cw.write("\n");
-            cw.write("public class " + getSimpleName() + " {\n");
-            cw.write("    public static final " + getSimpleName() + " SR = new " + getSimpleName() + "();\n");
-            cw.write("\n");
 
-            String origName = sclass.getSimpleName();
-            StringBuilder names = new StringBuilder();
+            BClassDeclaration classDeclaration = declareClass(getSimpleName()).package_(getPackage()).public_().
+                    parameters(sclass.getGenerics());
+            classDeclaration.member(declareField(ofClass(getSimpleName()), "SR").public_().static_().final_().body(constructor(ofClass(getSimpleName()))));
 
-            for (Map.Entry<String, SMethod> entry : getters.entrySet()) {
+            BListedArrayConstructor constructor = new BListedArrayConstructor(ofClass(Field.class));
+
+            final SClass genericClientClass = sclass.usage(sclass.getGenerics().stream().map(SGenericDeclaration::usage).collect(Collectors.toList()));
+
+            for (Map.Entry<String, SMethodDeclaration> entry : getters.entrySet()) {
                 String name = entry.getKey();
-                Map<String, SMethod> settersMap = setters.get(name);
+                Map<String, SMethodDeclaration> settersMap = setters.get(name);
                 note("" + name);
                 if (settersMap != null) {
-                    SMethod getter = entry.getValue();
+                    SMethodDeclaration getter = entry.getValue();
                     SType type = getter.getReturnType();
-                    String genericTypename = type.getGenericTypename();
                     String typename = type.toString();
-                    SMethod setter = settersMap.get(typename);
-                    // TODO more accuracy in type checking
+                    SMethodDeclaration setter = settersMap.get(typename);
 
-                    cw.write("    public Field<" + origName + ", " + genericTypename + "> " + name + " = new Field<" + origName + ", " + genericTypename + ">() {\n");
+                    BClass fieldClass = ofClass(Field.class, genericClientClass, type.getGenericType());
+                    BAnonClassDeclaration anonClass = declareAnonClass(fieldClass).
+                            member(new BMethodDeclaration("getObjectType") {
+                                @Override
+                                public void describe() {
+                                    BExpression objectType = field(sclass.usage(), "class");
+                                    if (!sclass.getGenerics().isEmpty()) {
+                                        objectType = objectType.cast(ofClass(Class.class)).cast(ofClass(Class.class, genericClientClass));
+                                    }
+                                    return_(objectType);
+                                }
+                            }.public_().returnType(ofClass(Class.class, genericClientClass))).
 
-                    cw.write("        public Class<" + origName + "> getObjectType() ");
+                            member(new BMethodDeclaration("getValueType") {
+                                @Override
+                                public void describe() {
+                                    if (type instanceof SGeneric) {
+                                        String name = ((SGeneric) type).getName();
+                                        List<SGenericDeclaration> generics = sclass.getGenerics();
+                                        for (int i = 0; i < generics.size(); i++) {
+                                            SGenericDeclaration generic = generics.get(i);
+                                            if (generic.getName().equals(name)) {
+                                                return_(field(sclass.usage(), "class").call("getTypeParameters").item(integer(i)));
+                                                return;
+                                            }
+                                        }
+                                    }
+                                    return_(field(type, "class"));
+                                }
+                            }.public_().returnType(ofClass(Type.class))).
 
-                    WBase.blockWriter().write(cw, BBase.block(returnIt().field(this.sclass, "class")));
-                    cw.writeln();
+                            member(new BMethodDeclaration("get") {
+                                       @Override
+                                       public void describe() {
+                                           public_();
+                                           returnType(type.getGenericType());
 
-                    cw.write("        public Type getValueType() { return " + typename + ".class; }\n"); // TODO it's actual type, not wrapper
-                    cw.write("        public " + genericTypename + " get(" + origName + " object) { return object." + getter.getName() + "(); }\n");
-                    cw.write("        public void set(" + origName + " object, " + genericTypename + " value) { object." + setter.getName() + "(value); }\n");
-                    cw.write("    };\n");
-                    cw.write("\n");
+                                           BVariable object = parameter(genericClientClass, "object");
+                                           return_(object.call(getter.getName()));
+                                       }
+                                   }
+                            ).
+                            member(new BMethodDeclaration("set") {
+                                @Override
+                                public void describe() {
+                                    public_();
+                                    BVariable object = parameter(genericClientClass, "object");
+                                    BVariable value = parameter(type.getGenericType(), "value");
 
-                    if (names.length() != 0) {
-                        names.append(", ");
-                    }
-                    names.append(name);
+                                    code(object.call(setter.getName(), value));
+                                }
+                            });
+
+                    classDeclaration.member(declareField(fieldClass, name).public_().body(anonClass));
+
+                    constructor.addItem(variable(name));
                 }
             }
 
-            cw.write("    public Field<" + origName + ", ?>[] fields() {\n");
-            cw.write("        return new Field[]{" + names + "};\n");
-            cw.write("    }\n");
-
-            // TODO add properties
-
-            cw.write("}\n");
+            classDeclaration.member(declareMethod("fields").public_().
+                    returnType(array(ofClass(Field.class, genericClientClass, wildcard()))).
+                    code(return_(constructor)));
+            WBase.writeElement(classDeclaration, cw);
         }
     }
 

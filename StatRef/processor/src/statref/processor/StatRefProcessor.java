@@ -1,7 +1,7 @@
 package statref.processor;
 
 import statref.ann.StatRefs;
-import statref.model.mirror.MClass;
+import statref.model.mirror.MClassDeclaration;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -11,7 +11,9 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Set;
 
 /**
@@ -36,19 +38,25 @@ public class StatRefProcessor extends AbstractProcessor {
         for (Element element : elements) {
             StatRefs annotation = element.getAnnotation(StatRefs.class);
             try {
-                Class<?>[] classes = annotation.value();
-                if (classes.length == 0) {
-                    // TODO create for element
-                } else {
-                    for (Class<?> clazz : classes) {
-                        note(clazz.getName());
-                        // TODO create for class
+                try {
+                    Class<?>[] classes = annotation.value();
+                    if (classes.length == 0) {
+                        // TODO create for element
+                    } else {
+                        for (Class<?> clazz : classes) {
+                            note(clazz.getName());
+                            // TODO create for class
+                        }
+                    }
+                } catch (MirroredTypesException e) {
+                    for (TypeMirror mirror : e.getTypeMirrors()) {
+                        generate(mirror);
                     }
                 }
-            } catch (MirroredTypesException e) {
-                for (TypeMirror mirror : e.getTypeMirrors()) {
-                    generate(mirror);
-                }
+            } catch (RuntimeException e) {
+                ByteArrayOutputStream stack = new ByteArrayOutputStream();
+                e.printStackTrace(new PrintStream(stack));
+                getMessager().printMessage(Diagnostic.Kind.ERROR, stack.toString(), element);
             }
         }
 
@@ -58,7 +66,7 @@ public class StatRefProcessor extends AbstractProcessor {
     private void generate(TypeMirror mirror) {
         Filer filer = processingEnv.getFiler();
 
-        SRClass gc = new SRClass(new MClass((DeclaredType) mirror));
+        SRClass gc = new SRClass(new MClassDeclaration((DeclaredType) mirror));
 
         try {
             gc.generate(filer);

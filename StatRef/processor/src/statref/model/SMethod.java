@@ -1,21 +1,11 @@
 package statref.model;
 
-import statref.model.mirror.MVariable;
-
 import java.util.List;
 
-/**
- * Created on 27/01/18.
- *
- * @author ptasha
- */
-public interface SMethod extends SModifiers {
+public interface SMethod extends SExpression {
+    SExpression getExpression();
 
-    List<MVariable> getParameters();
+    String getMethodName();
 
-    String getName();
-
-    SType getReturnType();
-
-    List<SInstruction> getInstructions();
+    List<SExpression> getParams();
 }

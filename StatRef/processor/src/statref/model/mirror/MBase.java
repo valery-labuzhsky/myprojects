@@ -6,17 +6,16 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
-import java.util.Arrays;
 
 /**
  * Created on 27/01/18.
  *
  * @author ptasha
  */
-public abstract class MType<TM extends TypeMirror> implements SType {
+public abstract class MBase<TM extends TypeMirror> {
     private final TM typeMirror;
 
-    public MType(TM typeMirror) {
+    public MBase(TM typeMirror) {
         this.typeMirror = typeMirror;
     }
 
@@ -34,18 +33,13 @@ public abstract class MType<TM extends TypeMirror> implements SType {
             case BOOLEAN:
                 return new MPrimitive((PrimitiveType)type);
             case TYPEVAR:
-                return new MTypeVariable((TypeVariable)type);
+                return new MGeneric((TypeVariable)type);
         }
         throw new UnsupportedOperationException(type+" of "+type.getKind()+" is not supported yet");
     }
 
     protected TM getTypeMirror() {
         return typeMirror;
-    }
-
-    @Override
-    public SType getGenericType() {
-        return this;
     }
 
     @Override

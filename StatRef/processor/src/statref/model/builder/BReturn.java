@@ -1,8 +1,6 @@
 package statref.model.builder;
 
-import statref.model.SClass;
-import statref.model.SExpression;
-import statref.model.SReturn;
+import statref.model.*;
 
 /**
  * Created on 04/02/18.
@@ -19,11 +17,5 @@ public class BReturn implements SReturn {
     @Override
     public SExpression getExpression() {
         return expression;
-    }
-
-    public static class Builder {
-        public BReturn field(SClass clazz, String fieldName) {
-            return new BReturn(BBase.field(clazz, fieldName));
-        }
     }
 }
