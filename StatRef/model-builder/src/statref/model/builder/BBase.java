@@ -2,7 +2,6 @@ package statref.model.builder;
 
 import statref.model.*;
 import statref.model.reflect.RClassRef;
-import statref.processor.BFieldDeclaration;
 
 /**
  * Created on 04/02/18.
@@ -13,6 +12,7 @@ public class BBase {
     public static BFieldUsage field(SType type, String fieldName) {
         return new BFieldUsage(type, fieldName);
     }
+
 
     public static BMethodDeclaration declareMethod(String name) {
         return new BMethodDeclaration(name);

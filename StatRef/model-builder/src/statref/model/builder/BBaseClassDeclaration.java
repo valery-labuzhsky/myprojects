@@ -2,7 +2,6 @@ package statref.model.builder;
 
 import statref.model.SBaseClassDeclaration;
 import statref.model.SClassMemeber;
-import statref.model.SMethodDeclaration;
 
 import java.util.ArrayList;
 import java.util.List;

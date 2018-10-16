@@ -7,10 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="client" />
     <orderEntry type="module" module-name="model" />
-    <orderEntry type="module" module-name="writer" />
-    <orderEntry type="module" module-name="model-builder" />
-    <orderEntry type="module" module-name="model-mirror" />
+    <orderEntry type="module" module-name="model-reflect" />
   </component>
 </module>

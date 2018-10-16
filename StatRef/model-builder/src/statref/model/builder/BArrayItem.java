@@ -1,5 +1,6 @@
 package statref.model.builder;
 
+import statref.model.SArrayItem;
 import statref.model.SExpression;
 
 public class BArrayItem extends BExpression implements SArrayItem {

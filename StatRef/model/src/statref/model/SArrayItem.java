@@ -1,4 +1,4 @@
-package statref.model.builder;
+package statref.model;
 
 import statref.model.SExpression;
 

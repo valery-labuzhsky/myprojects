@@ -1,6 +1,8 @@
 package statref.model.builder;
 
-import statref.model.*;
+import statref.model.SBaseVariableDeclaration;
+import statref.model.SExpression;
+import statref.model.SType;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;

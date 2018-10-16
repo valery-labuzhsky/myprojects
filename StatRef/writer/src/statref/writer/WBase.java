@@ -1,7 +1,6 @@
 package statref.writer;
 
 import statref.model.*;
-import statref.model.builder.SArrayItem;
 
 import java.io.IOException;
 import java.util.HashMap;

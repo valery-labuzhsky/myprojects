@@ -1,6 +1,5 @@
 package statref.model.mirror;
 
-import statref.model.SClassMemeber;
 import statref.model.SFieldDeclaration;
 
 import javax.lang.model.element.Element;
