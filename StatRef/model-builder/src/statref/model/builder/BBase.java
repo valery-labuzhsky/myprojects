@@ -1,7 +1,9 @@
 package statref.model.builder;
 
-import statref.model.*;
-import statref.model.reflect.RClassRef;
+import statref.model.SClass;
+import statref.model.SConstructor;
+import statref.model.SExpression;
+import statref.model.SType;
 
 /**
  * Created on 04/02/18.
@@ -19,11 +21,7 @@ public class BBase {
     }
 
     public static BClass ofClass(Class<?> clazz, SType... generics) {
-        return new BClass(classRef(clazz), generics);
-    }
-
-    private static SClassRef classRef(Class<?> clazz) {
-        return new RClassRef(clazz);
+        return new BClass(clazz.getSimpleName(), generics);
     }
 
     public static BVariableDeclaration declareVariable(SType clazz, String name) {
@@ -51,7 +49,11 @@ public class BBase {
     }
 
     public static BClass ofClass(String name) {
-        return new BClass(new BClassRef(null, name));
+        return new BClass(name);
+    }
+
+    public static BClass ofFullClass(Class<?> clazz) {
+        return new BClass(clazz.getCanonicalName());
     }
 
     public static BClassDeclaration declareClass(String name) {

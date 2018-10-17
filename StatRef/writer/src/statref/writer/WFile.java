@@ -1,5 +1,6 @@
 package statref.writer;
 
+import statref.model.SClass;
 import statref.model.SClassDeclaration;
 import statref.model.SFile;
 
@@ -20,9 +21,10 @@ public class WFile extends WBase<SFile> {
         writer.writeln("package " + file.getPackage() + ";");
         writer.writeln();
 
-        List<SClassDeclaration> imports = file.getImports();
-        for (SClassDeclaration imp : imports) {
-            writer.writeln("import "+imp+";");
+        for (SClass imp : file.getImports()) {
+            writer.write("import ");
+            writeElement(imp, writer);
+            writer.writeln(";");
         }
         writer.writeln();
 

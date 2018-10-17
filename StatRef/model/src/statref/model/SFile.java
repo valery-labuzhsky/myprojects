@@ -10,7 +10,7 @@ import java.util.List;
 public interface SFile {
     SPackage getPackage();
 
-    List<SClassDeclaration> getImports(); // TODO it's broader than that
+    List<SClass> getImports(); // TODO it's broader than that
 
     List<SClassDeclaration> getClasses();
 }

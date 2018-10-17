@@ -2,10 +2,7 @@ package statref.model.mirror;
 
 import statref.model.*;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeVariable;
 import java.util.ArrayList;
@@ -18,10 +15,13 @@ import java.util.stream.Collectors;
  *
  * @author ptasha
  */
-public class MClassDeclaration extends MClassRef implements SClassDeclaration {
+public class MClassDeclaration extends MBase<DeclaredType> implements SClassDeclaration {
+
+    private final TypeElement type;
 
     public MClassDeclaration(DeclaredType mirror) {
         super(mirror);
+        type = (TypeElement) mirror.asElement();
     }
 
     @Override
@@ -62,5 +62,15 @@ public class MClassDeclaration extends MClassRef implements SClassDeclaration {
     @Override
     public Collection<Modifier> getModifiers() {
         return type.getModifiers();
+    }
+
+    @Override
+    public SPackage getPackage() {
+        return new MPackage(type.getEnclosingElement());
+    }
+
+    @Override
+    public String getSimpleName() {
+        return type.getSimpleName().toString();
     }
 }

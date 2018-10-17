@@ -33,7 +33,7 @@ public class BClassDeclaration extends BBaseClassDeclaration<BClassDeclaration> 
         return package_;
     }
 
-    public BClassDeclaration package_(SPackage package_) {
+    public BClassDeclaration package_(SPackage package_) { // TODO I'm fully described with parent either class of file
         this.package_ = package_;
         return this;
     }

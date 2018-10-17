@@ -6,9 +6,16 @@ import statref.model.SType;
 import java.util.Collections;
 import java.util.List;
 
-public class RClass extends RClassRef implements SClass {
-    public RClass(Class clazz) {
-        super(clazz);
+public class RClass implements SClass {
+    private final Class clazz;
+
+    public RClass(Class  clazz) {
+        this.clazz = clazz;
+    }
+
+    @Override
+    public String getName() {
+        return clazz.getSimpleName();
     }
 
     @Override

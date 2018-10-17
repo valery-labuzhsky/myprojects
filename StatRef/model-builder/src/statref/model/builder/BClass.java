@@ -1,40 +1,37 @@
 package statref.model.builder;
 
-import statref.model.*;
+import statref.model.SClass;
+import statref.model.SClassDeclaration;
+import statref.model.SType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class BClass implements SClass {
-    private final SClassRef classRef;
+    private final String name;
     private final ArrayList<SType> generics = new ArrayList<>();
 
-    public BClass(SClassRef classRef, List<SType> generics) {
-        this.classRef = classRef;
+    public BClass(String name, List<SType> generics) {
+        this.name = name;
         this.generics.addAll(generics);
     }
 
-    public BClass(SClassRef classRef, SType... generics) {
-        this(classRef, Arrays.asList(generics));
+    public BClass(String name, SType... generics) {
+        this(name, Arrays.asList(generics));
     }
 
     public BClass(SClassDeclaration clazz) {
-        this(new BClassRef(clazz));
+        this(clazz.getSimpleName());
     }
 
     public BClass(BClassDeclaration declaration, List<SType> generics) {
-        this(new BClassRef(declaration), generics);
+        this(declaration.getSimpleName(), generics);
     }
 
     @Override
-    public SPackage getPackage() {
-        return classRef.getPackage();
-    }
-
-    @Override
-    public String getSimpleName() {
-        return classRef.getSimpleName();
+    public String getName() {
+        return name;
     }
 
     @Override

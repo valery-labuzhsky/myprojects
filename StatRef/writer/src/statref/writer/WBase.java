@@ -37,6 +37,7 @@ public abstract class WBase<S> {
         register(SWildcardType.class, new WWildcardType());
         register(SClassCast.class, new WClassCast());
         register(SArrayItem.class, new WArrayItem());
+        register(SFile.class, new WFile());
     }
 
     public WBase() {

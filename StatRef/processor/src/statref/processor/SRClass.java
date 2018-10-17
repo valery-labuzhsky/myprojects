@@ -63,15 +63,15 @@ public class SRClass {
         JavaFileObject file = filer.createSourceFile(getFullName());
         try (Writer writer = file.openWriter()) {
             CodeWriter cw = new CodeWriter(writer);
-            cw.write("package " + getPackage() + ";\n");
-            cw.write("\n");
-            cw.write("import java.lang.reflect.Type;\n");
-            cw.write("import statref.api.Field;\n");
-            cw.write("\n");
+
+            BFile statRefFile = new BFile(getPackage()).
+                    import_(ofFullClass(Type.class)).import_(ofFullClass(Field.class));
 
             BClassDeclaration classDeclaration = declareClass(getSimpleName()).package_(getPackage()).public_().
                     parameters(sclass.getGenerics());
             classDeclaration.member(declareField(ofClass(getSimpleName()), "SR").public_().static_().final_().body(constructor(ofClass(getSimpleName()))));
+
+            statRefFile.class_(classDeclaration);
 
             BListedArrayConstructor constructor = new BListedArrayConstructor(ofClass(Field.class));
 
@@ -149,7 +149,7 @@ public class SRClass {
             classDeclaration.member(declareMethod("fields").public_().
                     returnType(array(ofClass(Field.class, genericClientClass, wildcard()))).
                     code(return_(constructor)));
-            WBase.writeElement(classDeclaration, cw);
+            WBase.writeElement(statRefFile, cw);
         }
     }
 

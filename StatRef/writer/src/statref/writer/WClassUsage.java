@@ -9,7 +9,7 @@ import java.util.List;
 public class WClassUsage extends WBase<SClass> {
     @Override
     public void write(CodeWriter writer, SClass element) throws IOException {
-        writer.write(element.getSimpleName());
+        writer.write(element.getName());
         List<SType> generics = element.getGenerics();
         if (!generics.isEmpty()) {
             write(writer, generics, "<", ", ", ">");
