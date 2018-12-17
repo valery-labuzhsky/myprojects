@@ -1,6 +1,6 @@
 package statref.model.builder;
 
-import statref.model.SVariable;
+import statref.model.expression.SVariable;
 
 public class BVariable extends BExpression implements SVariable {
     private final String name;

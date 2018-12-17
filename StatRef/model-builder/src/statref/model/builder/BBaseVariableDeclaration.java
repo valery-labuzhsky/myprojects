@@ -1,14 +1,14 @@
 package statref.model.builder;
 
 import statref.model.SBaseVariableDeclaration;
-import statref.model.SExpression;
 import statref.model.SType;
+import statref.model.expression.SExpression;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class BBaseVariableDeclaration<B extends BBaseVariableDeclaration> implements SBaseVariableDeclaration, BModifiers<B> {
+public abstract class BBaseVariableDeclaration<B extends BBaseVariableDeclaration> extends BElement implements SBaseVariableDeclaration, BModifiers<B> {
     private final SType type;
     private final String name;
     private SExpression expression;
@@ -30,7 +30,7 @@ public abstract class BBaseVariableDeclaration<B extends BBaseVariableDeclaratio
     }
 
     @Override
-    public SExpression getExpression() {
+    public SExpression getInitializer() {
         return expression;
     }
 

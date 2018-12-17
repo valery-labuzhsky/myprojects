@@ -1,6 +1,7 @@
 package statref.model.builder;
 
 import statref.model.*;
+import statref.model.expression.SExpression;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;

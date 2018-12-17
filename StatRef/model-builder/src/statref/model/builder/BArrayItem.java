@@ -1,7 +1,7 @@
 package statref.model.builder;
 
-import statref.model.SArrayItem;
-import statref.model.SExpression;
+import statref.model.expression.SArrayItem;
+import statref.model.expression.SExpression;
 
 public class BArrayItem extends BExpression implements SArrayItem {
     private final BExpression expression;

@@ -1,7 +1,7 @@
 package statref.model.builder;
 
 import statref.model.SMethodInstruction;
-import statref.model.SMethod;
+import statref.model.expression.SMethod;
 
 public class BMethodInstruction implements SMethodInstruction {
     private final SMethod method;

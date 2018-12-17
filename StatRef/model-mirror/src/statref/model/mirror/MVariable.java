@@ -1,18 +1,16 @@
 package statref.model.mirror;
 
-import statref.model.SVariable;
+import statref.model.expression.SVariable;
 
 import javax.lang.model.element.VariableElement;
 
-public class MVariable implements SVariable {
-    private final VariableElement element;
-
+public class MVariable extends MElement<VariableElement> implements SVariable {
     public MVariable(VariableElement element) {
-        this.element = element;
+        super(element);
     }
 
     @Override
     public String getName() {
-        return element.getSimpleName().toString();
+        return getElement().getSimpleName().toString();
     }
 }

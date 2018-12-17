@@ -26,13 +26,11 @@ import java.util.Set;
 })
 public class StatRefProcessor extends AbstractProcessor {
 
-    public static StatRefProcessor SRP;
+    private static StatRefProcessor SRP;
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
         SRP = this;
-
-        getMessager().printMessage(Diagnostic.Kind.WARNING, "StatRefProcessor"); // TODO remove me
 
         Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(StatRefs.class);
         for (Element element : elements) {

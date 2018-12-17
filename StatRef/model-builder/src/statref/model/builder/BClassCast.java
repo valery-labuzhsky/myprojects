@@ -1,7 +1,7 @@
 package statref.model.builder;
 
-import statref.model.SClassCast;
-import statref.model.SExpression;
+import statref.model.expression.SClassCast;
+import statref.model.expression.SExpression;
 import statref.model.SType;
 
 public class BClassCast extends BExpression implements SClassCast {

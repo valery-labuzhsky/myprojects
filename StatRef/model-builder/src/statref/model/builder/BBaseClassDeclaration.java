@@ -6,7 +6,7 @@ import statref.model.SClassMemeber;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BBaseClassDeclaration<T extends BBaseClassDeclaration> implements SBaseClassDeclaration {
+public abstract class BBaseClassDeclaration<T extends BBaseClassDeclaration> extends BElement implements SBaseClassDeclaration {
     private final ArrayList<SClassMemeber> methods = new ArrayList<>();
 
     public BBaseClassDeclaration() {

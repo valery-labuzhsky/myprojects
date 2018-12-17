@@ -48,7 +48,6 @@ public class SRClass {
                 }
             } else if (name.startsWith("set")) {
                 if (method.getParameters().size() == 1) {
-                    // TODO deal with all possible types: classes, primitives, generics
                     SBaseVariableDeclaration parameter = method.getParameters().get(0);
                     String property = name.substring(3);
                     String type = parameter.getType().toString();

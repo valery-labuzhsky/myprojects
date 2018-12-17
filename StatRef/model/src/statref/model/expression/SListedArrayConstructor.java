@@ -1,4 +1,6 @@
-package statref.model;
+package statref.model.expression;
+
+import statref.model.SType;
 
 import java.util.ArrayList;
 

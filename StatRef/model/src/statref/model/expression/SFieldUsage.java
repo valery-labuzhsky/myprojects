@@ -1,4 +1,6 @@
-package statref.model;
+package statref.model.expression;
+
+import statref.model.SType;
 
 /**
  * Created on 04/02/18.

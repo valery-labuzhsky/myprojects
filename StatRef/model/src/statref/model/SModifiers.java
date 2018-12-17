@@ -18,5 +18,5 @@ public interface SModifiers {
         return getModifiers().contains(Modifier.STATIC);
     }
 
-    Collection<Modifier> getModifiers(); // TODO I probably need my own Modifier
+    Collection<Modifier> getModifiers();
 }

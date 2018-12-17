@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.SConstructor;
+import statref.model.expression.SConstructor;
 
 import java.io.IOException;
 

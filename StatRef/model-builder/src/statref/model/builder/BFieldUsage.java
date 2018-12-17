@@ -1,6 +1,6 @@
 package statref.model.builder;
 
-import statref.model.SFieldUsage;
+import statref.model.expression.SFieldUsage;
 import statref.model.SType;
 
 /**
@@ -12,6 +12,7 @@ public class BFieldUsage extends BExpression implements SFieldUsage {
     private final SType type;
     // TODO it's either typename for int.class, or variable.field
     // TODO so we must create something common for those things
+    // TODO actually, int is a variable here, sort of
     private final String name;
 
     public BFieldUsage(SType type, String name) {

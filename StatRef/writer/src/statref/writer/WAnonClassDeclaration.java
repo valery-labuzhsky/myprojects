@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.SAnonClassDeclaration;
+import statref.model.expression.SAnonClassDeclaration;
 
 import java.io.IOException;
 

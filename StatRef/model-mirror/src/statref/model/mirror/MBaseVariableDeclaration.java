@@ -1,9 +1,9 @@
 package statref.model.mirror;
 
-import statref.model.SExpression;
-import statref.model.SVariable;
 import statref.model.SBaseVariableDeclaration;
 import statref.model.SType;
+import statref.model.expression.SExpression;
+import statref.model.expression.SVariable;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
@@ -14,35 +14,35 @@ import java.util.Collection;
  *
  * @author ptasha
  */
-public class MBaseVariableDeclaration implements SBaseVariableDeclaration {
-    private final VariableElement element;
+public class MBaseVariableDeclaration extends MElement<VariableElement> implements SBaseVariableDeclaration {
 
     public MBaseVariableDeclaration(VariableElement element) {
-        this.element = element;
+        super(element);
     }
 
     @Override
     public SType getType() {
-        return MBase.get(element.asType());
+        return MBase.get(getElement().asType());
     }
 
     @Override
     public String getName() {
-        return element.getSimpleName().toString();
+        return getElement().getSimpleName().toString();
     }
 
     @Override
-    public SExpression getExpression() {
+    public SExpression getInitializer() {
         return null;
     }
 
     @Override
     public SVariable usage() {
-        return new MVariable(element);
+        return new MVariable(getElement());
     }
 
     @Override
     public Collection<Modifier> getModifiers() {
-        return element.getModifiers();
+        return getElement().getModifiers();
     }
+
 }

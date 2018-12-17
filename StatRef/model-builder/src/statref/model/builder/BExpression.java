@@ -1,8 +1,8 @@
 package statref.model.builder;
 
-import statref.model.SExpression;
+import statref.model.expression.SExpression;
 
-public class BExpression implements SExpression {
+public abstract class BExpression extends BElement implements SExpression {
     public BMethod call(String method, SExpression... params) {
         return new BMethod(this, method, params);
     }

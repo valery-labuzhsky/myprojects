@@ -1,7 +1,7 @@
 package statref.model.builder;
 
-import statref.model.SExpression;
-import statref.model.SMethod;
+import statref.model.expression.SExpression;
+import statref.model.expression.SMethod;
 
 import java.util.Arrays;
 import java.util.List;

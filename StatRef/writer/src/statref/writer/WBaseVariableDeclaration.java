@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.SExpression;
+import statref.model.expression.SExpression;
 import statref.model.SBaseVariableDeclaration;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ public abstract class WBaseVariableDeclaration<S extends SBaseVariableDeclaratio
         writeElement(field.getType(), writer);
         writer.write(" ");
         writer.write(field.getName());
-        SExpression expression = field.getExpression();
+        SExpression expression = field.getInitializer();
         if (expression!=null) {
             writer.write(" = ");
             writeElement(expression, writer);

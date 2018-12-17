@@ -1,6 +1,5 @@
 package statref.writer;
 
-import statref.model.SInstruction;
 import statref.model.SMethodDeclaration;
 
 import java.io.IOException;
@@ -21,13 +20,7 @@ public class WMethodDeclaration extends WBase<SMethodDeclaration> {
         writer.write(" ");
         writer.write(method.getName());
         write(writer, method.getParameters(), "(", ", ", ")");
-        writer.writeln(" {"); // TODO block writer
-        writer.indent();
-        for (SInstruction instruction : method.getInstructions()) {
-            writeElement(instruction, writer);
-            writer.writeln();
-        }
-        writer.unindent();
-        writer.write("}");
+        writer.write(" ");
+        write(writer, method.getInstructions(), "{\n", "\n", "\n}");
     }
 }

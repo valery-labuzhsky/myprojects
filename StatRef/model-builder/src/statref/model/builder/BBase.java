@@ -1,8 +1,8 @@
 package statref.model.builder;
 
 import statref.model.SClass;
-import statref.model.SConstructor;
-import statref.model.SExpression;
+import statref.model.expression.SConstructor;
+import statref.model.expression.SExpression;
 import statref.model.SType;
 
 /**

@@ -1,4 +1,4 @@
-package statref.model;
+package statref.model.expression;
 
 import java.util.List;
 

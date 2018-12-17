@@ -1,12 +1,12 @@
 package statref.model.builder;
 
-import statref.model.SListedArrayConstructor;
+import statref.model.expression.SListedArrayConstructor;
 import statref.model.SType;
-import statref.model.SVariable;
+import statref.model.expression.SVariable;
 
 import java.util.ArrayList;
 
-public class BListedArrayConstructor implements SListedArrayConstructor {
+public class BListedArrayConstructor extends BElement implements SListedArrayConstructor {
     private final SType type;
     private ArrayList<SVariable> items = new ArrayList<>();
 

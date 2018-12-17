@@ -1,8 +1,8 @@
 package statref.model.builder;
 
-import statref.model.SAnonClassDeclaration;
+import statref.model.expression.SAnonClassDeclaration;
 import statref.model.SClass;
-import statref.model.SConstructor;
+import statref.model.expression.SConstructor;
 
 public class BAnonClassDeclaration extends BBaseClassDeclaration<BAnonClassDeclaration> implements SAnonClassDeclaration {
 
