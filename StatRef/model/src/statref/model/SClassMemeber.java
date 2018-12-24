@@ -1,4 +1,4 @@
 package statref.model;
 
-public interface SClassMemeber {
+public interface SClassMemeber extends SElement {
 }

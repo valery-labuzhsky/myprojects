@@ -50,6 +50,7 @@ public class IVariable extends IExpression<PsiReferenceExpression> implements SV
         return "" + getElement();
     }
 
+    @Override
     public IElement getParent() {
         PsiElement element = this.getElement().getParent();
         return IFactory.getElement(element);

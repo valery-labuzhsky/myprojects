@@ -7,7 +7,7 @@ import java.util.List;
  *
  * @author ptasha
  */
-public interface SMethodDeclaration extends SModifiers, SClassMemeber {
+public interface SMethodDeclaration extends SModifiers, SClassMemeber, STraceContext {
 
     List<SBaseVariableDeclaration> getParameters();
 
@@ -16,4 +16,9 @@ public interface SMethodDeclaration extends SModifiers, SClassMemeber {
     SType getReturnType();
 
     List<SInstruction> getInstructions();
+
+    @Override
+    default SContext getContext() {
+        return SClassMemeber.super.getContext();
+    }
 }

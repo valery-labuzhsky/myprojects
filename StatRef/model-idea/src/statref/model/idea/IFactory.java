@@ -14,10 +14,26 @@ public class IFactory {
             return getExpression((PsiExpression) element);
         } else if (element instanceof PsiLocalVariable) {
             return new IVariableDeclaration((PsiLocalVariable) element);
-        } else if (element instanceof PsiExpressionStatement) {
-            return new IExpressionStatement((PsiExpressionStatement) element);
+        } else if (element instanceof PsiCodeBlock) {
+            return new IBlock((PsiCodeBlock) element);
+        } else if (element instanceof PsiStatement) {
+            return getStatement(((PsiStatement) element));
+        } else if (element instanceof PsiMethod) {
+            return new IMethodDeclaration((PsiMethod) element);
         }
         log.warn(element + ": is not supported");
+        return null;
+    }
+
+    public static IStatement getStatement(PsiStatement statement) {
+        if (statement instanceof PsiDeclarationStatement) {
+            return new IDeclarationStatement((PsiDeclarationStatement) statement);
+        } else if (statement instanceof PsiExpressionStatement) {
+            return new IExpressionStatement((PsiExpressionStatement) statement);
+        } else if (statement instanceof PsiIfStatement) {
+            return new IIfStatement((PsiIfStatement) statement);
+        }
+        log.warn(statement+ ": is not supported");
         return null;
     }
 
