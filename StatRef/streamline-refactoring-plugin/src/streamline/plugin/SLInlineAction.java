@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.util.PsiTreeUtil;
+import statref.model.SElement;
 import statref.model.SInitializer;
 import statref.model.STraceContext;
 import statref.model.idea.IAssignment;
@@ -17,6 +18,7 @@ import statref.model.idea.IElement;
 import statref.model.idea.IVariable;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class SLInlineAction extends AnAction {
     @Override
@@ -38,7 +40,6 @@ public class SLInlineAction extends AnAction {
             WriteCommandAction.runWriteCommandAction(project, () -> {
                 // TODO check there is an initializer
                 SInitializer initializer = variable.declaration();
-                System.out.println(initializer.getTraceContext());
 
                 // TODO we must build full tree of contexts before deciding on inline options
                 // TODO how this tree will look like?
@@ -55,6 +56,10 @@ public class SLInlineAction extends AnAction {
                 // set -> if (then, else) -> set -> block (set)
                 // TODO we must also trigger variable removal when there are no usages
                 // TODO so we must create a list of executions
+
+                Trace trace = new Trace(initializer);
+                System.out.println(trace);
+
                 HashMap<STraceContext, SInitializer> initializers = new HashMap<>();
                 initializers.put(initializer.getTraceContext(), initializer);
 
@@ -69,7 +74,7 @@ public class SLInlineAction extends AnAction {
                             // TODO how we'll check it?
                             // TODO we should complicate before implementation, it should take context into account
                             initializers.put(assignment.getTraceContext(), assignment);
-                            System.out.println(initializer.getTraceContext());
+                            System.out.println(new Trace(initializer));
                         }
                     }
                 }
@@ -95,4 +100,32 @@ public class SLInlineAction extends AnAction {
         return null;
     }
 
+    // TODO think about: removing STraceContext, inlining it somewhere, inlining it's methods, rethink context
+    private static class Trace {
+        private final LinkedList<SElement> trace = new LinkedList<>();
+
+        public Trace(SElement element) {
+            // TODO top element - method declaration
+            // TODO can I go beyond statement - why not, but not now
+            // TODO we can do any granularity here not need to filter anything out
+            // TODO but we must stop at method level
+            // TODO it's different level of filtration
+            trace.add(element);
+            element = element.getParent();
+            while (element != null && isTraceElement(element)) {
+                trace.addFirst(element);
+                element = element.getParent();
+            }
+        }
+
+        private boolean isTraceElement(SElement element) {
+            // TODO is it above method?
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "Trace=" + trace;
+        }
+    }
 }
