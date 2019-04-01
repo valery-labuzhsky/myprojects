@@ -5,6 +5,8 @@ import com.intellij.psi.PsiLocalVariable;
 import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
+import statref.model.SElement;
+import statref.model.SInitializer;
 import statref.model.expression.SExpression;
 import statref.model.expression.SVariable;
 
@@ -16,8 +18,17 @@ public class IVariable extends IExpression<PsiReferenceExpression> implements SV
         super(element);
     }
 
+    public boolean isAssignment() {
+        boolean assignment = false;
+        SElement parent = getParent();
+        if (parent instanceof SInitializer) {
+            assignment = ((SInitializer) parent).getVariable().equals(this);
+        }
+        return assignment;
+    }
+
     @NotNull
-    public ArrayList<IVariable> usages() {
+    public ArrayList<IVariable> mentions() {
         ArrayList<IVariable> usages = new ArrayList<>();
         ReferencesSearch.search(declaration().getElement(), this.getElement().getUseScope()).forEach(psiReference -> {
             usages.add(new IVariable((PsiReferenceExpression) psiReference));

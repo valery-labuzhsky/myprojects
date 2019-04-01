@@ -1,6 +1,5 @@
 package statref.model;
 
-import statref.model.expression.SExpression;
 import statref.model.expression.SVariable;
 
 /**

@@ -1,6 +1,7 @@
 package statref.model.mirror;
 
 import statref.model.SBaseVariableDeclaration;
+import statref.model.SElement;
 import statref.model.SType;
 import statref.model.expression.SExpression;
 import statref.model.expression.SVariable;
@@ -33,6 +34,11 @@ public class MBaseVariableDeclaration extends MElement<VariableElement> implemen
     @Override
     public SExpression getInitializer() {
         return null;
+    }
+
+    @Override
+    public SElement getVariable() {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override

@@ -32,6 +32,8 @@ public class IFactory {
             return new IExpressionStatement((PsiExpressionStatement) statement);
         } else if (statement instanceof PsiIfStatement) {
             return new IIfStatement((PsiIfStatement) statement);
+        } else if (statement instanceof PsiBlockStatement) {
+            return new IBlockStatement((PsiBlockStatement) statement);
         }
         log.warn(statement+ ": is not supported");
         return null;
@@ -40,6 +42,8 @@ public class IFactory {
     public static IExpression getExpression(PsiExpression expression) {
         if (expression == null) {
             return null;
+        } else if (expression instanceof PsiReferenceExpression) {
+            return new IVariable((PsiReferenceExpression) expression);
         } else if (expression instanceof PsiAssignmentExpression) {
             return new IAssignment((PsiAssignmentExpression) expression);
         } else if (expression instanceof PsiLiteralExpression) {

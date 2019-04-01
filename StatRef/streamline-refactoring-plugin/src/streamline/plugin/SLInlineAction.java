@@ -6,30 +6,39 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.util.PsiTreeUtil;
-import statref.model.SElement;
+import com.intellij.ui.components.JBList;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManager;
+import org.gradle.internal.impldep.com.google.common.collect.Lists;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import statref.model.SInitializer;
-import statref.model.STraceContext;
-import statref.model.idea.IAssignment;
-import statref.model.idea.IElement;
-import statref.model.idea.IVariable;
+import statref.model.idea.*;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import javax.swing.*;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class SLInlineAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         // TODO I need to: inline last value set if it is determined.
         // TODO If it's not - conflict: variants: manual editing, use one of the values
-        // TODO on inline I must escape level of expresssion, and unescape when appropriate
+        // TODO on inline I must escape level of expression, and unescape when appropriate
 
         // TODO should I write tests from the beginning? probably yes, but I need do it manually first to keep me interested
 
-        // TODO when should I add refactoring tree view? probably after some refactorings are already implemented, I should just not forget to leave commments
+        // TODO when should I add refactoring tree view? probably after some refactorings are already implemented, I should just not forget to leave comments
+        // TODO the tests are hard to run, and they don't work anyway
 
         PsiReferenceExpression reference = getPsiElement(event, PsiReferenceExpression.class);
         if (reference != null) {
@@ -38,48 +47,51 @@ public class SLInlineAction extends AnAction {
             Project project = getEventProject(event);
             // TODO create a test?
             WriteCommandAction.runWriteCommandAction(project, () -> {
-                // TODO check there is an initializer
-                SInitializer initializer = variable.declaration();
+                // TODO do we need to add it to PSI? why not? but not right now
+                if (variable.isAssignment()) {
+                    ToolWindow toolWindow = ToolWindowManager.getInstance(project).registerToolWindow("streamline-toolwindow", true, ToolWindowAnchor.RIGHT);
+                    ContentManager contentManager = toolWindow.getContentManager();
+                    Content content = contentManager.getFactory().createContent(new JLabel("Test"), "Test", true);
+                    contentManager.addContent(content);
 
-                // TODO we must build full tree of contexts before deciding on inline options
-                // TODO how this tree will look like?
-                // TODO first we must build a line from very top context down to initializer
-                // TODO then we must add more lines and colapse them when required
-                // TODO we may build a tree first and collapse after
-                // method -> set
-                // method -> if -> then // TODO we must somehow understand that these 2 are from the same context
-                // method -> if -> else
-                // method -> set
-                // TODO if there is no else, then there is no collapse
-                // TODO how would I do it?
-                // TODO create an execution trace
-                // set -> if (then, else) -> set -> block (set)
-                // TODO we must also trigger variable removal when there are no usages
-                // TODO so we must create a list of executions
+                    for (IVariable mention : variable.mentions()) {
+                        // TODO how to check if something is before our mention?
+                        // TODO 1. find common block, get text mentions of childs
+                        // TODO 2. in cycles anyhing can go before anything, but only if variable is defined outside of the cycle
+                        // TODO 3. if the most common parent is if, they are in parallel branches
+                        // TODO so I must do it in AssignmentFlow
 
-                Trace trace = new Trace(initializer);
-                System.out.println(trace);
-
-                HashMap<STraceContext, SInitializer> initializers = new HashMap<>();
-                initializers.put(initializer.getTraceContext(), initializer);
-
-                // TODO should I create a method here? getInitializers?
-                for (IVariable usage : variable.usages()) {
-                    IElement parent = usage.getParent();
-                    if (parent instanceof IAssignment) {
-                        SInitializer assignment = (SInitializer) parent;
-                        if (assignment.before(variable) && assignment.after(initializer)) {
-                            initializer = assignment;
-                            // TODO we must also check if one context is before or after
-                            // TODO how we'll check it?
-                            // TODO we should complicate before implementation, it should take context into account
-                            initializers.put(assignment.getTraceContext(), assignment);
-                            System.out.println(new Trace(initializer));
+                        // TODO so I simply need to check what is after this assignment and next
+                        // TODO or I can find assignnments for variables
+                        // TODO I must show conflicts for all the variables
+                        // TODO so it just massive inline usage thing
+                        // TODO all I need to do is to exclude
+                        // TODO I must create conflicts panel!
+                    }
+                    // TODO usage flow
+                    // TODO remove assignment
+                } else {
+                    AssignmentFlow flow = new AssignmentFlow(variable);
+                    ArrayList<IElement> variants = flow.getVariants(variable);
+                    SInitializer initializer = null;
+                    if (variants.size() == 0) {
+                        // TODO show error
+                    } else if (variants.size() == 1) {
+                        initializer = (SInitializer) variants.get(0);
+                    } else {
+                        InlineVariableDialog dialog = new InlineVariableDialog(project, variants);
+                        if (dialog.showAndGet()) {
+                            initializer = (SInitializer) dialog.getSelectedValue();
                         }
                     }
-                }
+                    // TODO next thing is to check whether there are usages left
+                    // TODO inline variable set instead of usage
 
-//                variable.replace(initializer.getInitializer()); // TODO uncomment me
+                    if (initializer != null) {
+                        variable.replace(initializer.getInitializer()); // TODO uncomment me
+                        // TODO check if any usages left
+                    }
+                }
             });
         } else {
             // TODO show error message here
@@ -100,32 +112,111 @@ public class SLInlineAction extends AnAction {
         return null;
     }
 
-    // TODO think about: removing STraceContext, inlining it somewhere, inlining it's methods, rethink context
-    private static class Trace {
-        private final LinkedList<SElement> trace = new LinkedList<>();
+    private static class AssignmentFlow {
+        private final IElement top;
+        private final HashMap<IElement, List<IElement>> variables = new HashMap<>();
 
-        public Trace(SElement element) {
-            // TODO top element - method declaration
-            // TODO can I go beyond statement - why not, but not now
-            // TODO we can do any granularity here not need to filter anything out
-            // TODO but we must stop at method level
-            // TODO it's different level of filtration
-            trace.add(element);
-            element = element.getParent();
-            while (element != null && isTraceElement(element)) {
-                trace.addFirst(element);
-                element = element.getParent();
+        public AssignmentFlow(IVariable variable) {
+            IElement declaration = variable.declaration();
+            top = declaration.getParent().getParent(); // TODO may not work for every case
+            add(declaration);
+            for (IVariable usage : variable.mentions()) {
+                if (usage.isAssignment()) {
+                    add(usage.getParent());
+                }
             }
         }
 
-        private boolean isTraceElement(SElement element) {
-            // TODO is it above method?
-            return true;
+        private void add(IElement assignment) {
+            add(assignment.getParent(), assignment);
         }
 
+        private void add(IElement context, IElement assignment) {
+            if (context instanceof IIfStatement && conditional((IIfStatement) context, assignment)) {
+                assignment = context;
+            } else {
+                variables.computeIfAbsent(context, key -> new ArrayList<>()).add(assignment);
+            }
+            if (!context.equals(top)) {
+                add(context.getParent(), assignment);
+            }
+        }
+
+        private boolean conditional(IIfStatement context, IElement assignment) { // TODO create a class/methods for it
+            return conditional(context.getThenBranch(), assignment) || conditional(context.getElseBranch(), assignment);
+        }
+
+        private boolean conditional(IStatement branch, IElement assignment) {
+            return branch != null && branch.contains(assignment);
+        }
+
+        public ArrayList<IElement> getVariants(IElement usage) {
+            ArrayList<IElement> variants = new ArrayList<>();
+            IElement context = usage;
+            do {
+                context = context.getParent();
+            } while (!getVariants(usage, context, variants) && !context.equals(top));
+            return variants;
+        }
+
+        public boolean getVariants(IElement usage, IElement context, ArrayList<IElement> variants) {
+            List<IElement> elements = variables.get(context);
+            if (elements != null) {
+                for (ListIterator<IElement> iterator = elements.listIterator(elements.size()); iterator.hasPrevious(); ) {
+                    IElement element = iterator.previous();
+                    if (usage == null || element.before(usage)) { // TODO will it work all the time? like in cycles
+                        if (element instanceof IIfStatement) {
+                            IIfStatement ifStatement = (IIfStatement) element;
+                            if (getVariants(null, ifStatement.getElseBranch(), variants) &
+                                    getVariants(null, ifStatement.getThenBranch(), variants)) {
+                                return true;
+                            }
+                        } else {
+                            variants.add(element);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    private static class InlineVariableDialog extends DialogWrapper {
+        private final ArrayList<IElement> variants;
+        // TODO InlineLocalDialog
+
+        private JBList<IElement> list;
+
+        public InlineVariableDialog(Project project, ArrayList<IElement> variants) {
+            super(project);
+            this.variants = variants;
+            init();
+            setTitle("Inline");
+        }
+
+        @Nullable
         @Override
-        public String toString() {
-            return "Trace=" + trace;
+        public JComponent getPreferredFocusedComponent() {
+            return list;
+        }
+
+        @NotNull
+        @Override
+        protected JComponent createCenterPanel() {
+            list = new JBList<>(Lists.reverse(variants));
+            list.setCellRenderer(new DefaultListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                    return super.getListCellRendererComponent(list, ((SInitializer)value).getInitializer().getText(), index, isSelected, cellHasFocus);
+                }
+            });
+            list.setSelectedIndex(0);
+            return list;
+        }
+
+        public IElement getSelectedValue() {
+            return list.getSelectedValue();
         }
     }
 }

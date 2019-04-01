@@ -16,13 +16,17 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
         return element;
     }
 
+    public boolean contains(IElement element) {
+        return getElement().getTextRange().contains(element.getElement().getTextRange());
+    }
+
     @Override
     public boolean before(SElement element) {
         return getElement().getTextOffset() < ((IElement)element).getElement().getTextOffset();
     }
 
     @Override
-    public SElement getParent() {
+    public IElement getParent() {
         return IFactory.getElement(element.getParent());
     }
 
@@ -37,5 +41,15 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
     @Override
     public int hashCode() {
         return Objects.hash(element);
+    }
+
+    @Override
+    public String getText() {
+        return element.getText();
+    }
+
+    @Override
+    public String toString() {
+        return element.toString();
     }
 }

@@ -38,4 +38,8 @@ public interface SElement {
     default SElement getParent() {
         throw new UnsupportedOperationException();
     }
+
+    default String getText() {
+        return toString();
+    }
 }

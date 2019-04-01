@@ -20,6 +20,11 @@ public class IVariableDeclaration extends IElement<PsiLocalVariable> implements 
     }
 
     @Override
+    public IElement getVariable() {
+        return IFactory.getElement(getElement().getNameIdentifier());
+    }
+
+    @Override
     public Collection<Modifier> getModifiers() {
         return null;
     }
