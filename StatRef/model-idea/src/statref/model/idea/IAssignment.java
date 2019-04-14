@@ -2,9 +2,8 @@ package statref.model.idea;
 
 import com.intellij.psi.PsiAssignmentExpression;
 import statref.model.SElement;
-import statref.model.SInitializer;
 
-public class IAssignment extends IExpression<PsiAssignmentExpression> implements SInitializer {
+public class IAssignment extends IExpression<PsiAssignmentExpression> implements IInitializer {
     public IAssignment(PsiAssignmentExpression assignment) {
         super(assignment);
     }
@@ -14,8 +13,8 @@ public class IAssignment extends IExpression<PsiAssignmentExpression> implements
         return IFactory.getExpression(getElement().getRExpression());
     }
 
-    @Override
     public SElement getVariable() {
         return IFactory.getExpression(getElement().getLExpression());
     }
+
 }

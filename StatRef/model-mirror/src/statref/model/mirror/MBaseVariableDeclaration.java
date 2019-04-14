@@ -37,11 +37,6 @@ public class MBaseVariableDeclaration extends MElement<VariableElement> implemen
     }
 
     @Override
-    public SElement getVariable() {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    @Override
     public SVariable usage() {
         return new MVariable(getElement());
     }

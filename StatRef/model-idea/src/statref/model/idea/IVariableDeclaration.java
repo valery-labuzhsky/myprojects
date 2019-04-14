@@ -8,7 +8,7 @@ import statref.model.expression.SVariable;
 import javax.lang.model.element.Modifier;
 import java.util.Collection;
 
-public class IVariableDeclaration extends IElement<PsiLocalVariable> implements SVariableDeclaration {
+public class IVariableDeclaration extends IElement<PsiLocalVariable> implements SVariableDeclaration, IInitializer {
 
     public IVariableDeclaration(PsiLocalVariable element) {
         super(element);
@@ -17,11 +17,6 @@ public class IVariableDeclaration extends IElement<PsiLocalVariable> implements 
     @Override
     public IExpression getInitializer() {
         return IFactory.getExpression(getElement().getInitializer());
-    }
-
-    @Override
-    public IElement getVariable() {
-        return IFactory.getElement(getElement().getNameIdentifier());
     }
 
     @Override

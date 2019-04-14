@@ -1,7 +1,6 @@
 package statref.model.builder;
 
 import statref.model.SBaseVariableDeclaration;
-import statref.model.SElement;
 import statref.model.SType;
 import statref.model.expression.SExpression;
 
@@ -28,11 +27,6 @@ public abstract class BBaseVariableDeclaration<B extends BBaseVariableDeclaratio
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public SElement getVariable() {
-        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override

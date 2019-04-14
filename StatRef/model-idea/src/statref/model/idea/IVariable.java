@@ -6,7 +6,6 @@ import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
 import statref.model.SElement;
-import statref.model.SInitializer;
 import statref.model.expression.SExpression;
 import statref.model.expression.SVariable;
 
@@ -21,8 +20,8 @@ public class IVariable extends IExpression<PsiReferenceExpression> implements SV
     public boolean isAssignment() {
         boolean assignment = false;
         SElement parent = getParent();
-        if (parent instanceof SInitializer) {
-            assignment = ((SInitializer) parent).getVariable().equals(this);
+        if (parent instanceof IAssignment) {
+            assignment = ((IAssignment) parent).getVariable().equals(this);
         }
         return assignment;
     }
@@ -35,6 +34,17 @@ public class IVariable extends IExpression<PsiReferenceExpression> implements SV
             return true;
         });
         return usages;
+    }
+
+    @NotNull
+    public ArrayList<IVariable> valueUsages() { // TODO use iterable?
+        ArrayList<IVariable> valueUsages = new ArrayList<>();
+        for (IVariable mention : mentions()) {
+            if (!mention.isAssignment()) {
+                valueUsages.add(mention);
+            }
+        }
+        return valueUsages;
     }
 
     public void replace(SExpression expression) {
