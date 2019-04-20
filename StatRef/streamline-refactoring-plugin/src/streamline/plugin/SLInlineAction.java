@@ -1,6 +1,5 @@
 package streamline.plugin;
 
-import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -14,27 +13,22 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReferenceExpression;
-import com.intellij.psi.PsiStatement;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.ui.treeStructure.Tree;
 import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import statref.model.SInitializer;
-import statref.model.idea.*;
+import statref.model.idea.IElement;
+import statref.model.idea.IVariable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
 
 public class SLInlineAction extends AnAction {
     @Override
@@ -76,9 +70,6 @@ public class SLInlineAction extends AnAction {
                     // TODO hotkeys to work with them
                     // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
 
-                    // TODO how to show conflicts?
-                    // TODO it probably should be a branch with conflict description
-                    // TODO no such child if there is no conflict
                     AssignmentNode node = new AssignmentNode(project, inlineAssignment);
                     DefaultMutableTreeNode rootNode = node.createTreeNode();
                     // TODO I should not display a tree if there is no conflicts
@@ -114,7 +105,16 @@ public class SLInlineAction extends AnAction {
 
     private void createRefactoringTree(Project project, DefaultMutableTreeNode root, String displayName) {
         ContentManager contentManager = getStreamlineToolWindow(project);
-        Content tab = contentManager.getFactory().createContent(new Tree(root), displayName, true);
+        Tree tree = new Tree(root);
+        tree.setEditable(true);
+
+        tree.setCellRenderer(new RadioNodePanel().createRenderer());
+        tree.setCellEditor(new RadioNodePanel().createEditor());
+
+        Content tab = contentManager.getFactory().createContent(tree, displayName, true);
+        for (int i=0; i<tree.getRowCount(); i++) {
+            tree.expandRow(i);
+        }
         contentManager.addContent(tab);
         contentManager.setSelectedContent(tab);
     }
@@ -141,76 +141,6 @@ public class SLInlineAction extends AnAction {
             return element;
         }
         return null;
-    }
-
-    private static class AssignmentFlow {
-        private final IElement top;
-        private final HashMap<IElement, List<IElement>> variables = new HashMap<>();
-
-        public AssignmentFlow(IVariable variable) {
-            IElement declaration = variable.declaration();
-            top = declaration.getParent().getParent(); // TODO may not work for every case
-            add(declaration);
-            for (IVariable usage : variable.mentions()) {
-                if (usage.isAssignment()) {
-                    add(usage.getParent());
-                }
-            }
-        }
-
-        private void add(IElement assignment) {
-            add(assignment.getParent(), assignment);
-        }
-
-        private void add(IElement context, IElement assignment) {
-            if (context instanceof IIfStatement && conditional((IIfStatement) context, assignment)) {
-                assignment = context;
-            } else {
-                variables.computeIfAbsent(context, key -> new ArrayList<>()).add(assignment);
-            }
-            if (!context.equals(top)) {
-                add(context.getParent(), assignment);
-            }
-        }
-
-        private boolean conditional(IIfStatement context, IElement assignment) { // TODO create a class/methods for it
-            return conditional(context.getThenBranch(), assignment) || conditional(context.getElseBranch(), assignment);
-        }
-
-        private boolean conditional(IStatement branch, IElement assignment) {
-            return branch != null && branch.contains(assignment);
-        }
-
-        public ArrayList<IElement> getVariants(IElement usage) {
-            ArrayList<IElement> variants = new ArrayList<>();
-            IElement context = usage;
-            do {
-                context = context.getParent();
-            } while (!getVariants(usage, context, variants) && !context.equals(top));
-            return variants;
-        }
-
-        public boolean getVariants(IElement usage, IElement context, ArrayList<IElement> variants) {
-            List<IElement> elements = variables.get(context);
-            if (elements != null) {
-                for (ListIterator<IElement> iterator = elements.listIterator(elements.size()); iterator.hasPrevious(); ) {
-                    IElement element = iterator.previous();
-                    if (usage == null || element.before(usage)) { // TODO will it work all the time? like in cycles
-                        if (element instanceof IIfStatement) {
-                            IIfStatement ifStatement = (IIfStatement) element;
-                            if (getVariants(null, ifStatement.getElseBranch(), variants) &
-                                    getVariants(null, ifStatement.getThenBranch(), variants)) {
-                                return true;
-                            }
-                        } else {
-                            variants.add(element);
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
     }
 
     private static class InlineVariableDialog extends DialogWrapper {
@@ -251,154 +181,4 @@ public class SLInlineAction extends AnAction {
         }
     }
 
-    private abstract static class RefactoringNode<R extends Refactoring> extends ElementNode {
-        protected final R refactoring;
-        private SimpleNode[] children;
-
-        public RefactoringNode(Project project, R refactoring) {
-            super(project);
-            this.refactoring = refactoring;
-            update();
-        }
-
-        @Override
-        public SimpleNode[] getChildren() {
-            if (children == null) {
-                children = createChildren();
-            }
-            return children;
-        }
-
-        @NotNull
-        public abstract SimpleNode[] createChildren();
-    }
-
-    public interface Refactoring {
-    }
-
-    private static class InlineAssignment implements Refactoring {
-        private final IVariable variable;
-        private final ArrayList<InlineUsage> usages = new ArrayList<>(); // TODO it's list of children refactorings
-
-        public InlineAssignment(IVariable variable) {
-            this.variable = variable;
-        }
-
-        public void add(InlineUsage usage) {
-            usages.add(usage);
-        }
-    }
-
-    private static class InlineUsage implements Refactoring {
-        private final IVariable usage;
-        private final AssignmentVariants variants = new AssignmentVariants();
-
-        public InlineUsage(IVariable usage) {
-            this.usage = usage;
-        }
-
-        public void add(IElement variant) {
-            variants.add(variant);
-        }
-    }
-
-    private static class AssignmentVariants implements Refactoring {
-        private final ArrayList<IElement> variants = new ArrayList<>();
-
-        public void add(IElement variant) {
-            variants.add(variant);
-        }
-    }
-
-    private static class AssignmentNode extends RefactoringNode<InlineAssignment> {
-        public AssignmentNode(Project project, InlineAssignment inlineAssignment) {
-            super(project, inlineAssignment);
-        }
-
-        @Override
-        protected PsiElement getPsiElement() {
-            return refactoring.variable.getElement();
-        }
-
-        @Override
-        @NotNull
-        public SimpleNode[] createChildren() {
-            return refactoring.usages.stream().map(ch -> new InlineUsageNode(myProject, ch)).toArray(SimpleNode[]::new);
-        }
-    }
-
-    private static class InlineUsageNode extends RefactoringNode<InlineUsage> {
-        public InlineUsageNode(Project project, InlineUsage refactoring) {
-            super(project, refactoring);
-        }
-
-        @NotNull
-        @Override
-        public SimpleNode[] createChildren() {
-            return refactoring.variants.variants.stream().map(variant -> new VariantElementNode(myProject, variant)).toArray(SimpleNode[]::new);
-        }
-
-        @Override
-        protected PsiElement getPsiElement() {
-            return refactoring.usage.getElement();
-        }
-    }
-
-    private static class VariantElementNode extends ElementNode {
-        private final IElement variant;
-
-        public VariantElementNode(Project project, IElement variant) {
-            super(project);
-            this.variant = variant;
-            update();
-        }
-
-        @Override
-        protected PsiElement getPsiElement() {
-            if (variant instanceof SInitializer) {
-                return ((IInitializer) variant).getInitializer().getElement();
-            }
-            return variant.getElement();
-        }
-
-        @Override
-        public SimpleNode[] getChildren() {
-            return new SimpleNode[0];
-        }
-    }
-
-    public abstract static class ElementNode extends SimpleNode {
-        public ElementNode(Project project) {
-            super(project);
-        }
-
-        @NotNull
-        public DefaultMutableTreeNode createTreeNode() {
-            return createTreeNode(this);
-        }
-
-        @NotNull
-        public DefaultMutableTreeNode createTreeNode(SimpleNode node) {
-            DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(node);
-            for (SimpleNode child : node.getChildren()) {
-                treeNode.add(createTreeNode(child));
-            }
-            return treeNode;
-        }
-
-        protected abstract PsiElement getPsiElement();
-
-        @Override
-        protected void doUpdate() {
-            PresentationData presentation = getTemplatePresentation();
-            presentation.clearText();
-            PsiStatement statement = PsiTreeUtil.getParentOfType(getPsiElement(), PsiStatement.class);
-            String statementText = statement.getText();
-            int statementStart = statement.getTextOffset();
-            int elementStart = getPsiElement().getTextOffset();
-            presentation.addText(statementText.substring(0, elementStart - statementStart), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            presentation.addText(getPsiElement().getText(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            presentation.addText(statementText.substring(elementStart - statementStart + getPsiElement().getTextLength()), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-        }
-    }
 }
