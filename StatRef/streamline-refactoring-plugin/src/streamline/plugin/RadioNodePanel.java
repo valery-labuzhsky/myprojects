@@ -1,34 +1,26 @@
 package streamline.plugin;
 
-import com.intellij.ide.util.treeView.NodeRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.tree.TreeCellEditor;
-import javax.swing.tree.TreeCellRenderer;
-import java.awt.*;
-import java.util.EventObject;
 
-public class RadioNodePanel extends NodeComponent {
-    private final NodeRenderer renderer = new NodeRenderer();
-    private final JPanel panel = new JPanel();
+public class RadioNodePanel extends NodePanel {
+
+    private JRadioButton radioButton;
 
     public RadioNodePanel() {
-        JRadioButton radioButton = new JRadioButton();
+        composePanel();
+    }
+
+    @Override
+    @NotNull
+    protected JComponent createComponent() {
+        radioButton = new JRadioButton();
         radioButton.setOpaque(false);
-        panel.add(radioButton);
-        panel.add(renderer);
+        return radioButton;
     }
 
-    @Override
-    public JPanel getComponent() {
-        return RadioNodePanel.this.panel;
+    public JRadioButton getRadioButton() {
+        return radioButton;
     }
-
-    @Override
-    public void prepare(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        renderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-        panel.invalidate();
-    }
-
 }

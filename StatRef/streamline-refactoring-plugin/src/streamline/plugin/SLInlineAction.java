@@ -18,6 +18,7 @@ import com.intellij.ui.components.JBList;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.ui.tree.TreeUtil;
 import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +28,12 @@ import statref.model.idea.IVariable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class SLInlineAction extends AnAction {
@@ -70,8 +76,9 @@ public class SLInlineAction extends AnAction {
                     // TODO hotkeys to work with them
                     // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
 
+                    DefaultTreeModel model = new DefaultTreeModel(null);
                     AssignmentNode node = new AssignmentNode(project, inlineAssignment);
-                    DefaultMutableTreeNode rootNode = node.createTreeNode();
+                    DefaultMutableTreeNode rootNode = node.createTreeNode(model);
                     // TODO I should not display a tree if there is no conflicts
                     createRefactoringTree(project, rootNode, "Inline " + variable.getText());
                     // TODO do the refactoring
@@ -106,17 +113,70 @@ public class SLInlineAction extends AnAction {
     private void createRefactoringTree(Project project, DefaultMutableTreeNode root, String displayName) {
         ContentManager contentManager = getStreamlineToolWindow(project);
         Tree tree = new Tree(root);
-        tree.setEditable(true);
 
-        tree.setCellRenderer(new RadioNodePanel().createRenderer());
-        tree.setCellEditor(new RadioNodePanel().createEditor());
+        tree.setCellRenderer(new ProxyNodeComponent());
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent event) {
+                passEvent(event, tree);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent event) {
+                passEvent(event, tree);
+            }
+
+            public void passEvent(MouseEvent event, Tree tree) {
+                TreePath path = tree.getPathForLocation(event.getX(), event.getY());
+                Rectangle nodeBounds = tree.getPathBounds(path);
+                int row = tree.getRowForPath(path);
+                Component editingComponent = tree.getCellRenderer().getTreeCellRendererComponent(
+                        tree, path.getLastPathComponent(), tree.isPathSelected(path), tree.isExpanded(path),
+                        tree.getModel().isLeaf(path.getLastPathComponent()), row, true);
+                editingComponent.setBounds(0, 0,
+                        nodeBounds.width,
+                        nodeBounds.height);
+                Point componentPoint = new Point(event.getX() - nodeBounds.x, event.getY() - nodeBounds.y);
+                Component activeComponent = SwingUtilities.
+                        getDeepestComponentAt(editingComponent,
+                                componentPoint.x, componentPoint.y);
+                MouseEvent newEvent = new MouseEvent(activeComponent,
+                        event.getID(),
+                        event.getWhen(),
+                        event.getModifiers()
+                                | event.getModifiersEx(),
+                        componentPoint.x, componentPoint.y,
+                        event.getXOnScreen(),
+                        event.getYOnScreen(),
+                        event.getClickCount(),
+                        event.isPopupTrigger(),
+                        event.getButton());
+                activeComponent.dispatchEvent(newEvent);
+            }
+        });
 
         Content tab = contentManager.getFactory().createContent(tree, displayName, true);
-        for (int i=0; i<tree.getRowCount(); i++) {
+        for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
         }
         contentManager.addContent(tab);
         contentManager.setSelectedContent(tab);
+    }
+
+    private class ProxyNodeComponent implements TreeCellRenderer {
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            return getComponent(value).createRenderer().getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+        }
+
+        public NodeComponent getComponent(Object value) {
+            Object node = TreeUtil.getUserObject(value);
+            if (node instanceof SelfPresentingNode) {
+                return ((SelfPresentingNode) node).createNodeComponent();
+            } else {
+                throw new IllegalArgumentException(node + " is not supported");
+            }
+        }
     }
 
     private ContentManager getStreamlineToolWindow(Project project) {

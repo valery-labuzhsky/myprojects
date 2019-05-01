@@ -7,11 +7,18 @@ import statref.model.SInitializer;
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
 
-public class VariantElementNode extends ElementNode {
-    private final IElement variant;
+import javax.swing.tree.DefaultTreeModel;
 
-    public VariantElementNode(Project project, IElement variant) {
+public class VariantElementNode extends ElementNode {
+    private final DefaultTreeModel model;
+    private final VariantsNode variants;
+    private final IElement variant;
+    private RadioNodePanel panel;
+
+    public VariantElementNode(Project project, VariantsNode variants, IElement variant) {
         super(project);
+        this.model = model;
+        this.variants = variants;
         this.variant = variant;
         update();
     }
@@ -27,5 +34,18 @@ public class VariantElementNode extends ElementNode {
     @Override
     public SimpleNode[] getChildren() {
         return new SimpleNode[0];
+    }
+
+    @Override
+    protected NodeComponent createNodeComponent() {
+        panel = new RadioNodePanel();
+        panel.getRadioButton().addActionListener(e ->
+                variants.setSelected(variant));
+        return panel;
+    }
+
+    public void fireVariantChanged() {
+        panel.getRadioButton().setSelected(variants.getSelected()==variant);
+        model.nodeChanged(node);
     }
 }

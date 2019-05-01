@@ -10,22 +10,28 @@ import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
-public abstract class ElementNode extends SimpleNode {
+public abstract class ElementNode extends SelfPresentingNode {
+
+    protected DefaultMutableTreeNode node;
+    private DefaultMutableTreeNode treeNode;
+
     public ElementNode(Project project) {
         super(project);
     }
 
     @NotNull
-    public DefaultMutableTreeNode createTreeNode() {
-        return createTreeNode(this);
+    public DefaultMutableTreeNode createTreeNode(DefaultTreeModel model) {
+        return createTreeNode(model, this);
     }
 
     @NotNull
-    public DefaultMutableTreeNode createTreeNode(SimpleNode node) {
-        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(node);
+    public DefaultMutableTreeNode createTreeNode(DefaultTreeModel model, SimpleNode node) {
+        treeNode = new DefaultMutableTreeNode(node);
         for (SimpleNode child : node.getChildren()) {
-            treeNode.add(createTreeNode(child));
+            // TODO pass model further
+            treeNode.add(createTreeNode(model, child));
         }
         return treeNode;
     }
@@ -44,4 +50,5 @@ public abstract class ElementNode extends SimpleNode {
         presentation.addText(getPsiElement().getText(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
         presentation.addText(statementText.substring(elementStart - statementStart + getPsiElement().getTextLength()), SimpleTextAttributes.REGULAR_ATTRIBUTES);
     }
+
 }
