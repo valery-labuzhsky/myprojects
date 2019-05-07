@@ -6,34 +6,11 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiStatement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.ui.treeStructure.SimpleNode;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 
 public abstract class ElementNode extends SelfPresentingNode {
 
-    protected DefaultMutableTreeNode node;
-    private DefaultMutableTreeNode treeNode;
-
     public ElementNode(Project project) {
         super(project);
-    }
-
-    @NotNull
-    public DefaultMutableTreeNode createTreeNode(DefaultTreeModel model) {
-        return createTreeNode(model, this);
-    }
-
-    @NotNull
-    public DefaultMutableTreeNode createTreeNode(DefaultTreeModel model, SimpleNode node) {
-        treeNode = new DefaultMutableTreeNode(node);
-        for (SimpleNode child : node.getChildren()) {
-            // TODO pass model further
-            treeNode.add(createTreeNode(model, child));
-        }
-        return treeNode;
     }
 
     protected abstract PsiElement getPsiElement();

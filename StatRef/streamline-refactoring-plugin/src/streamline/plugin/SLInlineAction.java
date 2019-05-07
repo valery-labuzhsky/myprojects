@@ -79,8 +79,9 @@ public class SLInlineAction extends AnAction {
                     DefaultTreeModel model = new DefaultTreeModel(null);
                     AssignmentNode node = new AssignmentNode(project, inlineAssignment);
                     DefaultMutableTreeNode rootNode = node.createTreeNode(model);
+                    model.setRoot(rootNode);
                     // TODO I should not display a tree if there is no conflicts
-                    createRefactoringTree(project, rootNode, "Inline " + variable.getText());
+                    createRefactoringTree(project, model, "Inline " + variable.getText());
                     // TODO do the refactoring
                 } else {
                     ArrayList<IElement> variants = new AssignmentFlow(variable).getVariants(variable);
@@ -110,9 +111,9 @@ public class SLInlineAction extends AnAction {
         }
     }
 
-    private void createRefactoringTree(Project project, DefaultMutableTreeNode root, String displayName) {
+    private void createRefactoringTree(Project project, DefaultTreeModel model, String displayName) {
         ContentManager contentManager = getStreamlineToolWindow(project);
-        Tree tree = new Tree(root);
+        Tree tree = new Tree(model);
 
         tree.setCellRenderer(new ProxyNodeComponent());
         tree.addMouseListener(new MouseAdapter() {
@@ -128,6 +129,7 @@ public class SLInlineAction extends AnAction {
 
             public void passEvent(MouseEvent event, Tree tree) {
                 TreePath path = tree.getPathForLocation(event.getX(), event.getY());
+                if (path==null) return;
                 Rectangle nodeBounds = tree.getPathBounds(path);
                 int row = tree.getRowForPath(path);
                 Component editingComponent = tree.getCellRenderer().getTreeCellRendererComponent(
@@ -172,7 +174,7 @@ public class SLInlineAction extends AnAction {
         public NodeComponent getComponent(Object value) {
             Object node = TreeUtil.getUserObject(value);
             if (node instanceof SelfPresentingNode) {
-                return ((SelfPresentingNode) node).createNodeComponent();
+                return ((SelfPresentingNode) node).getNodeComponent();
             } else {
                 throw new IllegalArgumentException(node + " is not supported");
             }
