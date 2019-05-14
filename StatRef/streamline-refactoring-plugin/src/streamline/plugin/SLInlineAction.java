@@ -1,12 +1,11 @@
 package streamline.plugin;
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -19,6 +18,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
+import icons.StudioIcons;
 import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,42 +47,25 @@ public class SLInlineAction extends AnAction {
 
         // TODO when should I add refactoring tree view? probably after some refactorings are already implemented, I should just not forget to leave comments
         // TODO the tests are hard to run, and they don't work anyway
+        // TODO I may also try idea's tests
 
         PsiReferenceExpression reference = getPsiElement(event, PsiReferenceExpression.class);
-        // TODO it doesn work with declaration
+        // TODO it doesn't work with declaration
+        // TODO I should run default action if element is not supported
         if (reference != null) {
             IVariable variable = new IVariable(reference);
 
             Project project = getEventProject(event);
-            // TODO create a test?
+            // TODO not necessary doing it in write command as refactoring will occur on button pressed
             WriteCommandAction.runWriteCommandAction(project, () -> {
                 // TODO do we need to add it to PSI? why not? but not right now
                 if (variable.isAssignment()) {
-                    InlineAssignment inlineAssignment = new InlineAssignment(variable);
-                    for (IVariable usage : variable.valueUsages()) {
-                        ArrayList<IElement> variants = new AssignmentFlow(usage).getVariants(usage);
-                        InlineUsage inlineUsage = new InlineUsage(usage);
-                        for (IElement variant : variants) {
-                            // TODO default variant is to leave it as is if there is a conflict
-                            inlineUsage.add(variant);
-                            if (variant.equals(variable.getParent())) {
-                                inlineAssignment.add(inlineUsage);
-                            }
-                        }
-                    }
+                    InlineAssignment refactoring = new InlineAssignment(variable);
                     // TODO now I must improve a tree to make in comfortable to work with
-                    // TODO I must show conflicts for people to understand that they are conflicts
-                    // TODO checkboxes to choose solution
-                    // TODO hotkeys to work with them
                     // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
 
-                    DefaultTreeModel model = new DefaultTreeModel(null);
-                    AssignmentNode node = new AssignmentNode(project, inlineAssignment);
-                    DefaultMutableTreeNode rootNode = node.createTreeNode(model);
-                    model.setRoot(rootNode);
-                    // TODO I should not display a tree if there is no conflicts
-                    createRefactoringTree(project, model, "Inline " + variable.getText());
-                    // TODO do the refactoring
+                    // TODO I should not display a tree if there are no conflicts
+                    createRefactoringTree(project, "Inline " + variable.getText(), refactoring);
                 } else {
                     ArrayList<IElement> variants = new AssignmentFlow(variable).getVariants(variable);
                     SInitializer initializer = null;
@@ -111,9 +94,14 @@ public class SLInlineAction extends AnAction {
         }
     }
 
-    private void createRefactoringTree(Project project, DefaultTreeModel model, String displayName) {
-        ContentManager contentManager = getStreamlineToolWindow(project);
+    private void createRefactoringTree(Project project, String displayName, InlineAssignment refactoring) {
+        DefaultTreeModel model = new DefaultTreeModel(null);
         Tree tree = new Tree(model);
+        AssignmentNode node = new AssignmentNode(project, refactoring);
+        DefaultMutableTreeNode rootNode = node.createTreeNode(tree);
+        model.setRoot(rootNode);
+
+        ContentManager contentManager = getStreamlineToolWindow(project);
 
         tree.setCellRenderer(new ProxyNodeComponent());
         tree.addMouseListener(new MouseAdapter() {
@@ -157,7 +145,31 @@ public class SLInlineAction extends AnAction {
             }
         });
 
-        Content tab = contentManager.getFactory().createContent(tree, displayName, true);
+        SimpleToolWindowPanel toolWindow = new SimpleToolWindowPanel(true, true);
+        AnAction refactor = new AnAction("Refactor", "Refactor", StudioIcons.Shell.Toolbar.RUN) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                WriteCommandAction.runWriteCommandAction(e.getProject(), refactoring::refactor);
+            }
+        };
+        // TODO it should be run default inline action
+        AnAction refactor2 = new AnAction("Refactor", "Refactor", StudioIcons.Shell.Toolbar.INSTANT_RUN) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+
+            }
+        };
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        actionGroup.add(refactor);
+        actionGroup.addSeparator();
+        actionGroup.add(refactor2);
+        final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actionGroup, true);
+        actionToolbar.setTargetComponent(toolWindow);
+
+        toolWindow.setToolbar(actionToolbar.getComponent());
+        toolWindow.setContent(tree);
+
+        Content tab = contentManager.getFactory().createContent(toolWindow, displayName, true);
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
         }
@@ -207,7 +219,6 @@ public class SLInlineAction extends AnAction {
 
     private static class InlineVariableDialog extends DialogWrapper {
         private final ArrayList<IElement> variants;
-        // TODO InlineLocalDialog
 
         private JBList<IElement> list;
 

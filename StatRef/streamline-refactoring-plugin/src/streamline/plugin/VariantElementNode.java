@@ -8,10 +8,13 @@ import statref.model.SInitializer;
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
 
+import javax.swing.*;
+
 public class VariantElementNode extends ElementNode {
     private final VariantsNode variants;
     private final IElement variant;
-    private RadioNodePanel panel;
+
+    private JRadioButton radioButton;
 
     public VariantElementNode(Project project, VariantsNode variants, IElement variant) {
         super(project);
@@ -36,14 +39,15 @@ public class VariantElementNode extends ElementNode {
 
     @Override
     protected NodeComponent createNodeComponent() {
-        panel = new RadioNodePanel();
-        panel.getRadioButton().addActionListener(e ->
+        radioButton = new JRadioButton();
+        radioButton.addActionListener(e ->
                 variants.setSelected(variant));
-        return panel;
+        return new NodePanel(radioButton);
     }
 
     public void fireVariantChanged() {
-        panel.getRadioButton().setSelected(variants.getSelected() == variant);
-        model.nodeChanged(node);
+        radioButton.setSelected(variants.getSelected() == variant);
+        fireNodeChanged();
     }
+
 }

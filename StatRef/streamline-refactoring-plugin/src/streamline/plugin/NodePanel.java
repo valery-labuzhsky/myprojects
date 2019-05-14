@@ -1,11 +1,16 @@
 package streamline.plugin;
 
-import org.jetbrains.annotations.NotNull;
-
 import javax.swing.*;
 
-public abstract class NodePanel extends NodeRendererComponent {
+public class NodePanel extends NodeComponent {
     private final JPanel panel = new JPanel();
+    private final NodeRendererComponent renderer = new NodeRendererComponent();
+
+    protected NodePanel(JComponent component) {
+        component.setOpaque(false);
+        panel.add(component);
+        panel.add(renderer.getComponent());
+    }
 
     @Override
     public JPanel getComponent() {
@@ -14,15 +19,7 @@ public abstract class NodePanel extends NodeRendererComponent {
 
     @Override
     public void prepare(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        super.prepare(tree, value, selected, expanded, leaf, row, hasFocus);
+        renderer.prepare(tree, value, selected, expanded, leaf, row, hasFocus);
         panel.invalidate();
     }
-
-    protected void composePanel() {
-        panel.add(createComponent());
-        panel.add(super.getComponent());
-    }
-
-    @NotNull
-    protected abstract JComponent createComponent();
 }

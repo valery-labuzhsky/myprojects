@@ -23,9 +23,17 @@ public abstract class ElementNode extends SelfPresentingNode {
         String statementText = statement.getText();
         int statementStart = statement.getTextOffset();
         int elementStart = getPsiElement().getTextOffset();
-        presentation.addText(statementText.substring(0, elementStart - statementStart), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-        presentation.addText(getPsiElement().getText(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-        presentation.addText(statementText.substring(elementStart - statementStart + getPsiElement().getTextLength()), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        presentation.addText(statementText.substring(0, elementStart - statementStart), getStatementAttributes());
+        presentation.addText(getPsiElement().getText(), getElementAttributes());
+        presentation.addText(statementText.substring(elementStart - statementStart + getPsiElement().getTextLength()), getStatementAttributes());
+    }
+
+    protected SimpleTextAttributes getElementAttributes() {
+        return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
+    }
+
+    protected SimpleTextAttributes getStatementAttributes() {
+        return SimpleTextAttributes.REGULAR_ATTRIBUTES;
     }
 
 }

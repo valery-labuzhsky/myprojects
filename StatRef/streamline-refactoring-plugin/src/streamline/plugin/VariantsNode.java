@@ -10,15 +10,17 @@ import statref.model.idea.IElement;
 public class VariantsNode extends SelfPresentingNode {
     private final VariantElementNode[] nodes;
     @NotNull
-    private final AssignmentVariants variants;
+    private final InlineUsage refactoring;
 
-    public VariantsNode(Project project, AssignmentVariants variants) {
+    public VariantsNode(Project project, @NotNull InlineUsage refactoring) {
         super(project);
-        nodes = variants.getVariants().stream().map(variant -> new VariantElementNode(myProject, this, variant))
+        this.refactoring = refactoring;
+        nodes = this.refactoring.getVariants().stream().map(variant -> new VariantElementNode(myProject, this, variant))
                 .toArray(VariantElementNode[]::new);
-        this.variants = variants;
         update();
     }
+
+
 
     @Override
     protected void doUpdate() {
@@ -36,13 +38,14 @@ public class VariantsNode extends SelfPresentingNode {
     }
 
     public IElement getSelected() {
-        return variants.getSelected();
+        return refactoring.getSelected();
     }
 
     public void setSelected(IElement variant) {
-        variants.setSelected(variant);
+        refactoring.setSelected(variant);
         for (VariantElementNode node : nodes) {
             node.fireVariantChanged();
         }
     }
+
 }
