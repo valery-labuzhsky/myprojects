@@ -1,4 +1,4 @@
-package streamline.plugin;
+package streamline.plugin.nodes;
 
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.project.Project;

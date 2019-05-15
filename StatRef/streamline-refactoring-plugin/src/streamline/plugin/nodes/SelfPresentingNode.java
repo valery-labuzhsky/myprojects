@@ -1,4 +1,4 @@
-package streamline.plugin;
+package streamline.plugin.nodes;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleNode;

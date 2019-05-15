@@ -1,4 +1,4 @@
-package streamline.plugin;
+package streamline.plugin.nodes;
 
 import com.intellij.ide.util.treeView.NodeRenderer;
 

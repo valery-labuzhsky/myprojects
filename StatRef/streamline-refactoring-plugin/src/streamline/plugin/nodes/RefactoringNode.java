@@ -1,8 +1,9 @@
-package streamline.plugin;
+package streamline.plugin.nodes;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
+import streamline.plugin.refactoring.Refactoring;
 
 public abstract class RefactoringNode<R extends Refactoring> extends ElementNode {
     protected final R refactoring;

@@ -1,4 +1,4 @@
-package streamline.plugin;
+package streamline.plugin.nodes;
 
 import javax.swing.*;
 
@@ -6,7 +6,7 @@ public class NodePanel extends NodeComponent {
     private final JPanel panel = new JPanel();
     private final NodeRendererComponent renderer = new NodeRendererComponent();
 
-    protected NodePanel(JComponent component) {
+    public NodePanel(JComponent component) {
         component.setOpaque(false);
         panel.add(component);
         panel.add(renderer.getComponent());

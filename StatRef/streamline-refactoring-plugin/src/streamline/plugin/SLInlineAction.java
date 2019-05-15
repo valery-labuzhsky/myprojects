@@ -25,6 +25,11 @@ import org.jetbrains.annotations.Nullable;
 import statref.model.SInitializer;
 import statref.model.idea.IElement;
 import statref.model.idea.IVariable;
+import streamline.plugin.refactoring.assignment.AssignmentNode;
+import streamline.plugin.refactoring.assignment.InlineAssignment;
+import streamline.plugin.nodes.NodeComponent;
+import streamline.plugin.nodes.SelfPresentingNode;
+import streamline.plugin.refactoring.usage.AssignmentFlow;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
