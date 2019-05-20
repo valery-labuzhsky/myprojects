@@ -7,8 +7,7 @@ import streamline.plugin.refactoring.Refactoring;
 
 import java.util.ArrayList;
 
-public class InlineUsage implements Refactoring {
-    private boolean enabled = true;
+public class InlineUsage extends Refactoring {
     private final IVariable usage;
     private IElement selected;
     private final ArrayList<IElement> variants = new ArrayList<>();
@@ -20,18 +19,10 @@ public class InlineUsage implements Refactoring {
     }
 
     @Override
-    public void refactor() {
-        if (enabled && selected!=null) {
-            usage.replace(((IInitializer)selected).getInitializer());
+    protected void doRefactor() {
+        if (selected != null) {
+            usage.replace(((IInitializer) selected).getInitializer());
         }
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     public IVariable getUsage() {

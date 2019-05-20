@@ -20,7 +20,7 @@ public class VariantElementNode extends ElementNode {
     private JRadioButton radioButton;
 
     public VariantElementNode(Project project, VariantsNode variants, IElement variant) {
-        super(project);
+        super(project, "with ");
         this.variants = variants;
         this.variant = variant;
         update();
@@ -43,14 +43,19 @@ public class VariantElementNode extends ElementNode {
     @Override
     protected NodeComponent createNodeComponent() {
         radioButton = new JRadioButton();
+        updateRadioButton();
         radioButton.addActionListener(e ->
                 variants.setSelected(variant));
         return new NodePanel(radioButton);
     }
 
     public void fireVariantChanged() {
-        radioButton.setSelected(variants.getSelected() == variant);
+        updateRadioButton();
         fireNodeChanged();
+    }
+
+    private void updateRadioButton() {
+        radioButton.setSelected(variants.getSelected() == variant);
     }
 
 }

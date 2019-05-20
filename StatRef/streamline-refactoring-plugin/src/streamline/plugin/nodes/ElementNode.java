@@ -8,9 +8,11 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.SimpleTextAttributes;
 
 public abstract class ElementNode extends SelfPresentingNode {
+    private final String prefix;
 
-    public ElementNode(Project project) {
+    public ElementNode(Project project, String prefix) {
         super(project);
+        this.prefix = prefix;
     }
 
     protected abstract PsiElement getPsiElement();
@@ -19,10 +21,11 @@ public abstract class ElementNode extends SelfPresentingNode {
     protected void doUpdate() {
         PresentationData presentation = getTemplatePresentation();
         presentation.clearText();
-        PsiStatement statement = PsiTreeUtil.getParentOfType(getPsiElement(), PsiStatement.class);
+        PsiStatement statement = PsiTreeUtil.getParentOfType(getPsiElement(), PsiStatement.class, false);
         String statementText = statement.getText();
         int statementStart = statement.getTextOffset();
         int elementStart = getPsiElement().getTextOffset();
+        presentation.addText(prefix, SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
         presentation.addText(statementText.substring(0, elementStart - statementStart), getStatementAttributes());
         presentation.addText(getPsiElement().getText(), getElementAttributes());
         presentation.addText(statementText.substring(elementStart - statementStart + getPsiElement().getTextLength()), getStatementAttributes());

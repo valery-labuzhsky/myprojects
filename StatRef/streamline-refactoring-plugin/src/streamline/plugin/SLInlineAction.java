@@ -1,11 +1,12 @@
 package streamline.plugin;
 
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -16,9 +17,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.ui.tree.TreeUtil;
-import icons.StudioIcons;
 import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,25 +25,15 @@ import statref.model.idea.IElement;
 import statref.model.idea.IVariable;
 import streamline.plugin.refactoring.assignment.AssignmentNode;
 import streamline.plugin.refactoring.assignment.InlineAssignment;
-import streamline.plugin.nodes.NodeComponent;
-import streamline.plugin.nodes.SelfPresentingNode;
 import streamline.plugin.refactoring.usage.AssignmentFlow;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class SLInlineAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
-        // TODO I need to: inline last value set if it is determined.
-        // TODO If it's not - conflict: variants: manual editing, use one of the values
         // TODO on inline I must escape level of expression, and unescape when appropriate
 
         // TODO should I write tests from the beginning? probably yes, but I need do it manually first to keep me interested
@@ -54,8 +42,14 @@ public class SLInlineAction extends AnAction {
         // TODO the tests are hard to run, and they don't work anyway
         // TODO I may also try idea's tests
 
-        PsiReferenceExpression reference = getPsiElement(event, PsiReferenceExpression.class);
         // TODO it doesn't work with declaration
+        // TODO technically I don't have reference here, as I have a declaration
+        // TODO but I need the same algorithm to work with it
+        // TODO what keeps me from thinking of declaration as a reference to itself?
+        // TODO I would need an common interface/class which does it
+        // TODO I have Initializer for assignment and declaration
+        // TODO what would I call for initializer and usage?
+        PsiReferenceExpression reference = getPsiElement(event, PsiReferenceExpression.class);
         // TODO I should run default action if element is not supported
         if (reference != null) {
             IVariable variable = new IVariable(reference);
@@ -68,8 +62,6 @@ public class SLInlineAction extends AnAction {
                     InlineAssignment refactoring = new InlineAssignment(variable);
                     // TODO now I must improve a tree to make in comfortable to work with
                     // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
-
-                    // TODO I should not display a tree if there are no conflicts
                     createRefactoringTree(project, "Inline " + variable.getText(), refactoring);
                 } else {
                     ArrayList<IElement> variants = new AssignmentFlow(variable).getVariants(variable);
@@ -100,102 +92,14 @@ public class SLInlineAction extends AnAction {
     }
 
     private void createRefactoringTree(Project project, String displayName, InlineAssignment refactoring) {
-        DefaultTreeModel model = new DefaultTreeModel(null);
-        Tree tree = new Tree(model);
-        AssignmentNode node = new AssignmentNode(project, refactoring);
-        DefaultMutableTreeNode rootNode = node.createTreeNode(tree);
-        model.setRoot(rootNode);
-
         ContentManager contentManager = getStreamlineToolWindow(project);
 
-        tree.setCellRenderer(new ProxyNodeComponent());
-        tree.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent event) {
-                passEvent(event, tree);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent event) {
-                passEvent(event, tree);
-            }
-
-            public void passEvent(MouseEvent event, Tree tree) {
-                TreePath path = tree.getPathForLocation(event.getX(), event.getY());
-                if (path==null) return;
-                Rectangle nodeBounds = tree.getPathBounds(path);
-                int row = tree.getRowForPath(path);
-                Component editingComponent = tree.getCellRenderer().getTreeCellRendererComponent(
-                        tree, path.getLastPathComponent(), tree.isPathSelected(path), tree.isExpanded(path),
-                        tree.getModel().isLeaf(path.getLastPathComponent()), row, true);
-                editingComponent.setBounds(0, 0,
-                        nodeBounds.width,
-                        nodeBounds.height);
-                Point componentPoint = new Point(event.getX() - nodeBounds.x, event.getY() - nodeBounds.y);
-                Component activeComponent = SwingUtilities.
-                        getDeepestComponentAt(editingComponent,
-                                componentPoint.x, componentPoint.y);
-                MouseEvent newEvent = new MouseEvent(activeComponent,
-                        event.getID(),
-                        event.getWhen(),
-                        event.getModifiers()
-                                | event.getModifiersEx(),
-                        componentPoint.x, componentPoint.y,
-                        event.getXOnScreen(),
-                        event.getYOnScreen(),
-                        event.getClickCount(),
-                        event.isPopupTrigger(),
-                        event.getButton());
-                activeComponent.dispatchEvent(newEvent);
-            }
-        });
-
-        SimpleToolWindowPanel toolWindow = new SimpleToolWindowPanel(true, true);
-        AnAction refactor = new AnAction("Refactor", "Refactor", StudioIcons.Shell.Toolbar.RUN) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-                WriteCommandAction.runWriteCommandAction(e.getProject(), refactoring::refactor);
-            }
-        };
-        // TODO it should be run default inline action
-        AnAction refactor2 = new AnAction("Refactor", "Refactor", StudioIcons.Shell.Toolbar.INSTANT_RUN) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-
-            }
-        };
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        actionGroup.add(refactor);
-        actionGroup.addSeparator();
-        actionGroup.add(refactor2);
-        final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actionGroup, true);
-        actionToolbar.setTargetComponent(toolWindow);
-
-        toolWindow.setToolbar(actionToolbar.getComponent());
-        toolWindow.setContent(tree);
+        AssignmentNode node = new AssignmentNode(project, refactoring);
+        RefactoringToolWindow toolWindow = new RefactoringToolWindow(node);
 
         Content tab = contentManager.getFactory().createContent(toolWindow, displayName, true);
-        for (int i = 0; i < tree.getRowCount(); i++) {
-            tree.expandRow(i);
-        }
         contentManager.addContent(tab);
         contentManager.setSelectedContent(tab);
-    }
-
-    private class ProxyNodeComponent implements TreeCellRenderer {
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            return getComponent(value).createRenderer().getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-        }
-
-        public NodeComponent getComponent(Object value) {
-            Object node = TreeUtil.getUserObject(value);
-            if (node instanceof SelfPresentingNode) {
-                return ((SelfPresentingNode) node).getNodeComponent();
-            } else {
-                throw new IllegalArgumentException(node + " is not supported");
-            }
-        }
     }
 
     private ContentManager getStreamlineToolWindow(Project project) {

@@ -1,5 +1,21 @@
 package streamline.plugin.refactoring;
 
-public interface Refactoring {
-    void refactor();
+public abstract class Refactoring {
+    protected boolean enabled = true;
+
+    public void refactor() {
+        if (isEnabled()) {
+            doRefactor();
+        }
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    protected abstract void doRefactor();
 }

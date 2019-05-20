@@ -28,7 +28,6 @@ public class VariantsNode extends SelfPresentingNode {
         PresentationData presentation = getTemplatePresentation();
         presentation.clearText();
 
-        // TODO I must change text depending on variants available
         presentation.addText("Conflict: there are many possible values", SimpleTextAttributes.ERROR_ATTRIBUTES);
     }
 
