@@ -1,21 +1,21 @@
 package streamline.plugin.refactoring.remove;
 
-import statref.model.idea.IElement;
+import statref.model.idea.IInitializer;
 import streamline.plugin.refactoring.Refactoring;
 
 public class RemoveElement extends Refactoring {
-    private final IElement element;
+    private final IInitializer initializer;
 
-    public RemoveElement(IElement element) {
-        this.element = element;
+    public RemoveElement(IInitializer initializer) {
+        this.initializer = initializer;
     }
 
-    public IElement getElement() {
-        return element;
+    public IInitializer getInitializer() {
+        return initializer;
     }
 
     @Override
     protected void doRefactor() {
-        element.getElement().delete();
+        initializer.getElement().delete();
     }
 }

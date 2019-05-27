@@ -11,7 +11,7 @@ import statref.model.expression.SVariable;
 
 import java.util.ArrayList;
 
-public class IVariable extends IExpression<PsiReferenceExpression> implements SVariable {
+public class IVariable extends IExpression<PsiReferenceExpression> implements SVariable, IVariableReference {
 
     public IVariable(PsiReferenceExpression element) {
         super(element);
@@ -26,32 +26,12 @@ public class IVariable extends IExpression<PsiReferenceExpression> implements SV
         return assignment;
     }
 
-    @NotNull
-    public ArrayList<IVariable> mentions() {
-        ArrayList<IVariable> usages = new ArrayList<>();
-        ReferencesSearch.search(declaration().getElement(), this.getElement().getUseScope()).forEach(psiReference -> {
-            usages.add(new IVariable((PsiReferenceExpression) psiReference));
-            return true;
-        });
-        return usages;
-    }
-
-    @NotNull
-    public ArrayList<IVariable> valueUsages() { // TODO use iterable?
-        ArrayList<IVariable> valueUsages = new ArrayList<>();
-        for (IVariable mention : mentions()) {
-            if (!mention.isAssignment()) {
-                valueUsages.add(mention);
-            }
-        }
-        return valueUsages;
-    }
-
     public void replace(SExpression expression) {
         // TODO be more accurate with replace, it may require moving some dependencies too
         this.getElement().replace(((IExpression<?>)expression).getElement());
     }
 
+    @Override
     @NotNull
     public IVariableDeclaration declaration() {
         // TODO check that element is resolved

@@ -1,6 +1,7 @@
 package streamline.plugin.refactoring.assignment;
 
 import statref.model.idea.IElement;
+import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import streamline.plugin.refactoring.Refactoring;
 import streamline.plugin.refactoring.remove.RemoveElement;
@@ -9,22 +10,22 @@ import streamline.plugin.refactoring.usage.InlineUsage;
 import java.util.ArrayList;
 
 public class InlineAssignment extends Refactoring {
-    private final IVariable variable;
+    private final IInitializer initializer;
     private final ArrayList<InlineUsage> usages = new ArrayList<>();
     private final RemoveElement remove;
 
-    public InlineAssignment(IVariable variable) {
-        this.variable = variable;
-        for (IVariable usage : variable.valueUsages()) {
+    public InlineAssignment(IInitializer initializer) {
+        this.initializer = initializer;
+        for (IVariable usage : initializer.valueUsages()) {
             InlineUsage inlineUsage = new InlineUsage(usage);
             for (IElement variant : inlineUsage.getVariants()) {
-                if (variant.equals(variable.getParent())) {
+                if (variant.equals(initializer)) {
                     inlineUsage.setSelected(variant); // TODO selection is not shown for some reason
                     usages.add(inlineUsage);
                 }
             }
         }
-        remove = new RemoveElement(variable.getParent());
+        remove = new RemoveElement(initializer);
         for (InlineUsage usage : usages) {
             if (!usage.isEnabled()) {
                 remove.setEnabled(false);
@@ -40,8 +41,8 @@ public class InlineAssignment extends Refactoring {
         remove.refactor();
     }
 
-    public IVariable getVariable() {
-        return variable;
+    public IInitializer getInitializer() {
+        return initializer;
     }
 
     public ArrayList<InlineUsage> getUsages() {

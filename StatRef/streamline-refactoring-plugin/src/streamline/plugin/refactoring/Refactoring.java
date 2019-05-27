@@ -1,7 +1,7 @@
 package streamline.plugin.refactoring;
 
 public abstract class Refactoring {
-    protected boolean enabled = true;
+    private boolean enabled = true;
 
     public void refactor() {
         if (isEnabled()) {

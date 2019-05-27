@@ -1,6 +1,5 @@
 package streamline.plugin.refactoring.usage;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
@@ -14,13 +13,13 @@ import streamline.plugin.nodes.NodePanel;
 import javax.swing.*;
 
 public class VariantElementNode extends ElementNode {
-    private final VariantsNode variants;
+    private final VariantsController variants;
     private final IElement variant;
 
     private JRadioButton radioButton;
 
-    public VariantElementNode(Project project, VariantsNode variants, IElement variant) {
-        super(project, "with ");
+    public VariantElementNode(VariantsController variants, IElement variant) {
+        super(variant.getProject(), "with ");
         this.variants = variants;
         this.variant = variant;
         update();
@@ -42,6 +41,9 @@ public class VariantElementNode extends ElementNode {
 
     @Override
     protected NodeComponent createNodeComponent() {
+        if (variants.getNodes().size() == 1) {
+            return super.createNodeComponent();
+        }
         radioButton = new JRadioButton();
         updateRadioButton();
         radioButton.addActionListener(e ->

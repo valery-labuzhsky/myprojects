@@ -3,33 +3,23 @@ package streamline.plugin;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiReferenceExpression;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.ui.components.JBList;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import org.gradle.internal.impldep.com.google.common.collect.Lists;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import statref.model.SInitializer;
-import statref.model.idea.IElement;
+import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
+import statref.model.idea.IVariableDeclaration;
+import streamline.plugin.nodes.RefactoringNode;
 import streamline.plugin.refactoring.assignment.AssignmentNode;
 import streamline.plugin.refactoring.assignment.InlineAssignment;
-import streamline.plugin.refactoring.usage.AssignmentFlow;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
+import streamline.plugin.refactoring.usage.InlineUsage;
+import streamline.plugin.refactoring.usage.InlineUsageNode;
 
 public class SLInlineAction extends AnAction {
     @Override
@@ -48,53 +38,49 @@ public class SLInlineAction extends AnAction {
         // TODO what keeps me from thinking of declaration as a reference to itself?
         // TODO I would need an common interface/class which does it
         // TODO I have Initializer for assignment and declaration
-        // TODO what would I call for initializer and usage?
-        PsiReferenceExpression reference = getPsiElement(event, PsiReferenceExpression.class);
-        // TODO I should run default action if element is not supported
-        if (reference != null) {
-            IVariable variable = new IVariable(reference);
+        // TODO what would I call for initializer and usage? reference?
+        PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
+        PsiElement parent = identifier.getParent();
+        Project project = getEventProject(event);
+        if (parent instanceof PsiLocalVariable) {
+            IInitializer declaration = new IVariableDeclaration((PsiLocalVariable) parent);
+            InlineAssignment refactoring = new InlineAssignment(declaration);
+            // TODO now I must improve a tree to make in comfortable to work with
+            // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
+            // TODO I need to offer ability to inline all assignments
+            createRefactoringTree(project, "Inline " + declaration.getText(), new AssignmentNode(project, refactoring));
+        } else if (parent instanceof PsiReferenceExpression) {
+            IVariable variable = new IVariable((PsiReferenceExpression) parent);
+            if (variable.isAssignment()) {
+                IInitializer assignment = (IInitializer) variable.getParent();
+                InlineAssignment refactoring = new InlineAssignment(assignment);
+                createRefactoringTree(project, "Inline " + assignment.getText(), new AssignmentNode(project, refactoring));
+            } else {
+                InlineUsageNode node = new InlineUsageNode(project, new InlineUsage(variable));
+                createRefactoringTree(project, "Inline "+variable.getName(), node);
+                // TODO no it's better to use the same assignment node
+                // TODO but what to do if there is many of them?
+                // TODO starting with what is intended is the most obvious thing
+                // TODO I need to make already mentioned nodes unmodifiable
+                // TODO but I don't need to make recursion
+                // TODO I don't need to change refactoing itself, I need to do it on Node level
 
-            Project project = getEventProject(event);
-            // TODO not necessary doing it in write command as refactoring will occur on button pressed
-            WriteCommandAction.runWriteCommandAction(project, () -> {
-                // TODO do we need to add it to PSI? why not? but not right now
-                if (variable.isAssignment()) {
-                    InlineAssignment refactoring = new InlineAssignment(variable);
-                    // TODO now I must improve a tree to make in comfortable to work with
-                    // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
-                    createRefactoringTree(project, "Inline " + variable.getText(), refactoring);
-                } else {
-                    ArrayList<IElement> variants = new AssignmentFlow(variable).getVariants(variable);
-                    SInitializer initializer = null;
-                    if (variants.size() == 0) {
-                        // TODO show error
-                        // TODO why error? there are no usages - remove it
-                    } else if (variants.size() == 1) {
-                        initializer = (SInitializer) variants.get(0);
-                    } else {
-                        InlineVariableDialog dialog = new InlineVariableDialog(project, variants);
-                        if (dialog.showAndGet()) {
-                            initializer = (SInitializer) dialog.getSelectedValue();
-                        }
-                    }
-                    // TODO next thing is to check whether there are usages left
-                    // TODO inline variable set instead of usage
+                // TODO I can just hide what's unintended
+                // TODO I can show choise every time, but choose and chow only what I think fits best
+                // TODO if I'm wrong all you need to do is to choose another option
+                // TODO let it be!
 
-                    if (initializer != null) {
-                        variable.replace(initializer.getInitializer()); // TODO uncomment me
-                        // TODO check if any usages left
-                    }
-                }
-            });
+                // TODO why I don't want to do assignment as child of usage?
+                // TODO it's not intuitive to see assignment below usage, for me
+            }
         } else {
-            // TODO show error message here
+            // TODO try to run default refactoring
         }
     }
 
-    private void createRefactoringTree(Project project, String displayName, InlineAssignment refactoring) {
+    private void createRefactoringTree(Project project, String displayName, RefactoringNode node) {
         ContentManager contentManager = getStreamlineToolWindow(project);
 
-        AssignmentNode node = new AssignmentNode(project, refactoring);
         RefactoringToolWindow toolWindow = new RefactoringToolWindow(node);
 
         Content tab = contentManager.getFactory().createContent(toolWindow, displayName, true);
@@ -117,50 +103,12 @@ public class SLInlineAction extends AnAction {
         PsiFile file = event.getData(CommonDataKeys.PSI_FILE);
         if (editor != null && file != null) {
             int offset = editor.getCaretModel().getOffset();
-            P element = PsiTreeUtil.getParentOfType(file.findElementAt(offset), aClass);
+            P element = PsiTreeUtil.getParentOfType(file.findElementAt(offset), aClass, false);
             if (element == null) {
-                return PsiTreeUtil.getParentOfType(file.findElementAt(offset - 1), aClass);
+                return PsiTreeUtil.getParentOfType(file.findElementAt(offset - 1), aClass, false);
             }
             return element;
         }
         return null;
     }
-
-    private static class InlineVariableDialog extends DialogWrapper {
-        private final ArrayList<IElement> variants;
-
-        private JBList<IElement> list;
-
-        public InlineVariableDialog(Project project, ArrayList<IElement> variants) {
-            super(project);
-            this.variants = variants;
-            init();
-            setTitle("Inline");
-        }
-
-        @Nullable
-        @Override
-        public JComponent getPreferredFocusedComponent() {
-            return list;
-        }
-
-        @NotNull
-        @Override
-        protected JComponent createCenterPanel() {
-            list = new JBList<>(Lists.reverse(variants));
-            list.setCellRenderer(new DefaultListCellRenderer() {
-                @Override
-                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                    return super.getListCellRendererComponent(list, ((SInitializer) value).getInitializer().getText(), index, isSelected, cellHasFocus);
-                }
-            });
-            list.setSelectedIndex(0);
-            return list;
-        }
-
-        public IElement getSelectedValue() {
-            return list.getSelectedValue();
-        }
-    }
-
 }

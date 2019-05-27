@@ -23,8 +23,8 @@ public abstract class ElementNode extends SelfPresentingNode {
         presentation.clearText();
         PsiStatement statement = PsiTreeUtil.getParentOfType(getPsiElement(), PsiStatement.class, false);
         String statementText = statement.getText();
-        int statementStart = statement.getTextOffset();
-        int elementStart = getPsiElement().getTextOffset();
+        int statementStart = statement.getTextRange().getStartOffset();
+        int elementStart = getPsiElement().getTextRange().getStartOffset();
         presentation.addText(prefix, SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
         presentation.addText(statementText.substring(0, elementStart - statementStart), getStatementAttributes());
         presentation.addText(getPsiElement().getText(), getElementAttributes());

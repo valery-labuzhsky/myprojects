@@ -1,5 +1,6 @@
 package streamline.plugin.refactoring.usage;
 
+import com.intellij.openapi.project.Project;
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
@@ -39,5 +40,9 @@ public class InlineUsage extends Refactoring {
 
     public void setSelected(IElement variant) {
         selected = variant;
+    }
+
+    public Project getProject() {
+        return usage.getProject();
     }
 }

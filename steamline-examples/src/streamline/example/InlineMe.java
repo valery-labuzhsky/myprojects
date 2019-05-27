@@ -43,7 +43,7 @@ public class InlineMe {
         } else {
             inline = 8;
         }
-
+        
         int target = inline;
 
         inline = 9;

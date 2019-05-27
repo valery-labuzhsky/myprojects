@@ -7,9 +7,9 @@ import com.intellij.util.ui.tree.TreeUtil;
 import icons.StudioIcons;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.NodeComponent;
+import streamline.plugin.nodes.RefactoringNode;
 import streamline.plugin.nodes.SelfPresentingNode;
-import streamline.plugin.refactoring.assignment.AssignmentNode;
-import streamline.plugin.refactoring.assignment.InlineAssignment;
+import streamline.plugin.refactoring.Refactoring;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -21,9 +21,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class RefactoringToolWindow extends SimpleToolWindowPanel {
-    private final AssignmentNode node;
+    private final RefactoringNode node;
 
-    public RefactoringToolWindow(AssignmentNode node) {
+    public RefactoringToolWindow(RefactoringNode node) {
         super(true, true);
         this.node = node;
         setupToolbar();
@@ -114,7 +114,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         return ActionManager.getInstance().getAction(RefactorAction.class.getName());
     }
 
-    public InlineAssignment getRefactoring() {
+    public Refactoring getRefactoring() {
         return node.getRefactoring();
     }
 

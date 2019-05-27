@@ -13,7 +13,7 @@ public class RemoveElementNode extends RefactoringNode<RemoveElement> {
 
     @Override
     protected PsiElement getPsiElement() {
-        return refactoring.getElement().getElement();
+        return refactoring.getInitializer().getElement();
     }
 
     @NotNull

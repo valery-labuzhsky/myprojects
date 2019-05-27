@@ -18,7 +18,7 @@ public class AssignmentNode extends RefactoringNode<InlineAssignment> {
 
     @Override
     protected PsiElement getPsiElement() {
-        return refactoring.getVariable().getElement();
+        return refactoring.getInitializer().getElement();
     }
 
     @Override
