@@ -12,18 +12,23 @@ import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import statref.model.idea.IVariableDeclaration;
 import streamline.plugin.nodes.RefactoringNode;
+import streamline.plugin.refactoring.Listeners;
+import streamline.plugin.refactoring.Refactoring;
 import streamline.plugin.refactoring.assignment.AssignmentNode;
 import streamline.plugin.refactoring.assignment.InlineAssignment;
 import streamline.plugin.refactoring.usage.InlineUsage;
 import streamline.plugin.refactoring.usage.InlineUsageNode;
 
+import java.util.function.Consumer;
+
 public class SLInlineAction extends AnAction {
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         // TODO on inline I must escape level of expression, and unescape when appropriate
 
         // TODO should I write tests from the beginning? probably yes, but I need do it manually first to keep me interested
@@ -45,6 +50,7 @@ public class SLInlineAction extends AnAction {
         if (parent instanceof PsiLocalVariable) {
             IInitializer declaration = new IVariableDeclaration((PsiLocalVariable) parent);
             InlineAssignment refactoring = new InlineAssignment(declaration);
+            refactoring.ensureEnabledNodes();
             // TODO now I must improve a tree to make in comfortable to work with
             // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
             // TODO I need to offer ability to inline all assignments
@@ -54,38 +60,50 @@ public class SLInlineAction extends AnAction {
             if (variable.isAssignment()) {
                 IInitializer assignment = (IInitializer) variable.getParent();
                 InlineAssignment refactoring = new InlineAssignment(assignment);
+                refactoring.ensureEnabledNodes();
                 createRefactoringTree(project, "Inline " + assignment.getText(), new AssignmentNode(project, refactoring));
             } else {
-                InlineUsageNode node = new InlineUsageNode(project, new InlineUsage(variable));
-                createRefactoringTree(project, "Inline "+variable.getName(), node);
-                // TODO no it's better to use the same assignment node
-                // TODO but what to do if there is many of them?
-                // TODO starting with what is intended is the most obvious thing
-                // TODO I need to make already mentioned nodes unmodifiable
-                // TODO but I don't need to make recursion
-                // TODO I don't need to change refactoing itself, I need to do it on Node level
+                RefactoringToolWindow toolWindow = createTree(project, "Inline " + variable.getName());
 
-                // TODO I can just hide what's unintended
-                // TODO I can show choise every time, but choose and chow only what I think fits best
-                // TODO if I'm wrong all you need to do is to choose another option
-                // TODO let it be!
-
-                // TODO why I don't want to do assignment as child of usage?
-                // TODO it's not intuitive to see assignment below usage, for me
+                InlineUsage usage = new InlineUsage(variable);
+                usage.setEnabled(true);
+                InlineUsageNode node = (InlineUsageNode) createNode(project, toolWindow, usage);
+                node.selectAny();
             }
         } else {
             // TODO try to run default refactoring
         }
     }
 
-    private void createRefactoringTree(Project project, String displayName, RefactoringNode node) {
+    @NotNull
+    public Consumer<Refactoring> createMutationListener(Project project, RefactoringToolWindow toolWindow) {
+        return r -> createNode(project, toolWindow, r);
+    }
+
+    public RefactoringNode createNode(Project project, RefactoringToolWindow toolWindow, Refactoring r) {
+        RefactoringNode n = RefactoringNode.create(project, r);
+        n.addMutationListener(createMutationListener(project, toolWindow));
+        toolWindow.setNode(n);
+        return n;
+    }
+
+    private RefactoringToolWindow createRefactoringTree(Project project, String displayName, RefactoringNode node) {
+        RefactoringToolWindow toolWindow = createTree(project, displayName);
+        toolWindow.setNode(node);
+        return toolWindow;
+    }
+
+    @NotNull
+    private RefactoringToolWindow createTree(Project project, String displayName) {
         ContentManager contentManager = getStreamlineToolWindow(project);
 
-        RefactoringToolWindow toolWindow = new RefactoringToolWindow(node);
+        RefactoringToolWindow toolWindow = new RefactoringToolWindow();
 
         Content tab = contentManager.getFactory().createContent(toolWindow, displayName, true);
         contentManager.addContent(tab);
         contentManager.setSelectedContent(tab);
+        toolWindow.getTree().requestFocusInWindow();
+        return toolWindow;
     }
 
     private ContentManager getStreamlineToolWindow(Project project) {

@@ -1,9 +1,6 @@
 package streamline.plugin.refactoring.usage;
 
-import statref.model.idea.IElement;
-import statref.model.idea.IIfStatement;
-import statref.model.idea.IStatement;
-import statref.model.idea.IVariable;
+import statref.model.idea.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,8 +45,8 @@ public class AssignmentFlow {
         return branch != null && branch.contains(assignment);
     }
 
-    public ArrayList<IElement> getVariants(IElement usage) {
-        ArrayList<IElement> variants = new ArrayList<>();
+    public ArrayList<IInitializer> getVariants(IElement usage) {
+        ArrayList<IInitializer> variants = new ArrayList<>();
         IElement context = usage;
         do {
             context = context.getParent();
@@ -57,7 +54,7 @@ public class AssignmentFlow {
         return variants;
     }
 
-    public boolean getVariants(IElement usage, IElement context, ArrayList<IElement> variants) {
+    public boolean getVariants(IElement usage, IElement context, ArrayList<IInitializer> variants) {
         List<IElement> elements = variables.get(context);
         if (elements != null) {
             for (ListIterator<IElement> iterator = elements.listIterator(elements.size()); iterator.hasPrevious(); ) {
@@ -70,7 +67,7 @@ public class AssignmentFlow {
                             return true;
                         }
                     } else {
-                        variants.add(element);
+                        variants.add((IInitializer) element);
                         return true;
                     }
                 }

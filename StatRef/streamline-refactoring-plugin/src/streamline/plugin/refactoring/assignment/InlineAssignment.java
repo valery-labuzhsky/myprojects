@@ -1,6 +1,5 @@
 package streamline.plugin.refactoring.assignment;
 
-import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import streamline.plugin.refactoring.Refactoring;
@@ -16,21 +15,42 @@ public class InlineAssignment extends Refactoring {
 
     public InlineAssignment(IInitializer initializer) {
         this.initializer = initializer;
+        remove = new RemoveElement(initializer);
         for (IVariable usage : initializer.valueUsages()) {
             InlineUsage inlineUsage = new InlineUsage(usage);
-            for (IElement variant : inlineUsage.getVariants()) {
-                if (variant.equals(initializer)) {
-                    inlineUsage.setSelected(variant); // TODO selection is not shown for some reason
-                    usages.add(inlineUsage);
-                }
+            inlineUsage.setSelected(initializer);
+            usages.add(inlineUsage);
+        }
+        tryRemove();
+    }
+
+    public void ensureEnabledNodes() {
+        boolean empty = true;
+        for (InlineUsage usage : getUsages()) {
+            if (usage.isEnabled()) {
+                empty = false;
             }
         }
-        remove = new RemoveElement(initializer);
+        if (empty) {
+            for (InlineUsage usage : getUsages()) {
+                usage.setEnabled(true);
+            }
+        }
+    }
+
+    public boolean tryRemove() {
+        return remove.setEnabled(!areUsagesLeft());
+    }
+
+    private boolean areUsagesLeft() {
+        boolean usagesLeft = false;
         for (InlineUsage usage : usages) {
             if (!usage.isEnabled()) {
-                remove.setEnabled(false);
+                usagesLeft = true;
+                break;
             }
         }
+        return usagesLeft;
     }
 
     @Override
@@ -51,5 +71,12 @@ public class InlineAssignment extends Refactoring {
 
     public RemoveElement getRemove() {
         return remove;
+    }
+
+    public void setOnlyEnabled(InlineUsage usage) {
+        for (InlineUsage u : usages) {
+            u.setEnabled(u.equals(usage));
+        }
+        tryRemove();
     }
 }

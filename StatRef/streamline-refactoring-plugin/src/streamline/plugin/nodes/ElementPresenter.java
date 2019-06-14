@@ -1,34 +1,35 @@
 package streamline.plugin.nodes;
 
 import com.intellij.ide.projectView.PresentationData;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiStatement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.SimpleTextAttributes;
 
-public abstract class ElementNode extends SelfPresentingNode {
+public class ElementPresenter implements Presenter {
     private final String prefix;
+    private final PsiElement psiElement;
 
-    public ElementNode(Project project, String prefix) {
-        super(project);
+    public ElementPresenter(String prefix, PsiElement psiElement) {
         this.prefix = prefix;
+        this.psiElement = psiElement;
     }
 
-    protected abstract PsiElement getPsiElement();
-
     @Override
-    protected void doUpdate() {
-        PresentationData presentation = getTemplatePresentation();
+    public void update(PresentationData presentation) {
         presentation.clearText();
-        PsiStatement statement = PsiTreeUtil.getParentOfType(getPsiElement(), PsiStatement.class, false);
+        PsiStatement statement = PsiTreeUtil.getParentOfType(psiElement, PsiStatement.class, false);
         String statementText = statement.getText();
         int statementStart = statement.getTextRange().getStartOffset();
-        int elementStart = getPsiElement().getTextRange().getStartOffset();
-        presentation.addText(prefix, SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        int elementStart = psiElement.getTextRange().getStartOffset();
+        presentation.addText(prefix, getPrefixAttributes());
         presentation.addText(statementText.substring(0, elementStart - statementStart), getStatementAttributes());
-        presentation.addText(getPsiElement().getText(), getElementAttributes());
-        presentation.addText(statementText.substring(elementStart - statementStart + getPsiElement().getTextLength()), getStatementAttributes());
+        presentation.addText(psiElement.getText(), getElementAttributes());
+        presentation.addText(statementText.substring(elementStart - statementStart + psiElement.getTextLength()), getStatementAttributes());
+    }
+
+    protected SimpleTextAttributes getPrefixAttributes() {
+        return SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES;
     }
 
     protected SimpleTextAttributes getElementAttributes() {

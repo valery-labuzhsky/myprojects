@@ -38,12 +38,12 @@ public class InlineMe {
     public void ifBefore() {
         int inline = 8;
 
-        if (1==1) {
+        if (1 == 1) {
             inline = 7;
         } else {
             inline = 8;
         }
-        
+
         int target = inline;
 
         inline = 9;
@@ -52,7 +52,7 @@ public class InlineMe {
     public void ifAfter() {
         int inline = 8;
 
-        if (1==1)
+        if (1 == 1)
             inline = 7;
 
         inline = 6;

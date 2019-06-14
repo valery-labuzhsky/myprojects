@@ -2,14 +2,21 @@ package streamline.plugin.nodes;
 
 import javax.swing.*;
 
-public class NodePanel extends NodeComponent {
+public class NodePanel<C extends JComponent> extends NodeComponent {
     private final JPanel panel = new JPanel();
     private final NodeRendererComponent renderer = new NodeRendererComponent();
+    private final C nodeComponent;
 
-    public NodePanel(JComponent component) {
-        component.setOpaque(false);
-        panel.add(component);
+    public NodePanel(C nodeComponent) {
+        this.nodeComponent = nodeComponent;
+        nodeComponent.setOpaque(false);
+        panel.add(nodeComponent);
         panel.add(renderer.getComponent());
+        panel.addKeyListener((KeyEventDispatcher) nodeComponent::dispatchEvent);
+    }
+
+    public C getNodeComponent() {
+        return nodeComponent;
     }
 
     @Override

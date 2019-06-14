@@ -13,8 +13,13 @@ public abstract class Refactoring {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public boolean setEnabled(boolean enabled) {
+        if (this.enabled == enabled) {
+            return false;
+        } else {
+            this.enabled = enabled;
+            return true;
+        }
     }
 
     protected abstract void doRefactor();
