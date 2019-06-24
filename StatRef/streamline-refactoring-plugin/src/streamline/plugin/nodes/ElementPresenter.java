@@ -28,16 +28,20 @@ public class ElementPresenter implements Presenter {
         presentation.addText(statementText.substring(elementStart - statementStart + psiElement.getTextLength()), getStatementAttributes());
     }
 
+    protected SimpleTextAttributes update(SimpleTextAttributes attributes) {
+        return attributes;
+    }
+
     protected SimpleTextAttributes getPrefixAttributes() {
-        return SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES;
+        return update(SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
     }
 
     protected SimpleTextAttributes getElementAttributes() {
-        return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
+        return update(SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
     }
 
     protected SimpleTextAttributes getStatementAttributes() {
-        return SimpleTextAttributes.REGULAR_ATTRIBUTES;
+        return update(SimpleTextAttributes.REGULAR_ATTRIBUTES);
     }
 
 }

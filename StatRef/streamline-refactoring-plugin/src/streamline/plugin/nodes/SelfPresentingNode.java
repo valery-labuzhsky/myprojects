@@ -17,7 +17,6 @@ public abstract class SelfPresentingNode extends SimpleNode {
     private Tree tree;
     private NodeComponent component;
     private Presenter presenter;
-    private final Listeners listeners = new Listeners();
 
     private Supplier<NodeComponent> componentFactory = NodeRendererComponent::new;
 
@@ -48,7 +47,6 @@ public abstract class SelfPresentingNode extends SimpleNode {
     public DefaultMutableTreeNode createTreeNode(Tree tree) {
         this.tree = tree;
         node = createTreeNode(this);
-        afterTreeNodeCreated();
         return getNode();
     }
 
@@ -99,10 +97,6 @@ public abstract class SelfPresentingNode extends SimpleNode {
 
     public Tree getTree() {
         return tree;
-    }
-
-    public Listeners getListeners() {
-        return listeners;
     }
 
     public SelfPresentingNode findNode(TreePath path) {

@@ -16,35 +16,37 @@ import streamline.plugin.refactoring.usage.InlineUsageNode;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
-import java.util.function.Consumer;
 
 public abstract class RefactoringNode<R extends Refactoring> extends SelfPresentingNode {
     protected final R refactoring;
+    protected final NodesRegistry registry;
+    private final Listeners listeners;
     private SimpleNode[] children;
-    private boolean intervened;
 
-    public RefactoringNode(Project project, R refactoring) {
+    public RefactoringNode(Project project, R refactoring, NodesRegistry registry) {
         super(project);
         this.refactoring = refactoring;
-        getListeners().addListener(this::update);
+        this.registry = registry;
+        listeners = registry.getListeners(refactoring);
+        getListeners().add(this::update);
         setComponentFactory(() -> new CheckBoxEnabledPanel(this));
     }
 
-    public static RefactoringNode create(Project project, Refactoring refactoring) {
+    public static RefactoringNode create(Project project, Refactoring refactoring, NodesRegistry registry) {
         if (refactoring instanceof InlineUsage) {
-            return new InlineUsageNode(project, (InlineUsage) refactoring);
+            return new InlineUsageNode(project, (InlineUsage) refactoring, registry);
         } else if (refactoring instanceof InlineAssignment) {
-            return new AssignmentNode(project, (InlineAssignment) refactoring);
+            return new AssignmentNode(project, (InlineAssignment) refactoring, registry);
         } else if (refactoring instanceof CompoundRefactoring) {
-            return new CompoundNode(project, (CompoundRefactoring) refactoring);
+            return new CompoundNode(project, (CompoundRefactoring) refactoring, registry);
         } else {
-            throw new IllegalArgumentException("Unknown refactoring "+refactoring.getClass().getSimpleName());
+            throw new IllegalArgumentException("Unknown refactoring " + refactoring.getClass().getSimpleName());
         }
     }
 
     @Override
-    protected void afterTreeNodeCreated() {
-        getListeners().addListener(() -> {
+    public void afterTreeNodeCreated() {
+        getListeners().add(() -> {
             TreePath path = new TreePath(getNode().getPath());
             if (getRefactoring().isEnabled()) {
                 getTree().expandPath(path);
@@ -52,6 +54,11 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
                 getTree().collapsePath(path);
             }
         });
+        for (SimpleNode child : getChildren()) {
+            if (child instanceof RefactoringNode) {
+                ((RefactoringNode) child).afterTreeNodeCreated();
+            }
+        }
     }
 
     @NotNull
@@ -67,12 +74,8 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         return refactoring;
     }
 
-    public boolean isIntervened() {
-        return intervened;
-    }
-
-    public void setIntervened(boolean intervened) {
-        this.intervened = intervened;
+    public Listeners getListeners() {
+        return listeners;
     }
 
     public static class CheckBoxEnabledPanel extends NodePanel<JCheckBox> {
@@ -85,11 +88,10 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
             JCheckBox checkBox = new JCheckBox();
             checkBox.addActionListener((e) -> {
                 if (node.getRefactoring().setEnabled(checkBox.isSelected())) {
-                    node.setIntervened(true);
-                    node.getListeners().fireRefactoringChanged();
+                    node.getListeners().fire();
                 }
             });
-            node.getListeners().addListener(() ->
+            node.getListeners().add(() ->
                     checkBox.setSelected(node.getRefactoring().isEnabled()));
             return checkBox;
         }
@@ -102,37 +104,19 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         }
 
         @Override
-        protected SimpleTextAttributes getPrefixAttributes() {
-            // TODO try to merge them
-            if (refactoring.isEnabled()) {
-                return SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES;
+        protected SimpleTextAttributes update(SimpleTextAttributes attributes) {
+            if (!refactoring.isEnabled()) {
+                return SimpleTextAttributes.merge(attributes, SimpleTextAttributes.GRAYED_ATTRIBUTES);
             } else {
-                return SimpleTextAttributes.merge(SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES,
-                        SimpleTextAttributes.GRAYED_ATTRIBUTES);
+                return attributes;
             }
         }
-
-        @Override
-        protected SimpleTextAttributes getElementAttributes() {
-            if (refactoring.isEnabled()) {
-                return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
-            } else {
-                return SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES;
-            }
-        }
-
-        @Override
-        protected SimpleTextAttributes getStatementAttributes() {
-            if (refactoring.isEnabled()) {
-                return SimpleTextAttributes.REGULAR_ATTRIBUTES;
-            } else {
-                return SimpleTextAttributes.GRAYED_ATTRIBUTES;
-            }
-        }
-
     }
 
-    public void addMutationListener(Consumer<Refactoring> consumer) {
+    public void setEnabled(boolean enabled) {
+        if (refactoring.setEnabled(enabled)) {
+            getListeners().fire();
+        }
     }
 
     @NotNull

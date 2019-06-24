@@ -4,20 +4,18 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.ElementPresenter;
+import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.RefactoringNode;
-import streamline.plugin.refactoring.Refactoring;
-import streamline.plugin.refactoring.compound.CompoundRefactoring;
 import streamline.plugin.refactoring.remove.RemoveElementNode;
 import streamline.plugin.refactoring.usage.InlineUsage;
 import streamline.plugin.refactoring.usage.InlineUsageNode;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class AssignmentNode extends RefactoringNode<InlineAssignment> {
 
-    public AssignmentNode(Project project, InlineAssignment inlineAssignment) {
-        super(project, inlineAssignment);
+    public AssignmentNode(Project project, InlineAssignment inlineAssignment, NodesRegistry registry) {
+        super(project, inlineAssignment, registry);
     }
 
     @Override
@@ -28,40 +26,46 @@ public class AssignmentNode extends RefactoringNode<InlineAssignment> {
     @Override
     @NotNull
     public SimpleNode[] createChildren() {
-        ArrayList<RefactoringNode> nodes = new ArrayList<>();
-        for (InlineUsage usage : this.refactoring.getUsages()) {
-            nodes.add(new InlineUsageNode(myProject, usage));
-        }
-        RemoveElementNode removeNode = new RemoveElementNode(myProject, this.refactoring.getRemove());
-        getListeners().addListener(() -> {
-            if (!removeNode.isIntervened()) {
-                if (refactoring.tryRemove()) {
-                    removeNode.getListeners().fireRefactoringChanged();
+        RemoveElementNode removeNode = new RemoveElementNode(myProject, this.refactoring.getRemove(), registry);
+        Runnable enabledListener = () -> {
+            boolean anyEnabled = refactoring.getRemove().isEnabled();
+            for (InlineUsage usage : refactoring.getUsages()) {
+                if (usage.isEnabled() || anyEnabled) {
+                    anyEnabled = true;
+                    break;
                 }
             }
-        });
+            setEnabled(anyEnabled);
+        };
+        removeNode.getListeners().add(enabledListener);
+        Runnable usageListeners = new Runnable() {
+            private boolean oldUsageLeft = false;
+            private boolean usagesLeft = false;
+
+            @Override
+            public void run() {
+                usagesLeft = refactoring.areUsagesLeft();
+                if (oldUsageLeft != usagesLeft) {
+                    removeNode.setEnabled(!usagesLeft);
+
+                    if (!usagesLeft) {
+                        setEnabled(false);
+                    }
+
+                    oldUsageLeft = usagesLeft;
+                }
+            }
+        };
+        ArrayList<RefactoringNode> nodes = new ArrayList<>();
+        for (InlineUsage usage : this.refactoring.getUsages()) {
+            InlineUsageNode usageNode = new InlineUsageNode(myProject, usage, registry);
+            usageNode.setAssignment(refactoring.getInitializer());
+            usageNode.getListeners().add(usageListeners);
+            usageNode.getListeners().add(enabledListener);
+            nodes.add(usageNode);
+        }
         nodes.add(removeNode);
         return nodes.toArray(new SimpleNode[0]);
-    }
-
-    @Override
-    public void addMutationListener(Consumer<Refactoring> consumer) {
-        for (SimpleNode child : getChildren()) {
-            if (child instanceof InlineUsageNode) {
-                InlineUsageNode usageNode = (InlineUsageNode) child;
-                usageNode.addMutationListener((a) -> {
-                    if (usageNode.getRefactoring().getSelected()!=refactoring.getInitializer()) {
-                        Refactoring b = usageNode.getRefactoring();
-                        CompoundRefactoring compound = new CompoundRefactoring();
-                        b.setEnabled(false);
-                        compound.add(refactoring);
-                        compound.add(a);
-
-                        consumer.accept(compound);
-                    }
-                });
-            }
-        }
     }
 
 }

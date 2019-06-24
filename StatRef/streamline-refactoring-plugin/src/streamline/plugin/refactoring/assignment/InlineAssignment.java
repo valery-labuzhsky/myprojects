@@ -5,6 +5,7 @@ import statref.model.idea.IVariable;
 import streamline.plugin.refactoring.Refactoring;
 import streamline.plugin.refactoring.remove.RemoveElement;
 import streamline.plugin.refactoring.usage.InlineUsage;
+import streamline.plugin.refactoring.RefactoringRegistry;
 
 import java.util.ArrayList;
 
@@ -13,36 +14,23 @@ public class InlineAssignment extends Refactoring {
     private final ArrayList<InlineUsage> usages = new ArrayList<>();
     private final RemoveElement remove;
 
-    public InlineAssignment(IInitializer initializer) {
+    public InlineAssignment(IInitializer initializer, RefactoringRegistry registry) {
         this.initializer = initializer;
         remove = new RemoveElement(initializer);
         for (IVariable usage : initializer.valueUsages()) {
-            InlineUsage inlineUsage = new InlineUsage(usage);
-            inlineUsage.setSelected(initializer);
-            usages.add(inlineUsage);
+            usages.add(registry.getRefactoring(new InlineUsage(usage, registry)));
         }
-        tryRemove();
+        remove.setEnabled(!areUsagesLeft());
     }
 
-    public void ensureEnabledNodes() {
-        boolean empty = true;
-        for (InlineUsage usage : getUsages()) {
-            if (usage.isEnabled()) {
-                empty = false;
-            }
+    public InlineAssignment selectDefaultVariant() {
+        for (InlineUsage usage : usages) {
+            usage.setSelected(this.initializer);
         }
-        if (empty) {
-            for (InlineUsage usage : getUsages()) {
-                usage.setEnabled(true);
-            }
-        }
+        return this;
     }
 
-    public boolean tryRemove() {
-        return remove.setEnabled(!areUsagesLeft());
-    }
-
-    private boolean areUsagesLeft() {
+    public boolean areUsagesLeft() {
         boolean usagesLeft = false;
         for (InlineUsage usage : usages) {
             if (!usage.isEnabled()) {
@@ -77,6 +65,6 @@ public class InlineAssignment extends Refactoring {
         for (InlineUsage u : usages) {
             u.setEnabled(u.equals(usage));
         }
-        tryRemove();
+        remove.setEnabled(!areUsagesLeft());
     }
 }

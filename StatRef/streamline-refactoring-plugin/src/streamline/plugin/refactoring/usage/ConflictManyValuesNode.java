@@ -6,6 +6,7 @@ import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.Presenter;
 import streamline.plugin.nodes.SelfPresentingNode;
+import streamline.plugin.refactoring.Listeners;
 
 public class ConflictManyValuesNode extends SelfPresentingNode {
 
@@ -27,5 +28,4 @@ public class ConflictManyValuesNode extends SelfPresentingNode {
     public SimpleNode[] getChildren() {
         return new SimpleNode[0];
     }
-
 }

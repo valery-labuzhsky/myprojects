@@ -20,11 +20,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class RefactoringToolWindow extends SimpleToolWindowPanel {
+    private final AnActionEvent event;
     private RefactoringNode node;
     private final Tree tree = new Tree();
 
-    public RefactoringToolWindow() {
+    public RefactoringToolWindow(AnActionEvent event) {
         super(true, true);
+        this.event = event;
         setupToolbar();
         setupTree();
     }
@@ -39,7 +41,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         model.setRoot(rootNode);
         tree.setRootVisible(node.showRoot());
         tree.setModel(model);
-        node.getListeners().fireRefactoringChanged();
+        node.afterTreeNodeCreated();
 
         if (paths != null) {
             for (TreePath path : paths) {
@@ -123,17 +125,17 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
 
     private void setupToolbar() {
         AnAction refactor = getRefactorAction();
-        // TODO it should be run default inline action
-        AnAction refactor2 = new AnAction("Refactor", "Refactor", StudioIcons.Shell.Toolbar.INSTANT_RUN) {
+        AnAction defaultInline = new AnAction("Default", "IDEA native inline action", StudioIcons.Shell.Toolbar.INSTANT_RUN) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-
+                AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
+                nativeAction.actionPerformed(event);
             }
         };
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(refactor);
         actionGroup.addSeparator();
-        actionGroup.add(refactor2);
+        actionGroup.add(defaultInline);
         final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actionGroup, true);
         actionToolbar.setTargetComponent(this);
 

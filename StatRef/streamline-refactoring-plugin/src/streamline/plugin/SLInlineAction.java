@@ -1,5 +1,6 @@
 package streamline.plugin;
 
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -16,15 +17,13 @@ import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import statref.model.idea.IVariableDeclaration;
+import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.RefactoringNode;
-import streamline.plugin.refactoring.Listeners;
 import streamline.plugin.refactoring.Refactoring;
 import streamline.plugin.refactoring.assignment.AssignmentNode;
 import streamline.plugin.refactoring.assignment.InlineAssignment;
 import streamline.plugin.refactoring.usage.InlineUsage;
 import streamline.plugin.refactoring.usage.InlineUsageNode;
-
-import java.util.function.Consumer;
 
 public class SLInlineAction extends AnAction {
     @Override
@@ -33,71 +32,55 @@ public class SLInlineAction extends AnAction {
 
         // TODO should I write tests from the beginning? probably yes, but I need do it manually first to keep me interested
 
-        // TODO when should I add refactoring tree view? probably after some refactorings are already implemented, I should just not forget to leave comments
         // TODO the tests are hard to run, and they don't work anyway
         // TODO I may also try idea's tests
 
-        // TODO it doesn't work with declaration
-        // TODO technically I don't have reference here, as I have a declaration
-        // TODO but I need the same algorithm to work with it
-        // TODO what keeps me from thinking of declaration as a reference to itself?
-        // TODO I would need an common interface/class which does it
-        // TODO I have Initializer for assignment and declaration
-        // TODO what would I call for initializer and usage? reference?
         PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
         PsiElement parent = identifier.getParent();
         Project project = getEventProject(event);
+        NodesRegistry registry = new NodesRegistry();
         if (parent instanceof PsiLocalVariable) {
             IInitializer declaration = new IVariableDeclaration((PsiLocalVariable) parent);
-            InlineAssignment refactoring = new InlineAssignment(declaration);
-            refactoring.ensureEnabledNodes();
+            InlineAssignment refactoring = new InlineAssignment(declaration, registry.getRefactorings()).selectDefaultVariant();
             // TODO now I must improve a tree to make in comfortable to work with
             // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
-            // TODO I need to offer ability to inline all assignments
-            createRefactoringTree(project, "Inline " + declaration.getText(), new AssignmentNode(project, refactoring));
+            createRefactoringTree(project, event, "Inline " + declaration.getText(), new AssignmentNode(project, refactoring, registry));
         } else if (parent instanceof PsiReferenceExpression) {
             IVariable variable = new IVariable((PsiReferenceExpression) parent);
-            if (variable.isAssignment()) {
-                IInitializer assignment = (IInitializer) variable.getParent();
-                InlineAssignment refactoring = new InlineAssignment(assignment);
-                refactoring.ensureEnabledNodes();
-                createRefactoringTree(project, "Inline " + assignment.getText(), new AssignmentNode(project, refactoring));
-            } else {
-                RefactoringToolWindow toolWindow = createTree(project, "Inline " + variable.getName());
 
-                InlineUsage usage = new InlineUsage(variable);
-                usage.setEnabled(true);
-                InlineUsageNode node = (InlineUsageNode) createNode(project, toolWindow, usage);
+            RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + variable.getName());
+
+            if (variable.isAssignment()) {
+                InlineAssignment refactoring = new InlineAssignment((IInitializer) variable.getParent(), registry.getRefactorings());
+                AssignmentNode node = (AssignmentNode) createNode(project, toolWindow, refactoring, registry);
+            } else {
+                InlineUsage refactoring = registry.getRefactorings().getRefactoring(new InlineUsage(variable, registry.getRefactorings()));
+                InlineUsageNode node = (InlineUsageNode) createNode(project, toolWindow, refactoring, registry);
                 node.selectAny();
             }
         } else {
-            // TODO try to run default refactoring
+            AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
+            nativeAction.actionPerformed(event);
         }
     }
 
-    @NotNull
-    public Consumer<Refactoring> createMutationListener(Project project, RefactoringToolWindow toolWindow) {
-        return r -> createNode(project, toolWindow, r);
-    }
-
-    public RefactoringNode createNode(Project project, RefactoringToolWindow toolWindow, Refactoring r) {
-        RefactoringNode n = RefactoringNode.create(project, r);
-        n.addMutationListener(createMutationListener(project, toolWindow));
+    public RefactoringNode createNode(Project project, RefactoringToolWindow toolWindow, Refactoring r, NodesRegistry registry) {
+        RefactoringNode n = RefactoringNode.create(project, r, registry);
         toolWindow.setNode(n);
         return n;
     }
 
-    private RefactoringToolWindow createRefactoringTree(Project project, String displayName, RefactoringNode node) {
-        RefactoringToolWindow toolWindow = createTree(project, displayName);
+    private RefactoringToolWindow createRefactoringTree(Project project, AnActionEvent event, String displayName, RefactoringNode node) {
+        RefactoringToolWindow toolWindow = createTree(project, event, displayName);
         toolWindow.setNode(node);
         return toolWindow;
     }
 
     @NotNull
-    private RefactoringToolWindow createTree(Project project, String displayName) {
+    private RefactoringToolWindow createTree(Project project, AnActionEvent event, String displayName) {
         ContentManager contentManager = getStreamlineToolWindow(project);
 
-        RefactoringToolWindow toolWindow = new RefactoringToolWindow();
+        RefactoringToolWindow toolWindow = new RefactoringToolWindow(event);
 
         Content tab = contentManager.getFactory().createContent(toolWindow, displayName, true);
         contentManager.addContent(tab);

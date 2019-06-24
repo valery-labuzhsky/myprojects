@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
 import streamline.plugin.nodes.ElementPresenter;
 import streamline.plugin.nodes.NodePanel;
+import streamline.plugin.nodes.NodeRendererComponent;
 import streamline.plugin.nodes.SelfPresentingNode;
 import streamline.plugin.refactoring.Listeners;
 
@@ -17,26 +18,23 @@ public class VariantElementNode extends SelfPresentingNode {
         super(variant.getElement().getProject());
         this.variant = variant;
         Listeners controller = parent.getListeners();
-        controller.addListener(this::update);
+        controller.add(this::update);
         InlineUsage refactoring = parent.getRefactoring();
-        if (refactoring.getVariants().size() > 1) {
-            setComponentFactory(() -> {
-                JRadioButton radioButton = new JRadioButton();
-                // TODO I may change the tree all together
-                // TODO how will I control it?
-                // TODO generate a tree every time something changed?
-                // TODO that will be a solution, why not
-                // TODO Or I may want to reuse parts of it, but will go from parent to children anyway
-                // TODO Do I need to waste my time to make anything
-                // TODO let's be simple first and decide it later
-                controller.addListener(() -> radioButton.setSelected(variant.equals(refactoring.getSelected())));
-                radioButton.addActionListener(e -> {
-                    refactoring.setSelected(variant);
-                    controller.fireRefactoringChanged();
-                });
-                return new NodePanel<>(radioButton);
+        setComponentFactory(() -> {
+            JRadioButton radioButton = new JRadioButton();
+            controller.add(() -> radioButton.setSelected(variant.equals(refactoring.getSelected())));
+            radioButton.addActionListener(e -> {
+                refactoring.setSelected(variant);
+                refactoring.setEnabled(true);
+                controller.fire();
             });
-        }
+            return new NodePanel<>(radioButton);
+        });
+    }
+
+    public VariantElementNode lock() {
+        setComponentFactory(NodeRendererComponent::new);
+        return this;
     }
 
     @Override
