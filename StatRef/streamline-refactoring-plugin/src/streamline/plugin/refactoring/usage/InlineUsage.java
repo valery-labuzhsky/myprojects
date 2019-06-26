@@ -13,13 +13,12 @@ import java.util.Objects;
 
 public class InlineUsage extends Refactoring {
     private final IVariable usage;
-    private final RefactoringRegistry registry; // TODO remove me or at least put me to base class
     private IInitializer selected;
     private final ArrayList<IInitializer> variants = new ArrayList<>();
 
     public InlineUsage(IVariable usage, RefactoringRegistry registry) {
+        super(registry);
         this.usage = usage;
-        this.registry = registry;
         this.variants.addAll(new AssignmentFlow(usage).getVariants(usage));
         if (variants.size() == 1) setSelected(variants.get(0));
         else if (variants.size() > 1) setEnabled(false);
@@ -61,7 +60,7 @@ public class InlineUsage extends Refactoring {
     private void whatElse(ArrayList<Refactoring> refactorings) {
         if (selected != null) {
             for (IInitializer variant : variants) {
-                refactorings.add(new InlineAssignment(variant, registry));
+                refactorings.add(new InlineAssignment(registry, variant));
             }
         }
     }

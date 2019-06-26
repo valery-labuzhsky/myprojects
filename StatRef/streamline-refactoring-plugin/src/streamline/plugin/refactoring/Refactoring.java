@@ -1,7 +1,12 @@
 package streamline.plugin.refactoring;
 
 public abstract class Refactoring {
+    protected final RefactoringRegistry registry;
     private boolean enabled = true;
+
+    public Refactoring(RefactoringRegistry registry) {
+        this.registry = registry;
+    }
 
     public void refactor() {
         if (isEnabled()) {

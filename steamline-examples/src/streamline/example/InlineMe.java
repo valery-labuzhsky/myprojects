@@ -62,6 +62,20 @@ public class InlineMe {
         inline = 9;
     }
 
+    public void cylce() {
+        int inline = 8;
+
+        while (inline > 0) {
+            int target = inline; // TODO it will also remove this not minding of other values set, we must replace them with declaration
+            inline = 9;
+
+            int targetLocal = target; // TODO target get replaced with inline which then overriden, we must at least worn
+            target = 10;
+        }
+
+        int afterTarget = inline;
+    }
+
     public static void main(String[] args) {
     }
 }

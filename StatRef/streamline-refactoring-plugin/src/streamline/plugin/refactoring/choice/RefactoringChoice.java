@@ -1,6 +1,7 @@
 package streamline.plugin.refactoring.choice;
 
 import streamline.plugin.refactoring.Refactoring;
+import streamline.plugin.refactoring.RefactoringRegistry;
 
 import java.util.ArrayList;
 
@@ -8,7 +9,8 @@ public class RefactoringChoice extends Refactoring {
     private Refactoring chosen;
     private final ArrayList<Refactoring> variants = new ArrayList<>();
 
-    public RefactoringChoice() {
+    public RefactoringChoice(RefactoringRegistry registry) {
+        super(registry);
     }
 
     public Refactoring getChosen() {

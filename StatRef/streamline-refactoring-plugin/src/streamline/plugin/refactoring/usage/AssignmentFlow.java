@@ -29,6 +29,8 @@ public class AssignmentFlow {
     private void add(IElement context, IElement assignment) {
         if (context instanceof IIfStatement && conditional((IIfStatement) context, assignment)) {
             assignment = context;
+        } else if (context instanceof ILoopStatement && conditional((ILoopStatement) context, assignment)) {
+            assignment = context;
         } else {
             variables.computeIfAbsent(context, key -> new ArrayList<>()).add(assignment);
         }
@@ -37,7 +39,11 @@ public class AssignmentFlow {
         }
     }
 
-    private boolean conditional(IIfStatement context, IElement assignment) { // TODO create a class/methods for it
+    private boolean conditional(ILoopStatement context, IElement assignment) {
+        return context.getBody().contains(assignment);
+    }
+
+    private boolean conditional(IIfStatement context, IElement assignment) {
         return conditional(context.getThenBranch(), assignment) || conditional(context.getElseBranch(), assignment);
     }
 
@@ -59,20 +65,25 @@ public class AssignmentFlow {
         if (elements != null) {
             for (ListIterator<IElement> iterator = elements.listIterator(elements.size()); iterator.hasPrevious(); ) {
                 IElement element = iterator.previous();
-                if (usage == null || element.before(usage)) { // TODO will it work all the time? like in cycles
+                if (usage == null || element.before(usage)) {
                     if (element instanceof IIfStatement) {
                         IIfStatement ifStatement = (IIfStatement) element;
                         if (getVariants(null, ifStatement.getElseBranch(), variants) &
                                 getVariants(null, ifStatement.getThenBranch(), variants)) {
                             return true;
                         }
+                    } else if (element instanceof ILoopStatement) {
+                        getVariants(null, ((ILoopStatement) element).getBody(), variants);
                     } else {
                         variants.add((IInitializer) element);
                         return true;
                     }
                 }
             }
-        }
+            if (context instanceof ILoopStatement) {
+                getVariants(null, ((ILoopStatement) context).getBody(), variants);
+            }
+       }
         return false;
     }
 }

@@ -14,9 +14,10 @@ public class InlineAssignment extends Refactoring {
     private final ArrayList<InlineUsage> usages = new ArrayList<>();
     private final RemoveElement remove;
 
-    public InlineAssignment(IInitializer initializer, RefactoringRegistry registry) {
+    public InlineAssignment(RefactoringRegistry registry, IInitializer initializer) {
+        super(registry);
         this.initializer = initializer;
-        remove = new RemoveElement(initializer);
+        remove = new RemoveElement(registry, initializer);
         for (IVariable usage : initializer.valueUsages()) {
             usages.add(registry.getRefactoring(new InlineUsage(usage, registry)));
         }

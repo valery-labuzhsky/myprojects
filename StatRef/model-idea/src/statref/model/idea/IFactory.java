@@ -34,6 +34,22 @@ public class IFactory {
             return new IIfStatement((PsiIfStatement) statement);
         } else if (statement instanceof PsiBlockStatement) {
             return new IBlockStatement((PsiBlockStatement) statement);
+        } else if (statement instanceof PsiLoopStatement) {
+            return getLoopStatement((PsiLoopStatement) statement);
+        }
+        log.warn(statement+ ": is not supported");
+        return null;
+    }
+
+    private static IStatement getLoopStatement(PsiLoopStatement statement) {
+        if (statement instanceof PsiWhileStatement) {
+            return new IWhileStatement((PsiWhileStatement) statement);
+        } else if (statement instanceof PsiDoWhileStatement) {
+            return new IDoWhileStatement((PsiDoWhileStatement) statement);
+        } else if (statement instanceof PsiForStatement) {
+            return new IForStatement((PsiForStatement) statement);
+        } else if (statement instanceof PsiForeachStatement) {
+            return new IForEachStatement((PsiForeachStatement) statement);
         }
         log.warn(statement+ ": is not supported");
         return null;

@@ -19,7 +19,7 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
     private final ButtonGroup buttons = new ButtonGroup();
 
     public ChoiceNode(Project project, NodesRegistry registry) {
-        super(project, new RefactoringChoice(), registry);
+        super(project, new RefactoringChoice(registry.getRefactorings()), registry);
     }
 
     public ChoiceNode add(RefactoringNode<?> node) {
