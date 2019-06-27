@@ -29,6 +29,9 @@ public class InlineUsage extends Refactoring {
         if (selected != null) {
             usage.replace(selected.getInitializer());
         }
+        for (Refactoring refactoring : whatElse()) {
+            refactoring.refactor();
+        }
     }
 
     public IVariable getUsage() {
@@ -58,6 +61,15 @@ public class InlineUsage extends Refactoring {
     }
 
     private void whatElse(ArrayList<Refactoring> refactorings) {
+        // TODO what else causing replace occur twice, what to do with it?
+        // TODO filter somewhere, but where?
+        // TODO I already has registry here, so I can count which refactoring occured, which not
+        // TODO will it be convinient for all cases?
+        // TODO I don't know
+        // TODO I don't think so, especially for programmically invoked code
+        // TODO should I care about it right now?
+        // TODO would be great if I knew how
+        // TODO I need some programming to do it
         if (selected != null) {
             for (IInitializer variant : variants) {
                 refactorings.add(new InlineAssignment(registry, variant));

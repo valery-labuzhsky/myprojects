@@ -76,6 +76,13 @@ public class InlineMe {
         int afterTarget = inline;
     }
 
+    public void escape() {
+        int a = 10;
+        int b = 20;
+        int s = a + b;
+        int m = s * 2;
+    }
+
     public static void main(String[] args) {
     }
 }

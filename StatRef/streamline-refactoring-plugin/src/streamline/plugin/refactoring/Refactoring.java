@@ -11,6 +11,7 @@ public abstract class Refactoring {
     public void refactor() {
         if (isEnabled()) {
             doRefactor();
+            setEnabled(false);
         }
     }
 

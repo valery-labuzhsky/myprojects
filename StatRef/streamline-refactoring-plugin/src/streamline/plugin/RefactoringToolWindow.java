@@ -132,7 +132,6 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
             public void actionPerformed(@NotNull AnActionEvent e) {
                 AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
                 ActionUtil.performActionDumbAware(nativeAction, event);
-                // TODO test it
             }
         };
         DefaultActionGroup actionGroup = new DefaultActionGroup();

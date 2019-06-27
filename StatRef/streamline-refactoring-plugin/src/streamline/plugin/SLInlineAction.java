@@ -28,12 +28,11 @@ import streamline.plugin.refactoring.usage.InlineUsageNode;
 public class SLInlineAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        // TODO on inline I must escape level of expression, and unescape when appropriate
-
         // TODO should I write tests from the beginning? probably yes, but I need do it manually first to keep me interested
 
         // TODO the tests are hard to run, and they don't work anyway
         // TODO I may also try idea's tests
+        // TODO concept is constantly changing right know - I will need tests when it settles down
 
         PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
         PsiElement parent = identifier.getParent();
