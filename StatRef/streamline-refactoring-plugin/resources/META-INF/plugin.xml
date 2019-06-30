@@ -1,22 +1,24 @@
-<idea-plugin>
-    <id>com.your.company.unique.plugin.id</id>
-    <name>Plugin display name here</name>
-    <version>1.0</version>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+<idea-plugin url="https://github.com/valery-labuzhsky/myprojects/tree/master/StatRef">
+    <id>steamline.refactoring.plugin</id>
+    <name>Steamline Refactoring</name>
+    <version>0.0.1</version>
+    <vendor email="ynicorn@gmail.com" url="https://github.com/valery-labuzhsky">Valery Labuzhsky</vendor>
 
     <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      This plugins to allow better experience while refactoring.<br>
+      It is experimental yet, so don't expect much on this stage.
     ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      This is the very first release.
+      <ul>
+      <li>Contains only inline variable</li>
+      </ul>
     ]]>
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="173.0"/>
+    <idea-version since-build="182"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
