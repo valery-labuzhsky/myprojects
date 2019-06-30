@@ -1,12 +1,11 @@
 package streamline.plugin;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
-import icons.StudioIcons;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.KeyEventDispatcher;
 import streamline.plugin.nodes.*;
@@ -127,7 +126,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
 
     private void setupToolbar() {
         AnAction refactor = getRefactorAction();
-        AnAction defaultInline = new AnAction("Default", "IDEA native inline action", StudioIcons.Shell.Toolbar.INSTANT_RUN) {
+        AnAction defaultInline = new AnAction("Default", "IDEA native inline action", AllIcons.Actions.Run_anything) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
