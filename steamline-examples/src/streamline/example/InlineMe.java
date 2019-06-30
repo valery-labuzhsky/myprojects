@@ -38,7 +38,7 @@ public class InlineMe {
     public void ifBefore() {
         int inline = 8;
 
-        if (1==1) {
+        if (1 == 1) {
             inline = 7;
         } else {
             inline = 8;
@@ -52,7 +52,7 @@ public class InlineMe {
     public void ifAfter() {
         int inline = 8;
 
-        if (1==1)
+        if (1 == 1)
             inline = 7;
 
         inline = 6;
@@ -60,6 +60,27 @@ public class InlineMe {
         int target = inline;
 
         inline = 9;
+    }
+
+    public void cylce() {
+        int inline = 8;
+
+        while (inline > 0) {
+            int target = inline; // TODO it will also remove this not minding of other values set, we must replace them with declaration
+            inline = 9;
+
+            int targetLocal = target; // TODO target get replaced with inline which then overriden, we must at least worn
+            target = 10;
+        }
+
+        int afterTarget = inline;
+    }
+
+    public void escape() {
+        int a = 10;
+        int b = 20;
+        int s = a + b;
+        int m = s * 2;
     }
 
     public static void main(String[] args) {

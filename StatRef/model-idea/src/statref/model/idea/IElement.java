@@ -1,5 +1,6 @@
 package statref.model.idea;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import statref.model.SElement;
 
@@ -51,5 +52,9 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
     @Override
     public String toString() {
         return element.toString();
+    }
+
+    public Project getProject() {
+        return element.getProject();
     }
 }

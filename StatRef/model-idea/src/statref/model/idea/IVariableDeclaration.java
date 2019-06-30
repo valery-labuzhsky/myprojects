@@ -1,6 +1,7 @@
 package statref.model.idea;
 
 import com.intellij.psi.PsiLocalVariable;
+import org.jetbrains.annotations.NotNull;
 import statref.model.SType;
 import statref.model.SVariableDeclaration;
 import statref.model.expression.SVariable;
@@ -27,6 +28,12 @@ public class IVariableDeclaration extends IElement<PsiLocalVariable> implements 
     @Override
     public SType getType() {
         return null;
+    }
+
+    @NotNull
+    @Override
+    public IVariableDeclaration declaration() {
+        return this;
     }
 
     @Override
