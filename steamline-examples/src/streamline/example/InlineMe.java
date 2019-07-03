@@ -83,6 +83,16 @@ public class InlineMe {
         int m = s * 2;
     }
 
+    public void test(boolean value) {
+
+    }
+
+    public void testUsage() {
+        test(true);
+        test(true);
+        test(false);
+    }
+
     public static void main(String[] args) {
     }
 }

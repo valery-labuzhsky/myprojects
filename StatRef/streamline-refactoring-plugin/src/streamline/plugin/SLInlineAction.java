@@ -14,9 +14,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
-import statref.model.idea.IInitializer;
-import statref.model.idea.IVariable;
-import statref.model.idea.IVariableDeclaration;
+import statref.model.idea.*;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.RefactoringNode;
 import streamline.plugin.refactoring.Refactoring;
@@ -24,6 +22,8 @@ import streamline.plugin.refactoring.assignment.AssignmentNode;
 import streamline.plugin.refactoring.assignment.InlineAssignment;
 import streamline.plugin.refactoring.usage.InlineUsage;
 import streamline.plugin.refactoring.usage.InlineUsageNode;
+
+import java.util.*;
 
 public class SLInlineAction extends AnAction {
     @Override
@@ -57,6 +57,23 @@ public class SLInlineAction extends AnAction {
                 InlineUsageNode node = (InlineUsageNode) createNode(project, toolWindow, refactoring, registry);
                 node.selectAny();
             }
+        } else if (parent instanceof PsiParameter) {
+            IParameter parameter = IFactory.getElement(parent);
+            IMethodDeclaration method = (IMethodDeclaration) parameter.getMethod();
+            ArrayList<IMethodCall> calls = method.getCalls();
+            Map<Object, List<IExpression>> expressions = new HashMap<>();
+            for (IMethodCall call : calls) {
+                IExpression expression = call.getExpression(parameter);
+                expressions.computeIfAbsent(expression.signature(), (k)->new ArrayList<>()).add(expression);
+            }
+
+            new CreateMethod(registry, method.getClassDeclaration());
+
+            System.out.println(expressions.values());
+            // TODO now let's create a refactoring tree
+            // TODO 1. create method for every signature (but not each of them probably, we need to balance between gains and losses)
+            // TODO 2. replace method calls with new method calls
+            // TODO 3. take care of parameters
         } else {
             AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
             nativeAction.actionPerformed(event);
@@ -111,4 +128,16 @@ public class SLInlineAction extends AnAction {
         }
         return null;
     }
+
+    public static class CreateMethod extends Refactoring {
+        public CreateMethod(NodesRegistry registry, IClassDeclaration classDeclaration) {
+            super(registry.getRefactorings());
+        }
+
+        @Override
+        protected void doRefactor() {
+            // TODO do refactor
+        }
+    }
+
 }

@@ -1,9 +1,6 @@
 package statref.model.idea;
 
-import com.intellij.psi.PsiDoWhileStatement;
-import com.intellij.psi.PsiForStatement;
-import com.intellij.psi.PsiForeachStatement;
-import com.intellij.psi.PsiLoopStatement;
+import com.intellij.psi.*;
 
 public abstract class ILoopStatement<L extends PsiLoopStatement> extends IStatement<L> {
     public ILoopStatement(L element) {
@@ -11,7 +8,7 @@ public abstract class ILoopStatement<L extends PsiLoopStatement> extends IStatem
     }
 
     public IStatement getBody() {
-        return IFactory.getStatement(getElement().getBody());
+        return IFactory.getElement(getElement().getBody());
     }
 
 }

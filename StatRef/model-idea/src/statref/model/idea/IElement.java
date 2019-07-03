@@ -57,4 +57,9 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
     public Project getProject() {
         return element.getProject();
     }
+
+    public Object signature() {
+        return getElement();
+    }
+
 }
