@@ -1,17 +1,17 @@
 package streamline.plugin;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
-import icons.StudioIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
 public class RefactorAction extends AnAction {
     public RefactorAction() {
-        super("Refactor", "Refactor", StudioIcons.Shell.Toolbar.RUN);
+        super("Refactor", "Refactor", AllIcons.Actions.Execute);
     }
 
     @Override
