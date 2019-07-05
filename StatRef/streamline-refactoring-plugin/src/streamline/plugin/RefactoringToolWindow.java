@@ -2,7 +2,6 @@ package streamline.plugin;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
@@ -140,13 +139,15 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         actionGroup.add(defaultInline);
         final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actionGroup, true);
         actionToolbar.setTargetComponent(this);
-
+        actionGroup.registerCustomShortcutSet(tree, null);
         setToolbar(actionToolbar.getComponent());
     }
 
     @NotNull
     private AnAction getRefactorAction() {
-        return ActionManager.getInstance().getAction(RefactorAction.class.getName());
+        RefactorAction action = new RefactorAction();
+        action.copyShortcutFrom(ActionManager.getInstance().getAction(RefactorAction.class.getName()));
+        return action;
     }
 
     public Refactoring getRefactoring() {

@@ -16,13 +16,12 @@ public class RefactorAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        RefactoringToolWindow toolWindow = getToolWindow(e);
-        WriteCommandAction.runWriteCommandAction(e.getProject(), toolWindow.getRefactoring()::refactor);
+        WriteCommandAction.runWriteCommandAction(e.getProject(), getToolWindow(e).getRefactoring()::refactor);
     }
 
     private RefactoringToolWindow getToolWindow(@NotNull AnActionEvent e) {
         Component component = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
-        while (component!=null && !(component instanceof RefactoringToolWindow)) {
+        while (component != null && !(component instanceof RefactoringToolWindow)) {
             component = component.getParent();
         }
         return (RefactoringToolWindow) component;

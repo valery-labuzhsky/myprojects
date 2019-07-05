@@ -35,7 +35,7 @@
             <add-to-group group-id="MainMenu" relative-to-action="RefactoringMenu" anchor="after"/>
             <action id="streamline.plugin.SLInlineAction" class="streamline.plugin.SLInlineAction" text="_Inline"/>
         </group>
-        <action id="streamline.plugin.RefactorAction" class="streamline.plugin.RefactorAction" text="Refactor">
+        <action id="streamline.plugin.RefactorAction" class="com.intellij.openapi.actionSystem.EmptyAction" text="Refactor">
             <keyboard-shortcut first-keystroke="ENTER" keymap="$default"/>
         </action>
     </actions>

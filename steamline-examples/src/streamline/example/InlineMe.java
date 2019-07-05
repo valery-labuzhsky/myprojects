@@ -63,6 +63,7 @@ public class InlineMe {
     }
 
     public void cylce() {
+        
         int inline = 8;
 
         while (inline > 0) {
@@ -81,6 +82,16 @@ public class InlineMe {
         int b = 20;
         int s = a + b;
         int m = s * 2;
+    }
+
+    public void test(boolean value) {
+
+    }
+
+    public void testUsage() {
+        test(true);
+        test(true);
+        test(false);
     }
 
     public static void main(String[] args) {
