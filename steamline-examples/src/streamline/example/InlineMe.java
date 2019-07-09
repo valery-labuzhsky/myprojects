@@ -63,6 +63,7 @@ public class InlineMe {
     }
 
     public void cylce() {
+        
         int inline = 8;
 
         while (inline > 0) {
