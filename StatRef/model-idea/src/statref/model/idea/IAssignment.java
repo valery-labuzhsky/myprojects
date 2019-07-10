@@ -1,7 +1,6 @@
 package statref.model.idea;
 
 import com.intellij.psi.PsiAssignmentExpression;
-import com.intellij.psi.PsiReferenceExpression;
 import org.jetbrains.annotations.NotNull;
 
 public class IAssignment extends IExpression<PsiAssignmentExpression> implements IInitializer {
@@ -11,11 +10,11 @@ public class IAssignment extends IExpression<PsiAssignmentExpression> implements
 
     @Override
     public IExpression getInitializer() {
-        return IFactory.getElement(getElement().getRExpression());
+        return (IExpression) IFactory.getElement(getElement().getRExpression());
     }
 
     public IVariable getVariable() {
-        return IFactory.getElement((PsiReferenceExpression) getElement().getLExpression());
+        return IFactory.getElement(getElement().getLExpression());
     }
 
     @Override

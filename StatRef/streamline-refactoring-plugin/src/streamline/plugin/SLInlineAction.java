@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -31,38 +32,41 @@ import java.util.List;
 import java.util.Map;
 
 public class SLInlineAction extends AnAction {
+    private static final Logger log = Logger.getInstance(IFactory.class);
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        // TODO should I write tests from the beginning? probably yes, but I need do it manually first to keep me interested
+        try {
+            // TODO should I write tests from the beginning? probably yes, but I need do it manually first to keep me interested
 
-        // TODO the tests are hard to run, and they don't work anyway
-        // TODO I may also try idea's tests
-        // TODO concept is constantly changing right know - I will need tests when it settles down
+            // TODO the tests are hard to run, and they don't work anyway
+            // TODO I may also try idea's tests
+            // TODO concept is constantly changing right know - I will need tests when it settles down
 
-        PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
-        PsiElement parent = identifier.getParent();
-        Project project = getEventProject(event);
-        NodesRegistry registry = new NodesRegistry();
-        if (parent instanceof PsiLocalVariable) {
-            IInitializer declaration = new IVariableDeclaration((PsiLocalVariable) parent);
-            InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant();
-            // TODO now I must improve a tree to make in comfortable to work with
-            // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
-            createRefactoringTree(project, event, "Inline " + declaration.getText(), new AssignmentNode(project, refactoring, registry));
-        } else if (parent instanceof PsiReferenceExpression) {
-            IVariable variable = new IVariable((PsiReferenceExpression) parent);
+            PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
+            PsiElement parent = identifier.getParent();
+            Project project = getEventProject(event);
+            NodesRegistry registry = new NodesRegistry();
+            if (parent instanceof PsiLocalVariable) {
+                IInitializer declaration = new IVariableDeclaration((PsiLocalVariable) parent);
+                InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant();
+                // TODO now I must improve a tree to make in comfortable to work with
+                // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
+                createRefactoringTree(project, event, "Inline " + declaration.getText(), new AssignmentNode(project, refactoring, registry));
+            } else if (parent instanceof PsiReferenceExpression) {
+                IVariable variable = new IVariable((PsiReferenceExpression) parent);
 
-            RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + variable.getName());
+                RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + variable.getName());
 
-            if (variable.isAssignment()) {
-                InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), (IInitializer) variable.getParent());
-                AssignmentNode node = (AssignmentNode) createNode(project, toolWindow, refactoring, registry);
-            } else {
-                InlineUsage refactoring = registry.getRefactorings().getRefactoring(new InlineUsage(variable, registry.getRefactorings()));
-                InlineUsageNode node = (InlineUsageNode) createNode(project, toolWindow, refactoring, registry);
-                node.selectAny();
-            }
-        } else if (parent instanceof PsiParameter) {
+                if (variable.isAssignment()) {
+                    InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), (IInitializer) variable.getParent());
+                    AssignmentNode node = (AssignmentNode) createNode(project, toolWindow, refactoring, registry);
+                } else {
+                    InlineUsage refactoring = registry.getRefactorings().getRefactoring(new InlineUsage(variable, registry.getRefactorings()));
+                    InlineUsageNode node = (InlineUsageNode) createNode(project, toolWindow, refactoring, registry);
+                    node.selectAny();
+                }
+            } else if (parent instanceof PsiParameter) {
             IParameter parameter = IFactory.getElement(parent);
             IMethodDeclaration method = (IMethodDeclaration) parameter.getMethod();
             ArrayList<IMethodCall> calls = method.getCalls();
@@ -82,9 +86,17 @@ public class SLInlineAction extends AnAction {
             // TODO 2. replace method calls with new method calls
             // TODO 3. take care of parameters
         } else {
-            AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
-            nativeAction.actionPerformed(event);
+                // TODO do not need to catch Exception from here
+                invokeNative(event);
+            }
+        } catch (RuntimeException e) {
+            log.error(e);
+            invokeNative(event);
         }
+    }
+
+    public void invokeNative(@NotNull AnActionEvent event) {
+        ActionManager.getInstance().getAction("Inline").actionPerformed(event);
     }
 
     public RefactoringNode createNode(Project project, RefactoringToolWindow toolWindow, Refactoring r, NodesRegistry registry) {

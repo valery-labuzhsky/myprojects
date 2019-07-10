@@ -8,11 +8,11 @@ public class IIfStatement extends IStatement<PsiIfStatement> {
     }
 
     public IStatement getElseBranch() {
-        return IFactory.getElement(getElement().getElseBranch());
+        return (IStatement) IFactory.getElement(getElement().getElseBranch());
     }
 
     public IStatement getThenBranch() {
-        return IFactory.getElement(getElement().getThenBranch());
+        return (IStatement) IFactory.getElement(getElement().getThenBranch());
     }
 
 }

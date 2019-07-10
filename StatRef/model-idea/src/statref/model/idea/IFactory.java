@@ -1,6 +1,8 @@
 package statref.model.idea;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import statref.model.idea.expression.ILiteral;
 
@@ -8,6 +10,8 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 public class IFactory {
+    private static final Logger log = Logger.getInstance(IFactory.class);
+
     private static final HashMap<Class<PsiElement>, Function<PsiElement, IElement>> registry = new HashMap<>();
 
     static {
@@ -46,7 +50,7 @@ public class IFactory {
         Class<? extends PsiElement> clazz = element.getClass();
         Function<PsiElement, IElement> constructor = findConstructor(clazz);
         if (constructor == null) {
-            throw new IllegalArgumentException(element + ": is not supported");
+            return (T) getUnknownElement(element);
         }
         return (T) constructor.apply(element);
     }
@@ -66,6 +70,12 @@ public class IFactory {
             }
         }
         return constructor;
+    }
+
+    @NotNull
+    private static IElement getUnknownElement(PsiElement element) {
+        log.error(element + ": is not supported");
+        return new IUnknownElement(element);
     }
 
     public static IType getType(PsiType type) {
