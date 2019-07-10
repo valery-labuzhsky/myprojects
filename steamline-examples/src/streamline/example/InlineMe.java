@@ -95,5 +95,7 @@ public class InlineMe {
     }
 
     public static void main(String[] args) {
+        String tst = "tst";
+        System.out.println(tst);
     }
 }

@@ -1,9 +1,12 @@
 package statref.model.idea;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.*;
+import org.jetbrains.annotations.NotNull;
 import statref.model.idea.expression.ILiteral;
 
 public class IFactory {
+    private static final Logger log = Logger.getInstance(IFactory.class);
 
     public static IElement getElement(PsiElement element) {
         if (element==null) {
@@ -19,10 +22,16 @@ public class IFactory {
         } else if (element instanceof PsiMethod) {
             return new IMethodDeclaration((PsiMethod) element);
         }
-        throw new IllegalArgumentException(element + ": is not supported");
+        return getUnknownElement(element);
     }
 
-    public static IStatement getStatement(PsiStatement statement) {
+    @NotNull
+    private static IElement getUnknownElement(PsiElement element) {
+        log.error(element + ": is not supported");
+        return new IUnknownElement(element);
+    }
+
+    public static IElement getStatement(PsiStatement statement) {
         if (statement instanceof PsiDeclarationStatement) {
             return new IDeclarationStatement((PsiDeclarationStatement) statement);
         } else if (statement instanceof PsiExpressionStatement) {
@@ -34,10 +43,10 @@ public class IFactory {
         } else if (statement instanceof PsiLoopStatement) {
             return getLoopStatement((PsiLoopStatement) statement);
         }
-        throw new IllegalArgumentException(statement + ": is not supported");
+        return getUnknownElement(statement);
     }
 
-    private static IStatement getLoopStatement(PsiLoopStatement statement) {
+    private static IElement getLoopStatement(PsiLoopStatement statement) {
         if (statement instanceof PsiWhileStatement) {
             return new IWhileStatement((PsiWhileStatement) statement);
         } else if (statement instanceof PsiDoWhileStatement) {
@@ -47,10 +56,10 @@ public class IFactory {
         } else if (statement instanceof PsiForeachStatement) {
             return new IForEachStatement((PsiForeachStatement) statement);
         }
-        throw new IllegalArgumentException(statement + ": is not supported");
+        return getUnknownElement(statement);
     }
 
-    public static IExpression getExpression(PsiExpression expression) {
+    public static IElement getExpression(PsiExpression expression) {
         if (expression == null) {
             return null;
         } else if (expression instanceof PsiReferenceExpression) {
@@ -62,7 +71,7 @@ public class IFactory {
         } else if (expression instanceof PsiBinaryExpression) {
             return new IBinaryExpression((PsiBinaryExpression) expression);
         }
-        throw new IllegalArgumentException(expression + ": is not supported");
+        return getUnknownElement(expression);
     }
 
 }

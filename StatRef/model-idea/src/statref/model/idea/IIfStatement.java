@@ -9,11 +9,11 @@ public class IIfStatement extends IStatement<PsiIfStatement> {
     }
 
     public IStatement getElseBranch() {
-        return IFactory.getStatement(getElement().getElseBranch());
+        return (IStatement) IFactory.getStatement(getElement().getElseBranch());
     }
 
     public IStatement getThenBranch() {
-        return IFactory.getStatement(getElement().getThenBranch());
+        return (IStatement) IFactory.getStatement(getElement().getThenBranch());
     }
 
 }
