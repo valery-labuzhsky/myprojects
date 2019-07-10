@@ -1,6 +1,7 @@
 package statref.model.idea;
 
 import com.intellij.psi.*;
+import org.jetbrains.annotations.Nullable;
 import statref.model.idea.expression.ILiteral;
 
 import java.util.HashMap;
@@ -28,8 +29,10 @@ public class IFactory {
         register(PsiLiteralExpression.class, ILiteral::new);
         register(PsiBinaryExpression.class, IBinaryExpression::new);
         register(PsiMethodCallExpression.class, IMethodCall::new);
+        register(PsiClass.class, IClassDeclaration::new);
         // TODO I can use reflection to find all the classes and register them
         // TODO but how??
+        // TODO how do we automate the process?
     }
 
     public static <T extends PsiElement> void register(Class<T> key, Function<T, IElement> function) {
@@ -40,19 +43,33 @@ public class IFactory {
         if (element == null) {
             return null;
         }
-        Function<PsiElement, IElement> constructor = registry.get(element.getClass());
+        Class<? extends PsiElement> clazz = element.getClass();
+        Function<PsiElement, IElement> constructor = findConstructor(clazz);
         if (constructor == null) {
-            for (Class<?> intf : element.getClass().getInterfaces()) {
-                if (PsiElement.class.isAssignableFrom(intf)) {
-                    constructor = registry.get(intf);
-                    if (constructor != null) {
-                        registry.put((Class<PsiElement>) element.getClass(), constructor);
-                    }
-                }
-            }
             throw new IllegalArgumentException(element + ": is not supported");
         }
         return (T) constructor.apply(element);
+    }
+
+    @Nullable
+    public static Function<PsiElement, IElement> findConstructor(Class<?> clazz) {
+        Function<PsiElement, IElement> constructor = registry.get(clazz);
+        if (constructor == null) {
+            for (Class<?> intf : clazz.getInterfaces()) {
+                if (PsiElement.class.isAssignableFrom(intf)) {
+                    constructor = findConstructor(intf);
+                    if (constructor != null) {
+                        registry.put((Class<PsiElement>) clazz, constructor);
+                        break;
+                    }
+                }
+            }
+        }
+        return constructor;
+    }
+
+    public static IType getType(PsiType type) {
+        return new IUnknownType(type);
     }
 
 }

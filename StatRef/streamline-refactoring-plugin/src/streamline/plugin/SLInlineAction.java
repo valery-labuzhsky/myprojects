@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -18,12 +19,16 @@ import statref.model.idea.*;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.RefactoringNode;
 import streamline.plugin.refactoring.Refactoring;
+import streamline.plugin.refactoring.RefactoringRegistry;
 import streamline.plugin.refactoring.assignment.AssignmentNode;
 import streamline.plugin.refactoring.assignment.InlineAssignment;
 import streamline.plugin.refactoring.usage.InlineUsage;
 import streamline.plugin.refactoring.usage.InlineUsageNode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SLInlineAction extends AnAction {
     @Override
@@ -67,7 +72,9 @@ public class SLInlineAction extends AnAction {
                 expressions.computeIfAbsent(expression.signature(), (k)->new ArrayList<>()).add(expression);
             }
 
-            new CreateMethod(registry, method.getClassDeclaration());
+            CreateMethod createMethod = new CreateMethod(registry.getRefactorings(), method, "newMethod");
+            WriteCommandAction.runWriteCommandAction(project, createMethod::refactor);
+
 
             System.out.println(expressions.values());
             // TODO now let's create a refactoring tree
@@ -130,13 +137,24 @@ public class SLInlineAction extends AnAction {
     }
 
     public static class CreateMethod extends Refactoring {
-        public CreateMethod(NodesRegistry registry, IClassDeclaration classDeclaration) {
-            super(registry.getRefactorings());
+        private final IMethodDeclaration nextTo;
+        private final String name;
+
+        public CreateMethod(RefactoringRegistry registry, IMethodDeclaration after, String name) {
+            super(registry);
+            this.nextTo = after;
+            // TODO refactorings and modifiers do the same
+            this.name = name;
         }
 
         @Override
         protected void doRefactor() {
-            // TODO do refactor
+            PsiMethod element = nextTo.getElement();
+            final PsiElementFactory factory = JavaPsiFacade.getElementFactory(element.getProject());
+            PsiPrimitiveType returnType = PsiType.VOID; // TODO parametrize, IType
+            PsiMethod newMethod = factory.createMethod(name, returnType);
+
+            nextTo.getElement().getParent().addAfter(newMethod, nextTo.getElement());
         }
     }
 

@@ -40,7 +40,7 @@ public class IMethodDeclaration extends IElement<PsiMethod> implements SMethodDe
 
     @Override
     public SType getReturnType() {
-        return null;
+        return IFactory.getType(getElement().getReturnType());
     }
 
     @Override
