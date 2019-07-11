@@ -7,12 +7,15 @@ import org.jetbrains.annotations.Nullable;
 import statref.model.idea.expression.ILiteral;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 public class IFactory {
     private static final Logger log = Logger.getInstance(IFactory.class);
 
-    private static final HashMap<Class<PsiElement>, Function<PsiElement, IElement>> registry = new HashMap<>();
+    private static final Registry registry = new Registry();
+
+    private static Map<Class<?>, PsiPrimitiveType> primitives = new HashMap<>();
 
     static {
         register(PsiLocalVariable.class, IVariableDeclaration::new);
@@ -34,42 +37,62 @@ public class IFactory {
         register(PsiBinaryExpression.class, IBinaryExpression::new);
         register(PsiMethodCallExpression.class, IMethodCall::new);
         register(PsiClass.class, IClassDeclaration::new);
+
+        register(PsiPrimitiveType.class, IPrimitive::new);
         // TODO I can use reflection to find all the classes and register them
         // TODO but how??
         // TODO how do we automate the process?
+
+        primitives.put(void.class, PsiType.VOID);
     }
 
-    public static <T extends PsiElement> void register(Class<T> key, Function<T, IElement> function) {
-        registry.put((Class<PsiElement>) key, (Function<PsiElement, IElement>) function);
+
+    private static <T> void register(Class<T> key, Function<T, Object> function) {
+        registry.register(key, function);
+    }
+
+    public static class Registry {
+        private final HashMap<Class, Function> registry = new HashMap<>();
+
+        public <T> void register(Class<T> key, Function<T, Object> function) {
+            registry.put(key, function);
+        }
+
+        @Nullable
+        public Function findFunction(Class<?> clazz) {
+            Function function = registry.get(clazz);
+            if (function == null) {
+                for (Class<?> intf : clazz.getInterfaces()) {
+                    if (PsiElement.class.isAssignableFrom(intf)) {
+                        function = findFunction(intf);
+                        if (function != null) {
+                            registry.put(clazz, function);
+                            break;
+                        }
+                    }
+                }
+            }
+            return function;
+        }
+
+        public <T> T convert(Object o) {
+            Function function = findFunction(o.getClass());
+            if (function!=null) {
+                return (T) function.apply(o);
+            }
+            return null;
+        }
     }
 
     public static <T extends IElement> T getElement(PsiElement element) {
         if (element == null) {
             return null;
         }
-        Class<? extends PsiElement> clazz = element.getClass();
-        Function<PsiElement, IElement> constructor = findConstructor(clazz);
-        if (constructor == null) {
+        T e = registry.convert(element);
+        if (e == null) {
             return (T) getUnknownElement(element);
         }
-        return (T) constructor.apply(element);
-    }
-
-    @Nullable
-    public static Function<PsiElement, IElement> findConstructor(Class<?> clazz) {
-        Function<PsiElement, IElement> constructor = registry.get(clazz);
-        if (constructor == null) {
-            for (Class<?> intf : clazz.getInterfaces()) {
-                if (PsiElement.class.isAssignableFrom(intf)) {
-                    constructor = findConstructor(intf);
-                    if (constructor != null) {
-                        registry.put((Class<PsiElement>) clazz, constructor);
-                        break;
-                    }
-                }
-            }
-        }
-        return constructor;
+        return e;
     }
 
     @NotNull
@@ -79,7 +102,11 @@ public class IFactory {
     }
 
     public static IType getType(PsiType type) {
-        return new IUnknownType(type);
+        return registry.convert(type);
+    }
+
+    public static IType getType(Class c) {
+        return getType(primitives.get(c));
     }
 
 }

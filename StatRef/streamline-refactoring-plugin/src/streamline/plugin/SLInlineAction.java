@@ -23,6 +23,7 @@ import streamline.plugin.refactoring.Refactoring;
 import streamline.plugin.refactoring.RefactoringRegistry;
 import streamline.plugin.refactoring.assignment.AssignmentNode;
 import streamline.plugin.refactoring.assignment.InlineAssignment;
+import streamline.plugin.refactoring.compound.CompoundRefactoring;
 import streamline.plugin.refactoring.usage.InlineUsage;
 import streamline.plugin.refactoring.usage.InlineUsageNode;
 
@@ -67,25 +68,27 @@ public class SLInlineAction extends AnAction {
                     node.selectAny();
                 }
             } else if (parent instanceof PsiParameter) {
-            IParameter parameter = IFactory.getElement(parent);
-            IMethodDeclaration method = (IMethodDeclaration) parameter.getMethod();
-            ArrayList<IMethodCall> calls = method.getCalls();
-            Map<Object, List<IExpression>> expressions = new HashMap<>();
-            for (IMethodCall call : calls) {
-                IExpression expression = call.getExpression(parameter);
-                expressions.computeIfAbsent(expression.signature(), (k)->new ArrayList<>()).add(expression);
-            }
+                IParameter parameter = IFactory.getElement(parent);
+                IMethodDeclaration method = (IMethodDeclaration) parameter.getMethod();
+                ArrayList<IMethodCall> calls = method.getCalls();
+                Map<Object, List<IExpression>> expressions = new HashMap<>();
+                for (IMethodCall call : calls) {
+                    IExpression expression = call.getExpression(parameter);
+                    expressions.computeIfAbsent(expression.signature(), (k) -> new ArrayList<>()).add(expression);
+                }
 
-            CreateMethod createMethod = new CreateMethod(registry.getRefactorings(), method, "newMethod");
-            WriteCommandAction.runWriteCommandAction(project, createMethod::refactor);
+                // TODO how to choose names? let it be numbers first, I can rename them later
+
+                CreateMethod createMethod = new CreateMethod(registry.getRefactorings(), method, "newMethod", IFactory.getType(void.class));
+                WriteCommandAction.runWriteCommandAction(project, createMethod::refactor);
 
 
-            System.out.println(expressions.values());
-            // TODO now let's create a refactoring tree
-            // TODO 1. create method for every signature (but not each of them probably, we need to balance between gains and losses)
-            // TODO 2. replace method calls with new method calls
-            // TODO 3. take care of parameters
-        } else {
+                System.out.println(expressions.values());
+                // TODO now let's create a refactoring tree
+                // TODO 1. create method for every signature (but not each of them probably, we need to balance between gains and losses)
+                // TODO 2. replace method calls with new method calls
+                // TODO 3. take care of parameters
+            } else {
                 // TODO do not need to catch Exception from here
                 invokeNative(event);
             }
@@ -151,22 +154,20 @@ public class SLInlineAction extends AnAction {
     public static class CreateMethod extends Refactoring {
         private final IMethodDeclaration nextTo;
         private final String name;
+        private final IType returnType;
 
-        public CreateMethod(RefactoringRegistry registry, IMethodDeclaration after, String name) {
+        public CreateMethod(RefactoringRegistry registry, IMethodDeclaration after, String name, IType returnType) {
             super(registry);
             this.nextTo = after;
-            // TODO refactorings and modifiers do the same
             this.name = name;
+            this.returnType = returnType;
         }
 
         @Override
         protected void doRefactor() {
-            PsiMethod element = nextTo.getElement();
-            final PsiElementFactory factory = JavaPsiFacade.getElementFactory(element.getProject());
-            PsiPrimitiveType returnType = PsiType.VOID; // TODO parametrize, IType
-            PsiMethod newMethod = factory.createMethod(name, returnType);
-
-            nextTo.getElement().getParent().addAfter(newMethod, nextTo.getElement());
+            PsiMethod anchor = nextTo.getElement();
+            PsiMethod newMethod = JavaPsiFacade.getElementFactory(anchor.getProject()).createMethod(name, returnType.getPsiType());
+            nextTo.getElement().getParent().addAfter(newMethod, anchor);
         }
     }
 

@@ -3,14 +3,14 @@ package statref.model.idea;
 import com.intellij.psi.PsiType;
 import statref.model.SType;
 
-public abstract class IType implements SType {
-    private final PsiType psiType;
+public abstract class IType<T extends PsiType> implements SType {
+    private final T psiType;
 
-    public IType(PsiType psiType) {
+    public IType(T psiType) {
         this.psiType = psiType;
     }
 
-    public PsiType getPsiType() {
+    public T getPsiType() {
         return psiType;
     }
 
