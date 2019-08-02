@@ -9,12 +9,20 @@ import java.util.List;
  */
 public interface SMethodDeclaration extends SModifiers, SClassMemeber, SElement {
 
-    List<SBaseVariableDeclaration> getParameters();
+    List<? extends SParameter> getParameters();
 
     String getName();
 
     SType getReturnType();
 
-    List<SInstruction> getInstructions();
+    List<SStatement> getInstructions();
 
+    default boolean isVoid() {
+        SType type = getReturnType();
+        if (type instanceof SPrimitive) {
+            return ((SPrimitive) type).getJavaClass()==void.class;
+        } else {
+            return false;
+        }
+    }
 }

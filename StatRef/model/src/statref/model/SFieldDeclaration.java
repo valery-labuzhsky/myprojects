@@ -1,4 +1,4 @@
 package statref.model;
 
-public interface SFieldDeclaration extends SBaseVariableDeclaration, SClassMemeber {
+public interface SFieldDeclaration extends SBaseVariableDeclaration, SClassMemeber, SInitializer {
 }

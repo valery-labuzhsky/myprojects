@@ -40,9 +40,4 @@ public class IVariableDeclaration extends IElement<PsiLocalVariable> implements 
     public String getName() {
         return getElement().getName();
     }
-
-    @Override
-    public SVariable usage() {
-        return null;
-    }
 }

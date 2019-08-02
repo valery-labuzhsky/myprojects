@@ -3,7 +3,7 @@ package statref.model.builder;
 import statref.model.SMethodInstruction;
 import statref.model.expression.SMethod;
 
-public class BMethodInstruction implements SMethodInstruction {
+public class BMethodInstruction extends BElement implements SMethodInstruction {
     private final SMethod method;
 
     public BMethodInstruction(SMethod method) {

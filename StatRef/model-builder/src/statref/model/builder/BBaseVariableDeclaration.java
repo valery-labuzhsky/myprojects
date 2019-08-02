@@ -11,7 +11,6 @@ import java.util.Collection;
 public abstract class BBaseVariableDeclaration<B extends BBaseVariableDeclaration> extends BElement implements SBaseVariableDeclaration, BModifiers<B> {
     private final SType type;
     private final String name;
-    private SExpression expression;
     private ArrayList<Modifier> modifiers = new ArrayList<>();
 
     public BBaseVariableDeclaration(SType type, String name) {
@@ -29,12 +28,6 @@ public abstract class BBaseVariableDeclaration<B extends BBaseVariableDeclaratio
         return name;
     }
 
-    @Override
-    public SExpression getInitializer() {
-        return expression;
-    }
-
-    @Override
     public BVariable usage() {
         return new BVariable(name);
     }
@@ -44,8 +37,4 @@ public abstract class BBaseVariableDeclaration<B extends BBaseVariableDeclaratio
         return modifiers;
     }
 
-    public B body(SExpression expression) {
-        this.expression = expression;
-        return (B) this;
-    }
 }

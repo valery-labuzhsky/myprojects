@@ -2,6 +2,6 @@ package statref.model;
 
 import statref.model.expression.SMethod;
 
-public interface SMethodInstruction extends SInstruction {
+public interface SMethodInstruction extends SStatement {
     SMethod getMethod();
 }

@@ -1,5 +1,6 @@
 package statref.writer;
 
+import statref.model.SInitializer;
 import statref.model.expression.SExpression;
 import statref.model.SBaseVariableDeclaration;
 
@@ -10,7 +11,7 @@ import java.io.IOException;
  *
  * @author ptasha
  */
-public abstract class WBaseVariableDeclaration<S extends SBaseVariableDeclaration> extends WBase<S> {
+public abstract class WBaseVariableDeclaration<S extends SBaseVariableDeclaration & SInitializer> extends WBase<S> {
     public WBaseVariableDeclaration() {
         super();
     }

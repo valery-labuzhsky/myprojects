@@ -8,7 +8,7 @@ import statref.model.expression.SExpression;
  *
  * @author ptasha
  */
-public class BReturn implements SReturn {
+public class BReturn extends BElement implements SReturn {
     private final SExpression expression;
 
     public BReturn(SExpression expression) {

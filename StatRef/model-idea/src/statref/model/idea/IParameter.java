@@ -2,18 +2,40 @@ package statref.model.idea;
 
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
+import statref.model.SParameter;
+import statref.model.SType;
 
-public class IParameter extends IElement<PsiParameter> {
+import javax.lang.model.element.Modifier;
+import java.util.Collection;
+
+public class IParameter extends IElement<PsiParameter> implements SParameter {
     public IParameter(PsiParameter element) {
         super(element);
     }
 
+    @Override
     public int getIndex() {
         PsiParameterList parameters = (PsiParameterList) getElement().getParent();
         return parameters.getParameterIndex(getElement());
     }
 
-    public IElement getMethod() {
+    @Override
+    public IMethodDeclaration getParent() {
         return IFactory.getElement(getElement().getParent().getParent());
+    }
+
+    @Override
+    public SType getType() {
+        return IFactory.getType(getElement().getType());
+    }
+
+    @Override
+    public String getName() {
+        return getElement().getName();
+    }
+
+    @Override
+    public Collection<Modifier> getModifiers() {
+        return null;
     }
 }

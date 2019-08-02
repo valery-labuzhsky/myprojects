@@ -1,7 +1,7 @@
 package statref.model.builder;
 
 import statref.model.SBlock;
-import statref.model.SInstruction;
+import statref.model.SStatement;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,14 +12,14 @@ import java.util.List;
  * @author ptasha
  */
 public class BBlock implements SBlock {
-    private final List<SInstruction> instructions;
+    private final List<SStatement> instructions;
 
-    public BBlock(SInstruction... instructions) {
+    public BBlock(SStatement... instructions) {
         this.instructions = Arrays.asList(instructions);
     }
 
     @Override
-    public List<SInstruction> getInstructions() {
+    public List<SStatement> getInstructions() {
         return instructions;
     }
 }

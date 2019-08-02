@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="model-reflect" />
     <orderEntry type="module" module-name="model" />
+    <orderEntry type="module" module-name="writer" />
   </component>
 </module>

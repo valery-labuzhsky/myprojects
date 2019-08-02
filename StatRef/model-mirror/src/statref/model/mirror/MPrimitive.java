@@ -22,11 +22,37 @@ public class MPrimitive extends MBase<PrimitiveType> implements SPrimitive {
     }
 
     @Override
+    public Class<?> getJavaClass() {
+        switch (getTypeMirror().getKind()) {
+            case INT:
+                return int.class;
+            case BOOLEAN:
+                return boolean.class;
+            case DOUBLE:
+                return double.class;
+            case SHORT:
+                return short.class;
+            case FLOAT:
+                return float.class;
+            case LONG:
+                return long.class;
+            case CHAR:
+                return char.class;
+            case BYTE:
+                return byte.class;
+            case VOID:
+                return void.class;
+        }
+        throw new UnsupportedOperationException("Not yet supported for " + getTypeMirror().getKind());
+    }
+
+    @Override
     public SType getGenericType() {
         return new RClass(getWrapperClass());
     }
 
     private Class getWrapperClass() {
+        // TODO it "duplicates" getJavaClass
         switch (getTypeMirror().getKind()) {
             case INT:
                 return Integer.class;

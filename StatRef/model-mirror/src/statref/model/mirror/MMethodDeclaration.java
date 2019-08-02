@@ -1,9 +1,6 @@
 package statref.model.mirror;
 
-import statref.model.SInstruction;
-import statref.model.SMethodDeclaration;
-import statref.model.SType;
-import statref.model.SBaseVariableDeclaration;
+import statref.model.*;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -26,10 +23,10 @@ public class MMethodDeclaration implements SMethodDeclaration {
     }
 
     @Override
-    public List<SBaseVariableDeclaration> getParameters() {
-        ArrayList<SBaseVariableDeclaration> parameters = new ArrayList<>();
+    public List<SParameter> getParameters() {
+        ArrayList<SParameter> parameters = new ArrayList<>();
         for (VariableElement element : this.element.getParameters()) {
-            parameters.add(new MBaseVariableDeclaration(element));
+            parameters.add(new MParameter(element));
         }
         return parameters;
     }
@@ -50,7 +47,8 @@ public class MMethodDeclaration implements SMethodDeclaration {
     }
 
     @Override
-    public List<SInstruction> getInstructions() {
+    public List<SStatement> getInstructions() {
         return Collections.emptyList();
     }
+
 }

@@ -12,5 +12,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="model" />
     <orderEntry type="module" module-name="model-idea" />
+    <orderEntry type="module" module-name="model-builder" />
   </component>
 </module>

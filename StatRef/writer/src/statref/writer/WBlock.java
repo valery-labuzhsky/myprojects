@@ -1,7 +1,7 @@
 package statref.writer;
 
 import statref.model.SBlock;
-import statref.model.SInstruction;
+import statref.model.SStatement;
 
 import java.io.IOException;
 
@@ -16,8 +16,8 @@ public class WBlock extends WBase<SBlock> {
         cw.write("{");
         cw.writeln();
         cw.indent();
-        for (SInstruction sInstruction : block.getInstructions()) {
-            writeElement(sInstruction, cw);
+        for (SStatement SStatement : block.getInstructions()) {
+            writeElement(SStatement, cw);
         }
         cw.unindent();
         cw.write("}");

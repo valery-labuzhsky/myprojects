@@ -8,5 +8,5 @@ import java.util.List;
  * @author ptasha
  */
 public interface SBlock {
-    List<SInstruction> getInstructions();
+    List<SStatement> getInstructions();
 }

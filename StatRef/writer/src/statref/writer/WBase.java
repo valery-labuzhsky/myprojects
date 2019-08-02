@@ -4,7 +4,7 @@ import statref.model.*;
 import statref.model.expression.*;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public abstract class WBase<S> {
 
-    private static HashMap<Class<?>, WBase<?>> registry = new HashMap<>();
+    private static LinkedHashMap<Class<?>, WBase<?>> registry = new LinkedHashMap<>(); // TODO combine with registry from IFactory
 
     static {
         register(SClassDeclaration.class, new WClassDeclaration());
@@ -39,6 +39,7 @@ public abstract class WBase<S> {
         register(SClassCast.class, new WClassCast());
         register(SArrayItem.class, new WArrayItem());
         register(SFile.class, new WFile());
+        register(SElement.class, new WElement());
     }
 
     public WBase() {
@@ -98,8 +99,8 @@ public abstract class WBase<S> {
         getWriter(element).write(writer, element);
     }
 
-    private static WBase<Object> getWriter(Object element) {
-        return getWriter((Class<Object>) element.getClass());
+    public static <S> WBase<S> getWriter(S element) {
+        return getWriter((Class<S>) element.getClass());
     }
 
 }

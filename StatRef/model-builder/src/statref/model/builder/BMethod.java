@@ -3,6 +3,7 @@ package statref.model.builder;
 import statref.model.expression.SExpression;
 import statref.model.expression.SMethod;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,11 +15,11 @@ public class BMethod extends BExpression implements SMethod {
     public BMethod(SExpression expression, String methodName, SExpression... params) {
         this.expression = expression;
         this.methodName = methodName;
-        this.params = Arrays.asList(params);
+        this.params = new ArrayList<>(Arrays.asList(params));
     }
 
     @Override
-    public SExpression getExpression() {
+    public SExpression getCallee() {
         return expression;
     }
 

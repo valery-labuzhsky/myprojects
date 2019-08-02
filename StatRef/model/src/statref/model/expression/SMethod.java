@@ -3,7 +3,7 @@ package statref.model.expression;
 import java.util.List;
 
 public interface SMethod extends SExpression {
-    SExpression getExpression();
+    SExpression getCallee();
 
     String getMethodName();
 

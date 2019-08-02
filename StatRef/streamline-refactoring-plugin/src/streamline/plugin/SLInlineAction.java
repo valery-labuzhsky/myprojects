@@ -16,6 +16,9 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
+import statref.model.builder.BMethod;
+import statref.model.builder.BMethodDeclaration;
+import statref.model.builder.BVariable;
 import statref.model.idea.*;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.RefactoringNode;
@@ -69,7 +72,7 @@ public class SLInlineAction extends AnAction {
                 }
             } else if (parent instanceof PsiParameter) {
                 IParameter parameter = IFactory.getElement(parent);
-                IMethodDeclaration method = (IMethodDeclaration) parameter.getMethod();
+                IMethodDeclaration method = parameter.getParent();
                 ArrayList<IMethodCall> calls = method.getCalls();
                 Map<Object, List<IExpression>> expressions = new HashMap<>();
                 for (IMethodCall call : calls) {
@@ -77,11 +80,38 @@ public class SLInlineAction extends AnAction {
                     expressions.computeIfAbsent(expression.signature(), (k) -> new ArrayList<>()).add(expression);
                 }
 
-                // TODO how to choose names? let it be numbers first, I can rename them later
+                CompoundRefactoring refactoring = new CompoundRefactoring(registry.getRefactorings());
+                int i = 0;
+                for (List<IExpression> value : expressions.values()) {
+                    BMethodDeclaration prototype = new BMethodDeclaration(method.getName() + i++) {
+                        @Override
+                        public void describe() {
+                            BMethod delegate = new BMethod(null, method.getName());
+                            for (IParameter param : method.getParameters()) {
+                                if (param.equals(parameter)) {
+                                    delegate.getParams().add(value.get(0));
+                                } else {
+                                    delegate.getParams().add(new BVariable(param));
+                                }
+                            }
+                            if (method.isVoid()) {
+                                code(delegate);
+                            } else {
+                                returnType(method.getReturnType());
+                                return_(delegate);
+                            }
+                        }
+                    }.returnType(method.getReturnType());
 
-                CreateMethod createMethod = new CreateMethod(registry.getRefactorings(), method, "newMethod", IFactory.getType(void.class));
-                WriteCommandAction.runWriteCommandAction(project, createMethod::refactor);
+                    IMethodDeclaration newMethod = IFactory.convertMethodDeclaration(method.getProject(), prototype);
 
+                    System.out.println(newMethod.getText());
+
+                    CreateMethod createMethod = new CreateMethod(registry.getRefactorings(), method, newMethod);
+                    // TODO add me to a tree
+                }
+
+                WriteCommandAction.runWriteCommandAction(project, refactoring::refactor);
 
                 System.out.println(expressions.values());
                 // TODO now let's create a refactoring tree
@@ -152,22 +182,19 @@ public class SLInlineAction extends AnAction {
     }
 
     public static class CreateMethod extends Refactoring {
-        private final IMethodDeclaration nextTo;
-        private final String name;
-        private final IType returnType;
+        private final IMethodDeclaration after;
+        private final IMethodDeclaration method;
 
-        public CreateMethod(RefactoringRegistry registry, IMethodDeclaration after, String name, IType returnType) {
+        public CreateMethod(RefactoringRegistry registry, IMethodDeclaration after, IMethodDeclaration method) {
             super(registry);
-            this.nextTo = after;
-            this.name = name;
-            this.returnType = returnType;
+            this.after = after;
+            this.method = method;
         }
 
         @Override
         protected void doRefactor() {
-            PsiMethod anchor = nextTo.getElement();
-            PsiMethod newMethod = JavaPsiFacade.getElementFactory(anchor.getProject()).createMethod(name, returnType.getPsiType());
-            nextTo.getElement().getParent().addAfter(newMethod, anchor);
+            PsiMethod anchor = after.getElement();
+            anchor.getParent().addAfter(method.getElement(), anchor);
         }
     }
 

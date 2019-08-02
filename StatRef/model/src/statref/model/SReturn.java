@@ -7,6 +7,6 @@ import statref.model.expression.SExpression;
  *
  * @author ptasha
  */
-public interface SReturn extends SInstruction {
+public interface SReturn extends SStatement {
     SExpression getExpression();
 }

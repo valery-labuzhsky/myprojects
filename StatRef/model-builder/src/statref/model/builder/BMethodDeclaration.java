@@ -1,6 +1,9 @@
 package statref.model.builder;
 
-import statref.model.*;
+import statref.model.SMethodDeclaration;
+import statref.model.SParameter;
+import statref.model.SStatement;
+import statref.model.SType;
 import statref.model.expression.SExpression;
 
 import javax.lang.model.element.Modifier;
@@ -10,10 +13,10 @@ import java.util.List;
 
 public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMethodDeclaration> {
     private final String name;
-    private final List<SBaseVariableDeclaration> parameters = new ArrayList<>();
+    private final List<SParameter> parameters = new ArrayList<>();
     private SType returnType = BBase.ofClass(void.class);
 
-    private final ArrayList<SInstruction> instructions = new ArrayList<>();
+    private final ArrayList<SStatement> instructions = new ArrayList<>();
     private final ArrayList<Modifier> modifiers = new ArrayList<>();
 
     public BMethodDeclaration(String name) {
@@ -22,11 +25,11 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     }
 
     @Override
-    public List<SBaseVariableDeclaration> getParameters() {
+    public List<SParameter> getParameters() {
         return parameters;
     }
 
-    public BMethodDeclaration param(SBaseVariableDeclaration param) {
+    public BMethodDeclaration param(SParameter param) {
         parameters.add(param);
         return this;
     }
@@ -42,7 +45,7 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     }
 
     @Override
-    public List<SInstruction> getInstructions() {
+    public List<SStatement> getInstructions() {
         return instructions;
     }
 
@@ -56,7 +59,7 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
         return this;
     }
 
-    public BMethodDeclaration code(SInstruction instruction) {
+    public BMethodDeclaration code(SStatement instruction) {
         instructions.add(instruction);
         return this;
     }
@@ -69,7 +72,7 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     }
 
     protected BVariable parameter(SType type, String name) {
-        BBaseVariableDeclaration param = BBase.declareVariable(type, name);
+        BParameter param = new BParameter(type, name);
         this.param(param);
         return param.usage();
     }
@@ -77,4 +80,5 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     public BMethodDeclaration code(BMethod method) {
         return code(new BMethodInstruction(method));
     }
+
 }

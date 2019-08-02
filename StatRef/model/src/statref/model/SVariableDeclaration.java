@@ -1,4 +1,4 @@
 package statref.model;
 
-public interface SVariableDeclaration extends SBaseVariableDeclaration {
+public interface SVariableDeclaration extends SBaseVariableDeclaration, SInitializer {
 }
