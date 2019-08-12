@@ -1,6 +1,5 @@
 package streamline.plugin.refactoring.usage;
 
-import com.intellij.openapi.project.Project;
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import streamline.plugin.refactoring.Refactoring;
@@ -48,10 +47,6 @@ public class InlineUsage extends Refactoring {
 
     public void setSelected(IInitializer variant) {
         selected = variant;
-    }
-
-    public Project getProject() {
-        return usage.getProject();
     }
 
     public List<Refactoring> whatElse() {

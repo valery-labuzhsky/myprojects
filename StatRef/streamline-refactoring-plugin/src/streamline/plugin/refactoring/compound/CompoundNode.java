@@ -1,6 +1,6 @@
 package streamline.plugin.refactoring.compound;
 
-import com.intellij.openapi.project.Project;
+import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.NodesRegistry;
@@ -10,9 +10,9 @@ import streamline.plugin.refactoring.Refactoring;
 
 import java.util.ArrayList;
 
-public class CompoundNode extends RefactoringNode<CompoundRefactoring> {
-    public CompoundNode(Project project, CompoundRefactoring refactoring, NodesRegistry registry) {
-        super(project, refactoring, registry);
+public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode<R> {
+    public CompoundNode(R refactoring, NodesRegistry registry) {
+        super(refactoring, registry);
     }
 
     @NotNull
@@ -20,18 +20,24 @@ public class CompoundNode extends RefactoringNode<CompoundRefactoring> {
     public SimpleNode[] createChildren() {
         ArrayList<SimpleNode> nodes = new ArrayList<>();
         for (Refactoring r : refactoring.getRefactorings()) {
-            nodes.add(RefactoringNode.create(getProject(), r, registry));
+            nodes.add(registry.create(r));
         }
         return nodes.toArray(new SimpleNode[0]);
     }
 
     @Override
     protected Presenter createPresenter() {
-        return presentation -> {};
+        return new EmptyPresenter();
     }
 
     @Override
     public boolean showRoot() {
-        return false;
+        return !(getPresenter() instanceof EmptyPresenter);
+    }
+
+    private static class EmptyPresenter implements Presenter {
+        @Override
+        public void update(PresentationData presentation) {
+        }
     }
 }

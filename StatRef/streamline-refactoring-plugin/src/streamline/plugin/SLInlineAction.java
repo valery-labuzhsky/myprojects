@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -16,24 +15,13 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
-import statref.model.builder.BMethod;
-import statref.model.builder.BMethodDeclaration;
-import statref.model.builder.BVariable;
 import statref.model.idea.*;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.RefactoringNode;
-import streamline.plugin.refactoring.Refactoring;
-import streamline.plugin.refactoring.RefactoringRegistry;
-import streamline.plugin.refactoring.assignment.AssignmentNode;
+import streamline.plugin.refactoring.assignment.InlineAssignmentNode;
 import streamline.plugin.refactoring.assignment.InlineAssignment;
-import streamline.plugin.refactoring.compound.CompoundRefactoring;
 import streamline.plugin.refactoring.usage.InlineUsage;
 import streamline.plugin.refactoring.usage.InlineUsageNode;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class SLInlineAction extends AnAction {
     private static final Logger log = Logger.getInstance(IFactory.class);
@@ -50,13 +38,13 @@ public class SLInlineAction extends AnAction {
             PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
             PsiElement parent = identifier.getParent();
             Project project = getEventProject(event);
-            NodesRegistry registry = new NodesRegistry();
+            NodesRegistry registry = new NodesRegistry(project);
             if (parent instanceof PsiLocalVariable) {
                 IInitializer declaration = new IVariableDeclaration((PsiLocalVariable) parent);
                 InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant();
                 // TODO now I must improve a tree to make in comfortable to work with
                 // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
-                createRefactoringTree(project, event, "Inline " + declaration.getText(), new AssignmentNode(project, refactoring, registry));
+                createRefactoringTree(project, event, "Inline " + declaration.getText(), new InlineAssignmentNode(refactoring, registry));
             } else if (parent instanceof PsiReferenceExpression) {
                 IVariable variable = new IVariable((PsiReferenceExpression) parent);
 
@@ -64,56 +52,35 @@ public class SLInlineAction extends AnAction {
 
                 if (variable.isAssignment()) {
                     InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), (IInitializer) variable.getParent());
-                    AssignmentNode node = (AssignmentNode) createNode(project, toolWindow, refactoring, registry);
+                    RefactoringNode node1 = registry.create(refactoring);
+                    toolWindow.setNode(node1);
+                    InlineAssignmentNode node = (InlineAssignmentNode) node1;
                 } else {
                     InlineUsage refactoring = registry.getRefactorings().getRefactoring(new InlineUsage(variable, registry.getRefactorings()));
-                    InlineUsageNode node = (InlineUsageNode) createNode(project, toolWindow, refactoring, registry);
+                    InlineUsageNode node = registry.create(refactoring);
+                    toolWindow.setNode(node);
                     node.selectAny();
                 }
             } else if (parent instanceof PsiParameter) {
                 IParameter parameter = IFactory.getElement(parent);
-                IMethodDeclaration method = parameter.getParent();
-                ArrayList<IMethodCall> calls = method.getCalls();
-                Map<Object, List<IExpression>> expressions = new HashMap<>();
-                for (IMethodCall call : calls) {
-                    IExpression expression = call.getExpression(parameter);
-                    expressions.computeIfAbsent(expression.signature(), (k) -> new ArrayList<>()).add(expression);
-                }
 
-                CompoundRefactoring refactoring = new CompoundRefactoring(registry.getRefactorings());
-                int i = 0;
-                for (List<IExpression> value : expressions.values()) {
-                    BMethodDeclaration prototype = new BMethodDeclaration(method.getName() + i++) {
-                        @Override
-                        public void describe() {
-                            BMethod delegate = new BMethod(null, method.getName());
-                            for (IParameter param : method.getParameters()) {
-                                if (param.equals(parameter)) {
-                                    delegate.getParams().add(value.get(0));
-                                } else {
-                                    delegate.getParams().add(new BVariable(param));
-                                }
-                            }
-                            if (method.isVoid()) {
-                                code(delegate);
-                            } else {
-                                returnType(method.getReturnType());
-                                return_(delegate);
-                            }
-                        }
-                    }.returnType(method.getReturnType());
+                InlineParameter refactoring = new InlineParameter(registry, parameter);
 
-                    IMethodDeclaration newMethod = IFactory.convertMethodDeclaration(method.getProject(), prototype);
+                // TODO build a better tree
+                // TODO I need displaying root
+                RefactoringToolWindow tree = createTree(project, event, "Inline " + parameter.getName());
+                RefactoringNode node = registry.create(refactoring);
+                tree.setNode(node);
 
-                    System.out.println(newMethod.getText());
+                // TODO how will I achieve it?
+                // 1. Inline parameter
+                // 1.1. Value = true
+                // 1.1.1. Create delegate
+                // 1.1.2-n. Replace usage
+                // 1.2. Value = false
+                // 1.2.1. Create delegate
+                // 1.2.2-n. Replace usage
 
-                    CreateMethod createMethod = new CreateMethod(registry.getRefactorings(), method, newMethod);
-                    // TODO add me to a tree
-                }
-
-                WriteCommandAction.runWriteCommandAction(project, refactoring::refactor);
-
-                System.out.println(expressions.values());
                 // TODO now let's create a refactoring tree
                 // TODO 1. create method for every signature (but not each of them probably, we need to balance between gains and losses)
                 // TODO 2. replace method calls with new method calls
@@ -130,12 +97,6 @@ public class SLInlineAction extends AnAction {
 
     public void invokeNative(@NotNull AnActionEvent event) {
         ActionManager.getInstance().getAction("Inline").actionPerformed(event);
-    }
-
-    public RefactoringNode createNode(Project project, RefactoringToolWindow toolWindow, Refactoring r, NodesRegistry registry) {
-        RefactoringNode n = RefactoringNode.create(project, r, registry);
-        toolWindow.setNode(n);
-        return n;
     }
 
     private RefactoringToolWindow createRefactoringTree(Project project, AnActionEvent event, String displayName, RefactoringNode node) {
@@ -179,23 +140,6 @@ public class SLInlineAction extends AnAction {
             return element;
         }
         return null;
-    }
-
-    public static class CreateMethod extends Refactoring {
-        private final IMethodDeclaration after;
-        private final IMethodDeclaration method;
-
-        public CreateMethod(RefactoringRegistry registry, IMethodDeclaration after, IMethodDeclaration method) {
-            super(registry);
-            this.after = after;
-            this.method = method;
-        }
-
-        @Override
-        protected void doRefactor() {
-            PsiMethod anchor = after.getElement();
-            anchor.getParent().addAfter(method.getElement(), anchor);
-        }
     }
 
 }

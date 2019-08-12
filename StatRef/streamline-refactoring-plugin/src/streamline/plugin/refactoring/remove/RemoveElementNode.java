@@ -6,11 +6,10 @@ import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.ElementPresenter;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.RefactoringNode;
-import streamline.plugin.refactoring.RefactoringRegistry;
 
 public class RemoveElementNode extends RefactoringNode<RemoveElement> {
-    public RemoveElementNode(Project project, RemoveElement refactoring, NodesRegistry registry) {
-        super(project, refactoring, registry);
+    public RemoveElementNode(RemoveElement refactoring, NodesRegistry registry) {
+        super(refactoring, registry);
     }
 
     @Override

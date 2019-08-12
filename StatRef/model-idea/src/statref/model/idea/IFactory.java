@@ -4,17 +4,13 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import statref.model.SElement;
 import statref.model.SStatement;
 import statref.model.SMethodDeclaration;
 import statref.model.idea.expression.ILiteral;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class IFactory {
     private static final Logger log = Logger.getInstance(IFactory.class);
@@ -70,7 +66,7 @@ public class IFactory {
         if (element instanceof IElement) {
             return (IElement) element;
         }
-        IElement idea = model2idea.convert(project, element);
+        IElement idea = model2idea.convert(element, project);
         if (idea == null) {
             return getUnknownElement(JavaPsiFacade.getElementFactory(project).createExpressionFromText(element.getText(), null));
         }
@@ -78,7 +74,7 @@ public class IFactory {
     }
 
     @NotNull
-    public static IMethodDeclaration convertMethodDeclaration(Project project, SMethodDeclaration prototype) {
+    public static IMethodDeclaration convertMethodDeclaration(SMethodDeclaration prototype, Project project) {
         // TODO generate it from text?
         IType type = (IType) prototype.getReturnType(); // TODO do the proper conversion: it may not be IType
         PsiMethod newMethod = JavaPsiFacade.getElementFactory(project).createMethod(prototype.getName(), type.getPsiType());
@@ -90,32 +86,8 @@ public class IFactory {
     }
 
     @NotNull
-    public static IStatement convertStatement(Project project, SStatement prototype) {
+    public static IStatement convertStatement(SStatement prototype, Project project) {
         return getElement(JavaPsiFacade.getElementFactory(project).createStatementFromText(prototype.getText(), null));
-    }
-
-    public static class ClassRegistry<K, V> {
-        private final HashMap<Class<K>, V> registry = new LinkedHashMap<>();
-
-        public void register(Class<K> key, V value) {
-            registry.put(key, value);
-        }
-
-        @Nullable
-        public V get(Class<K> clazz) {
-            V value = registry.get(clazz);
-            if (value == null) {
-                for (Map.Entry<Class<K>, V> entry : registry.entrySet()) {
-                    if (entry.getKey().isAssignableFrom(clazz)) {
-                        value = entry.getValue();
-                        registry.put(clazz, value);
-                        break;
-                    }
-                }
-            }
-            return value;
-        }
-
     }
 
     public static <T extends IElement> T getElement(PsiElement element) {
@@ -141,36 +113,6 @@ public class IFactory {
 
     public static IType getType(Class c) {
         return getType(primitives.get(c));
-    }
-
-    private static class FunctionRegistry<K, V> extends ClassRegistry<K, Function<K, V>> {
-
-        public <P extends K> void register(Class<P> key, Function<P, V> value) {
-            super.register((Class) key, (Function) value);
-        }
-
-        public <T> T convert(Object o) {
-            Function function = get((Class<K>) o.getClass());
-            if (function != null) {
-                return (T) function.apply(o);
-            }
-            return null;
-        }
-    }
-
-    private static class BiFunctionRegistry<K, U, R> extends ClassRegistry<K, BiFunction<U, K, R>> {
-
-        public <P extends K> void register(Class<P> key, BiFunction<U, P, R> value) {
-            super.register((Class) key, (BiFunction) value);
-        }
-
-        public <T> T convert(U u, Object o) {
-            BiFunction function = get((Class<K>) o.getClass());
-            if (function != null) {
-                return (T) function.apply(u, o);
-            }
-            return null;
-        }
     }
 
 }

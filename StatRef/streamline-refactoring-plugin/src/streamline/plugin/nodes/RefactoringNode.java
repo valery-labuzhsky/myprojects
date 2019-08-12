@@ -1,18 +1,11 @@
 package streamline.plugin.nodes;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.refactoring.Listeners;
 import streamline.plugin.refactoring.Refactoring;
-import streamline.plugin.refactoring.assignment.AssignmentNode;
-import streamline.plugin.refactoring.assignment.InlineAssignment;
-import streamline.plugin.refactoring.compound.CompoundNode;
-import streamline.plugin.refactoring.compound.CompoundRefactoring;
-import streamline.plugin.refactoring.usage.InlineUsage;
-import streamline.plugin.refactoring.usage.InlineUsageNode;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
@@ -23,25 +16,13 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     private final Listeners listeners;
     private SimpleNode[] children;
 
-    public RefactoringNode(Project project, R refactoring, NodesRegistry registry) {
-        super(project);
+    public RefactoringNode(R refactoring, NodesRegistry registry) {
+        super(registry.getProject());
         this.refactoring = refactoring;
         this.registry = registry;
         listeners = registry.getListeners(refactoring);
         getListeners().add(this::update);
         setComponentFactory(() -> new CheckBoxEnabledPanel(this));
-    }
-
-    public static RefactoringNode create(Project project, Refactoring refactoring, NodesRegistry registry) {
-        if (refactoring instanceof InlineUsage) {
-            return new InlineUsageNode(project, (InlineUsage) refactoring, registry);
-        } else if (refactoring instanceof InlineAssignment) {
-            return new AssignmentNode(project, (InlineAssignment) refactoring, registry);
-        } else if (refactoring instanceof CompoundRefactoring) {
-            return new CompoundNode(project, (CompoundRefactoring) refactoring, registry);
-        } else {
-            throw new IllegalArgumentException("Unknown refactoring " + refactoring.getClass().getSimpleName());
-        }
     }
 
     @Override
@@ -105,6 +86,10 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
 
         @Override
         protected SimpleTextAttributes update(SimpleTextAttributes attributes) {
+            // TODO how to do it with a builder?
+            // TODO to make it super flexible I can create 2 presenters
+            // TODO but it won't be convenient for simple graying
+            // TODO let's leave update here for a while
             if (!refactoring.isEnabled()) {
                 return SimpleTextAttributes.merge(attributes, SimpleTextAttributes.GRAYED_ATTRIBUTES);
             } else {

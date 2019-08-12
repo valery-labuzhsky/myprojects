@@ -7,7 +7,6 @@ import streamline.plugin.nodes.NodePanel;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.Presenter;
 import streamline.plugin.nodes.RefactoringNode;
-import streamline.plugin.refactoring.RefactoringRegistry;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
@@ -18,8 +17,8 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
     private final List<RefactoringNode> nodes = new ArrayList<>();
     private final ButtonGroup buttons = new ButtonGroup();
 
-    public ChoiceNode(Project project, NodesRegistry registry) {
-        super(project, new RefactoringChoice(registry.getRefactorings()), registry);
+    public ChoiceNode(NodesRegistry registry) {
+        super(new RefactoringChoice(registry.getRefactorings()), registry);
     }
 
     public ChoiceNode add(RefactoringNode<?> node) {

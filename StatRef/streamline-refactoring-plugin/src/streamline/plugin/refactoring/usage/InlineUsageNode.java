@@ -1,6 +1,5 @@
 package streamline.plugin.refactoring.usage;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
@@ -18,8 +17,8 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
 
     private IInitializer assignment;
 
-    public InlineUsageNode(Project project, InlineUsage refactoring, NodesRegistry registry) {
-        super(project, refactoring, registry);
+    public InlineUsageNode(InlineUsage refactoring, NodesRegistry registry) {
+        super(refactoring, registry);
     }
 
     public void selectAny() {
@@ -110,7 +109,7 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
         int i = 0;
         for (Refactoring refactoring : newOnes) {
             insertedIndices[i++] = getNode().getChildCount();
-            getNode().add(RefactoringNode.create(getProject(), refactoring, registry).createTreeNode(getTree()));
+            getNode().add(registry.create(refactoring).createTreeNode(getTree()));
         }
 
         getModel().nodesWereInserted(getNode(), insertedIndices);

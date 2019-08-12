@@ -1,6 +1,5 @@
 package streamline.plugin.refactoring.assignment;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.ElementPresenter;
@@ -12,10 +11,10 @@ import streamline.plugin.refactoring.usage.InlineUsageNode;
 
 import java.util.ArrayList;
 
-public class AssignmentNode extends RefactoringNode<InlineAssignment> {
+public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
 
-    public AssignmentNode(Project project, InlineAssignment inlineAssignment, NodesRegistry registry) {
-        super(project, inlineAssignment, registry);
+    public InlineAssignmentNode(InlineAssignment inlineAssignment, NodesRegistry registry) {
+        super(inlineAssignment, registry);
     }
 
     @Override
@@ -26,7 +25,7 @@ public class AssignmentNode extends RefactoringNode<InlineAssignment> {
     @Override
     @NotNull
     public SimpleNode[] createChildren() {
-        RemoveElementNode removeNode = new RemoveElementNode(myProject, this.refactoring.getRemove(), registry);
+        RemoveElementNode removeNode = new RemoveElementNode(this.refactoring.getRemove(), registry);
         Runnable enabledListener = () -> {
             boolean anyEnabled = refactoring.getRemove().isEnabled();
             for (InlineUsage usage : refactoring.getUsages()) {
@@ -58,7 +57,7 @@ public class AssignmentNode extends RefactoringNode<InlineAssignment> {
         };
         ArrayList<RefactoringNode> nodes = new ArrayList<>();
         for (InlineUsage usage : this.refactoring.getUsages()) {
-            InlineUsageNode usageNode = new InlineUsageNode(myProject, usage, registry);
+            InlineUsageNode usageNode = new InlineUsageNode(usage, registry);
             usageNode.setAssignment(refactoring.getInitializer());
             usageNode.getListeners().add(usageListeners);
             usageNode.getListeners().add(enabledListener);

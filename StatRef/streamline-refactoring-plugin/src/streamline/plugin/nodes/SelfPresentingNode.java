@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
-import streamline.plugin.refactoring.Listeners;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -78,7 +77,7 @@ public abstract class SelfPresentingNode extends SimpleNode {
         }
     }
 
-    private Presenter getPresenter() {
+    protected Presenter getPresenter() {
         if (presenter == null) {
             presenter = createPresenter();
         }

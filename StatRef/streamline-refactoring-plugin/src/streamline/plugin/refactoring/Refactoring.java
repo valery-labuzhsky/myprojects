@@ -29,4 +29,8 @@ public abstract class Refactoring {
     }
 
     protected abstract void doRefactor();
+
+    public RefactoringRegistry getRegistry() {
+        return registry;
+    }
 }
