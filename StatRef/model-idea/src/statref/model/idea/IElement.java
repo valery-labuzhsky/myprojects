@@ -28,7 +28,7 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
 
     @Override
     public IElement getParent() {
-        return IFactory.getElement(element.getParent());
+        return getElement(element.getParent());
     }
 
     @Override
@@ -58,8 +58,11 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
         return element.getProject();
     }
 
-    public Object signature() {
-        return getElement();
+    public CodeFragment fragment() {
+        throw new UnsupportedOperationException();
     }
 
+    protected <T extends IElement> T getElement(PsiElement element) {
+        return IFactory.getElement(element);
+    }
 }

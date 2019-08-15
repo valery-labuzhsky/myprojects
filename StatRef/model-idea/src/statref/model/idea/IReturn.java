@@ -11,6 +11,6 @@ public class IReturn extends IStatement<PsiReturnStatement> implements SReturn {
 
     @Override
     public SExpression getExpression() {
-        return IFactory.getElement(getElement().getReturnValue());
+        return getElement(getElement().getReturnValue());
     }
 }

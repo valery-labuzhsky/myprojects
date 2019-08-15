@@ -34,7 +34,7 @@ public class IFactory {
             register(PsiAssignmentExpression.class, IAssignment::new);
             register(PsiLiteralExpression.class, ILiteral::new);
             register(PsiBinaryExpression.class, IBinaryExpression::new);
-            register(PsiMethodCallExpression.class, IMethodCall::new);
+            register(PsiMethodCallExpression.class, IMethod::new);
             register(PsiClass.class, IClassDeclaration::new);
             register(PsiReturnStatement.class, IReturn::new);
             // TODO generate it!

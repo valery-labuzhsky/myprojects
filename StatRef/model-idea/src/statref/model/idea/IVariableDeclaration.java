@@ -17,7 +17,7 @@ public class IVariableDeclaration extends IElement<PsiLocalVariable> implements 
 
     @Override
     public IExpression getInitializer() {
-        return (IExpression) IFactory.getElement(getElement().getInitializer());
+        return (IExpression) getElement(getElement().getInitializer());
     }
 
     @Override

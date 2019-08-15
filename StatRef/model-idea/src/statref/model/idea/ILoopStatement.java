@@ -8,7 +8,7 @@ public abstract class ILoopStatement<L extends PsiLoopStatement> extends IStatem
     }
 
     public IStatement getBody() {
-        return (IStatement) IFactory.getElement(getElement().getBody());
+        return (IStatement) getElement(getElement().getBody());
     }
 
 }

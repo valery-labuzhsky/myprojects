@@ -10,11 +10,11 @@ public class IAssignment extends IExpression<PsiAssignmentExpression> implements
 
     @Override
     public IExpression getInitializer() {
-        return (IExpression) IFactory.getElement(getElement().getRExpression());
+        return (IExpression) getElement(getElement().getRExpression());
     }
 
     public IVariable getVariable() {
-        return IFactory.getElement(getElement().getLExpression());
+        return getElement(getElement().getLExpression());
     }
 
     @Override

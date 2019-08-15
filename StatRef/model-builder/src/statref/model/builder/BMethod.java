@@ -8,28 +8,33 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BMethod extends BExpression implements SMethod {
-    private final SExpression callee;
-    private final String methodName;
+    private final SExpression qualifier;
+    private final String name;
     private final List<SExpression> params;
 
-    public BMethod(SExpression callee, String methodName, SExpression... params) {
-        this.callee = callee;
-        this.methodName = methodName;
+    public BMethod(SExpression qualifier, String name, SExpression... params) {
+        this.qualifier = qualifier;
+        this.name = name;
         this.params = new ArrayList<>(Arrays.asList(params));
     }
 
     @Override
-    public SExpression getCallee() {
-        return callee;
+    public SExpression getQualifier() {
+        return qualifier;
     }
 
     @Override
-    public String getMethodName() {
-        return methodName;
+    public String getName() {
+        return name;
     }
 
     @Override
     public List<SExpression> getParams() {
         return params;
+    }
+
+    public BMethod param(SExpression param) {
+        params.add(param);
+        return this;
     }
 }

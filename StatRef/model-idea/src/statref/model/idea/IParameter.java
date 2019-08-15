@@ -21,7 +21,7 @@ public class IParameter extends IElement<PsiParameter> implements SParameter {
 
     @Override
     public IMethodDeclaration getParent() {
-        return IFactory.getElement(getElement().getParent().getParent());
+        return getElement(getElement().getParent().getParent());
     }
 
     @Override
