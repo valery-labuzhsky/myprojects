@@ -15,6 +15,7 @@ public class ILiteral extends IExpression<PsiLiteralExpression> {
 
     @Override
     public CodeFragment fragment() {
-        return new CodeFragment().output(this);
+        return new SimpleExpressionFragment(this, getValue());
     }
+
 }

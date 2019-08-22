@@ -12,7 +12,7 @@ import java.io.IOException;
 public class WFieldUsage extends WBase<SFieldUsage> {
     @Override
     public void write(CodeWriter cw, SFieldUsage fieldUsage) throws IOException {
-        writeElement(fieldUsage.getType(), cw);
+        writeElement(fieldUsage.getQualifier(), cw);
         cw.write("." + fieldUsage.getName());
     }
 }

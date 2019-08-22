@@ -21,7 +21,7 @@ public class BFieldUsage extends BExpression implements SFieldUsage {
     }
 
     @Override
-    public SType getType() {
+    public SType getQualifier() {
         return type;
     }
 

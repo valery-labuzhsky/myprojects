@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import statref.model.idea.BiFunctionRegistry;
 import streamline.plugin.CreateMethod;
 import streamline.plugin.InlineParameter;
+import streamline.plugin.ReplaceElement;
 import streamline.plugin.refactoring.Listeners;
 import streamline.plugin.refactoring.Refactoring;
 import streamline.plugin.refactoring.RefactoringRegistry;
@@ -23,6 +24,7 @@ public class NodesRegistry {
         register(InlineParameter.class, InlineParameterNode::new);
         register(CompoundRefactoring.class, CompoundNode::new);
         register(CreateMethod.class, CreateMethodNode::new);
+        register(ReplaceElement.class, ReplaceElementNode::new);
     }};
 
     private final RefactoringRegistry refactorings = new RefactoringRegistry();

@@ -6,6 +6,7 @@ import statref.model.expression.SMethod;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BMethod extends BExpression implements SMethod {
     private final SExpression qualifier;
@@ -36,5 +37,11 @@ public class BMethod extends BExpression implements SMethod {
     public BMethod param(SExpression param) {
         params.add(param);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        String params = this.params.stream().map(Object::toString).collect(Collectors.joining(", "));
+        return (qualifier==null?"":qualifier+".")+name+"("+ params +")";
     }
 }

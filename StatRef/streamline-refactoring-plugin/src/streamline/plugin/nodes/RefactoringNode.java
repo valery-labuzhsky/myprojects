@@ -105,7 +105,9 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     }
 
     @NotNull
-    public abstract SimpleNode[] createChildren();
+    public SimpleNode[] createChildren() {
+        return new SimpleNode[0];
+    }
 
     @NotNull
     @Override

@@ -5,7 +5,7 @@ import statref.model.SType;
 import java.util.ArrayList;
 
 public interface SListedArrayConstructor extends SExpression {
-    SType getType();
+    SType getItemType();
 
     ArrayList<SVariable> getItems();
 }

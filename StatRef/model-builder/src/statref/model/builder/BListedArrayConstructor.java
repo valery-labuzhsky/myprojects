@@ -19,7 +19,7 @@ public class BListedArrayConstructor extends BElement implements SListedArrayCon
     }
 
     @Override
-    public SType getType() {
+    public SType getItemType() {
         return type;
     }
 

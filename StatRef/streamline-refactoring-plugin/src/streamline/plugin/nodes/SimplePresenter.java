@@ -4,7 +4,6 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.SimpleTextAttributes;
 import statref.model.idea.IElement;
-import statref.model.idea.IParameter;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -30,6 +29,11 @@ public class SimplePresenter implements Presenter {
             blocks.add(lastElementBlock);
         }
         regular();
+        return this;
+    }
+
+    public Presenter add(Object object) {
+        add(object.toString());
         return this;
     }
 

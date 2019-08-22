@@ -8,7 +8,7 @@ import statref.model.SType;
  * @author ptasha
  */
 public interface SFieldUsage extends SExpression {
-    SType getType();
+    SType getQualifier();
 
     String getName();
 }

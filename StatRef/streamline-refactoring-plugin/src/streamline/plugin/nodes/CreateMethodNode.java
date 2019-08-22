@@ -10,12 +10,6 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
         super(refactoring, registry);
     }
 
-    @NotNull
-    @Override
-    public SimpleNode[] createChildren() {
-        return new SimpleNode[0];
-    }
-
     @Override
     protected Presenter createPresenter() {
         return presentation -> {
