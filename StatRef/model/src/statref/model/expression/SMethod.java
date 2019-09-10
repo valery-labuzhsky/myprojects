@@ -7,5 +7,5 @@ public interface SMethod extends SExpression {
 
     String getName();
 
-    List<? extends SExpression> getParams();
+    List<? extends SExpression> getParameters();
 }

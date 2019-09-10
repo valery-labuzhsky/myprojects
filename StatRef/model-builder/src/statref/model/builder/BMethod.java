@@ -9,9 +9,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BMethod extends BExpression implements SMethod {
-    private final SExpression qualifier;
-    private final String name;
-    private final List<SExpression> params;
+    private SExpression qualifier;
+    private String name;
+    private final ArrayList<SExpression> params;
+
+    public BMethod(SMethod method) {
+        this(method.getQualifier(), method.getName());
+        for (SExpression param : method.getParameters()) {
+            parameter(param);
+        }
+    }
 
     public BMethod(SExpression qualifier, String name, SExpression... params) {
         this.qualifier = qualifier;
@@ -24,19 +31,27 @@ public class BMethod extends BExpression implements SMethod {
         return qualifier;
     }
 
+    public void setQualifier(SExpression qualifier) {
+        this.qualifier = qualifier;
+    }
+
     @Override
     public String getName() {
         return name;
     }
 
     @Override
-    public List<SExpression> getParams() {
+    public List<SExpression> getParameters() {
         return params;
     }
 
-    public BMethod param(SExpression param) {
+    public BMethod parameter(SExpression param) {
         params.add(param);
         return this;
+    }
+
+    public void setParameter(int index, SExpression expression) {
+        params.set(index, expression);
     }
 
     @Override

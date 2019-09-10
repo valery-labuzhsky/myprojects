@@ -16,13 +16,4 @@ public interface SMethodDeclaration extends SModifiers, SClassMemeber, SElement 
     SType getReturnType();
 
     List<SStatement> getInstructions();
-
-    default boolean isVoid() {
-        SType type = getReturnType();
-        if (type instanceof SPrimitive) {
-            return ((SPrimitive) type).getJavaClass()==void.class;
-        } else {
-            return false;
-        }
-    }
 }

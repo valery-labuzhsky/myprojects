@@ -1,12 +1,12 @@
 package statref.model.idea.expression;
 
+import statref.model.SType;
 import statref.model.expression.SExpression;
 import statref.model.idea.CodeFragment;
+import statref.model.idea.FragmentPlace;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.BiConsumer;
 
 public class SimpleExpressionFragment extends CodeFragment {
 
@@ -16,16 +16,6 @@ public class SimpleExpressionFragment extends CodeFragment {
     public SimpleExpressionFragment(SExpression expression, Object signature) {
         this.expression = expression;
         this.signature = signature;
-    }
-
-    @Override
-    public SExpression getExpression(Function<SExpression, SExpression> function) {
-        return expression;
-    }
-
-    @Override
-    public List<SExpression> getInputs() {
-        return Collections.emptyList();
     }
 
     @Override
@@ -39,5 +29,34 @@ public class SimpleExpressionFragment extends CodeFragment {
     @Override
     public int hashCode() {
         return Objects.hash(signature);
+    }
+
+    @Override
+    public String getName(FragmentPlace e) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public SType getType(FragmentPlace place) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public SExpression get() {
+        return expression;
+    }
+
+    @Override
+    public SExpression get(FragmentPlace p) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public void set(FragmentPlace p, SExpression expression) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public void forEach(BiConsumer<CodeFragment, FragmentPlace> consumer) {
     }
 }

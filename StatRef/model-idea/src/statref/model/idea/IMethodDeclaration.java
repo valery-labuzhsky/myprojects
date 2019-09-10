@@ -55,4 +55,7 @@ public class IMethodDeclaration extends IElement<PsiMethod> implements SMethodDe
         return null;
     }
 
+    public FragmentPlace getPlace(IParameter parameter) {
+        return null; // TODO it's better to move it to fragment itself
+    }
 }

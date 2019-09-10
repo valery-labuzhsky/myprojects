@@ -1,19 +1,22 @@
 package statref.model.idea;
 
-import com.intellij.openapi.util.text.StringUtil;
+import statref.model.SType;
 import statref.model.expression.SExpression;
 
-import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiConsumer;
 
 // TODO move me to another package, module?
 public abstract class CodeFragment {
     // TODO a fragment is not necessary an expression
-    public abstract SExpression getExpression(Function<SExpression, SExpression> function);
+    public abstract String getName(FragmentPlace e);
 
-    public String getName(SExpression e) {
-        return StringUtil.decapitalize(e.getType().toString());
-    }
+    public abstract SType getType(FragmentPlace place);
 
-    public abstract List<SExpression> getInputs();
+    public abstract SExpression get();
+
+    public abstract SExpression get(FragmentPlace p);
+
+    public abstract void set(FragmentPlace p, SExpression expression);
+
+    public abstract void forEach(BiConsumer<CodeFragment, FragmentPlace> consumer);
 }

@@ -15,7 +15,7 @@ public class WMethodUsage extends WBase<SMethod> {
             writer.write(".");
         }
         writer.write(element.getName());
-        write(writer, element.getParams(), "(", ", ", ")");
+        write(writer, element.getParameters(), "(", ", ", ")");
     }
 
 }

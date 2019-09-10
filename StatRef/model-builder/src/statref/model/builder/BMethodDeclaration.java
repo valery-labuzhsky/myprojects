@@ -68,6 +68,7 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     }
 
     protected void return_(SExpression expression) {
+        returnType(expression.getType());
         this.code(new BReturn(expression));
     }
 
