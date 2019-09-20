@@ -1,12 +1,13 @@
 package statref.model.idea.expression;
 
-import statref.model.SType;
+import org.jetbrains.annotations.NotNull;
 import statref.model.expression.SExpression;
 import statref.model.idea.CodeFragment;
 import statref.model.idea.FragmentPlace;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 public class SimpleExpressionFragment extends CodeFragment {
 
@@ -32,31 +33,13 @@ public class SimpleExpressionFragment extends CodeFragment {
     }
 
     @Override
-    public String getName(FragmentPlace e) {
-        throw new IllegalArgumentException();
-    }
-
-    @Override
-    public SType getType(FragmentPlace place) {
-        throw new IllegalArgumentException();
-    }
-
-    @Override
     public SExpression get() {
         return expression;
     }
 
+    @NotNull
     @Override
-    public SExpression get(FragmentPlace p) {
-        throw new IllegalArgumentException();
-    }
-
-    @Override
-    public void set(FragmentPlace p, SExpression expression) {
-        throw new IllegalArgumentException();
-    }
-
-    @Override
-    public void forEach(BiConsumer<CodeFragment, FragmentPlace> consumer) {
+    public List<FragmentPlace<SExpression>> getExpressions() {
+        return Collections.emptyList();
     }
 }

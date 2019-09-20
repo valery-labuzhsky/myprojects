@@ -21,6 +21,7 @@ public abstract class WBase<S> {
         register(SAnonClassDeclaration.class, new WAnonClassDeclaration());
         register(SVariableDeclaration.class, new WVariableDeclaration());
         register(SFieldDeclaration.class, new WFieldDeclaration());
+        register(SParameter.class, new WParameter());
         register(SMethodDeclaration.class, new WMethodDeclaration());
         register(SFieldUsage.class, new WFieldUsage());
         register(SReturn.class, new WReturn());
@@ -51,26 +52,12 @@ public abstract class WBase<S> {
     }
 
     private static <W extends WBase<S>, S> W getWriter(Class<S> clazz) {
-        Class<?> registered = null;
         for (Class<?> intf : registry.keySet()) {
             if (intf.isAssignableFrom(clazz)) {
-                if (registered == null) {
-                    registered = intf;
-                } else {
-                    boolean imr = intf.isAssignableFrom(registered);
-                    boolean rmi = registered.isAssignableFrom(intf);
-                    if (rmi && !imr) {
-                        registered = intf;
-                    } else if (!imr || rmi) {
-                        throw new RuntimeException("Ambigous interfaces for " + clazz + ": " + intf + ", " + registered);
-                    }
-                }
+                return (W) registry.get(intf);
             }
         }
-        if (registered == null) {
-            throw new RuntimeException("No writer is registered for " + clazz.getName());
-        }
-        return (W) registry.get(registered);
+        throw new RuntimeException("No writer is registered for " + clazz.getName());
     }
 
     public static WModifiers modifiersWriter() {

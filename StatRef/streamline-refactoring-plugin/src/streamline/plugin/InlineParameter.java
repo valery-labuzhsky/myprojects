@@ -30,7 +30,7 @@ public class InlineParameter extends CompoundRefactoring {
             expressions.computeIfAbsent(expression.fragment(), (e) -> new ArrayList<>()).add(call);
         }
 
-        FragmentPlace parameterPlace = method.getPlace(parameter);
+        FragmentPlace<SExpression> parameterPlace = method.getPlace(parameter);
 
         for (Map.Entry<CodeFragment, List<IMethod>> entry : expressions.entrySet()) {
             CodeFragment fragment = entry.getKey();
@@ -43,19 +43,19 @@ public class InlineParameter extends CompoundRefactoring {
             BMethodDeclaration delegate = new BMethodDeclaration(method.getName()) {{
                 // TODO what fragment? I have 2 of them!
                 // TODO I can stack a place so will always know the fragment
-                BiConsumer<CodeFragment, FragmentPlace> input = (f, p) -> f.set(p, parameter(f.getType(p), f.getName(p)));
+                BiConsumer<CodeFragment, FragmentPlace<SExpression>> input = (f, p) -> p.set(f, parameter(p.getType(f), p.getName(f)));
                 CodeFragment callFragment = entry.getValue().get(0).fragment();
 
                 // TODO here I need a way to replace positions in code fragment
                 // TODO how can I do it?
                 // TODO I need modifiable fragment
 
-                callFragment.forEach((f, p) -> {
-                    if (p.equals(parameterPlace)) {
-                        f.forEach(input);
-                        f.set(p, f.get());
+                callFragment.getExpressions().forEach(place1 -> {
+                    if (place1.equals(parameterPlace)) {
+                        callFragment.getExpressions().forEach(place -> input.accept(callFragment, place));
+                        place1.set(callFragment, callFragment.get());
                     } else {
-                        input.accept(f, p);
+                        input.accept(callFragment, place1);
                     }
                 });
 
@@ -86,7 +86,7 @@ public class InlineParameter extends CompoundRefactoring {
                 if (method.isVoid()) {
                     code(target);
                 } else {
-                    return_(target);
+                    return(target);
                 }
             }};
 */
@@ -96,18 +96,18 @@ public class InlineParameter extends CompoundRefactoring {
             for (IMethod call : entry.getValue()) {
                 BMethod replacement = new BMethod(call.getQualifier(), delegate.getName());
                 CodeFragment callFragment = call.fragment();
-                BiConsumer<CodeFragment, FragmentPlace> param = (f, p) -> replacement.parameter(f.get(p));
+                BiConsumer<CodeFragment, FragmentPlace<SExpression>> param = (f, p) -> replacement.parameter(p.get(f));
                 // TODO I don't need any expression here, it's just a way to walk through a tree
                 // TODO need universal way of doing it
                 // TODO how can I combine them?
                 // TODO I olny need a visitor
-                callFragment.forEach((f, p) -> {
+                callFragment.getExpressions().forEach(place1 -> ((BiConsumer<CodeFragment, FragmentPlace<SExpression>>) (f, p) -> {
                     if (p.equals(parameterPlace)) {
-                        fragment.forEach(param);
+                        fragment.getExpressions().forEach(place -> param.accept(fragment, place));
                     } else {
                         param.accept(f, p);
                     }
-                });
+                }).accept(callFragment, place1));
 
 //                BMethod replacement = new BMethod(call.getQualifier(), delegate.getName());
 //                List<IExpression> params = call.getParams();

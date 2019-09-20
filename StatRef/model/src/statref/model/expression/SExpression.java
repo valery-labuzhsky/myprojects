@@ -10,6 +10,6 @@ import statref.model.SType;
  */
 public interface SExpression extends SElement {
     default SType getType() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return null;
     }
 }

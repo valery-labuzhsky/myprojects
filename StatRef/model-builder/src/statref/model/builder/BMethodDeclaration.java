@@ -55,7 +55,9 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     }
 
     public BMethodDeclaration returnType(SType returnType) {
-        this.returnType = returnType;
+        if (returnType != null) {
+            this.returnType = returnType;
+        }
         return this;
     }
 

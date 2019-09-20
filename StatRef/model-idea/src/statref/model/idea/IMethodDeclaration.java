@@ -5,6 +5,7 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
 import statref.model.SMethodDeclaration;
 import statref.model.SStatement;
+import statref.model.expression.SExpression;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class IMethodDeclaration extends IElement<PsiMethod> implements SMethodDe
         return null;
     }
 
-    public FragmentPlace getPlace(IParameter parameter) {
+    public FragmentPlace<SExpression> getPlace(IParameter parameter) {
         return null; // TODO it's better to move it to fragment itself
     }
 }
