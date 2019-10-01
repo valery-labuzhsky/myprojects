@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMethodDeclaration> {
-    private final String name;
+    private String name;
     private final List<SParameter> parameters = new ArrayList<>();
     private SType returnType = BBase.ofClass(void.class);
 
@@ -37,6 +37,10 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     @Override
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -70,6 +74,7 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     }
 
     protected void return_(SExpression expression) {
+        // TODO move void comparison here
         returnType(expression.getType());
         this.code(new BReturn(expression));
     }

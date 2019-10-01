@@ -2,7 +2,7 @@ package statref.model.idea.expression;
 
 import com.intellij.psi.PsiLiteralExpression;
 import statref.model.idea.IExpression;
-import statref.model.idea.CodeFragment;
+import statref.model.idea.Fragment;
 
 public class ILiteral extends IExpression<PsiLiteralExpression> {
     public ILiteral(PsiLiteralExpression expression) {
@@ -14,7 +14,7 @@ public class ILiteral extends IExpression<PsiLiteralExpression> {
     }
 
     @Override
-    public CodeFragment fragment() {
+    public Fragment fragment() {
         return new SimpleExpressionFragment(this, getValue());
     }
 

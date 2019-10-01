@@ -2,9 +2,9 @@ package statref.model.idea;
 
 import com.intellij.lang.jvm.types.JvmPrimitiveTypeKind;
 import com.intellij.psi.PsiPrimitiveType;
-import statref.model.SPrimitive;
+import statref.model.SClass;
 
-public class IPrimitive extends IType<PsiPrimitiveType> implements SPrimitive {
+public class IPrimitive extends IType<PsiPrimitiveType> implements SClass {
     public IPrimitive(PsiPrimitiveType psiType) {
         super(psiType);
     }

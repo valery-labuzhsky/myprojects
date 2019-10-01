@@ -1,6 +1,7 @@
 package streamline.plugin;
 
 import org.jetbrains.annotations.NotNull;
+import statref.model.SMethodDeclaration;
 import statref.model.builder.BMethod;
 import statref.model.builder.BMethodDeclaration;
 import statref.model.expression.SExpression;
@@ -8,124 +9,101 @@ import statref.model.idea.*;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.refactoring.compound.CompoundRefactoring;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.*;
 
 public class InlineParameter extends CompoundRefactoring {
     @org.jetbrains.annotations.NotNull
     private final IParameter parameter;
 
+    // TODO brush me up
+    // TODO what next?
+    // TODO rename methods
+    // TODO group refactoring tree
+    // TODO create complex fragments
+    // TODO make elements be fragments
+    // TODO make enter work
+    // TODO resolve warnings
     public InlineParameter(NodesRegistry registry, IParameter parameter) {
         super(registry.getRefactorings());
         this.parameter = parameter;
 
         IMethodDeclaration method = parameter.getParent();
         ArrayList<IMethod> calls = method.getCalls();
-        Map<CodeFragment, List<IMethod>> expressions = new HashMap<>();
+        Map<Fragment, List<IMethod>> expressions = new HashMap<>();
         for (IMethod call : calls) {
             IExpression expression = call.getExpression(parameter);
             expressions.computeIfAbsent(expression.fragment(), (e) -> new ArrayList<>()).add(call);
         }
 
-        FragmentPlace<SExpression> parameterPlace = method.getPlace(parameter);
+        IMethod.ParameterPlace parameterPlace = method.getPlace(parameter).getMethodPlace();
 
-        for (Map.Entry<CodeFragment, List<IMethod>> entry : expressions.entrySet()) {
-            CodeFragment fragment = entry.getKey();
-            // TODO how can I use CodeFragment to improve this code?
-            // TODO fragment will be bigger it will contain a method call
-            // TODO add method call to a fragment
-            // TODO let's do 2 independent fragments first
+        HashSet<SMethodDeclaration.Signature> signatures = new HashSet<>();
+        for (Map.Entry<Fragment, List<IMethod>> entry : expressions.entrySet()) {
+            Fragment fragment = entry.getKey();
+            String name = method.getName();
+            BMethodDeclaration delegate = new BMethodDeclaration(name) {
+                {
+                    Fragment call = entry.getValue().get(0).fragment(); // TODO get rid of this special treatment - I gonna need complex fragments
 
-            // TODO replace all "method" mentions with callFragment
-            BMethodDeclaration delegate = new BMethodDeclaration(method.getName()) {{
-                // TODO what fragment? I have 2 of them!
-                // TODO I can stack a place so will always know the fragment
-                BiConsumer<CodeFragment, FragmentPlace<SExpression>> input = (f, p) -> p.set(f, parameter(p.getType(f), p.getName(f)));
-                CodeFragment callFragment = entry.getValue().get(0).fragment();
-
-                // TODO here I need a way to replace positions in code fragment
-                // TODO how can I do it?
-                // TODO I need modifiable fragment
-
-                callFragment.getExpressions().forEach(place1 -> {
-                    if (place1.equals(parameterPlace)) {
-                        callFragment.getExpressions().forEach(place -> input.accept(callFragment, place));
-                        place1.set(callFragment, callFragment.get());
-                    } else {
-                        input.accept(callFragment, place1);
+                    for (Place<SExpression> methodPlace : call.getExpressions()) {
+                        if (methodPlace.equals(parameterPlace)) {
+                            for (Place<SExpression> fragmentPlace : fragment.getExpressions()) {
+                                parameter(fragment, fragmentPlace);
+                            }
+                            methodPlace.set(call, fragment.get());
+                        } else {
+                            parameter(call, methodPlace);
+                        }
                     }
-                });
 
-                SExpression target = callFragment.get();
+                    SExpression target = call.get();
 
-                if (target.getType().isPrimitive(void.class)) {
-                    code((BMethod) target);
-                } else {
-                    return_(target);
-                }
-            }};
-
-
-            // TODO check for signature conflicts
-            // TODO yet another challenge - resolve the names
-/*
-            BMethodDeclaration delegate = new BMethodDeclaration(method.getName()) {{
-                BMethod target = new BMethod(null, method.getName());
-
-                for (IParameter param : method.getParameters()) {
-                    if (param.equals(parameter)) {
-                        target.parameter(fragment.getExpression(e -> parameter(e.getType(), fragment.getName(e))));
+                    if (target.getType().isClass(void.class)) {
+                        code((BMethod) target);
                     } else {
-                        target.parameter(new BVariable(param.getName())); // TODO usage
+                        return_(target);
                     }
                 }
 
-                if (method.isVoid()) {
-                    code(target);
-                } else {
-                    return(target);
+                public void parameter(Fragment fragment, Place<SExpression> place) {
+                    SExpression expression = place.get(fragment);
+                    if (expression != null) {
+                        place.set(fragment, parameter(place.getType(fragment), place.getName(fragment)));
+                    }
                 }
-            }};
-*/
+            };
+
+
+            int suffix = 1;
+            while (signatures.contains(delegate.getSignature())) {
+                delegate.setName(name+suffix++);
+            }
+            signatures.add(delegate.getSignature());
 
             add(new CreateMethod(this.registry, method, delegate));
 
-            for (IMethod call : entry.getValue()) {
-                BMethod replacement = new BMethod(call.getQualifier(), delegate.getName());
-                CodeFragment callFragment = call.fragment();
-                BiConsumer<CodeFragment, FragmentPlace<SExpression>> param = (f, p) -> replacement.parameter(p.get(f));
-                // TODO I don't need any expression here, it's just a way to walk through a tree
-                // TODO need universal way of doing it
-                // TODO how can I combine them?
-                // TODO I olny need a visitor
-                callFragment.getExpressions().forEach(place1 -> ((BiConsumer<CodeFragment, FragmentPlace<SExpression>>) (f, p) -> {
-                    if (p.equals(parameterPlace)) {
-                        fragment.getExpressions().forEach(place -> param.accept(fragment, place));
+            for (IMethod methodCall : entry.getValue()) {
+                BMethod replacement = new BMethod(methodCall.getQualifier(), delegate.getName());
+                Fragment call = methodCall.fragment();
+                for (Place<SExpression> methodPlace : call.getExpressions()) {
+                    if (methodPlace.equals(parameterPlace)) {
+                        for (Place<SExpression> fragmentPlace : fragment.getExpressions()) {
+                            addParameter(replacement, fragment, fragmentPlace);
+                        }
                     } else {
-                        param.accept(f, p);
+                        addParameter(replacement, call, methodPlace);
                     }
-                }).accept(callFragment, place1));
+                }
 
-//                BMethod replacement = new BMethod(call.getQualifier(), delegate.getName());
-//                List<IExpression> params = call.getParams();
-//                for (int i = 0; i < params.size(); i++) {
-//                    IExpression param = params.get(i);
-//                    if (i == parameter.getIndex()) {
-//                        for (SExpression input : param.fragment().getInputs()) {
-//                            replacement.parameter(input);
-//                        }
-//                    } else {
-//                        replacement.parameter(param);
-//                    }
-//                }
-
-                add(new ReplaceElement(this.getRegistry(), call, replacement));
+                add(new ReplaceElement(this.getRegistry(), methodCall, replacement));
             }
+        }
+    }
 
-            // TODO replace methods manipulations with fragments
+    private void addParameter(BMethod method, Fragment fragment, Place<SExpression> place) {
+        SExpression expression = place.get(fragment);
+        if (expression != null) {
+            method.parameter(expression);
         }
     }
 

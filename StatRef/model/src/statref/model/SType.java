@@ -6,9 +6,9 @@ package statref.model;
  * @author ptasha
  */
 public interface SType { // TODO I need one class, just different constructors
-    default boolean isPrimitive(Class<?> primitive) {
-        if (this instanceof SPrimitive) {
-            return ((SPrimitive) this).getJavaClass()== primitive;
+    default boolean isClass(Class<?> clazz) {
+        if (this instanceof SClass) {
+            return ((SClass) this).getJavaClass() == clazz;
         } else {
             return false;
         }

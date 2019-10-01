@@ -2,14 +2,14 @@ package statref.model.idea.expression;
 
 import org.jetbrains.annotations.NotNull;
 import statref.model.expression.SExpression;
-import statref.model.idea.CodeFragment;
-import statref.model.idea.FragmentPlace;
+import statref.model.idea.Fragment;
+import statref.model.idea.Place;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class SimpleExpressionFragment extends CodeFragment {
+public class SimpleExpressionFragment extends Fragment {
 
     private final SExpression expression;
     private final Object signature;
@@ -39,7 +39,7 @@ public class SimpleExpressionFragment extends CodeFragment {
 
     @NotNull
     @Override
-    public List<FragmentPlace<SExpression>> getExpressions() {
+    public List<Place<SExpression>> getExpressions() {
         return Collections.emptyList();
     }
 }

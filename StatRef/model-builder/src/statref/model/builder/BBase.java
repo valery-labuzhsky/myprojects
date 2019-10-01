@@ -21,6 +21,7 @@ public class BBase {
     }
 
     public static BClass ofClass(Class<?> clazz, SType... generics) {
+        // TODO kind of primitive, do I need another class for primitives?
         return new BClass(clazz.getSimpleName(), generics);
     }
 

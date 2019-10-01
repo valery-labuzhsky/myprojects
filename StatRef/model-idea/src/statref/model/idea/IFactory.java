@@ -3,10 +3,11 @@ package statref.model.idea;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
-import statref.model.SElement;
-import statref.model.SStatement;
-import statref.model.SMethodDeclaration;
+import org.jetbrains.annotations.Nullable;
+import statref.model.*;
+import statref.model.expression.SExpression;
 import statref.model.idea.expression.ILiteral;
 
 import java.util.HashMap;
@@ -45,6 +46,7 @@ public class IFactory {
         {
             register(SMethodDeclaration.class, IFactory::convertMethodDeclaration);
             register(SStatement.class, IFactory::convertStatement);
+            register(SExpression.class, IFactory::convertExpression);
             // TODO generate it!
         }
     };
@@ -73,16 +75,35 @@ public class IFactory {
         return idea;
     }
 
+    public static IExpression convertExpression(SExpression expression, Project project) {
+        return getElement(JavaPsiFacade.getElementFactory(project).createExpressionFromText(expression.getText(), null));
+    }
+
     @NotNull
     public static IMethodDeclaration convertMethodDeclaration(SMethodDeclaration prototype, Project project) {
         // TODO generate it from text?
-        IType type = (IType) prototype.getReturnType(); // TODO do the proper conversion: it may not be IType
-        PsiMethod newMethod = JavaPsiFacade.getElementFactory(project).createMethod(prototype.getName(), type.getPsiType());
+        SType type = prototype.getReturnType();
+        PsiType psiType = toPsiType(project, type);
+        PsiMethod newMethod = JavaPsiFacade.getElementFactory(project).createMethod(prototype.getName(), psiType);
 
         for (SStatement instruction : prototype.getInstructions()) {
             newMethod.getBody().add(convert(project, instruction).getElement());
         }
         return getElement(newMethod);
+    }
+
+    @Nullable
+    public static PsiType toPsiType(Project project, SType type) {
+        PsiType psiType = null;
+        if (type instanceof IType) {
+            psiType = ((IType) type).getPsiType();
+        } else if (type instanceof SClass) {
+            psiType = PsiType.getTypeByName(((SClass) type).getName(), project, GlobalSearchScope.allScope(project));
+        }
+        if (psiType == null) {
+            log.error("Failed to find PsiType for " + type + " of " + type.getClass().getName());
+        }
+        return psiType;
     }
 
     @NotNull

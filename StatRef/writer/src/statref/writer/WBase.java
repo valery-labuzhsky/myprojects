@@ -32,7 +32,6 @@ public abstract class WBase<S> {
         register(SMethodInstruction.class, new WMethodInstruction());
         register(SConstructor.class, new WConstructor());
         register(SListedArrayConstructor.class, new WListedArrayConstructor());
-        register(SPrimitive.class, new WPrimitive());
         register(SGeneric.class, new WTypeVariable());
         register(SGenericDeclaration.class, new WTypeVariableDeclaration());
         register(SArray.class, new WArray());

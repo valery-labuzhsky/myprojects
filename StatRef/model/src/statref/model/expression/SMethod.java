@@ -1,5 +1,7 @@
 package statref.model.expression;
 
+import statref.model.SMethodDeclaration;
+
 import java.util.List;
 
 public interface SMethod extends SExpression {
@@ -8,4 +10,8 @@ public interface SMethod extends SExpression {
     String getName();
 
     List<? extends SExpression> getParameters();
+
+    default SMethodDeclaration findDeclaration() {
+        return null;
+    }
 }

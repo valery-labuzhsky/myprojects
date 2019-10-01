@@ -1,6 +1,6 @@
 package statref.model.mirror;
 
-import statref.model.SPrimitive;
+import statref.model.SClass;
 import statref.model.SType;
 import statref.model.reflect.RClass;
 
@@ -11,7 +11,7 @@ import javax.lang.model.type.PrimitiveType;
  *
  * @author ptasha
  */
-public class MPrimitive extends MBase<PrimitiveType> implements SPrimitive {
+public class MPrimitive extends MBase<PrimitiveType> implements SClass {
     public MPrimitive(PrimitiveType type) {
         super(type);
     }

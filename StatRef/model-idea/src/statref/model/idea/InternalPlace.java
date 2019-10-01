@@ -2,7 +2,7 @@ package statref.model.idea;
 
 import statref.model.SType;
 
-public interface InternalFragmentPlace<F extends CodeFragment, T> {
+public interface InternalPlace<F extends Fragment, T> {
     String _getName(F fragment);
 
     SType _getType(F fragment);

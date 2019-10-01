@@ -58,7 +58,7 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
         return element.getProject();
     }
 
-    public CodeFragment fragment() {
+    public Fragment fragment() {
         throw new UnsupportedOperationException(getClass().getName());
     }
 
