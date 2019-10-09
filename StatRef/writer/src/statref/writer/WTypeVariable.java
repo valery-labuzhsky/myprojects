@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.SGeneric;
+import statref.model.types.SGeneric;
 
 import java.io.IOException;
 

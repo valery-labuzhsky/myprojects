@@ -1,7 +1,7 @@
 package statref.model.mirror;
 
-import statref.model.SClass;
-import statref.model.SType;
+import statref.model.types.SClass;
+import statref.model.types.SType;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;

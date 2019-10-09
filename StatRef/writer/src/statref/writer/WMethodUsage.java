@@ -1,7 +1,7 @@
 package statref.writer;
 
-import statref.model.expression.SExpression;
-import statref.model.expression.SMethod;
+import statref.model.expressions.SExpression;
+import statref.model.expressions.SMethod;
 
 import java.io.IOException;
 

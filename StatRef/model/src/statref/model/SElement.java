@@ -1,6 +1,8 @@
 package statref.model;
 
-public interface SElement {
+import statref.model.fragment.Fragment;
+
+public interface SElement extends Fragment {
 
     default boolean before(SElement element) {
         throw new UnsupportedOperationException();
@@ -17,4 +19,5 @@ public interface SElement {
     default String getText() {
         return toString();
     }
+
 }

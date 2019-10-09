@@ -1,6 +1,9 @@
 package statref.model.mirror;
 
-import statref.model.*;
+import statref.model.members.SMethodDeclaration;
+import statref.model.members.SParameter;
+import statref.model.statements.SStatement;
+import statref.model.types.SType;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;

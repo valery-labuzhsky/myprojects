@@ -1,7 +1,7 @@
 package statref.writer;
 
-import statref.model.SClass;
-import statref.model.SType;
+import statref.model.types.SClass;
+import statref.model.types.SType;
 
 import java.io.IOException;
 import java.util.List;

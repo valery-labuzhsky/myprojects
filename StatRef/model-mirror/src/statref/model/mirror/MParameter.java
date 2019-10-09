@@ -1,7 +1,6 @@
 package statref.model.mirror;
 
-import statref.model.SMethodDeclaration;
-import statref.model.SParameter;
+import statref.model.members.SParameter;
 
 import javax.lang.model.element.VariableElement;
 

@@ -2,7 +2,21 @@ package statref.processor;
 
 import statref.api.Field;
 import statref.model.*;
-import statref.model.builder.*;
+import statref.model.builder.classes.BAnonClassDeclaration;
+import statref.model.builder.classes.BClassDeclaration;
+import statref.model.builder.classes.BFile;
+import statref.model.builder.expressions.BExpression;
+import statref.model.builder.expressions.BListedArrayConstructor;
+import statref.model.builder.expressions.BVariable;
+import statref.model.builder.members.BMethodDeclaration;
+import statref.model.builder.types.BClass;
+import statref.model.classes.SClassDeclaration;
+import statref.model.classes.SPackage;
+import statref.model.members.SBaseVariableDeclaration;
+import statref.model.members.SMethodDeclaration;
+import statref.model.types.SClass;
+import statref.model.types.SGeneric;
+import statref.model.types.SType;
 import statref.writer.CodeWriter;
 import statref.writer.WBase;
 

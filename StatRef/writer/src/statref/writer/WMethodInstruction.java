@@ -1,12 +1,12 @@
 package statref.writer;
 
-import statref.model.SMethodInstruction;
+import statref.model.statements.SMethodStatement;
 
 import java.io.IOException;
 
-public class WMethodInstruction extends WBase<SMethodInstruction> {
+public class WMethodInstruction extends WBase<SMethodStatement> {
     @Override
-    public void write(CodeWriter writer, SMethodInstruction element) throws IOException {
+    public void write(CodeWriter writer, SMethodStatement element) throws IOException {
         writeElement(element.getMethod(), writer);
         writer.write(";");
     }

@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.expression.SListedArrayConstructor;
+import statref.model.expressions.SListedArrayConstructor;
 
 import java.io.IOException;
 

@@ -1,7 +1,7 @@
 package statref.writer;
 
-import statref.model.SType;
-import statref.model.SWildcardType;
+import statref.model.types.SType;
+import statref.model.types.SWildcardType;
 
 import java.io.IOException;
 

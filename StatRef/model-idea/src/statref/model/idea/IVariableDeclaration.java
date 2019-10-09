@@ -2,9 +2,8 @@ package statref.model.idea;
 
 import com.intellij.psi.PsiLocalVariable;
 import org.jetbrains.annotations.NotNull;
-import statref.model.SType;
+import statref.model.types.SType;
 import statref.model.SVariableDeclaration;
-import statref.model.expression.SVariable;
 
 import javax.lang.model.element.Modifier;
 import java.util.Collection;

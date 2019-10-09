@@ -1,6 +1,6 @@
 package statref.model.mirror;
 
-import statref.model.SType;
+import statref.model.types.SType;
 
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;

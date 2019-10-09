@@ -1,7 +1,7 @@
 package statref.writer;
 
-import statref.model.SBlock;
-import statref.model.SStatement;
+import statref.model.statements.SBlock;
+import statref.model.statements.SStatement;
 
 import java.io.IOException;
 

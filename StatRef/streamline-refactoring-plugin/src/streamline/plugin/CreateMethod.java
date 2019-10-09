@@ -1,7 +1,7 @@
 package streamline.plugin;
 
 import com.intellij.psi.PsiMethod;
-import statref.model.SMethodDeclaration;
+import statref.model.members.SMethodDeclaration;
 import statref.model.idea.IFactory;
 import statref.model.idea.IMethodDeclaration;
 import streamline.plugin.refactoring.Refactoring;

@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.SBaseVariableDeclaration;
+import statref.model.members.SBaseVariableDeclaration;
 
 import java.io.IOException;
 

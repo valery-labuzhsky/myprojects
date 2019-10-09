@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.SArray;
+import statref.model.types.SArray;
 
 import java.io.IOException;
 

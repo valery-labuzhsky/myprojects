@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.SReturn;
+import statref.model.statements.SReturn;
 
 import java.io.IOException;
 

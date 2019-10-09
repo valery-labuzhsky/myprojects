@@ -1,7 +1,7 @@
 package statref.model.mirror;
 
-import statref.model.SBaseVariableDeclaration;
-import statref.model.SType;
+import statref.model.members.SBaseVariableDeclaration;
+import statref.model.types.SType;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;

@@ -1,6 +1,6 @@
 package statref.model.mirror;
 
-import statref.model.SGeneric;
+import statref.model.types.SGeneric;
 import statref.model.SGenericDeclaration;
 
 import javax.lang.model.type.TypeVariable;

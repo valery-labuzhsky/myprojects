@@ -3,9 +3,12 @@ package statref.model.idea;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
-import statref.model.SMethodDeclaration;
-import statref.model.SStatement;
-import statref.model.SType;
+import statref.model.members.SMethodDeclaration;
+import statref.model.statements.SStatement;
+import statref.model.types.SType;
+import statref.model.expressions.SMethod;
+import statref.model.fragment.Fragment;
+import statref.model.fragment.Place;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
@@ -88,8 +91,8 @@ public class IMethodDeclaration extends IElement<PsiMethod> implements SMethodDe
 
         }
 
-        public IMethod.ParameterPlace getMethodPlace() {
-            return new IMethod.ParameterPlace(index);
+        public SMethod.Parameter getMethodPlace() {
+            return new SMethod.Parameter(index);
         }
     }
 }

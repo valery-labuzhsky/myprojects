@@ -1,10 +1,14 @@
 package streamline.plugin;
 
 import org.jetbrains.annotations.NotNull;
-import statref.model.SMethodDeclaration;
-import statref.model.builder.BMethod;
-import statref.model.builder.BMethodDeclaration;
-import statref.model.expression.SExpression;
+import statref.model.members.SMethodDeclaration;
+import statref.model.builder.BFactory;
+import statref.model.builder.expressions.BMethod;
+import statref.model.builder.members.BMethodDeclaration;
+import statref.model.expressions.SExpression;
+import statref.model.expressions.SMethod;
+import statref.model.fragment.Fragment;
+import statref.model.fragment.Place;
 import statref.model.idea.*;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.refactoring.compound.CompoundRefactoring;
@@ -17,52 +21,42 @@ public class InlineParameter extends CompoundRefactoring {
 
     // TODO brush me up
     // TODO what next?
-    // TODO rename methods
     // TODO group refactoring tree
     // TODO create complex fragments
-    // TODO make elements be fragments
     // TODO make enter work
-    // TODO resolve warnings
     public InlineParameter(NodesRegistry registry, IParameter parameter) {
         super(registry.getRefactorings());
         this.parameter = parameter;
 
-        IMethodDeclaration method = parameter.getParent();
-        ArrayList<IMethod> calls = method.getCalls();
-        Map<Fragment, List<IMethod>> expressions = new HashMap<>();
-        for (IMethod call : calls) {
+        IMethodDeclaration method = parameter.getParent(); // TODO take parameter as a place
+        Map<Object, List<IMethod>> expressions = new HashMap<>();
+        for (IMethod call : method.getCalls()) {
             IExpression expression = call.getExpression(parameter);
-            expressions.computeIfAbsent(expression.fragment(), (e) -> new ArrayList<>()).add(call);
+            expressions.computeIfAbsent(expression.getSignature(), (e) -> new ArrayList<>()).add(call);
         }
 
-        IMethod.ParameterPlace parameterPlace = method.getPlace(parameter).getMethodPlace();
+        SMethod.Parameter parameterPlace = method.getPlace(parameter).getMethodPlace();
 
         HashSet<SMethodDeclaration.Signature> signatures = new HashSet<>();
-        for (Map.Entry<Fragment, List<IMethod>> entry : expressions.entrySet()) {
-            Fragment fragment = entry.getKey();
+        for (List<IMethod> calls : expressions.values()) {
+            Fragment fragment = BFactory.builder(calls.get(0).getExpression(parameter).fragment()); // TODO simplify
             String name = method.getName();
             BMethodDeclaration delegate = new BMethodDeclaration(name) {
                 {
-                    Fragment call = entry.getValue().get(0).fragment(); // TODO get rid of this special treatment - I gonna need complex fragments
+                    Fragment call = BFactory.builder(calls.get(0).fragment()); // TODO get rid of this special treatment - I gonna need complex fragments
 
                     for (Place<SExpression> methodPlace : call.getExpressions()) {
                         if (methodPlace.equals(parameterPlace)) {
                             for (Place<SExpression> fragmentPlace : fragment.getExpressions()) {
                                 parameter(fragment, fragmentPlace);
                             }
-                            methodPlace.set(call, fragment.get());
+                            methodPlace.set(call, (SExpression) fragment);
                         } else {
                             parameter(call, methodPlace);
                         }
                     }
 
-                    SExpression target = call.get();
-
-                    if (target.getType().isClass(void.class)) {
-                        code((BMethod) target);
-                    } else {
-                        return_(target);
-                    }
+                    return_((SExpression) call);
                 }
 
                 public void parameter(Fragment fragment, Place<SExpression> place) {
@@ -82,7 +76,7 @@ public class InlineParameter extends CompoundRefactoring {
 
             add(new CreateMethod(this.registry, method, delegate));
 
-            for (IMethod methodCall : entry.getValue()) {
+            for (IMethod methodCall : calls) {
                 BMethod replacement = new BMethod(methodCall.getQualifier(), delegate.getName());
                 Fragment call = methodCall.fragment();
                 for (Place<SExpression> methodPlace : call.getExpressions()) {

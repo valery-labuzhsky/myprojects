@@ -7,8 +7,12 @@ import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import statref.model.*;
-import statref.model.expression.SExpression;
+import statref.model.expressions.SExpression;
 import statref.model.idea.expression.ILiteral;
+import statref.model.members.SMethodDeclaration;
+import statref.model.statements.SStatement;
+import statref.model.types.SClass;
+import statref.model.types.SType;
 
 import java.util.HashMap;
 import java.util.Map;

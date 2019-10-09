@@ -1,7 +1,7 @@
 package statref.model.mirror;
 
-import statref.model.SFieldDeclaration;
-import statref.model.expression.SExpression;
+import statref.model.members.SFieldDeclaration;
+import statref.model.expressions.SExpression;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;

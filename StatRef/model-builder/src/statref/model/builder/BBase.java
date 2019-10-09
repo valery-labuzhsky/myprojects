@@ -1,9 +1,21 @@
 package statref.model.builder;
 
-import statref.model.SClass;
-import statref.model.expression.SConstructor;
-import statref.model.expression.SExpression;
-import statref.model.SType;
+import statref.model.types.SClass;
+import statref.model.builder.classes.BAnonClassDeclaration;
+import statref.model.builder.classes.BClassDeclaration;
+import statref.model.builder.expressions.BFieldUsage;
+import statref.model.builder.expressions.BVariable;
+import statref.model.builder.members.BConstructor;
+import statref.model.builder.members.BFieldDeclaration;
+import statref.model.builder.members.BMethodDeclaration;
+import statref.model.builder.members.BVariableDeclaration;
+import statref.model.builder.statements.BReturn;
+import statref.model.builder.types.BArray;
+import statref.model.builder.types.BClass;
+import statref.model.builder.types.BWildcardType;
+import statref.model.expressions.SConstructor;
+import statref.model.expressions.SExpression;
+import statref.model.types.SType;
 
 /**
  * Created on 04/02/18.

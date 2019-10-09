@@ -1,7 +1,7 @@
 package statref.model.reflect;
 
-import statref.model.SClass;
-import statref.model.SType;
+import statref.model.types.SClass;
+import statref.model.types.SType;
 
 import java.util.Collections;
 import java.util.List;

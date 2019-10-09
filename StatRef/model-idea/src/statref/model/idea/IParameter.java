@@ -2,8 +2,8 @@ package statref.model.idea;
 
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
-import statref.model.SParameter;
-import statref.model.SType;
+import statref.model.members.SParameter;
+import statref.model.types.SType;
 
 import javax.lang.model.element.Modifier;
 import java.util.Collection;

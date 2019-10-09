@@ -1,8 +1,8 @@
 package statref.writer;
 
-import statref.model.SBaseVariableDeclaration;
+import statref.model.members.SBaseVariableDeclaration;
 import statref.model.SInitializer;
-import statref.model.expression.SExpression;
+import statref.model.expressions.SExpression;
 
 import java.io.IOException;
 

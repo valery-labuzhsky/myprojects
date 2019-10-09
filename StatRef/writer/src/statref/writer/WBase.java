@@ -1,7 +1,19 @@
 package statref.writer;
 
 import statref.model.*;
-import statref.model.expression.*;
+import statref.model.classes.SClassDeclaration;
+import statref.model.classes.SFile;
+import statref.model.expressions.*;
+import statref.model.members.SFieldDeclaration;
+import statref.model.members.SMethodDeclaration;
+import statref.model.members.SParameter;
+import statref.model.statements.SBlock;
+import statref.model.statements.SMethodStatement;
+import statref.model.statements.SReturn;
+import statref.model.types.SArray;
+import statref.model.types.SClass;
+import statref.model.types.SGeneric;
+import statref.model.types.SWildcardType;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -29,7 +41,7 @@ public abstract class WBase<S> {
         register(SClass.class, new WClassUsage());
         register(SVariable.class, new WVariable());
         register(SMethod.class, new WMethodUsage());
-        register(SMethodInstruction.class, new WMethodInstruction());
+        register(SMethodStatement.class, new WMethodInstruction());
         register(SConstructor.class, new WConstructor());
         register(SListedArrayConstructor.class, new WListedArrayConstructor());
         register(SGeneric.class, new WTypeVariable());

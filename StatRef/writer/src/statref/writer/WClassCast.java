@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.expression.SClassCast;
+import statref.model.expressions.SClassCast;
 
 import java.io.IOException;
 

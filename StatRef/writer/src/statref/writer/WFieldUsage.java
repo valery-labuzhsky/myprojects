@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.expression.SFieldUsage;
+import statref.model.expressions.SFieldUsage;
 
 import java.io.IOException;
 

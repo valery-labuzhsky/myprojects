@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.SFieldDeclaration;
+import statref.model.members.SFieldDeclaration;
 
 import java.io.IOException;
 

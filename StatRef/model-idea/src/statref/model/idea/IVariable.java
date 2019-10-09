@@ -3,13 +3,10 @@ package statref.model.idea;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiLocalVariable;
 import com.intellij.psi.PsiReferenceExpression;
-import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
 import statref.model.SElement;
-import statref.model.expression.SExpression;
-import statref.model.expression.SVariable;
-
-import java.util.ArrayList;
+import statref.model.expressions.SExpression;
+import statref.model.expressions.SVariable;
 
 public class IVariable extends IExpression<PsiReferenceExpression> implements SVariable, IVariableReference {
 
