@@ -3,7 +3,6 @@ package statref.model.idea;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import statref.model.SElement;
-import statref.model.fragment.Fragment;
 
 import java.util.Objects;
 
@@ -57,10 +56,6 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
 
     public Project getProject() {
         return element.getProject();
-    }
-
-    public Fragment fragment() {
-        return this;
     }
 
     protected <T extends IElement> T getElement(PsiElement element) {

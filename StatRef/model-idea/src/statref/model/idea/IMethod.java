@@ -12,10 +12,6 @@ public class IMethod extends IExpression<PsiMethodCallExpression> implements SMe
         super(expression);
     }
 
-    public IExpression getExpression(IParameter parameter) {
-        return getElement(getElement().getArgumentList().getExpressions()[parameter.getIndex()]);
-    }
-
     @Override
     public SExpression getQualifier() {
         return getElement(getElement().getMethodExpression().getQualifierExpression());

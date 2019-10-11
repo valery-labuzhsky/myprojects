@@ -1,16 +1,17 @@
 package statref.model.builder.members;
 
-import statref.model.members.SMethodDeclaration;
-import statref.model.members.SParameter;
-import statref.model.statements.SStatement;
-import statref.model.types.SType;
-import statref.model.builder.*;
+import statref.model.builder.BBase;
+import statref.model.builder.BModifiers;
 import statref.model.builder.expressions.BMethod;
 import statref.model.builder.expressions.BVariable;
 import statref.model.builder.statements.BMethodStatement;
 import statref.model.builder.statements.BReturn;
 import statref.model.expressions.SExpression;
 import statref.model.expressions.SMethod;
+import statref.model.members.SMethodDeclaration;
+import statref.model.members.SParameter;
+import statref.model.statements.SStatement;
+import statref.model.types.SType;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
@@ -91,10 +92,21 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
 
     // TODO move me somewhere?
     private SStatement createStatement(SExpression expression) {
-        if (expression instanceof SMethod) {
-            return createMethodStatement((SMethod) expression);
-        }
-        throw new IllegalArgumentException("Cannot treat "+expression+" of "+expression.getClass().getName()+" as a statement");
+        return expression.toStatement();
+//        // TODO I basically need to know whether it's convertable and a method to convert it
+//        // TODO do I need expression-statement? it's not compilable most of the time
+//        // TODO I would need a method of checking anyway, and there is no point in creating wrong code
+//
+//        if (expression instanceof SMethod) {
+//            return createMethodStatement((SMethod) expression);
+//        }
+//        // TODO what to do with ExpressionFragment, how to convert it to statement?
+//        // TODO it should be possible somehow
+//        // TODO 1. I can call getBase
+//        // TODO 2. ???
+//        // TODO need some common place
+//        // TODO I can create this method in SExpression and just implement it
+//        throw new IllegalArgumentException("Cannot treat "+expression+" of "+expression.getClass().getName()+" as a statement");
     }
 
     private BMethodStatement createMethodStatement(SMethod method) {

@@ -1,6 +1,7 @@
 package statref.model.expressions;
 
 import statref.model.SElement;
+import statref.model.statements.SStatement;
 import statref.model.types.SType;
 
 /**
@@ -11,5 +12,13 @@ import statref.model.types.SType;
 public interface SExpression extends SElement {
     default SType getType() {
         return null;
+    }
+
+    default boolean isStatement() {
+        return false;
+    }
+
+    default SStatement toStatement() {
+        throw new UnsupportedOperationException(getClass().getName());
     }
 }

@@ -92,7 +92,8 @@ public class IMethodDeclaration extends IElement<PsiMethod> implements SMethodDe
         }
 
         public SMethod.Parameter getMethodPlace() {
-            return new SMethod.Parameter(index);
+            return SMethod.getParameterPlace(index);
         }
+
     }
 }

@@ -1,9 +1,11 @@
 package statref.model.builder.expressions;
 
 import statref.model.SElement;
+import statref.model.builder.statements.BMethodStatement;
 import statref.model.expressions.SExpression;
 import statref.model.expressions.SMethod;
 import statref.model.members.SMethodDeclaration;
+import statref.model.statements.SStatement;
 import statref.model.types.SType;
 
 import java.util.ArrayList;
@@ -14,9 +16,10 @@ import java.util.stream.Collectors;
 public class BMethod extends BExpression implements SMethod {
     private SExpression qualifier;
     private String name;
-    private final ArrayList<SExpression> params;
+    private final ArrayList<SExpression> params = new ArrayList<>();
     private SMethodDeclaration declaration;
 
+    @SuppressWarnings("unused")
     public BMethod(SMethod method) {
         this(method.getQualifier(), method.getName());
         for (SExpression param : method.getParameters()) {
@@ -26,9 +29,13 @@ public class BMethod extends BExpression implements SMethod {
     }
 
     public BMethod(SExpression qualifier, String name, SExpression... params) {
+        this(name);
         this.qualifier = qualifier;
+        this.params.addAll(Arrays.asList(params));
+    }
+
+    public BMethod(String name) {
         this.name = name;
-        this.params = new ArrayList<>(Arrays.asList(params));
     }
 
     @Override
@@ -75,6 +82,11 @@ public class BMethod extends BExpression implements SMethod {
     @Override
     public SMethodDeclaration findDeclaration() {
         return declaration;
+    }
+
+    @Override
+    public SStatement toStatement() {
+        return new BMethodStatement(this);
     }
 
     @Override

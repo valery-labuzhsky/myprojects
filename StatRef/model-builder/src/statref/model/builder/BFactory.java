@@ -1,7 +1,9 @@
 package statref.model.builder;
 
 import statref.model.SElement;
-import statref.model.fragment.Fragment;
+import statref.model.expressions.SExpression;
+import statref.model.fragment.ExpressionFragment;
+import statref.model.fragment.Place;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -9,13 +11,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 public class BFactory {
-    // TODO the key thing for know is naming consistency, this way I can create registry in automated way
-
-    public static Fragment builder(Fragment f) {
-        return builder((SElement) f);
-    }
-
     public static <E extends SElement> E builder(E element) {
+        if (element instanceof ExpressionFragment) {
+            ExpressionFragment fragment = (ExpressionFragment) element;
+            return (E) builder(fragment);
+        }
         HashSet<Class> ss = new HashSet<>();
         Class<?> clazz = element.getClass();
         while (clazz!=null) {
@@ -56,6 +56,14 @@ public class BFactory {
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static ExpressionFragment builder(ExpressionFragment fragment) {
+        ExpressionFragment builder = new ExpressionFragment(builder(fragment.getBase()));
+        for (Place<SExpression> part : fragment.getParts()) {
+            builder.part(part);
+       }
+        return builder;
     }
 
 }
