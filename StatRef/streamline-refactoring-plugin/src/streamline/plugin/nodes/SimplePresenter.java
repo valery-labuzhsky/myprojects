@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class SimplePresenter implements Presenter {
     private final ArrayList<Block> blocks = new ArrayList<>();
-    private SimpleTextAttributes attributes;
+    private SimpleTextAttributes attributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;;
     private ElementBlock lastElementBlock;
 
     public SimplePresenter inline(PsiElement element) {

@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.nodes.Presenter;
 import streamline.plugin.nodes.RefactoringNode;
+import streamline.plugin.nodes.SimplePresenter;
 import streamline.plugin.refactoring.Refactoring;
 
 import java.util.ArrayList;
@@ -27,7 +28,11 @@ public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode
 
     @Override
     protected Presenter createPresenter() {
-        return new EmptyPresenter();
+        if (refactoring.getClass().equals(CompoundRefactoring.class)) {
+            return new EmptyPresenter();
+        } else {
+            return new SimplePresenter().add(refactoring.toString());
+        }
     }
 
     @Override
