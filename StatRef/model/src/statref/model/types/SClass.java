@@ -8,6 +8,7 @@ import java.util.List;
 
 public class SClass extends SType {
     // TODO it should actually always know its package or inclosing class from the context
+    // TODO it should be split between primitive and declared types
     private final String name;
     private final List<SType> generics = new ArrayList<>();
 

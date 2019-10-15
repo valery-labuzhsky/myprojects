@@ -1,6 +1,7 @@
 package statref.model.types;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class SPrimitive extends SClass {
     private static final HashMap<Class, Class> wrappers = new HashMap<>();
@@ -38,4 +39,16 @@ public class SPrimitive extends SClass {
         return wrappers.get(primitive);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SPrimitive that = (SPrimitive) o;
+        return primitive.equals(that.primitive);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(primitive);
+    }
 }

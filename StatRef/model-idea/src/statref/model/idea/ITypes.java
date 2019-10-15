@@ -39,7 +39,7 @@ public class ITypes {
     private static final Map<Class, PsiPrimitiveType> javaToPsi = new HashMap<Class, PsiPrimitiveType>() {
         {
             for (Entry<PsiPrimitiveType, Class> entry : psiToJava.entrySet()) {
-                javaToPsi.put(entry.getValue(), entry.getKey());
+                put(entry.getValue(), entry.getKey());
             }
         }
     };

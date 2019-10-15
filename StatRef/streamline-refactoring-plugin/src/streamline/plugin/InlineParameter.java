@@ -9,6 +9,7 @@ import statref.model.expressions.SMethod;
 import statref.model.fragment.ExpressionFragment;
 import statref.model.fragment.Fragment;
 import statref.model.fragment.Place;
+import statref.model.idea.IElement;
 import statref.model.idea.IMethod;
 import statref.model.idea.IMethodDeclaration;
 import statref.model.idea.IParameter;
@@ -56,12 +57,12 @@ public class InlineParameter extends CompoundRefactoring {
             });
         }
 
-        public void replace(IMethod call) {
+        public void replace(ExpressionFragment call) {
             BMethod replacement = new BMethod(this.delegate.getName());
             for (Place<SExpression> callPlace : call.getExpressions()) {
                 addParameter(replacement, call, callPlace);
             }
-            replacements.add(new ReplaceElement(getRegistry(), call, replacement));
+            replacements.add(new ReplaceElement(getRegistry(), (IElement) call.getBase(), replacement));
         }
 
         private BMethodDeclaration chooseName(BMethodDeclaration delegate) {
@@ -92,12 +93,7 @@ public class InlineParameter extends CompoundRefactoring {
         HashMap<Object, Delegate> delegates = new HashMap<>();
         for (IMethod call : method.getCalls()) {
             ExpressionFragment fragment = new ExpressionFragment(call).part(parameterPlace);
-            Object signature = fragment.getSignature();
-            if (delegates.size()>0) {
-                Object toCompareTo = delegates.keySet().iterator().next();
-                signature.equals(toCompareTo); // TODO debug
-            }
-            delegates.computeIfAbsent(signature, (s) -> new Delegate(fragment)).replace(call);
+            delegates.computeIfAbsent(fragment.getSignature(), (s) -> new Delegate(fragment)).replace(fragment);
         }
 
         for (Delegate delegate : delegates.values()) {
