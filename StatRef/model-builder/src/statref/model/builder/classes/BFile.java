@@ -4,7 +4,6 @@ import statref.model.types.SClass;
 import statref.model.classes.SClassDeclaration;
 import statref.model.classes.SFile;
 import statref.model.classes.SPackage;
-import statref.model.builder.types.BClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class BFile implements SFile {
         return this;
     }
 
-    public BFile import_(BClass clazz) {
+    public BFile import_(SClass clazz) {
         imports.add(clazz);
         return this;
     }

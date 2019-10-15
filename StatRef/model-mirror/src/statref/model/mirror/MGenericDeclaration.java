@@ -17,6 +17,6 @@ public class MGenericDeclaration extends MBase<TypeVariable> implements SGeneric
 
     @Override
     public SGeneric usage() {
-        return new MGeneric(getTypeMirror());
+        return new SGeneric(getTypeMirror().toString());
     }
 }

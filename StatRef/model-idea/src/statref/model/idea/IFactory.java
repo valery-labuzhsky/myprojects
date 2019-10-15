@@ -3,19 +3,13 @@ package statref.model.idea;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import statref.model.*;
+import statref.model.SElement;
 import statref.model.expressions.SExpression;
 import statref.model.idea.expression.ILiteral;
 import statref.model.members.SMethodDeclaration;
 import statref.model.statements.SStatement;
-import statref.model.types.SClass;
 import statref.model.types.SType;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class IFactory {
     private static final Logger log = Logger.getInstance(IFactory.class);
@@ -55,19 +49,6 @@ public class IFactory {
         }
     };
 
-    private static final FunctionRegistry<PsiType, IType> psitypes = new FunctionRegistry<PsiType, IType>() {
-        {
-            register(PsiPrimitiveType.class, IPrimitive::new);
-            // TODO generate it!
-        }
-    };
-
-    private static Map<Class<?>, PsiPrimitiveType> primitives = new HashMap<>();
-
-    static {
-        primitives.put(void.class, PsiType.VOID);
-    }
-
     public static IElement convert(Project project, SElement element) {
         if (element instanceof IElement) {
             return (IElement) element;
@@ -87,27 +68,13 @@ public class IFactory {
     public static IMethodDeclaration convertMethodDeclaration(SMethodDeclaration prototype, Project project) {
         // TODO generate it from text?
         SType type = prototype.getReturnType();
-        PsiType psiType = toPsiType(project, type);
+        PsiType psiType = ITypes.toPsiType(project, type);
         PsiMethod newMethod = JavaPsiFacade.getElementFactory(project).createMethod(prototype.getName(), psiType);
 
         for (SStatement instruction : prototype.getInstructions()) {
             newMethod.getBody().add(convert(project, instruction).getElement());
         }
         return getElement(newMethod);
-    }
-
-    @Nullable
-    public static PsiType toPsiType(Project project, SType type) {
-        PsiType psiType = null;
-        if (type instanceof IType) {
-            psiType = ((IType) type).getPsiType();
-        } else if (type instanceof SClass) {
-            psiType = PsiType.getTypeByName(((SClass) type).getName(), project, GlobalSearchScope.allScope(project));
-        }
-        if (psiType == null) {
-            log.error("Failed to find PsiType for " + type + " of " + type.getClass().getName());
-        }
-        return psiType;
     }
 
     @NotNull
@@ -130,14 +97,6 @@ public class IFactory {
     private static IElement getUnknownElement(PsiElement element) {
         log.error(element + ": is not supported");
         return new IUnknownElement(element);
-    }
-
-    public static IType getType(PsiType type) {
-        return (IType) psitypes.convert(type);
-    }
-
-    public static IType getType(Class c) {
-        return getType(primitives.get(c));
     }
 
 }

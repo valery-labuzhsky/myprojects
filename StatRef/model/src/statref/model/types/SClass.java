@@ -1,18 +1,51 @@
 package statref.model.types;
 
-import java.util.Collections;
+import statref.model.classes.SClassDeclaration;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public interface SClass extends SType {
+public class SClass extends SType {
     // TODO it should actually always know its package or inclosing class from the context
+    private final String name;
+    private final List<SType> generics = new ArrayList<>();
 
-    String getName();
-
-    default List<SType> getGenerics() {
-        return Collections.emptyList();
+    public SClass(String name) {
+        this.name = name;
     }
 
-    default Class<?> getJavaClass() {
+    public SClass(String name, List<SType> generics) {
+        this(name);
+        this.generics.addAll(generics);
+    }
+
+    public SClass(String name, SType... generics) {
+        this(name, Arrays.asList(generics));
+    }
+
+    public SClass(SClassDeclaration clazz) {
+        this(clazz.getSimpleName());
+    }
+
+    public SClass(SClassDeclaration declaration, List<SType> generics) {
+        this(declaration.getSimpleName(), generics);
+    }
+
+    public SClass(Class clazz) {
+        this(clazz.getSimpleName());
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<SType> getGenerics() {
+        return generics;
+    }
+
+    public Class<?> getJavaClass() {
         return null;
     }
+
 }

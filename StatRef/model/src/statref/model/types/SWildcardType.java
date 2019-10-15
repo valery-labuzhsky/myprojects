@@ -1,12 +1,23 @@
 package statref.model.types;
 
-import statref.model.types.SType;
+public class SWildcardType extends SType {
+    private final SType bound;
+    private final BoundType boundType;
 
-public interface SWildcardType extends SType {
-    SType getBound();
-    BouldType getBoundType();
+    public SWildcardType(SType bound, BoundType boundType) {
+        this.bound = bound;
+        this.boundType = boundType;
+    }
 
-    enum BouldType {
+    public SType getBound() {
+        return bound;
+    }
+
+    public BoundType getBoundType() {
+        return boundType;
+    }
+
+    public enum BoundType {
         EXTENDS, SUPER
     }
 }

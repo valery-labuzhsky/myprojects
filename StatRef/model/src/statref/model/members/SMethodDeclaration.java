@@ -46,6 +46,18 @@ public interface SMethodDeclaration extends SModifiers, SClassMemeber, SElement 
             Signature signature = (Signature) o;
             return name.equals(signature.name) &&
                     parameters.equals(signature.parameters);
+            // TODO how to compare types?
+            // TODO I need a signature for them since I have different type implementations
+            // TODO do I need different types?
+            // TODO it's very useful to implement them this way, but not at all to work with
+            // TODO transform them to common ground?
+            // TODO signatures are becoming overcomplicated this way
+            // TODO at least types I need to compare
+            // TODO I need common types and different transformers for them
+            // TODO how can I solve it?
+            // TODO so the type must be the only one, but there should be different factories
+            // TODO type will have many constructors
+            // TODO make type buildable? what for?
         }
 
         @Override

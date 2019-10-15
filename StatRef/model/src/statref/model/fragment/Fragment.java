@@ -11,6 +11,6 @@ public interface Fragment {
     }
 
     default Object getSignature() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(this.getClass().getName());
     }
 }

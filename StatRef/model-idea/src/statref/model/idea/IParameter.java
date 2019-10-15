@@ -26,7 +26,7 @@ public class IParameter extends IElement<PsiParameter> implements SParameter {
 
     @Override
     public SType getType() {
-        return IFactory.getType(getElement().getType());
+        return ITypes.getType(getElement().getType());
     }
 
     @Override

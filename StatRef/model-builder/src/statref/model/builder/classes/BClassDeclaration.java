@@ -2,7 +2,6 @@ package statref.model.builder.classes;
 
 import statref.model.*;
 import statref.model.builder.BModifiers;
-import statref.model.builder.types.BClass;
 import statref.model.classes.SClassDeclaration;
 import statref.model.classes.SPackage;
 import statref.model.types.SClass;
@@ -26,12 +25,12 @@ public class BClassDeclaration extends BBaseClassDeclaration<BClassDeclaration> 
 
     @Override
     public SClass usage() {
-        return new BClass(this);
+        return new SClass(this.getSimpleName());
     }
 
     @Override
     public SClass usage(List<SType> generics) {
-        return new BClass(this, generics);
+        return new SClass(this.getSimpleName(), generics);
     }
 
     @Override

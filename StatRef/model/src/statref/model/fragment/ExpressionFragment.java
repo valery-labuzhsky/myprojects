@@ -91,6 +91,20 @@ public class ExpressionFragment implements SExpression {
         public void _set(ExpressionFragment fragment, SExpression value) {
             place.set(placement.get(fragment), value);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PlacementPlace that = (PlacementPlace) o;
+            return place.equals(that.place) &&
+                    placement.equals(that.placement);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(place, placement);
+        }
     }
 
     private static class BasePlace implements PlaceAdapter<ExpressionFragment, SExpression> {
@@ -119,6 +133,19 @@ public class ExpressionFragment implements SExpression {
         public void _set(ExpressionFragment fragment, SExpression value) {
             place.set(fragment.getBase(), value);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BasePlace basePlace = (BasePlace) o;
+            return place.equals(basePlace.place);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(place);
+        }
     }
 
     @Override
@@ -133,7 +160,7 @@ public class ExpressionFragment implements SExpression {
         Signature(ExpressionFragment fragment) {
             signature = fragment.base.getSignature();
             for (Place<SExpression> place : fragment.parts) {
-                signatures.put(place, place.get(fragment).getSignature());
+                signatures.put(place, place.get(fragment.base).getSignature());
             }
         }
 

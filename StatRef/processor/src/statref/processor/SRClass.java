@@ -9,7 +9,6 @@ import statref.model.builder.expressions.BExpression;
 import statref.model.builder.expressions.BListedArrayConstructor;
 import statref.model.builder.expressions.BVariable;
 import statref.model.builder.members.BMethodDeclaration;
-import statref.model.builder.types.BClass;
 import statref.model.classes.SClassDeclaration;
 import statref.model.classes.SPackage;
 import statref.model.members.SBaseVariableDeclaration;
@@ -100,7 +99,7 @@ public class SRClass {
                     String typename = type.toString();
                     SMethodDeclaration setter = settersMap.get(typename);
 
-                    BClass fieldClass = ofClass(Field.class, genericClientClass, type.getGenericType());
+                    SClass fieldClass = ofClass(Field.class, genericClientClass, type.getGenericType());
                     BAnonClassDeclaration anonClass = declareAnonClass(fieldClass).
                             member(new BMethodDeclaration("getObjectType") {
                                 @Override

@@ -44,17 +44,17 @@ public class MClassDeclaration extends MBase<DeclaredType> implements SClassDecl
 
     @Override
     public SClass usage() {
-        return new MClass(getTypeMirror());
+        return (SClass) MBase.get(getTypeMirror());
     }
 
     @Override
     public SClass usage(List<SType> generics) {
-        return new MClass(getTypeMirror(), generics);
+        return new SClass(getTypeMirror().toString(), generics);
     }
 
     @Override
     public SClass getExtends() {
-        return new MClass((DeclaredType) type.getSuperclass());
+        return (SClass) MBase.get(type.getSuperclass());
     }
 
     @Override

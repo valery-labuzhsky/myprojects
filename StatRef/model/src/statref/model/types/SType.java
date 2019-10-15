@@ -5,8 +5,8 @@ package statref.model.types;
  *
  * @author ptasha
  */
-public interface SType { // TODO I need one class, just different constructors
-    default boolean isClass(Class<?> clazz) {
+public class SType {
+    public boolean isClass(Class<?> clazz) {
         if (this instanceof SClass) {
             return ((SClass) this).getJavaClass() == clazz;
         } else {
@@ -14,7 +14,7 @@ public interface SType { // TODO I need one class, just different constructors
         }
     }
 
-    default SType getGenericType() {
+    public SType getGenericType() {
         return this;
     }
 }

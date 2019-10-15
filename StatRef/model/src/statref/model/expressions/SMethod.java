@@ -52,6 +52,11 @@ public interface SMethod extends SExpression {
         return true;
     }
 
+    @Override
+    default Object getSignature() {
+        return findDeclaration().getSignature();
+    }
+
     interface Parameter extends Place<SExpression> {
     }
 

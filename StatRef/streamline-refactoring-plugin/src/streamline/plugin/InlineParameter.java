@@ -9,7 +9,6 @@ import statref.model.expressions.SMethod;
 import statref.model.fragment.ExpressionFragment;
 import statref.model.fragment.Fragment;
 import statref.model.fragment.Place;
-import statref.model.idea.IElement;
 import statref.model.idea.IMethod;
 import statref.model.idea.IMethodDeclaration;
 import statref.model.idea.IParameter;
@@ -22,6 +21,8 @@ import java.util.*;
 public class InlineParameter extends CompoundRefactoring {
     @org.jetbrains.annotations.NotNull
     private final IParameter parameter;
+    private final IMethodDeclaration method;
+    private final HashSet<SMethodDeclaration.Signature> signatures = new HashSet<>();
 
     // TODO brush me up
     // TODO what next?
@@ -29,30 +30,21 @@ public class InlineParameter extends CompoundRefactoring {
     // TODO make enter work
     // TODO choose method names
     // TODO do refactoring right away, make revert button
-    public InlineParameter(NodesRegistry registry, IParameter parameter) {
-        super(registry.getRefactorings());
-        this.parameter = parameter;
-
-        IMethodDeclaration method = parameter.getParent();
-        SMethod.Parameter parameterPlace = method.getPlace(parameter).getMethodPlace();
-
-        Map<Object, List<ExpressionFragment>> expressions = new HashMap<>();
-        for (IMethod call : method.getCalls()) {
-            SExpression expression = parameterPlace.get(call);
-            expressions.computeIfAbsent(expression.getSignature(), (e) -> new ArrayList<>()).add(new ExpressionFragment(call).part(parameterPlace));
-        }
+    // TODO I need to resolve these warning after all
 
 
-        HashSet<SMethodDeclaration.Signature> signatures = new HashSet<>();
-        for (List<ExpressionFragment> calls : expressions.values()) {
-            String name = method.getName();
-            BMethodDeclaration delegate = new BMethodDeclaration(name) {
+    class Delegate {
+        private final BMethodDeclaration delegate;
+        private final List<ReplaceElement> replacements = new ArrayList<>();
+
+        public Delegate(ExpressionFragment fragment) {
+            this.delegate = chooseName(new BMethodDeclaration(method.getName()) {
                 {
-                    SExpression call = BFactory.builder(calls.get(0));
-                    for (Place<SExpression> methodPlace : call.getExpressions()) {
-                        parameter(call, methodPlace);
+                    SExpression body = BFactory.builder(fragment);
+                    for (Place<SExpression> methodPlace : body.getExpressions()) {
+                        parameter(body, methodPlace);
                     }
-                    return_(call);
+                    return_(body);
                 }
 
                 public void parameter(Fragment fragment, Place<SExpression> place) {
@@ -61,32 +53,58 @@ public class InlineParameter extends CompoundRefactoring {
                         place.set(fragment, parameter(place.getType(fragment), place.getName(fragment)));
                     }
                 }
-            };
+            });
+        }
 
+        public void replace(IMethod call) {
+            BMethod replacement = new BMethod(this.delegate.getName());
+            for (Place<SExpression> callPlace : call.getExpressions()) {
+                addParameter(replacement, call, callPlace);
+            }
+            replacements.add(new ReplaceElement(getRegistry(), call, replacement));
+        }
 
+        private BMethodDeclaration chooseName(BMethodDeclaration delegate) {
             int suffix = 1;
             while (signatures.contains(delegate.getSignature())) {
-                delegate.setName(name + suffix++);
+                delegate.setName(method.getName() + suffix++);
             }
             signatures.add(delegate.getSignature());
+            return delegate;
+        }
 
-            add(new CreateMethod(this.registry, method, delegate));
-
-            for (ExpressionFragment call : calls) {
-                BMethod replacement = new BMethod(delegate.getName());
-                for (Place<SExpression> callPlace : call.getExpressions()) {
-                    addParameter(replacement, call, callPlace);
-                }
-
-                add(new ReplaceElement(this.getRegistry(), (IElement) call.getBase(), replacement));
+        private void addParameter(BMethod method, Fragment fragment, Place<SExpression> place) {
+            SExpression expression = place.get(fragment);
+            if (expression != null) {
+                method.parameter(expression);
             }
         }
+
     }
 
-    private void addParameter(BMethod method, Fragment fragment, Place<SExpression> place) {
-        SExpression expression = place.get(fragment);
-        if (expression != null) {
-            method.parameter(expression);
+    public InlineParameter(NodesRegistry registry, IParameter parameter) {
+        super(registry.getRefactorings());
+        this.parameter = parameter;
+
+        method = parameter.getParent();
+        SMethod.Parameter parameterPlace = method.getPlace(parameter).getMethodPlace();
+
+        HashMap<Object, Delegate> delegates = new HashMap<>();
+        for (IMethod call : method.getCalls()) {
+            ExpressionFragment fragment = new ExpressionFragment(call).part(parameterPlace);
+            Object signature = fragment.getSignature();
+            if (delegates.size()>0) {
+                Object toCompareTo = delegates.keySet().iterator().next();
+                signature.equals(toCompareTo); // TODO debug
+            }
+            delegates.computeIfAbsent(signature, (s) -> new Delegate(fragment)).replace(call);
+        }
+
+        for (Delegate delegate : delegates.values()) {
+            add(new CreateMethod(this.getRegistry(), method, delegate.delegate));
+            for (ReplaceElement replacement : delegate.replacements) {
+                add(replacement);
+            }
         }
     }
 
