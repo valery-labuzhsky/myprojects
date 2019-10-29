@@ -10,19 +10,20 @@ import statref.model.members.SMethodDeclaration;
 import streamline.plugin.nodes.NodesRegistry;
 import streamline.plugin.refactoring.compound.CompoundRefactoring;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class InlineParameter extends CompoundRefactoring {
     @org.jetbrains.annotations.NotNull
     private final IParameter parameter;
 
-    // TODO brush me up
     // TODO what next?
     // TODO make enter work
-    // TODO choose method names
     // TODO do refactoring right away, make revert button
     // TODO I need to resolve these warning after all
 
+    // TODO choose method names
+    // TODO make name editing work
 
     public InlineParameter(NodesRegistry registry, IParameter parameter) {
         super(registry.getRefactorings());
@@ -41,13 +42,6 @@ public class InlineParameter extends CompoundRefactoring {
                 return delegate;
             }).replace(fragment);
         }
-
-//        for (Delegate delegate : delegates.values()) {
-//            add(new CreateMethod(this.getRegistry(), method, delegate.delegate));
-//            for (ReplaceElement replacement : delegate.replacements) {
-//                add(replacement);
-//            }
-//        }
     }
 
     @NotNull

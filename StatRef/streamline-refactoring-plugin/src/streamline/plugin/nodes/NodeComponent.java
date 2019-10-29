@@ -4,8 +4,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.TreeCellRenderer;
+import java.util.EventObject;
 
 public abstract class NodeComponent {
+    public boolean isEditable(EventObject e) {
+        return false;
+    }
+
     @NotNull
     public TreeCellRenderer createRenderer() {
         return (tree, value, selected, expanded, leaf, row, hasFocus) -> {

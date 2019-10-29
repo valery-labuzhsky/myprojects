@@ -12,13 +12,11 @@ import streamline.plugin.nodes.*;
 import streamline.plugin.refactoring.Refactoring;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreePath;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.EventObject;
 
 public class RefactoringToolWindow extends SimpleToolWindowPanel {
     private final AnActionEvent event;
@@ -59,11 +57,13 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
     }
 
     private void setupTree() {
-        forwardMouseEvents(tree);
-        forwardKeyEvents(tree);
         setContent(tree);
         tree.setCellRenderer(new ProxyNodeComponent());
+        tree.setEditable(true);
+        tree.setCellEditor(new ProxyCellEditor());
         tree.setSelectionRow(0);
+        forwardMouseEvents(tree);
+        forwardKeyEvents(tree);
     }
 
     private void forwardKeyEvents(Tree tree) {
@@ -94,6 +94,9 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
             }
 
             public void passEvent(MouseEvent event) {
+                if (tree.isEditing()) {
+                    return;
+                }
                 TreePath path = tree.getPathForLocation(event.getX(), event.getY());
                 if (path == null) return;
                 Rectangle nodeBounds = tree.getPathBounds(path);
@@ -101,9 +104,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
                 Component editingComponent = tree.getCellRenderer().getTreeCellRendererComponent(
                         tree, value, tree.isPathSelected(path), tree.isExpanded(path),
                         tree.getModel().isLeaf(value), tree.getRowForPath(path), true);
-                editingComponent.setBounds(0, 0,
-                        nodeBounds.width,
-                        nodeBounds.height);
+                editingComponent.setBounds(nodeBounds);
                 Point componentPoint = new Point(event.getX() - nodeBounds.x, event.getY() - nodeBounds.y);
                 Component activeComponent = SwingUtilities.
                         getDeepestComponentAt(editingComponent,
@@ -154,24 +155,70 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         return node.getRefactoring();
     }
 
-    private static class ProxyNodeComponent implements TreeCellRenderer {
+    private NodeComponent getComponent(Object value) {
+        Object node = TreeUtil.getUserObject(value);
+        if (node instanceof SelfPresentingNode) {
+            return ((SelfPresentingNode) node).getNodeComponent();
+        } else if (node == null) {
+            return null;
+        } else {
+            throw new IllegalArgumentException(node + " is not supported");
+        }
+    }
+
+    private class ProxyNodeComponent implements TreeCellRenderer {
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             NodeComponent component = getComponent(value);
             if (component == null) return new JLabel("Streamline");
             return component.createRenderer().getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
         }
-
-        public NodeComponent getComponent(Object value) {
-            Object node = TreeUtil.getUserObject(value);
-            if (node instanceof SelfPresentingNode) {
-                return ((SelfPresentingNode) node).getNodeComponent();
-            } else if (node == null) {
-                return null;
-            } else {
-                throw new IllegalArgumentException(node + " is not supported");
-            }
-        }
     }
 
+    private class ProxyCellEditor extends AbstractCellEditor implements TreeCellEditor {
+        private Object value;
+
+        @Override
+        public Component getTreeCellEditorComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row) {
+            getTree().getExpandableItemsHandler().setEnabled(false);
+            this.value = value;
+            NodeComponent component = getComponent(value);
+            if (component == null) return new JLabel("Streamline");
+            return component.createRenderer().getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, true);
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            if (super.stopCellEditing()) {
+                tree.getExpandableItemsHandler().setEnabled(true);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public void cancelCellEditing() {
+            super.cancelCellEditing();
+            tree.getExpandableItemsHandler().setEnabled(true);
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return value;
+        }
+
+        @Override
+        public boolean isCellEditable(EventObject e) {
+            Object node;
+            if(e instanceof MouseEvent) {
+                Point point = ((MouseEvent)e).getPoint();
+                node = tree.getClosestPathForLocation(point.x, point.y).getLastPathComponent();
+            } else {
+                node = tree.getLastSelectedPathComponent();
+            }
+            NodeComponent component = getComponent(node);
+            return component.isEditable(e);
+        }
+    }
 }
