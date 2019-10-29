@@ -1,6 +1,10 @@
 package streamline.plugin.nodes;
 
-import streamline.plugin.ReplaceElement;
+import streamline.plugin.nodes.guts.NodesRegistry;
+import streamline.plugin.nodes.guts.Presenter;
+import streamline.plugin.nodes.guts.RefactoringNode;
+import streamline.plugin.nodes.guts.SimplePresenter;
+import streamline.plugin.refactoring.ReplaceElement;
 
 public class ReplaceElementNode extends RefactoringNode<ReplaceElement> {
 

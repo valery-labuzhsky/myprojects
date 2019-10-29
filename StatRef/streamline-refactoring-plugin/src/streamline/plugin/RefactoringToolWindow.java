@@ -7,9 +7,9 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
-import streamline.plugin.nodes.KeyEventDispatcher;
-import streamline.plugin.nodes.*;
-import streamline.plugin.refactoring.Refactoring;
+import streamline.plugin.nodes.guts.KeyEventDispatcher;
+import streamline.plugin.nodes.guts.*;
+import streamline.plugin.refactoring.guts.Refactoring;
 
 import javax.swing.*;
 import javax.swing.tree.*;

@@ -16,12 +16,13 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.*;
-import streamline.plugin.nodes.NodesRegistry;
-import streamline.plugin.nodes.RefactoringNode;
-import streamline.plugin.refactoring.assignment.InlineAssignmentNode;
-import streamline.plugin.refactoring.assignment.InlineAssignment;
-import streamline.plugin.refactoring.usage.InlineUsage;
-import streamline.plugin.refactoring.usage.InlineUsageNode;
+import streamline.plugin.nodes.InlineAssignmentNode;
+import streamline.plugin.nodes.guts.NodesRegistry;
+import streamline.plugin.nodes.guts.RefactoringNode;
+import streamline.plugin.nodes.inlineUsage.InlineUsageNode;
+import streamline.plugin.refactoring.InlineAssignment;
+import streamline.plugin.refactoring.InlineParameter;
+import streamline.plugin.refactoring.InlineUsage;
 
 public class SLInlineAction extends AnAction {
     private static final Logger log = Logger.getInstance(IFactory.class);

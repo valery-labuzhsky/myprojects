@@ -4,7 +4,9 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jdesktop.swingx.HorizontalLayout;
 import org.jetbrains.annotations.NotNull;
-import streamline.plugin.CreateMethod;
+import streamline.plugin.nodes.guts.*;
+import streamline.plugin.nodes.guts.components.TreeKludgeTextField;
+import streamline.plugin.refactoring.CreateMethod;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -34,16 +36,7 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
     private class CreateMethodComponent extends NodeComponent {
         private final JPanel panel = new JPanel(new HorizontalLayout());
         private final NodeRendererComponent renderer = new NodeRendererComponent();
-        private final JTextField nodeComponent = new JTextField() {
-            @Override
-            public void selectAll() {
-                StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-                if (trace.length > 2 && "removeFromSource".equals(trace[2].getMethodName())) {
-                    return;
-                }
-                super.selectAll();
-            }
-        };
+        private final JTextField nodeComponent = new TreeKludgeTextField();
 
         public CreateMethodComponent() {
             nodeComponent.setText(getRefactoring().getMethod().getName());
@@ -83,5 +76,7 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
             // TODO to split it I would need break this inheritance
             panel.invalidate();
         }
+
     }
+
 }

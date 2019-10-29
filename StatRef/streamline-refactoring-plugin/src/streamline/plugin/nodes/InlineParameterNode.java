@@ -1,7 +1,9 @@
 package streamline.plugin.nodes;
 
-import streamline.plugin.InlineParameter;
-import streamline.plugin.refactoring.compound.CompoundNode;
+import streamline.plugin.nodes.guts.NodesRegistry;
+import streamline.plugin.nodes.guts.Presenter;
+import streamline.plugin.nodes.guts.SimplePresenter;
+import streamline.plugin.refactoring.InlineParameter;
 
 public class InlineParameterNode extends CompoundNode<InlineParameter> {
     public InlineParameterNode(InlineParameter refactoring, NodesRegistry registry) {
