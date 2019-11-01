@@ -109,6 +109,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
                 Component activeComponent = SwingUtilities.
                         getDeepestComponentAt(editingComponent,
                                 componentPoint.x, componentPoint.y);
+                translate(componentPoint, editingComponent, activeComponent);
                 MouseEvent newEvent = new MouseEvent(activeComponent,
                         event.getID(),
                         event.getWhen(),
@@ -121,6 +122,13 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
                         event.isPopupTrigger(),
                         event.getButton());
                 activeComponent.dispatchEvent(newEvent);
+            }
+
+            private void translate(Point point, Component from, Component to) {
+                while (to != from) {
+                    point.translate(-to.getX(), -to.getY());
+                    to = to.getParent();
+                }
             }
         });
     }
@@ -211,8 +219,8 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         @Override
         public boolean isCellEditable(EventObject e) {
             Object node;
-            if(e instanceof MouseEvent) {
-                Point point = ((MouseEvent)e).getPoint();
+            if (e instanceof MouseEvent) {
+                Point point = ((MouseEvent) e).getPoint();
                 node = tree.getClosestPathForLocation(point.x, point.y).getLastPathComponent();
             } else {
                 node = tree.getLastSelectedPathComponent();

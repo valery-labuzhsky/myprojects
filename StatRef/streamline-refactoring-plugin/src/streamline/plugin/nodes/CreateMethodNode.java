@@ -2,9 +2,10 @@ package streamline.plugin.nodes;
 
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.SimpleTextAttributes;
-import org.jdesktop.swingx.HorizontalLayout;
 import org.jetbrains.annotations.NotNull;
+import streamline.plugin.nodes.guts.KeyEventDispatcher;
 import streamline.plugin.nodes.guts.*;
+import streamline.plugin.nodes.guts.components.EnabledRefactoringCheckBox;
 import streamline.plugin.nodes.guts.components.TreeKludgeTextField;
 import streamline.plugin.refactoring.CreateMethod;
 
@@ -34,11 +35,16 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
     }
 
     private class CreateMethodComponent extends NodeComponent {
-        private final JPanel panel = new JPanel(new HorizontalLayout());
+        private final JPanel panel = new JPanel();
+        private final EnabledRefactoringCheckBox enabled = new EnabledRefactoringCheckBox(CreateMethodNode.this);
         private final NodeRendererComponent renderer = new NodeRendererComponent();
         private final JTextField nodeComponent = new TreeKludgeTextField();
 
         public CreateMethodComponent() {
+            enabled.setOpaque(false); // TODO reuse it
+            panel.add(enabled);
+            panel.addKeyListener((KeyEventDispatcher) enabled::dispatchEvent);
+            panel.add(renderer.getComponent());
             nodeComponent.setText(getRefactoring().getMethod().getName());
             nodeComponent.setOpaque(false);
             nodeComponent.getDocument().addDocumentListener(new DocumentAdapter() {
@@ -48,7 +54,6 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
                     ((DefaultTreeModel)getTree().getModel()).nodeChanged(getNode());
                 }
             });
-            panel.add(renderer.getComponent());
             panel.add(nodeComponent);
         }
 
