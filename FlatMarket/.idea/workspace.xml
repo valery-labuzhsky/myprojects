@@ -2,27 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="66c30c9b-f3b1-4b22-8cce-7503135e683b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/FlatMarket.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_virtuald_curvesapi_1_06.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__commons_codec_commons_codec_1_12.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_commons_commons_collections4_4_3.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_commons_commons_compress_1_18.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_commons_commons_math3_3_6_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_poi_poi_4_1_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_poi_poi_ooxml_4_1_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_poi_poi_ooxml_schemas_4_1_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_xmlbeans_xmlbeans_3_1_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/markdown-navigator/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/flatmarket/CopyOffers.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/flatmarket/FlatMarket.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../StatRef/model-idea/model-idea.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/model-idea/model-idea.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/streamline-refactoring-plugin.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/streamline-refactoring-plugin.iml" afterDir="false" />
     </list>
@@ -44,8 +24,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/flatmarket/FlatMarket.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="129">
-              <caret line="231" column="30" lean-forward="true" selection-start-line="231" selection-start-column="30" selection-end-line="231" selection-end-column="30" />
+            <state relative-caret-position="15">
+              <caret line="231" column="30" selection-start-line="231" selection-start-column="30" selection-end-line="231" selection-end-column="30" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -167,9 +147,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="504" />
-    <option name="width" value="1366" />
-    <option name="height" value="740" />
+    <option name="x" value="1604" />
+    <option name="y" value="283" />
+    <option name="width" value="902" />
+    <option name="height" value="489" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -177,8 +158,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -221,6 +200,8 @@
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -363,18 +344,25 @@
       <option name="presentableId" value="Default" />
       <updated>1557487957091</updated>
     </task>
+    <task id="LOCAL-00001" summary="FlatMarket project">
+      <created>1561890214833</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1561890214833</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="504" width="1366" height="740" extended-state="6" />
-    <editor active="true" />
+    <frame x="1366" y="0" width="1920" height="1052" extended-state="6" />
     <layout>
       <window_info id="Image Layers" order="0" />
       <window_info id="Capture Tool" order="1" />
       <window_info id="Designer" order="2" />
       <window_info id="UI Designer" order="3" />
       <window_info anchor="bottom" id="Event Log" order="0" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="1" visible="true" weight="0.5686275" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="1" visible="true" weight="0.37770563" />
       <window_info anchor="bottom" id="Terminal" order="2" />
       <window_info anchor="bottom" id="Message" order="3" />
       <window_info anchor="bottom" id="Find" order="4" weight="0.32900432" />
@@ -384,7 +372,7 @@
       <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="9" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.32792208" />
-      <window_info anchor="right" content_ui="combo" id="Project" order="0" sideWeight="0.4967742" visible="true" weight="0.43782577" />
+      <window_info anchor="right" content_ui="combo" id="Project" order="0" sideWeight="0.4967742" visible="true" weight="0.3099631" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="1" weight="0.24986821" />
       <window_info anchor="right" id="Structure" order="2" weight="0.24670532" />
       <window_info anchor="right" id="Maven" order="3" />
@@ -454,6 +442,24 @@
         </entry>
       </map>
     </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="FlatMarket project" />
+    <option name="LAST_COMMIT_MESSAGE" value="FlatMarket project" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
@@ -768,8 +774,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/flatmarket/FlatMarket.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="129">
-          <caret line="231" column="30" lean-forward="true" selection-start-line="231" selection-start-column="30" selection-end-line="231" selection-end-column="30" />
+        <state relative-caret-position="15">
+          <caret line="231" column="30" selection-start-line="231" selection-start-column="30" selection-end-line="231" selection-end-column="30" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
