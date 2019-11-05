@@ -21,9 +21,6 @@ public class InlineParameter extends CompoundRefactoring {
     // TODO do refactoring right away, make revert button
     // TODO I need to resolve these warning after all
 
-    // TODO choose method names
-    // TODO make name editing work
-
     public InlineParameter(NodesRegistry registry, IParameter parameter) {
         super(registry.getRefactorings());
         this.parameter = parameter;

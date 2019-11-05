@@ -67,25 +67,9 @@ public class SLInlineAction extends AnAction {
 
                 InlineParameter refactoring = new InlineParameter(registry, parameter);
 
-                // TODO build a better tree
-                // TODO I need displaying root
                 RefactoringToolWindow tree = createTree(project, event, "Inline " + parameter.getName());
                 RefactoringNode node = registry.create(refactoring);
                 tree.setNode(node);
-
-                // TODO how will I achieve it?
-                // 1. Inline parameter
-                // 1.1. Value = true
-                // 1.1.1. Create delegate
-                // 1.1.2-n. Replace usage
-                // 1.2. Value = false
-                // 1.2.1. Create delegate
-                // 1.2.2-n. Replace usage
-
-                // TODO now let's create a refactoring tree
-                // TODO 1. create method for every signature (but not each of them probably, we need to balance between gains and losses)
-                // TODO 2. replace method calls with new method calls
-                // TODO 3. take care of parameters
             } else {
                 // TODO do not need to catch Exception from here
                 invokeNative(event);

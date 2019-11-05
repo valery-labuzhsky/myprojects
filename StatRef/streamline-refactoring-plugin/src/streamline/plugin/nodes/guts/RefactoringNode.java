@@ -79,10 +79,6 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
 
         @Override
         protected SimpleTextAttributes update(SimpleTextAttributes attributes) {
-            // TODO how to do it with a builder?
-            // TODO to make it super flexible I can create 2 presenters
-            // TODO but it won't be convenient for simple graying
-            // TODO let's leave update here for a while
             if (!refactoring.isEnabled()) {
                 return SimpleTextAttributes.merge(attributes, SimpleTextAttributes.GRAYED_ATTRIBUTES);
             } else {

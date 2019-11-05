@@ -14,8 +14,6 @@ public class ReplaceElementNode extends RefactoringNode<ReplaceElement> {
 
     @Override
     protected Presenter createPresenter() {
-        // TODO how can I make it less static?
-        // TODO I may create presenter every time I need it
         return new SimplePresenter().italic().add("Replace ").add(refactoring.getTarget()).add(" with ").add(refactoring.getReplacement());
     }
 
