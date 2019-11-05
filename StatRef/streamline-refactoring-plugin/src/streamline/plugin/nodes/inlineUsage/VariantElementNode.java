@@ -1,6 +1,5 @@
 package streamline.plugin.nodes.inlineUsage;
 
-import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
 import streamline.plugin.nodes.guts.ElementPresenter;
@@ -11,6 +10,7 @@ import streamline.plugin.refactoring.InlineUsage;
 import streamline.plugin.refactoring.guts.Listeners;
 
 import javax.swing.*;
+import java.util.Objects;
 
 public class VariantElementNode extends SelfPresentingNode {
     private final IInitializer variant;
@@ -45,13 +45,21 @@ public class VariantElementNode extends SelfPresentingNode {
 
     @NotNull
     @Override
-    public SimpleNode[] getChildren() {
-        return new SimpleNode[0];
+    public SelfPresentingNode[] getChildren() {
+        return new SelfPresentingNode[0];
     }
 
-    @NotNull
+    // TODO why?
     @Override
-    public Object[] getEqualityObjects() {
-        return new Object[]{variant};
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VariantElementNode that = (VariantElementNode) o;
+        return variant.equals(that.variant);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(variant);
     }
 }

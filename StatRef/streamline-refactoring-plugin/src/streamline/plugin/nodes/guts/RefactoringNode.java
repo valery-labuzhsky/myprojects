@@ -2,7 +2,6 @@ package streamline.plugin.nodes.guts;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.components.EnabledRefactoringCheckBox;
 import streamline.plugin.refactoring.guts.Listeners;
@@ -10,12 +9,13 @@ import streamline.plugin.refactoring.guts.Refactoring;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
+import java.util.Objects;
 
 public abstract class RefactoringNode<R extends Refactoring> extends SelfPresentingNode {
     protected final R refactoring;
     protected final NodesRegistry registry;
     private final Listeners listeners;
-    private SimpleNode[] children;
+    private SelfPresentingNode[] children;
 
     public RefactoringNode(R refactoring, NodesRegistry registry) {
         super(registry.getProject());
@@ -36,16 +36,14 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
                 getTree().collapsePath(path);
             }
         });
-        for (SimpleNode child : getChildren()) {
-            if (child instanceof RefactoringNode) {
-                ((RefactoringNode) child).afterTreeNodeCreated();
-            }
+        for (SelfPresentingNode child : getChildren()) {
+            child.afterTreeNodeCreated();
         }
     }
 
     @NotNull
     @Override
-    public SimpleNode[] getChildren() {
+    public SelfPresentingNode[] getChildren() {
         if (children == null) {
             children = createChildren();
         }
@@ -94,13 +92,21 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     }
 
     @NotNull
-    public SimpleNode[] createChildren() {
-        return new SimpleNode[0];
+    public SelfPresentingNode[] createChildren() {
+        return new SelfPresentingNode[0];
     }
 
-    @NotNull
+    // TODO why?
     @Override
-    public Object[] getEqualityObjects() {
-        return new Object[]{refactoring};
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RefactoringNode<?> that = (RefactoringNode<?>) o;
+        return refactoring.equals(that.refactoring);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(refactoring);
     }
 }

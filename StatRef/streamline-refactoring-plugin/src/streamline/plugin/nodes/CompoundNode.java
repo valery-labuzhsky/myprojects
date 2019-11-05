@@ -1,12 +1,8 @@
 package streamline.plugin.nodes;
 
 import com.intellij.ide.projectView.PresentationData;
-import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
-import streamline.plugin.nodes.guts.NodesRegistry;
-import streamline.plugin.nodes.guts.Presenter;
-import streamline.plugin.nodes.guts.RefactoringNode;
-import streamline.plugin.nodes.guts.SimplePresenter;
+import streamline.plugin.nodes.guts.*;
 import streamline.plugin.refactoring.CompoundRefactoring;
 import streamline.plugin.refactoring.guts.Refactoring;
 
@@ -19,12 +15,12 @@ public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode
 
     @NotNull
     @Override
-    public SimpleNode[] createChildren() {
-        ArrayList<SimpleNode> nodes = new ArrayList<>();
+    public SelfPresentingNode[] createChildren() {
+        ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
         for (Refactoring r : refactoring.getRefactorings()) {
             nodes.add(registry.create(r));
         }
-        return nodes.toArray(new SimpleNode[0]);
+        return nodes.toArray(new SelfPresentingNode[0]);
     }
 
     @Override

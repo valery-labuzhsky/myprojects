@@ -1,11 +1,7 @@
 package streamline.plugin.nodes;
 
-import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
-import streamline.plugin.nodes.guts.NodePanel;
-import streamline.plugin.nodes.guts.NodesRegistry;
-import streamline.plugin.nodes.guts.Presenter;
-import streamline.plugin.nodes.guts.RefactoringNode;
+import streamline.plugin.nodes.guts.*;
 import streamline.plugin.refactoring.RefactoringChoice;
 
 import javax.swing.*;
@@ -56,8 +52,8 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
 
     @NotNull
     @Override
-    public SimpleNode[] createChildren() {
-        return nodes.toArray(new SimpleNode[0]);
+    public SelfPresentingNode[] createChildren() {
+        return nodes.toArray(new SelfPresentingNode[0]);
     }
 
     @Override

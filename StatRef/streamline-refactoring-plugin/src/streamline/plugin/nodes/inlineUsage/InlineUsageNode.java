@@ -1,11 +1,11 @@
 package streamline.plugin.nodes.inlineUsage;
 
-import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
 import streamline.plugin.nodes.guts.ElementPresenter;
 import streamline.plugin.nodes.guts.NodesRegistry;
 import streamline.plugin.nodes.guts.RefactoringNode;
+import streamline.plugin.nodes.guts.SelfPresentingNode;
 import streamline.plugin.refactoring.InlineUsage;
 import streamline.plugin.refactoring.guts.Refactoring;
 
@@ -23,9 +23,9 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
     }
 
     public void selectAny() {
-        for (SimpleNode child : getChildren()) {
+        for (SelfPresentingNode child : getChildren()) {
             if (child instanceof VariantElementNode) {
-                ((VariantElementNode) child).select();
+                child.select();
                 break;
             }
         }
@@ -60,27 +60,27 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
 
     @NotNull
     @Override
-    public SimpleNode[] createChildren() {
+    public SelfPresentingNode[] createChildren() {
         if (refactoring.getVariants().size() == 1) {
-            return new SimpleNode[]{new VariantElementNode(this, refactoring.getVariants().get(0)).lock()};
+            return new SelfPresentingNode[]{new VariantElementNode(this, refactoring.getVariants().get(0)).lock()};
         }
-        ArrayList<SimpleNode> nodes = new ArrayList<>();
+        ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
         if (assignment != null) {
             nodes.add(new VariantElementNode(this, assignment).lock());
         }
-        ConflictManyValuesNode conflict = new ConflictManyValuesNode(myProject);
+        ConflictManyValuesNode conflict = new ConflictManyValuesNode(getProject());
         nodes.add(conflict);
         for (IInitializer variant : refactoring.getVariants()) {
             if (!variant.equals(assignment)) {
                 nodes.add(new VariantElementNode(this, variant));
             }
         }
-        return nodes.toArray(new SimpleNode[0]);
+        return nodes.toArray(new SelfPresentingNode[0]);
     }
 
     private void createWhatElseNodes() {
         LinkedHashSet<Refactoring> newOnes = new LinkedHashSet<>(refactoring.whatElse());
-        HashSet<SimpleNode> fixedNodes = new HashSet<>(Arrays.asList(getChildren()));
+        HashSet<SelfPresentingNode> fixedNodes = new HashSet<>(Arrays.asList(getChildren()));
         ArrayList<Integer> removedIndices = new ArrayList<>();
         ArrayList<Object> removedObjects = new ArrayList<>();
         for (int i = 0; i < getNode().getChildCount(); i++) {

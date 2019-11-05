@@ -40,12 +40,16 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
         // TODO it doesn't make sense to do a delegate without create method, so it should be mandatory
         // TODO so it's enabled depends on parent, what does it give us?
 
+        // TODO how to create a builder for me?
+        // TODO 1. Nodes shouldn't inherit PresentationData
         public CreateMethodComponent() {
             EnabledRefactoringCheckBox enabled = new EnabledRefactoringCheckBox(CreateMethodNode.this);
             enabled.setOpaque(false); // TODO reuse it
             panel.add(enabled);
             panel.addKeyListener((KeyEventDispatcher) enabled::dispatchEvent);
+
             panel.add(renderer.getComponent());
+
             nodeComponent.setText(getRefactoring().getMethod().getName());
             nodeComponent.setOpaque(false);
             nodeComponent.getDocument().addDocumentListener(new DocumentAdapter() {

@@ -1,10 +1,10 @@
 package streamline.plugin.nodes;
 
-import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.ElementPresenter;
 import streamline.plugin.nodes.guts.NodesRegistry;
 import streamline.plugin.nodes.guts.RefactoringNode;
+import streamline.plugin.nodes.guts.SelfPresentingNode;
 import streamline.plugin.nodes.inlineUsage.InlineUsageNode;
 import streamline.plugin.refactoring.InlineAssignment;
 import streamline.plugin.refactoring.InlineUsage;
@@ -24,7 +24,7 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
 
     @Override
     @NotNull
-    public SimpleNode[] createChildren() {
+    public SelfPresentingNode[] createChildren() {
         RemoveElementNode removeNode = new RemoveElementNode(this.refactoring.getRemove(), registry);
         Runnable enabledListener = () -> {
             boolean anyEnabled = refactoring.getRemove().isEnabled();
@@ -64,7 +64,7 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
             nodes.add(usageNode);
         }
         nodes.add(removeNode);
-        return nodes.toArray(new SimpleNode[0]);
+        return nodes.toArray(new SelfPresentingNode[0]);
     }
 
 }
