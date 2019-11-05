@@ -20,6 +20,7 @@ import java.util.List;
 public class Delegate extends CompoundRefactoring {
     private final BMethodDeclaration delegate;
     private final ExpressionFragment fragment;
+    private final CreateMethod create;
     private final List<ReplaceElement> replacements = new ArrayList<>();
     private HashSet<SMethodDeclaration.Signature> signatures;
 
@@ -44,7 +45,7 @@ public class Delegate extends CompoundRefactoring {
                 }
             }
         });
-        add(new CreateMethod(this.getRegistry(), (IMethodDeclaration) getMethod().findDeclaration(), delegate));
+        create = add(new CreateMethod(this.getRegistry(), (IMethodDeclaration) getMethod().findDeclaration(), delegate));
     }
 
     private String getName() {
@@ -55,14 +56,20 @@ public class Delegate extends CompoundRefactoring {
         return (SMethod) fragment.getBase();
     }
 
+    public CreateMethod getCreate() {
+        return create;
+    }
+
+    public List<ReplaceElement> getReplacements() {
+        return replacements;
+    }
+
     public void replace(ExpressionFragment call) {
-        BMethod replacement = new BMethod(this.delegate.getName());
+        BMethod replacement = new BMethod(null, delegate);
         for (Place<SExpression> callPlace : call.getExpressions()) {
             addParameter(replacement, call, callPlace);
         }
-        ReplaceElement replaceElement = new ReplaceElement(getRegistry(), (IElement) call.getBase(), replacement);
-        replacements.add(replaceElement);
-        add(replaceElement);
+        replacements.add(add(new ReplaceElement(getRegistry(), (IElement) call.getBase(), replacement)));
     }
 
     private BMethodDeclaration chooseName(BMethodDeclaration delegate) {

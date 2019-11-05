@@ -24,7 +24,8 @@ public class CompoundRefactoring extends Refactoring {
         }
     }
 
-    public void add(Refactoring refactoring) {
+    public <R extends Refactoring> R add(R refactoring) {
         refactorings.add(refactoring);
+        return refactoring;
     }
 }

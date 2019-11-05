@@ -15,27 +15,21 @@ import java.util.stream.Collectors;
 
 public class BMethod extends BExpression implements SMethod {
     private SExpression qualifier;
-    private String name;
     private final ArrayList<SExpression> params = new ArrayList<>();
     private SMethodDeclaration declaration;
 
     @SuppressWarnings("unused")
     public BMethod(SMethod method) {
-        this(method.getQualifier(), method.getName());
+        this(method.getQualifier(), method.findDeclaration());
         for (SExpression param : method.getParameters()) {
             parameter(param);
         }
-        this.declaration = method.findDeclaration();
     }
 
-    public BMethod(SExpression qualifier, String name, SExpression... params) {
-        this(name);
+    public BMethod(SExpression qualifier, SMethodDeclaration declaration, SExpression... params) {
         this.qualifier = qualifier;
+        this.declaration = declaration;
         this.params.addAll(Arrays.asList(params));
-    }
-
-    public BMethod(String name) {
-        this.name = name;
     }
 
     @Override
@@ -50,7 +44,7 @@ public class BMethod extends BExpression implements SMethod {
 
     @Override
     public String getName() {
-        return name;
+        return declaration.getName();
     }
 
     @Override
@@ -92,6 +86,6 @@ public class BMethod extends BExpression implements SMethod {
     @Override
     public String toString() {
         String params = this.params.stream().map(SElement::getText).collect(Collectors.joining(", "));
-        return (qualifier==null?"":qualifier+".")+name+"("+ params +")";
+        return (qualifier==null?"":qualifier+".")+getName()+"("+ params +")";
     }
 }

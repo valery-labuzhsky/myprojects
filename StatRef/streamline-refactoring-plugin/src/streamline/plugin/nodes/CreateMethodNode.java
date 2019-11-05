@@ -11,7 +11,6 @@ import streamline.plugin.refactoring.CreateMethod;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -36,11 +35,13 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
 
     private class CreateMethodComponent extends NodeComponent {
         private final JPanel panel = new JPanel();
-        private final EnabledRefactoringCheckBox enabled = new EnabledRefactoringCheckBox(CreateMethodNode.this);
         private final NodeRendererComponent renderer = new NodeRendererComponent();
         private final JTextField nodeComponent = new TreeKludgeTextField();
+        // TODO it doesn't make sense to do a delegate without create method, so it should be mandatory
+        // TODO so it's enabled depends on parent, what does it give us?
 
         public CreateMethodComponent() {
+            EnabledRefactoringCheckBox enabled = new EnabledRefactoringCheckBox(CreateMethodNode.this);
             enabled.setOpaque(false); // TODO reuse it
             panel.add(enabled);
             panel.addKeyListener((KeyEventDispatcher) enabled::dispatchEvent);
@@ -51,7 +52,8 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
                 @Override
                 protected void textChanged(@NotNull DocumentEvent e) {
                     panel.setSize(panel.getPreferredSize());
-                    ((DefaultTreeModel)getTree().getModel()).nodeChanged(getNode());
+                    getRefactoring().getMethod().setName(nodeComponent.getText());
+                    getListeners().fire();
                 }
             });
             panel.add(nodeComponent);

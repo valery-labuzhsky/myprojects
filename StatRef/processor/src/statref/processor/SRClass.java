@@ -1,7 +1,7 @@
 package statref.processor;
 
 import statref.api.Field;
-import statref.model.*;
+import statref.model.SGenericDeclaration;
 import statref.model.builder.classes.BAnonClassDeclaration;
 import statref.model.builder.classes.BClassDeclaration;
 import statref.model.builder.classes.BFile;
@@ -137,7 +137,7 @@ public class SRClass {
                                            returnType(type.getGenericType());
 
                                            BVariable object = parameter(genericClientClass, "object");
-                                           return_(object.call(getter.getName()));
+                                           return_(object.call(getter));
                                        }
                                    }
                             ).
@@ -148,7 +148,7 @@ public class SRClass {
                                     BVariable object = parameter(genericClientClass, "object");
                                     BVariable value = parameter(type.getGenericType(), "value");
 
-                                    code(object.call(setter.getName(), value));
+                                    code(object.call(setter, value));
                                 }
                             });
 

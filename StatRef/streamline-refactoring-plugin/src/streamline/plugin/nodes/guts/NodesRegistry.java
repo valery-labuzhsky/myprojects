@@ -19,6 +19,8 @@ public class NodesRegistry {
         register(CompoundRefactoring.class, CompoundNode::new);
         register(CreateMethod.class, CreateMethodNode::new);
         register(ReplaceElement.class, ReplaceElementNode::new);
+        register(Delegate.class, DelegateNode::new);
+        // TODO do I need auto resolution for this?
     }};
 
     private final RefactoringRegistry refactorings = new RefactoringRegistry();

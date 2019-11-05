@@ -71,7 +71,7 @@ public abstract class SelfPresentingNode extends SimpleNode {
         SwingUtilities.invokeLater(this::notifyNodeChanged);
     }
 
-    private void notifyNodeChanged() {
+    protected void notifyNodeChanged() {
         if (tree != null) {
             ((DefaultTreeModel) tree.getModel()).nodeChanged(getNode());
         }
