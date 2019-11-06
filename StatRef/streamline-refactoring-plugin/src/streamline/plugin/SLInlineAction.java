@@ -53,9 +53,7 @@ public class SLInlineAction extends AnAction {
 
                 if (variable.isAssignment()) {
                     InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), (IInitializer) variable.getParent());
-                    RefactoringNode node1 = registry.create(refactoring);
-                    toolWindow.setNode(node1);
-                    InlineAssignmentNode node = (InlineAssignmentNode) node1;
+                    toolWindow.setNode(registry.create(refactoring));
                 } else {
                     InlineUsage refactoring = registry.getRefactorings().getRefactoring(new InlineUsage(variable, registry.getRefactorings()));
                     InlineUsageNode node = registry.create(refactoring);
