@@ -10,7 +10,8 @@ import streamline.plugin.refactoring.InlineUsage;
 import streamline.plugin.refactoring.guts.Listeners;
 
 import javax.swing.*;
-import java.util.Objects;
+import java.util.Collections;
+import java.util.List;
 
 public class VariantElementNode extends SelfPresentingNode {
     private final IInitializer variant;
@@ -45,21 +46,7 @@ public class VariantElementNode extends SelfPresentingNode {
 
     @NotNull
     @Override
-    public SelfPresentingNode[] getChildren() {
-        return new SelfPresentingNode[0];
-    }
-
-    // TODO why?
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        VariantElementNode that = (VariantElementNode) o;
-        return variant.equals(that.variant);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(variant);
+    public List<? extends SelfPresentingNode> getChildren() {
+        return Collections.emptyList();
     }
 }

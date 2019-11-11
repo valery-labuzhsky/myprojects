@@ -6,6 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.Presenter;
 import streamline.plugin.nodes.guts.SelfPresentingNode;
 
+import java.util.Collections;
+import java.util.List;
+
 public class ConflictManyValuesNode extends SelfPresentingNode {
 
     public ConflictManyValuesNode(Project project) {
@@ -23,7 +26,7 @@ public class ConflictManyValuesNode extends SelfPresentingNode {
 
     @NotNull
     @Override
-    public SelfPresentingNode[] getChildren() {
-        return new SelfPresentingNode[0];
+    public List<? extends SelfPresentingNode> getChildren() {
+        return Collections.emptyList();
     }
 }

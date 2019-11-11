@@ -1,7 +1,8 @@
 package streamline.plugin.nodes.guts;
 
+import com.intellij.ide.projectView.PresentationData;
+import com.intellij.ide.util.treeView.PresentableNodeDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +10,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class SelfPresentingNode {
@@ -17,12 +19,12 @@ public abstract class SelfPresentingNode {
     private NodeComponent component;
     private Presenter presenter;
 
-    private final MySimpleNode nodeDescriptor;
+    private final SelfDescriptor nodeDescriptor;
 
     private Supplier<NodeComponent> componentFactory = NodeRendererComponent::new;
 
     public SelfPresentingNode(Project project) {
-        nodeDescriptor = new MySimpleNode(project);
+        nodeDescriptor = new SelfDescriptor(project);
     }
 
     public void select() {
@@ -54,7 +56,7 @@ public abstract class SelfPresentingNode {
     protected void afterTreeNodeCreated() {
     }
 
-    public abstract SelfPresentingNode[] getChildren();
+    public abstract List<? extends SelfPresentingNode> getChildren();
 
     @NotNull
     private DefaultMutableTreeNode createTreeNode(SelfPresentingNode node) {
@@ -99,9 +101,8 @@ public abstract class SelfPresentingNode {
             SelfPresentingNode node = findNode(path.getParentPath());
             if (node != null) {
                 Object component = path.getLastPathComponent();
-                SelfPresentingNode[] children = node.getChildren();
                 if (component instanceof DefaultMutableTreeNode) {
-                    for (SelfPresentingNode child : children) {
+                    for (SelfPresentingNode child : node.getChildren()) {
                         if (child.equals(((DefaultMutableTreeNode) component).getUserObject())) {
                             return child;
                         }
@@ -116,32 +117,28 @@ public abstract class SelfPresentingNode {
         nodeDescriptor.update();
     }
 
-    public Project getProject() {
+    protected Project getProject() {
         return nodeDescriptor.getProject();
     }
 
-    public MySimpleNode getNodeDescriptor() {
+    public SelfDescriptor getNodeDescriptor() {
         return nodeDescriptor;
     }
 
-    // TODO rename me
-    // TODO use PresentableNodeDescriptor
-    private class MySimpleNode extends SimpleNode {
-        public MySimpleNode(Project project) {
-            super(project);
-        }
-
-        @NotNull
-        @Override
-        public SimpleNode[] getChildren() {
-            return new SimpleNode[0];
+    private class SelfDescriptor extends PresentableNodeDescriptor<SelfDescriptor> {
+        public SelfDescriptor(Project project) {
+            super(project, null);
         }
 
         @Override
-        protected void doUpdate() {
-            getPresenter().update(nodeDescriptor.getTemplatePresentation());
+        protected void update(@NotNull PresentationData presentation) {
+            getPresenter().update(presentation);
             SwingUtilities.invokeLater(SelfPresentingNode.this::notifyNodeChanged);
         }
 
+        @Override
+        public SelfDescriptor getElement() {
+            return this;
+        }
     }
 }

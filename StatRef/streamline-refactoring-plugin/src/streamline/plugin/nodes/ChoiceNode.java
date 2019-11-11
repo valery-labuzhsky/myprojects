@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
-    private final List<RefactoringNode> nodes = new ArrayList<>();
+    private final List<SelfPresentingNode> nodes = new ArrayList<>();
     private final ButtonGroup buttons = new ButtonGroup();
 
     public ChoiceNode(NodesRegistry registry) {
@@ -52,8 +52,8 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
 
     @NotNull
     @Override
-    public SelfPresentingNode[] createChildren() {
-        return nodes.toArray(new SelfPresentingNode[0]);
+    public List<SelfPresentingNode> createChildren() {
+        return nodes;
     }
 
     @Override

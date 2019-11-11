@@ -7,6 +7,7 @@ import streamline.plugin.refactoring.CompoundRefactoring;
 import streamline.plugin.refactoring.guts.Refactoring;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode<R> {
     public CompoundNode(R refactoring, NodesRegistry registry) {
@@ -15,12 +16,12 @@ public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode
 
     @NotNull
     @Override
-    public SelfPresentingNode[] createChildren() {
+    public List<SelfPresentingNode> createChildren() {
         ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
         for (Refactoring r : refactoring.getRefactorings()) {
             nodes.add(registry.create(r));
         }
-        return nodes.toArray(new SelfPresentingNode[0]);
+        return nodes;
     }
 
     @Override

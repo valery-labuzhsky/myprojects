@@ -60,9 +60,10 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
 
     @NotNull
     @Override
-    public SelfPresentingNode[] createChildren() {
+    public List<SelfPresentingNode> createChildren() {
         if (refactoring.getVariants().size() == 1) {
-            return new SelfPresentingNode[]{new VariantElementNode(this, refactoring.getVariants().get(0)).lock()};
+            return Collections.singletonList(
+                    new VariantElementNode(this, refactoring.getVariants().get(0)).lock());
         }
         ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
         if (assignment != null) {
@@ -75,12 +76,12 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
                 nodes.add(new VariantElementNode(this, variant));
             }
         }
-        return nodes.toArray(new SelfPresentingNode[0]);
+        return nodes;
     }
 
     private void createWhatElseNodes() {
         LinkedHashSet<Refactoring> newOnes = new LinkedHashSet<>(refactoring.whatElse());
-        HashSet<SelfPresentingNode> fixedNodes = new HashSet<>(Arrays.asList(getChildren()));
+        HashSet<SelfPresentingNode> fixedNodes = new HashSet<>(getChildren());
         ArrayList<Integer> removedIndices = new ArrayList<>();
         ArrayList<Object> removedObjects = new ArrayList<>();
         for (int i = 0; i < getNode().getChildCount(); i++) {

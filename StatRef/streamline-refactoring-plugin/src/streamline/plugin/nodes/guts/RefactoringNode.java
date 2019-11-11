@@ -9,13 +9,14 @@ import streamline.plugin.refactoring.guts.Refactoring;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
-import java.util.Objects;
+import java.util.Collections;
+import java.util.List;
 
 public abstract class RefactoringNode<R extends Refactoring> extends SelfPresentingNode {
     protected final R refactoring;
     protected final NodesRegistry registry;
     private final Listeners listeners;
-    private SelfPresentingNode[] children;
+    private List<SelfPresentingNode> children;
 
     public RefactoringNode(R refactoring, NodesRegistry registry) {
         super(registry.getProject());
@@ -43,7 +44,7 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
 
     @NotNull
     @Override
-    public SelfPresentingNode[] getChildren() {
+    public List<SelfPresentingNode> getChildren() {
         if (children == null) {
             children = createChildren();
         }
@@ -92,21 +93,7 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     }
 
     @NotNull
-    public SelfPresentingNode[] createChildren() {
-        return new SelfPresentingNode[0];
-    }
-
-    // TODO why?
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RefactoringNode<?> that = (RefactoringNode<?>) o;
-        return refactoring.equals(that.refactoring);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(refactoring);
+    public List<SelfPresentingNode> createChildren() {
+        return Collections.emptyList();
     }
 }

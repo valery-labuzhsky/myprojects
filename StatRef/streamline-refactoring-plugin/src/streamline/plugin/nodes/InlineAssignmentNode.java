@@ -10,6 +10,7 @@ import streamline.plugin.refactoring.InlineAssignment;
 import streamline.plugin.refactoring.InlineUsage;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
 
@@ -24,7 +25,7 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
 
     @Override
     @NotNull
-    public SelfPresentingNode[] createChildren() {
+    public List<SelfPresentingNode> createChildren() {
         RemoveElementNode removeNode = new RemoveElementNode(this.refactoring.getRemove(), registry);
         Runnable enabledListener = () -> {
             boolean anyEnabled = refactoring.getRemove().isEnabled();
@@ -55,7 +56,7 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
                 }
             }
         };
-        ArrayList<RefactoringNode> nodes = new ArrayList<>();
+        ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
         for (InlineUsage usage : this.refactoring.getUsages()) {
             InlineUsageNode usageNode = new InlineUsageNode(usage, registry);
             usageNode.setAssignment(refactoring.getInitializer());
@@ -64,7 +65,7 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
             nodes.add(usageNode);
         }
         nodes.add(removeNode);
-        return nodes.toArray(new SelfPresentingNode[0]);
+        return nodes;
     }
 
 }
