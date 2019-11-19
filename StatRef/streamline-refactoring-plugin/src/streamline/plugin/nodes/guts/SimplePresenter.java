@@ -33,12 +33,13 @@ public class SimplePresenter implements Presenter {
     }
 
     public Presenter add(Object object) {
-        add(object.toString());
+        blocks.add(new ObjectBlock(object, attributes));
+        regular();
         return this;
     }
 
-    public SimplePresenter add(String prefix) {
-        blocks.add(new TextBlock(prefix, attributes));
+    public SimplePresenter add(String text) {
+        blocks.add(new TextBlock(text, attributes));
         regular();
         return this;
     }
@@ -144,6 +145,20 @@ public class SimplePresenter implements Presenter {
 
         public void addText(PresentationData presentation, String text) {
             SimplePresenter.this.addText(presentation, text, this.attributes);
+        }
+    }
+
+    private class ObjectBlock extends Block {
+        private final Object object;
+
+        public ObjectBlock(Object object, SimpleTextAttributes attributes) {
+            super(attributes);
+            this.object = object;
+        }
+
+        @Override
+        public void present(PresentationData presentation) {
+            addText(presentation, object.toString());
         }
     }
 }

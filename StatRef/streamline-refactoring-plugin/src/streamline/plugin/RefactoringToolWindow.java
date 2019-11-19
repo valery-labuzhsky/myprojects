@@ -34,7 +34,6 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         TreePath[] paths = getTree().getSelectionPaths();
 
         this.node = node;
-        node.setComponentFactory(NodeRendererComponent::new);
         DefaultTreeModel model = new DefaultTreeModel(null);
         DefaultMutableTreeNode rootNode = node.createTreeNode(tree);
         model.setRoot(rootNode);
@@ -165,8 +164,8 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
 
     private NodeComponent getComponent(Object value) {
         Object node = TreeUtil.getUserObject(value);
-        if (node instanceof SelfPresentingNode) {
-            return ((SelfPresentingNode) node).getNodeComponent();
+        if (node instanceof SingleDescriptorNode) {
+            return ((SingleDescriptorNode) node).getNodeComponent();
         } else if (node == null) {
             return null;
         } else {

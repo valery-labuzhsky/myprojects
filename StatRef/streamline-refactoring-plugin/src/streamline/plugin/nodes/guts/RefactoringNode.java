@@ -12,7 +12,7 @@ import javax.swing.tree.TreePath;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class RefactoringNode<R extends Refactoring> extends SelfPresentingNode {
+public abstract class RefactoringNode<R extends Refactoring> extends SingleDescriptorNode {
     protected final R refactoring;
     protected final NodesRegistry registry;
     private final Listeners listeners;
@@ -23,13 +23,13 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         this.refactoring = refactoring;
         this.registry = registry;
         listeners = registry.getListeners(refactoring);
-        getListeners().add(this::update);
+        getListeners().invoke(this::update);
         setComponentFactory(() -> new CheckBoxEnabledPanel(this));
     }
 
     @Override
     public void afterTreeNodeCreated() {
-        getListeners().add(() -> {
+        getListeners().invoke(() -> {
             TreePath path = new TreePath(getNode().getPath());
             if (getRefactoring().isEnabled()) {
                 getTree().expandPath(path);
@@ -59,7 +59,7 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         return listeners;
     }
 
-    public static class CheckBoxEnabledPanel extends NodePanel<JCheckBox> {
+    public static class CheckBoxEnabledPanel extends PairNodePanel<JCheckBox> {
         public CheckBoxEnabledPanel(RefactoringNode node) {
             super(createCheckBox(node));
         }

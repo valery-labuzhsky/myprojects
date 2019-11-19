@@ -10,9 +10,17 @@ public class Listeners {
     public Listeners() {
     }
 
-    public void add(Runnable listener) {
+    public void listen(Runnable listener) {
         if (newListeners != null) {
-            newListeners.add(listener);
+            newListeners.listen(listener);
+        } else {
+            listeners.add(listener);
+        }
+    }
+
+    public void invoke(Runnable listener) {
+        if (newListeners != null) {
+            newListeners.invoke(listener);
         } else {
             listeners.add(listener);
             listener.run();

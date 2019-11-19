@@ -37,7 +37,7 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
             }
             setEnabled(anyEnabled);
         };
-        removeNode.getListeners().add(enabledListener);
+        removeNode.getListeners().invoke(enabledListener);
         Runnable usageListeners = new Runnable() {
             private boolean oldUsageLeft = false;
             private boolean usagesLeft = false;
@@ -60,8 +60,8 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
         for (InlineUsage usage : this.refactoring.getUsages()) {
             InlineUsageNode usageNode = new InlineUsageNode(usage, registry);
             usageNode.setAssignment(refactoring.getInitializer());
-            usageNode.getListeners().add(usageListeners);
-            usageNode.getListeners().add(enabledListener);
+            usageNode.getListeners().invoke(usageListeners);
+            usageNode.getListeners().invoke(enabledListener);
             nodes.add(usageNode);
         }
         nodes.add(removeNode);

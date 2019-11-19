@@ -19,8 +19,8 @@ public abstract class NodeComponent {
         };
     }
 
-    protected abstract JComponent getComponent();
+    public abstract JComponent getComponent();
 
-    protected abstract void prepare(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus);
+    public abstract void prepare(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus);
 
 }

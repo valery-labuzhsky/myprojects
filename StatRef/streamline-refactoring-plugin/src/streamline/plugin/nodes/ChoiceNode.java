@@ -36,7 +36,7 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
                 });
             });
             radioButton.setSelected(node.getRefactoring().equals(refactoring.getChosen()));
-            return new NodePanel<>(radioButton);
+            return new PairNodePanel<>(radioButton);
         });
         refactoring.add(node.getRefactoring());
         if (refactoring.getVariants().size()==1) {

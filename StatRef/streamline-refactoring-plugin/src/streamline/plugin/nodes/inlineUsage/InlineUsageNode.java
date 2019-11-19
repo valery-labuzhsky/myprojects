@@ -55,7 +55,7 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
 
         super.afterTreeNodeCreated();
 
-        getListeners().add(this::createWhatElseNodes);
+        getListeners().invoke(this::createWhatElseNodes);
     }
 
     @NotNull

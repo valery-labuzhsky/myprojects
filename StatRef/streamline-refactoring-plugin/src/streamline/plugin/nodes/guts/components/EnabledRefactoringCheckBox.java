@@ -11,7 +11,7 @@ public class EnabledRefactoringCheckBox extends JCheckBox {
     public EnabledRefactoringCheckBox(RefactoringNode node) {
         this.node = node;
         addActionListener((e) -> onAction());
-        node.getListeners().add(() -> setSelected(node.getRefactoring().isEnabled()));
+        node.getListeners().invoke(() -> setSelected(node.getRefactoring().isEnabled()));
     }
 
     protected void onAction() {

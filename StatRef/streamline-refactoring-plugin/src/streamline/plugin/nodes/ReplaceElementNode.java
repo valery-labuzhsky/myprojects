@@ -16,9 +16,4 @@ public class ReplaceElementNode extends RefactoringNode<ReplaceElement> {
     protected Presenter createPresenter() {
         return new SimplePresenter().italic().add("Replace ").add(refactoring.getTarget()).add(" with ").add(refactoring.getReplacement());
     }
-
-    @Override
-    protected Presenter getPresenter() {
-        return createPresenter();
-    }
 }

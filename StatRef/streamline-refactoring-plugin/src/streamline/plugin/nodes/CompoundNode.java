@@ -26,16 +26,20 @@ public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode
 
     @Override
     protected Presenter createPresenter() {
-        if (refactoring.getClass().equals(CompoundRefactoring.class)) {
+        if (isPlain()) {
             return new EmptyPresenter();
         } else {
             return new SimplePresenter().add(refactoring.toString());
         }
     }
 
+    private boolean isPlain() {
+        return refactoring.getClass().equals(CompoundRefactoring.class);
+    }
+
     @Override
     public boolean showRoot() {
-        return !(getPresenter() instanceof EmptyPresenter);
+        return !isPlain();
     }
 
     private static class EmptyPresenter implements Presenter {
