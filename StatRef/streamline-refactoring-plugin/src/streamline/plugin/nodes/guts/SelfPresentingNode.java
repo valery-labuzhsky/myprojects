@@ -1,5 +1,6 @@
 package streamline.plugin.nodes.guts;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.refactoring.guts.Listeners;
@@ -7,15 +8,21 @@ import streamline.plugin.refactoring.guts.Listeners;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 public abstract class SelfPresentingNode {
     protected final Listeners onUpdate = new Listeners();
+    private final Project project;
     private DefaultMutableTreeNode node;
     protected Tree tree;
     private NodeComponent component;
-    private Supplier<NodeComponent> componentFactory = NodeRendererComponent::new;
+    private NodePanelBuilder panelBuilder = new NodePanelBuilder();
+
+    public SelfPresentingNode(Project project) {
+        this.project = project;
+    }
 
     @NotNull
     public DefaultMutableTreeNode createTreeNode(Tree tree) {
@@ -65,11 +72,7 @@ public abstract class SelfPresentingNode {
     }
 
     private NodeComponent createNodeComponent() {
-        return componentFactory.get();
-    }
-
-    public void setComponentFactory(Supplier<NodeComponent> componentFactory) {
-        this.componentFactory = componentFactory;
+        return panelBuilder.createPanel();
     }
 
     public NodeComponent getNodeComponent() {
@@ -97,5 +100,50 @@ public abstract class SelfPresentingNode {
     public void update() {
         onUpdate.fire();
         notifyNodeChanged();
+    }
+
+    protected Project getProject() {
+        return project;
+    }
+
+    @NotNull
+    protected Consumer<NodePanel> textRenderer(Presenter presenter) {
+        return panel -> {
+            TextRenderer text = new TextRenderer(getProject(), presenter);
+            onUpdate.listen(text::update); // TODO remove when panel is recreated
+            panel.addNodeComponent(text);
+        };
+    }
+
+    @SafeVarargs
+    public final void setNodePanelParts(Consumer<NodePanel>... parts) {
+        panelBuilder = new NodePanelBuilder();
+        for (Consumer<NodePanel> part : parts) {
+            panelBuilder.add(part);
+        }
+    }
+
+    // TODO maybe just list will be enough?
+    public static class NodePanelBuilder {
+        private final ArrayList<Consumer<NodePanel>> builders = new ArrayList<>();
+
+        public NodePanelBuilder add(Consumer<NodePanel> part) {
+            getParts().add(part);
+            return this;
+        }
+
+        public ArrayList<Consumer<NodePanel>> getParts() {
+            return builders;
+        }
+
+        @NotNull
+        public NodePanel createPanel() {
+            NodePanel nodeComponent = new NodePanel();
+            for (Consumer<NodePanel> component : getParts()) {
+                component.accept(nodeComponent);
+            }
+            return nodeComponent;
+        }
+
     }
 }

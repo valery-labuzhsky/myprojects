@@ -5,19 +5,18 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.Presenter;
 import streamline.plugin.nodes.guts.SelfPresentingNode;
-import streamline.plugin.nodes.guts.SingleDescriptorNode;
 
 import java.util.Collections;
 import java.util.List;
 
-public class ConflictManyValuesNode extends SingleDescriptorNode {
+public class ConflictManyValuesNode extends SelfPresentingNode {
 
     public ConflictManyValuesNode(Project project) {
         super(project);
         update();
+        setNodePanelParts(textRenderer(createPresenter()));
     }
 
-    @Override
     protected Presenter createPresenter() {
         return presentation -> {
             presentation.clearText();

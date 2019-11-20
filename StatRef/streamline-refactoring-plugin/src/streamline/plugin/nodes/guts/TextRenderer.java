@@ -9,13 +9,17 @@ public class TextRenderer extends NodeComponent {
     private final TextDescriptor text;
     private final NodeRenderer renderer = new NodeRenderer();
 
-    public TextRenderer(Project project, SimplePresenter presenter) {
+    public TextRenderer(Project project, Presenter presenter) {
         text = new TextDescriptor(project, presenter);
     }
 
     @Override
     public JComponent getComponent() {
         return renderer;
+    }
+
+    public boolean update() {
+        return text.update();
     }
 
     @Override

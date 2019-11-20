@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
     private final List<SelfPresentingNode> nodes = new ArrayList<>();
@@ -19,7 +20,17 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
 
     public ChoiceNode add(RefactoringNode<?> node) {
         nodes.add(node);
-        node.setComponentFactory(() -> {
+        node.setNodePanelParts(radioButton(node), textRenderer(createPresenter()));
+        refactoring.add(node.getRefactoring());
+        if (refactoring.getVariants().size()==1) {
+            refactoring.setChosen(node.getRefactoring());
+        }
+        return this;
+    }
+
+    @NotNull
+    private Consumer<NodePanel> radioButton(RefactoringNode<?> node) {
+        return panel -> {
             JRadioButton radioButton = new JRadioButton();
             buttons.add(radioButton);
             radioButton.addItemListener((e) -> {
@@ -36,13 +47,8 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
                 });
             });
             radioButton.setSelected(node.getRefactoring().equals(refactoring.getChosen()));
-            return new PairNodePanel<>(radioButton);
-        });
-        refactoring.add(node.getRefactoring());
-        if (refactoring.getVariants().size()==1) {
-            refactoring.setChosen(node.getRefactoring());
-        }
-        return this;
+            panel.add(radioButton);
+        };
     }
 
     @Override

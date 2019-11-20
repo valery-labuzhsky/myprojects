@@ -7,12 +7,12 @@ import streamline.plugin.nodes.guts.components.EnabledRefactoringCheckBox;
 import streamline.plugin.refactoring.guts.Listeners;
 import streamline.plugin.refactoring.guts.Refactoring;
 
-import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
-public abstract class RefactoringNode<R extends Refactoring> extends SingleDescriptorNode {
+public abstract class RefactoringNode<R extends Refactoring> extends SelfPresentingNode {
     protected final R refactoring;
     protected final NodesRegistry registry;
     private final Listeners listeners;
@@ -24,7 +24,7 @@ public abstract class RefactoringNode<R extends Refactoring> extends SingleDescr
         this.registry = registry;
         listeners = registry.getListeners(refactoring);
         getListeners().invoke(this::update);
-        setComponentFactory(() -> new CheckBoxEnabledPanel(this));
+        setNodePanelParts(enabledCheckBox(), textRenderer(createPresenter()));
     }
 
     @Override
@@ -59,17 +59,16 @@ public abstract class RefactoringNode<R extends Refactoring> extends SingleDescr
         return listeners;
     }
 
-    public static class CheckBoxEnabledPanel extends PairNodePanel<JCheckBox> {
-        public CheckBoxEnabledPanel(RefactoringNode node) {
-            super(createCheckBox(node));
-        }
-
-        @NotNull
-        private static JCheckBox createCheckBox(RefactoringNode node) {
-            return new EnabledRefactoringCheckBox(node);
-        }
-
+    @NotNull
+    protected Consumer<NodePanel> enabledCheckBox() {
+        return panel -> {
+            EnabledRefactoringCheckBox enabled = new EnabledRefactoringCheckBox(RefactoringNode.this);
+            panel.add(enabled);
+            panel.dispatchKeyEvents(enabled);
+        };
     }
+
+    protected abstract Presenter createPresenter();
 
     public class RefactoringPresenter extends ElementPresenter {
         public RefactoringPresenter(String prefix, PsiElement psiElement) {

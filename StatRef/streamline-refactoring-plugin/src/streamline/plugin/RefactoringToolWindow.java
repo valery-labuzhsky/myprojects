@@ -8,7 +8,9 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.KeyEventDispatcher;
-import streamline.plugin.nodes.guts.*;
+import streamline.plugin.nodes.guts.NodeComponent;
+import streamline.plugin.nodes.guts.RefactoringNode;
+import streamline.plugin.nodes.guts.SelfPresentingNode;
 import streamline.plugin.refactoring.guts.Refactoring;
 
 import javax.swing.*;
@@ -164,8 +166,8 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
 
     private NodeComponent getComponent(Object value) {
         Object node = TreeUtil.getUserObject(value);
-        if (node instanceof SingleDescriptorNode) {
-            return ((SingleDescriptorNode) node).getNodeComponent();
+        if (node instanceof SelfPresentingNode) {
+            return ((SelfPresentingNode) node).getNodeComponent();
         } else if (node == null) {
             return null;
         } else {
