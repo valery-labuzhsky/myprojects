@@ -24,7 +24,10 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         this.registry = registry;
         listeners = registry.getListeners(refactoring);
         getListeners().invoke(this::update);
-        setNodePanelParts(enabledCheckBox(), textRenderer(createPresenter()));
+    }
+
+    protected void setNodePanelParts(Presenter presenter) {
+        setNodePanelParts(enabledCheckBox(), textRenderer(presenter));
     }
 
     @Override
@@ -67,8 +70,6 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
             panel.dispatchKeyEvents(enabled);
         };
     }
-
-    protected abstract Presenter createPresenter();
 
     public class RefactoringPresenter extends ElementPresenter {
         public RefactoringPresenter(String prefix, PsiElement psiElement) {

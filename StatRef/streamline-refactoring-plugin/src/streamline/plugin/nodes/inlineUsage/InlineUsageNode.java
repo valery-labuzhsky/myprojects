@@ -2,7 +2,6 @@ package streamline.plugin.nodes.inlineUsage;
 
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
-import streamline.plugin.nodes.guts.ElementPresenter;
 import streamline.plugin.nodes.guts.NodesRegistry;
 import streamline.plugin.nodes.guts.RefactoringNode;
 import streamline.plugin.nodes.guts.SelfPresentingNode;
@@ -20,6 +19,7 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
 
     public InlineUsageNode(InlineUsage refactoring, NodesRegistry registry) {
         super(refactoring, registry);
+        setNodePanelParts(new RefactoringPresenter("Replace ", this.refactoring.getUsage().getElement()));
     }
 
     public void selectAny() {
@@ -29,11 +29,6 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
                 break;
             }
         }
-    }
-
-    @Override
-    protected ElementPresenter createPresenter() {
-        return new RefactoringPresenter("Replace ", refactoring.getUsage().getElement());
     }
 
     @Override

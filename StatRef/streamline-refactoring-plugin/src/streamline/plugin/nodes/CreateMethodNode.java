@@ -16,7 +16,6 @@ public class CreateMethodNode extends RefactoringNode<CreateMethod> {
         setNodePanelParts(enabledCheckBox(), textRenderer(createPresenter()), nameEditor());
     }
 
-    @Override
     protected Presenter createPresenter() {
         return new SimplePresenter().add("Create method");
     }

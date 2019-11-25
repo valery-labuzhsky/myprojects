@@ -1,7 +1,6 @@
 package streamline.plugin.nodes;
 
 import org.jetbrains.annotations.NotNull;
-import streamline.plugin.nodes.guts.ElementPresenter;
 import streamline.plugin.nodes.guts.NodesRegistry;
 import streamline.plugin.nodes.guts.RefactoringNode;
 import streamline.plugin.nodes.guts.SelfPresentingNode;
@@ -16,11 +15,7 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
 
     public InlineAssignmentNode(InlineAssignment inlineAssignment, NodesRegistry registry) {
         super(inlineAssignment, registry);
-    }
-
-    @Override
-    protected ElementPresenter createPresenter() {
-        return new RefactoringPresenter("Inline ", refactoring.getInitializer().getElement());
+        setNodePanelParts(new RefactoringPresenter("Inline ", refactoring.getInitializer().getElement()));
     }
 
     @Override

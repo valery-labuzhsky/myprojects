@@ -16,11 +16,13 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
 
     public ChoiceNode(NodesRegistry registry) {
         super(new RefactoringChoice(registry.getRefactorings()), registry);
+        setNodePanelParts(new SimplePresenter());
     }
 
     public ChoiceNode add(RefactoringNode<?> node) {
         nodes.add(node);
-        node.setNodePanelParts(radioButton(node), textRenderer(createPresenter()));
+        // TODO node presenter must go here
+        node.setNodePanelParts(radioButton(node), textRenderer(new SimplePresenter()));
         refactoring.add(node.getRefactoring());
         if (refactoring.getVariants().size()==1) {
             refactoring.setChosen(node.getRefactoring());
@@ -49,11 +51,6 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
             radioButton.setSelected(node.getRefactoring().equals(refactoring.getChosen()));
             panel.add(radioButton);
         };
-    }
-
-    @Override
-    protected Presenter createPresenter() {
-        return presentation -> {};
     }
 
     @NotNull

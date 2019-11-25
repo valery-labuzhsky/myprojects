@@ -1,6 +1,5 @@
 package streamline.plugin.nodes;
 
-import com.intellij.ide.projectView.PresentationData;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.*;
 import streamline.plugin.refactoring.CompoundRefactoring;
@@ -12,6 +11,7 @@ import java.util.List;
 public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode<R> {
     public CompoundNode(R refactoring, NodesRegistry registry) {
         super(refactoring, registry);
+        setNodePanelParts(createPresenter());
     }
 
     @NotNull
@@ -24,10 +24,9 @@ public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode
         return nodes;
     }
 
-    @Override
     protected Presenter createPresenter() {
         if (isPlain()) {
-            return new EmptyPresenter();
+            return new SimplePresenter();
         } else {
             return new SimplePresenter().add(refactoring.toString());
         }
@@ -42,9 +41,4 @@ public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode
         return !isPlain();
     }
 
-    private static class EmptyPresenter implements Presenter {
-        @Override
-        public void update(PresentationData presentation) {
-        }
-    }
 }
