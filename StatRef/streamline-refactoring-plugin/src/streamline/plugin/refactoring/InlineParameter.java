@@ -17,9 +17,10 @@ public class InlineParameter extends CompoundRefactoring {
     private final IParameter parameter;
 
     // TODO what next?
-    // TODO make enter work
+    // TODO make inline variable work again
+    // TODO refactor enabled checkboxes - not all of them are optional
     // TODO do refactoring right away, make revert button
-    // TODO I need to resolve these warning after all
+    // TODO make enter work
 
     public InlineParameter(NodesRegistry registry, IParameter parameter) {
         super(registry.getRefactorings());

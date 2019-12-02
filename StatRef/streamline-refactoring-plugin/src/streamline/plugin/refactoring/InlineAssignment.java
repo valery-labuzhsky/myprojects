@@ -6,6 +6,7 @@ import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class InlineAssignment extends Refactoring {
     private final IInitializer initializer;
@@ -65,5 +66,18 @@ public class InlineAssignment extends Refactoring {
             u.setEnabled(u.equals(usage));
         }
         remove.setEnabled(!areUsagesLeft());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InlineAssignment that = (InlineAssignment) o;
+        return initializer.equals(that.initializer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(initializer);
     }
 }

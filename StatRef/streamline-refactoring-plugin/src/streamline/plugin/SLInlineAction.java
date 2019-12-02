@@ -42,7 +42,7 @@ public class SLInlineAction extends AnAction {
             NodesRegistry registry = new NodesRegistry(project);
             if (parent instanceof PsiLocalVariable) {
                 IInitializer declaration = new IVariableDeclaration((PsiLocalVariable) parent);
-                InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant();
+                InlineAssignment refactoring = registry.getRefactorings().getRefactoring(new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant());
                 // TODO now I must improve a tree to make in comfortable to work with
                 // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
                 createRefactoringTree(project, event, "Inline " + declaration.getText(), new InlineAssignmentNode(refactoring, registry));

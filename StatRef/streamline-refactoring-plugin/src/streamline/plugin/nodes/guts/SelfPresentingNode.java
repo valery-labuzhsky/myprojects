@@ -27,6 +27,7 @@ public abstract class SelfPresentingNode {
     @NotNull
     public DefaultMutableTreeNode createTreeNode(Tree tree) {
         this.tree = tree;
+        // TODO make SelfPresentingNode - TreeNode
         node = createTreeNode(this);
         return getNode();
     }

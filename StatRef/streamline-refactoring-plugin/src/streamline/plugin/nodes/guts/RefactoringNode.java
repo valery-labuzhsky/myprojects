@@ -7,6 +7,8 @@ import streamline.plugin.nodes.guts.components.EnabledRefactoringCheckBox;
 import streamline.plugin.refactoring.guts.Listeners;
 import streamline.plugin.refactoring.guts.Refactoring;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.Collections;
 import java.util.List;
@@ -40,8 +42,14 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
                 getTree().collapsePath(path);
             }
         });
-        for (SelfPresentingNode child : getChildren()) {
-            child.afterTreeNodeCreated();
+        for (int i = 0; i < getNode().getChildCount(); i++) {
+            TreeNode node = getNode().getChildAt(i);
+            if (node instanceof DefaultMutableTreeNode) {
+                Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
+                if (userObject instanceof RefactoringNode) {
+                    ((RefactoringNode) userObject).afterTreeNodeCreated();
+                }
+            }
         }
     }
 
