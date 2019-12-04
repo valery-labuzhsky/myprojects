@@ -8,7 +8,6 @@ import streamline.plugin.nodes.guts.SelfPresentingNode;
 import streamline.plugin.refactoring.InlineUsage;
 import streamline.plugin.refactoring.guts.Refactoring;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import java.util.*;
@@ -67,95 +66,74 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
 
     private void createWhatElseNodes() {
         LinkedHashSet<Refactoring> newOnes = new LinkedHashSet<>(refactoring.whatElse());
-        HashSet<SelfPresentingNode> fixedNodes = new HashSet<>(getChildren());
-        ArrayList<Integer> removedIndices = new ArrayList<>();
-        ArrayList<Object> removedObjects = new ArrayList<>();
-        for (int i = 0; i < getNode().getChildCount(); i++) {
-            TreeNode node = getNode().getChildAt(i);
-            if (node instanceof DefaultMutableTreeNode) {
-                Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
-                if (!fixedNodes.remove(userObject)) {
-                    if (userObject instanceof RefactoringNode) {
-                        RefactoringNode refactoringNode = (RefactoringNode) userObject;
-                        if (!newOnes.remove(refactoringNode.getRefactoring())) {
-                            removedIndices.add(i);
-                            removedObjects.add(refactoringNode);
-                        }
-                    }
+
+        notifyRemoved(filterChildren(node -> {
+            if (node instanceof RefactoringNode) {
+                if (!newOnes.remove(((RefactoringNode) node).getRefactoring())) {
+                    return false;
                 }
             }
-        }
+            return true;
+        }));
 
-        for (int i = removedIndices.size() - 1; i >= 0; i--) {
-            Integer index = removedIndices.get(i);
-            getNode().remove(index);
-        }
-
-        getModel().nodesWereRemoved(getNode(), getInts(removedIndices), removedObjects.toArray());
-
-        int startIndex = getNode().getChildCount();
+        int startIndex = this.getChildCount();
         for (Refactoring refactoring : newOnes) {
             addChild(refactoring);
         }
-        int stopIndex = getNode().getChildCount();
+        int stopIndex = this.getChildCount();
 
         if (stopIndex > startIndex) {
             int[] indices = new int[stopIndex - startIndex];
-            Arrays.setAll(indices, i -> startIndex + i);
-            getModel().nodesWereInserted(getNode(), indices);
+            Arrays.setAll(indices, j -> startIndex + j);
+            getModel().nodesWereInserted(this, indices);
 
             for (int index : indices) {
-                ((RefactoringNode) ((DefaultMutableTreeNode) getNode().getChildAt(index)).getUserObject()).afterTreeNodeCreated();
+                ((RefactoringNode) getChildAt(index)).afterTreeNodeCreated();
             }
+        }
+    }
+
+    private void notifyRemoved(LinkedHashMap<Integer, SelfPresentingNode> removed) {
+        if (!removed.isEmpty()) {
+            getModel().nodesWereRemoved(this, getInts(removed.keySet()), removed.values().toArray());
         }
     }
 
     private void addChild(Refactoring refactoring) {
-        HashSet<Refactoring> ascendants = new HashSet<>();
-        DefaultMutableTreeNode ascendant = getNode();
-        while (ascendant != null) {
-            Object node = ascendant.getUserObject();
-            if (node instanceof RefactoringNode) {
-                ascendants.add(((RefactoringNode) node).getRefactoring());
-                // Add siblings
-                for (int i = 0; i < ascendant.getChildCount(); i++) {
-                    TreeNode child = ascendant.getChildAt(i);
-                    if (child instanceof DefaultMutableTreeNode) {
-                        Object childNode = ((DefaultMutableTreeNode) child).getUserObject();
-                        if (childNode instanceof RefactoringNode) {
-                            ascendants.add(((RefactoringNode) childNode).getRefactoring());
-                        }
-                    }
-                }
-            }
-            ascendant = (DefaultMutableTreeNode) ascendant.getParent();
-        }
-        if (ascendants.contains(refactoring)) {
+        HashSet<TreeNode> visible = getVisibleNodes();
+        RefactoringNode treeNode = registry.create(refactoring);
+        if (visible.contains(treeNode)) {
             return;
         }
-        DefaultMutableTreeNode treeNode = registry.create(refactoring).createTreeNode(getTree());
-        removeRecursion(treeNode, ascendants);
-        getNode().add(treeNode);
+        removeRecursion(treeNode, visible);
+        treeNode.setTree(getTree());
+        getChildren().add(treeNode);
+        treeNode.setParent(this);
     }
 
-    private void removeRecursion(TreeNode treeNode, HashSet<Refactoring> ascendants) {
-        ArrayList<DefaultMutableTreeNode> remove = new ArrayList<>();
-        for (int i = 0; i < treeNode.getChildCount(); i++) {
-            TreeNode child = treeNode.getChildAt(i);
-            if (child instanceof DefaultMutableTreeNode) {
-                Object userObject = ((DefaultMutableTreeNode) child).getUserObject();
-                if (userObject instanceof RefactoringNode) {
-                    if (ascendants.contains(((RefactoringNode) userObject).getRefactoring())) {
-                        remove.add((DefaultMutableTreeNode) child);
-                        continue;
-                    }
-                }
+    @NotNull
+    private HashSet<TreeNode> getVisibleNodes() {
+        HashSet<TreeNode> visible = new HashSet<>();
+        TreeNode ascendant = this;
+        while (ascendant != null) {
+            visible.add(ascendant);
+            // Add siblings
+            for (int i = 0; i < ascendant.getChildCount(); i++) {
+                visible.add(ascendant.getChildAt(i));
             }
-            removeRecursion(child, ascendants);
+            ascendant = ascendant.getParent();
         }
-        for (DefaultMutableTreeNode node : remove) {
-            node.removeFromParent();
-        }
+        return visible;
+    }
+
+    private void removeRecursion(SelfPresentingNode treeNode, HashSet<TreeNode> visible) {
+        treeNode.filterChildren(child -> {
+            if (visible.contains(child)) {
+                return false;
+            }
+            removeRecursion(child, visible);
+            return true;
+        });
     }
 
     private DefaultTreeModel getModel() {

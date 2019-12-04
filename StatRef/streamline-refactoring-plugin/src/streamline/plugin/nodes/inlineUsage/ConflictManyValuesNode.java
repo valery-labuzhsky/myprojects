@@ -17,8 +17,9 @@ public class ConflictManyValuesNode extends SelfPresentingNode {
         setNodePanelParts(textRenderer(createPresenter()));
     }
 
-    protected Presenter createPresenter() {
+    private Presenter createPresenter() {
         return presentation -> {
+            // TODO use SimplePresenter
             presentation.clearText();
             presentation.addText("Conflict: there are many possible values", SimpleTextAttributes.ERROR_ATTRIBUTES);
         };
@@ -26,7 +27,7 @@ public class ConflictManyValuesNode extends SelfPresentingNode {
 
     @NotNull
     @Override
-    public List<? extends SelfPresentingNode> getChildren() {
+    public List<SelfPresentingNode> getChildren() {
         return Collections.emptyList();
     }
 }

@@ -40,7 +40,7 @@ public class ChoiceNode extends RefactoringNode<RefactoringChoice> {
                     node.update();
                 }
                 SwingUtilities.invokeLater(() -> {
-                    TreePath path = new TreePath(node.getNode().getPath());
+                    TreePath path = new TreePath(node.getPath());
                     if (radioButton.isSelected()) {
                         node.getTree().expandPath(path);
                     } else {

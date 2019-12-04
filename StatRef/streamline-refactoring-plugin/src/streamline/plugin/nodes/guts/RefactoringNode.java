@@ -7,11 +7,10 @@ import streamline.plugin.nodes.guts.components.EnabledRefactoringCheckBox;
 import streamline.plugin.refactoring.guts.Listeners;
 import streamline.plugin.refactoring.guts.Refactoring;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class RefactoringNode<R extends Refactoring> extends SelfPresentingNode {
@@ -35,21 +34,15 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     @Override
     public void afterTreeNodeCreated() {
         getListeners().invoke(() -> {
-            TreePath path = new TreePath(getNode().getPath());
+            TreePath path = getPath();
             if (getRefactoring().isEnabled()) {
                 getTree().expandPath(path);
             } else {
                 getTree().collapsePath(path);
             }
         });
-        for (int i = 0; i < getNode().getChildCount(); i++) {
-            TreeNode node = getNode().getChildAt(i);
-            if (node instanceof DefaultMutableTreeNode) {
-                Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
-                if (userObject instanceof RefactoringNode) {
-                    ((RefactoringNode) userObject).afterTreeNodeCreated();
-                }
-            }
+        for (SelfPresentingNode child : getChildren()) {
+            child.afterTreeNodeCreated();
         }
     }
 
@@ -58,6 +51,9 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     public List<SelfPresentingNode> getChildren() {
         if (children == null) {
             children = createChildren();
+            for (SelfPresentingNode child : children) {
+                child.setParent(this);
+            }
         }
         return children;
     }
@@ -103,5 +99,18 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     @NotNull
     public List<SelfPresentingNode> createChildren() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RefactoringNode<?> that = (RefactoringNode<?>) o;
+        return refactoring.equals(that.refactoring);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(refactoring);
     }
 }

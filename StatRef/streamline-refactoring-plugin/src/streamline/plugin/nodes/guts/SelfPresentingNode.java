@@ -5,17 +5,17 @@ import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.refactoring.guts.Listeners;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-public abstract class SelfPresentingNode {
+public abstract class SelfPresentingNode extends AbstractTreeNode<SelfPresentingNode> {
     protected final Listeners onUpdate = new Listeners();
     private final Project project;
-    private DefaultMutableTreeNode node;
     protected Tree tree;
     private NodeComponent component;
     private NodePanelBuilder panelBuilder = new NodePanelBuilder();
@@ -24,25 +24,36 @@ public abstract class SelfPresentingNode {
         this.project = project;
     }
 
-    @NotNull
-    public DefaultMutableTreeNode createTreeNode(Tree tree) {
+    public void setTree(Tree tree) {
         this.tree = tree;
-        // TODO make SelfPresentingNode - TreeNode
-        node = createTreeNode(this);
-        return getNode();
-    }
-
-    @NotNull
-    private DefaultMutableTreeNode createTreeNode(SelfPresentingNode node) {
-        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(node);
-        for (SelfPresentingNode child : node.getChildren()) {
-            treeNode.add(child.createTreeNode(getTree()));
+        for (SelfPresentingNode child : getChildren()) {
+            child.setTree(tree);
         }
-        return treeNode;
     }
 
-    public DefaultMutableTreeNode getNode() {
-        return node;
+    @Override
+    public abstract List<SelfPresentingNode> getChildren();
+
+    public void setChildren(ArrayList<SelfPresentingNode> children) {
+        getChildren().clear();
+        getChildren().addAll(children);
+    }
+
+    public LinkedHashMap<Integer, SelfPresentingNode> filterChildren(Predicate<SelfPresentingNode> predicate) {
+        LinkedHashMap<Integer, SelfPresentingNode> removed = new LinkedHashMap<>();
+        ArrayList<SelfPresentingNode> filtered = new ArrayList<>();
+        for (int i = 0; i < getChildCount(); i++) {
+            SelfPresentingNode child = getChildAt(i);
+            if (predicate.test(child)) {
+                filtered.add(child);
+            } else {
+                removed.put(i, child);
+            }
+        }
+        if (filtered.size() != getChildren().size()) {
+            setChildren(filtered);
+        }
+        return removed;
     }
 
     public Tree getTree() {
@@ -56,11 +67,9 @@ public abstract class SelfPresentingNode {
             SelfPresentingNode node = findNode(path.getParentPath());
             if (node != null) {
                 Object component = path.getLastPathComponent();
-                if (component instanceof DefaultMutableTreeNode) {
-                    for (SelfPresentingNode child : node.getChildren()) {
-                        if (child.equals(((DefaultMutableTreeNode) component).getUserObject())) {
-                            return child;
-                        }
+                for (SelfPresentingNode child : node.getChildren()) {
+                    if (child.equals(component)) {
+                        return child;
                     }
                 }
             }
@@ -69,7 +78,7 @@ public abstract class SelfPresentingNode {
     }
 
     public void select() {
-        getTree().setSelectionPath(new TreePath(getNode().getPath()));
+        getTree().setSelectionPath(getPath());
     }
 
     private NodeComponent createNodeComponent() {
@@ -77,7 +86,7 @@ public abstract class SelfPresentingNode {
     }
 
     public NodeComponent getNodeComponent() {
-        if (component == null && node != null) {
+        if (component == null) {
             component = createNodeComponent();
         }
         return component;
@@ -86,15 +95,13 @@ public abstract class SelfPresentingNode {
     protected void afterTreeNodeCreated() {
     }
 
-    public abstract List<? extends SelfPresentingNode> getChildren();
-
     public boolean showRoot() {
         return true;
     }
 
     private void notifyNodeChanged() {
         if (tree != null) {
-            ((DefaultTreeModel) tree.getModel()).nodeChanged(getNode());
+            ((DefaultTreeModel) tree.getModel()).nodeChanged(this);
         }
     }
 
@@ -147,4 +154,5 @@ public abstract class SelfPresentingNode {
         }
 
     }
+
 }

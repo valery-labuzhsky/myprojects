@@ -14,7 +14,10 @@ import streamline.plugin.nodes.guts.SelfPresentingNode;
 import streamline.plugin.refactoring.guts.Refactoring;
 
 import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeCellEditor;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -37,8 +40,8 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
 
         this.node = node;
         DefaultTreeModel model = new DefaultTreeModel(null);
-        DefaultMutableTreeNode rootNode = node.createTreeNode(tree);
-        model.setRoot(rootNode);
+        node.setTree(tree);
+        model.setRoot(node);
         tree.setRootVisible(node.showRoot());
         tree.setModel(model);
         node.afterTreeNodeCreated();

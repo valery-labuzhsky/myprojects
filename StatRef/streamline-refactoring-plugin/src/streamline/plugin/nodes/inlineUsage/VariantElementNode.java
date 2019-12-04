@@ -29,6 +29,7 @@ public class VariantElementNode extends SelfPresentingNode {
                 controller.fire();
             });
             panel.add(radioButton);
+            panel.dispatchKeyEvents(radioButton);
         }, textRenderer(createPresenter()));
     }
 
@@ -43,7 +44,7 @@ public class VariantElementNode extends SelfPresentingNode {
 
     @NotNull
     @Override
-    public List<? extends SelfPresentingNode> getChildren() {
+    public List<SelfPresentingNode> getChildren() {
         return Collections.emptyList();
     }
 }
