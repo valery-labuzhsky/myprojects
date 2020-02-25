@@ -17,8 +17,13 @@ public class InlineAssignment extends Refactoring {
         super(registry);
         this.initializer = initializer;
         remove = new RemoveElement(registry, initializer);
-        for (IVariable usage : initializer.valueUsages()) {
-            usages.add(registry.getRefactoring(new InlineUsage(usage, registry)));
+        // TODO it's not good enough
+        // TODO I must analize the flow to see if a value is reachable
+        ArrayList<IVariable> usages = initializer.valueUsages();
+//        AssignmentFlow flow = new AssignmentFlow(initializer.declaration());
+//        ArrayList<IVariable> usages = flow.getUsages(initializer);
+        for (IVariable usage : usages) {
+            this.usages.add(registry.getRefactoring(new InlineUsage(usage, registry)));
         }
         remove.setEnabled(!areUsagesLeft());
     }

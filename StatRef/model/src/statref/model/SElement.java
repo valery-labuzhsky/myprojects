@@ -9,7 +9,7 @@ public interface SElement extends Fragment {
     }
 
     default boolean after(SElement element) {
-        return !before(element);
+        throw new UnsupportedOperationException();
     }
 
     default SElement getParent() {

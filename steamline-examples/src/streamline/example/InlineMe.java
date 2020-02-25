@@ -50,7 +50,7 @@ public class InlineMe {
     }
 
     public void ifAfter() {
-        int inline = 8;
+        int inline = 8; // TODO inlining it causes inlining int target = inline; for some reason
 
         if (1 == 1)
             inline = 7;
