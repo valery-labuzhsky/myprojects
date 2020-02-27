@@ -69,36 +69,34 @@ public class AssignmentFlow {
     }
 
     public ArrayList<IInitializer> getVariants(IElement usage) {
-        // TODO I need to use cycler here
-        // TODO I can create a single stack and share it between cyclers, but it would mean I need to carefully maintain its state
-        // TODO otherwise I can create multiple copies of it, which may have negative performance issues
         ArrayList<IInitializer> variants = new ArrayList<>();
         IElement context = usage;
         ElementStack boundaryStack = new ElementStack();
         do {
-            // TODO this is the only thing to go to the cycler
-            // TODO to do it rightfully I need body cycler separate from loop cycler and loop cycler must take advantage of body cycler
-            // TODO so we have body cycle we cycle through it, go to parent, which is loop, it does header check then goes back to body, but only till the point of start
-            // TODO this is an algorithm for going up, I must embrace it!
             IElement element = context;
             boundaryStack.add(element);
             context = element.getParent();
-            if (new PointerCycler(this, context).startFrom(element).getVariants(variants)) break;
-            // TODO now this last standing condition to remove
-            // TODO all I need to do is to move it to another iteration
-            if (isLoopBody(context)) { // TODO context becomes element
-                // TODO what does element become?
-                // TODO it just lost... may I restore it somehow?
-                // TODO save it
-                // TODO If only I had a true stack of usage contexts
-                // TODO I probably need going all the way up, building my cyclers, then cycling them
-                // TODO it will be start from element, I'll save it
-                // TODO it I'm checking start element, I'll be cautious and pass it to a child one level down the stack
-                // TODO it won't be universal anyway, so what's the point?
-                // TODO just not to check for body loop and check for loop itself
-                // TODO I need to remember this stop point
-                new PointerCycler(this, context).upTo(boundaryStack).getVariants(variants);
-            }
+            // TODO startFrom and upTo are connected
+            // TODO how do I combine them?
+            // TODO need cases
+            // TODO pen and paper must do it for me
+
+            // TODO so we start from some point, this point is on our boundaryStack
+            // TODO if I go through a loop and I have stack I must go through my body once again to so I can check one iteration more
+            // TODO where do I set this boundary?
+            // TODO I set this boundary here
+            // TODO startFrom must set boundary, but at the same time it should not invoke the code of reaching that boundary
+            // TODO I set startFrom on a loop body
+            // TODO I reach loop itself
+            // TODO now body is on the stack, and I'm starting from body, but I'mm already went through it, I know it
+            // TODO I shouldn't go to another body, I should not plunge into it
+            // TODO I should complete a loop, and then start again the body, up to boundary
+            // TODO therefore,
+            // TODO 1. startFrom - must not plunge into it - merely invoke listener
+            // TODO 2. startFrom must be present on every cycler/block
+            // TODO 3. it's not necessary PointerCycler, I must be smart about it
+            // TODO loop itself must understand all this boundary thing
+            if (Cycler.createElementsCycler(this, context).startFrom(boundaryStack).getVariants(variants)) break;
         } while (!context.equals(top));
         Collections.reverse(variants);
         return variants;

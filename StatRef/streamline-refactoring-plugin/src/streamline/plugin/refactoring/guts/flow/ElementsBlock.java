@@ -8,37 +8,45 @@ import java.util.List;
 
 public class ElementsBlock extends Block {
     private final List<IElement> elements;
-    private int index;
 
     public ElementsBlock(List<IElement> elements) {
         this.elements = elements;
     }
 
-    protected void goTo(IElement element) {
-        int i = elements.indexOf(element);
-        if (i >= 0) {
-            index = i;
-        } else {
-            throw new RuntimeException("Element " + element + " is not found");
+    @Override
+    public boolean getVariants(ArrayList<IInitializer> variants, Cycler cycler) {
+        for (int index = this.elements.size() - 1; index >= 0; index--) {
+            if (cycler.visitElement(variants, elements.get(index))) return true;
         }
-    }
-
-    public void gotoLast() {
-        index = elements.size() - 1;
-    }
-
-    private boolean hasAny() {
-        return index >= 0 && index < elements.size();
-    }
-
-    private void goUp() {
-        index--;
+        return false;
     }
 
     @Override
-    public boolean getVariants(ArrayList<IInitializer> variants, BoundaryCycler cycler) {
-        for (; hasAny(); goUp()) {
+    public Boolean getVariantsFrom(ArrayList<IInitializer> variants, Cycler cycler) {
+        Boolean result = null;
+        int index;
+        for (index = this.elements.size() - 1; index >= 0; index--) {
+            if (cycler.isBoundary(elements.get(index))) {
+                index--;
+                result = false;
+                break;
+            }
+        }
+        for (; index >= 0; index--) {
             if (cycler.visitElement(variants, elements.get(index))) return true;
+        }
+        return result;
+    }
+
+    @Override
+    public boolean getVariantsTo(ArrayList<IInitializer> variants, Cycler cycler) {
+        for (int index = this.elements.size() - 1; index >= 0; index--) {
+            IElement element = elements.get(index);
+            if (cycler.isBoundary(element)) {
+                return cycler.visitBoundary(variants, element);
+            } else {
+                if (cycler.visitElement(variants, element)) return true;
+            }
         }
         return false;
     }

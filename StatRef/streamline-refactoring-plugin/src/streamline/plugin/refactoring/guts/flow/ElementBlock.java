@@ -13,8 +13,24 @@ public class ElementBlock extends Block {
     }
 
     @Override
-    public boolean getVariants(ArrayList<IInitializer> variants, BoundaryCycler cycler) {
+    public boolean getVariants(ArrayList<IInitializer> variants, Cycler cycler) {
         return cycler.visitElement(variants, element);
+    }
+
+    @Override
+    public Boolean getVariantsFrom(ArrayList<IInitializer> variants, Cycler cycler) {
+        if (cycler.isBoundary(element)) {
+            return false;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean getVariantsTo(ArrayList<IInitializer> variants, Cycler cycler) {
+        if (cycler.isBoundary(element)) {
+            return cycler.visitBoundary(variants, element);
+        }
+        return false;
     }
 
 }
