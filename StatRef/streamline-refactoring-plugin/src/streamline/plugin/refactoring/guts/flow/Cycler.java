@@ -37,38 +37,49 @@ public class Cycler {
     public boolean visitElement(ArrayList<IInitializer> variants, IElement element) {
         if (harvest(variants, element)) {
             return true;
-        } else {
-            return plunge(element).getVariants(variants);
+        } else if (worthVisiting(element)) {
+            return createCycler(this.flow, element).getVariants(variants);
         }
+        return false;
+    }
+
+    private boolean worthVisiting(IElement element) {
+        return flow.getVariables().containsKey(element);
     }
 
     public boolean visitBoundary(ArrayList<IInitializer> variants, IElement element) {
-        Cycler cycler = plunge(element);
-        this.boundary.down();
-        try {
-            cycler.upTo(this.boundary);
-            return cycler.getVariants(variants);
-        } finally {
-            this.boundary.up();
+        if (worthVisiting(element)) {
+            Cycler cycler = createCycler(this.flow, element);
+            this.boundary.down();
+            try {
+                cycler.upTo(this.boundary);
+                return cycler.getVariants(variants);
+            } finally {
+                this.boundary.up();
+            }
         }
+        return false;
     }
 
     @NotNull
-    private Cycler plunge(IElement element) {
-        return createCycler(element, this.flow);
-    }
-
-    @NotNull
-    public static Cycler createCycler(IElement element, AssignmentFlow flow) {
-        Cycler cycler;
+    public static Cycler createCycler(AssignmentFlow flow, IElement element) {
         if (element instanceof IIfStatement) {
-            cycler = createIfCycler(flow, (IIfStatement) element);
+            return createIfCycler(flow, (IIfStatement) element);
         } else if (element instanceof ILoopStatement) {
-            cycler = createLoopCycler(flow, (ILoopStatement) element);
+            return createLoopCycler(flow, (ILoopStatement) element);
+        } else if (element instanceof IVariableDeclaration) {
+            return createElementsCycler(flow, element);
+        } else if (element instanceof IDeclarationStatement) {
+            return createElementsCycler(flow, element);
+        } else if (element instanceof IBlock) {
+            return createElementsCycler(flow, element);
+        } else if (element instanceof IBlockStatement) {
+            return createElementsCycler(flow, element);
+        } else if (element instanceof IExpressionStatement) {
+            return createElementsCycler(flow, element);
         } else {
             throw new RuntimeException(element.getClass().getSimpleName() + " is not supported");
         }
-        return cycler;
     }
 
     public boolean isBoundary(IElement element) {
@@ -82,7 +93,11 @@ public class Cycler {
 
     public boolean getVariants(ArrayList<IInitializer> variants) {
         if (startFrom) {
-            return block.getVariantsFrom(variants, this);
+            Boolean finish = block.getVariantsFrom(variants, this);
+            if (finish==null) {
+                throw new RuntimeException(boundary.getTop()+" is not found");
+            }
+            return finish;
         } else if (boundary != null) {
             return block.getVariantsTo(variants, this);
         } else {
