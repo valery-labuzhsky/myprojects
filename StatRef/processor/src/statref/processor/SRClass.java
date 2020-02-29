@@ -98,6 +98,9 @@ public class SRClass {
                     SType type = getter.getReturnType();
                     String typename = type.toString();
                     SMethodDeclaration setter = settersMap.get(typename);
+                    if (setter==null) {
+                        throw new RuntimeException("Setter for "+typename+" is not found");
+                    }
 
                     SClass fieldClass = ofClass(Field.class, genericClientClass, type.getGenericType());
                     BAnonClassDeclaration anonClass = declareAnonClass(fieldClass).
@@ -112,23 +115,22 @@ public class SRClass {
                                 }
                             }.public_().returnType(ofClass(Class.class, genericClientClass))).
 
-                            member(new BMethodDeclaration("getValueType") {
-                                @Override
-                                public void describe() {
-                                    if (type instanceof SGeneric) {
-                                        String name = ((SGeneric) type).getName();
-                                        List<SGenericDeclaration> generics = sclass.getGenerics();
-                                        for (int i = 0; i < generics.size(); i++) {
-                                            SGenericDeclaration generic = generics.get(i);
-                                            if (generic.getName().equals(name)) {
-                                                return_(field(sclass.usage(), "class").call("getTypeParameters").item(integer(i)));
-                                                return;
-                                            }
+                            member(new BMethodDeclaration("getValueType") {{
+                                returnType(ofClass(Type.class));
+                                if (type instanceof SGeneric) {
+                                    String name = ((SGeneric) type).getName();
+                                    List<SGenericDeclaration> generics = sclass.getGenerics();
+                                    for (int i = 0; i < generics.size(); i++) {
+                                        SGenericDeclaration generic = generics.get(i);
+                                        if (generic.getName().equals(name)) {
+                                            return_(field(sclass.usage(), "class").call("getTypeParameters").item(integer(i)));
+                                            break;
                                         }
                                     }
+                                } else {
                                     return_(field(type, "class"));
                                 }
-                            }.public_().returnType(ofClass(Type.class))).
+                            }}.public_()).
 
                             member(new BMethodDeclaration("get") {
                                        @Override

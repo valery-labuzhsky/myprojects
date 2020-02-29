@@ -27,6 +27,9 @@ public class BMethod extends BExpression implements SMethod {
     }
 
     public BMethod(SExpression qualifier, SMethodDeclaration declaration, SExpression... params) {
+        if (declaration==null) {
+            throw new NullPointerException("declaration");
+        }
         this.qualifier = qualifier;
         this.declaration = declaration;
         this.params.addAll(Arrays.asList(params));
