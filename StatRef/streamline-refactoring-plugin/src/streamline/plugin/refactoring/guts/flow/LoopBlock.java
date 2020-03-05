@@ -1,9 +1,5 @@
 package streamline.plugin.refactoring.guts.flow;
 
-import statref.model.idea.IInitializer;
-
-import java.util.ArrayList;
-
 public class LoopBlock extends Block {
     private final Block condition;
     private final Block body;
@@ -14,32 +10,12 @@ public class LoopBlock extends Block {
     }
 
     @Override
-    public boolean getVariants(ArrayList<IInitializer> variants, Cycler cycler) {
-        if (condition.getVariants(variants, cycler)) return true;
-        body.getVariants(variants, cycler);
-        return false;
+    public boolean harvest(Visitor visitor, Cycler cycler) {
+        boolean override = condition.harvest(visitor, cycler);
+        Visitor copy = visitor.copy();
+        body.harvest(copy, cycler);
+        visitor.combine(copy);
+        return override;
     }
 
-    @Override
-    public Boolean getVariantsFrom(ArrayList<IInitializer> variants, Cycler cycler) {
-        Boolean result = condition.getVariantsFrom(variants, cycler);
-        if (result != null) {
-            if (result) return true;
-            body.getVariants(variants, cycler);
-            return false;
-        }
-        result = body.getVariantsFrom(variants, cycler);
-        if (result != null) {
-            if (result) return true;
-            if (condition.getVariants(variants, cycler)) return true;
-            body.getVariantsTo(variants, cycler);
-            return false;
-        }
-        return null;
-    }
-
-    @Override
-    public boolean getVariantsTo(ArrayList<IInitializer> variants, Cycler cycler) {
-        return false;
-    }
 }

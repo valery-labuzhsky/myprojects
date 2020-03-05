@@ -4,7 +4,7 @@ import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
-import streamline.plugin.refactoring.guts.flow.AssignmentFlow;
+import streamline.plugin.refactoring.guts.flow.VariableFlow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class InlineUsage extends Refactoring {
     public InlineUsage(IVariable usage, RefactoringRegistry registry) {
         super(registry);
         this.usage = usage;
-        this.variants.addAll(new AssignmentFlow(usage).getVariants(usage));
+        this.variants.addAll(new VariableFlow(usage).getAssignments(usage));
         if (variants.size() == 1) setSelected(variants.get(0));
         else if (variants.size() > 1) setEnabled(false);
     }
