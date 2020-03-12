@@ -63,6 +63,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
     private void setupTree() {
         setContent(tree);
         tree.setCellRenderer(new ProxyNodeComponent());
+        tree.setRowHeight(0);
         tree.setEditable(true);
         tree.setCellEditor(new ProxyCellEditor());
         tree.setSelectionRow(0);

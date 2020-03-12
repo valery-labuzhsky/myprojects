@@ -58,9 +58,7 @@ public class Visitor {
     }
 
     public boolean harvest(IElement element) {
-        System.out.println("Harvesting "+element); // TODO remove me
         if (flow.getAssignments().contains(element)) {
-            System.out.println("Assignment"); // TODO remove me
             if (element instanceof IInitializer) {
                 // TODO add declaration from the start - don't bother visiting it here
                 assignments.add((IInitializer) element);
@@ -69,14 +67,12 @@ public class Visitor {
             }
             return true;
         } else if (flow.getUsages().contains(element)) {
-            System.out.println("Usage"); // TODO remove me
             values.put(element, new ArrayList<>(assignments));
             for (IInitializer assignment : assignments) {
                 usages.computeIfAbsent(assignment, a -> new ArrayList<>()).add(element);
             }
             return false;
         }
-        System.out.println("Not matched"); // TODO remove me
         return false;
     }
 

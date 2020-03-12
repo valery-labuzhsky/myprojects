@@ -11,7 +11,8 @@ import java.util.EventObject;
 import java.util.List;
 
 public class NodePanel extends NodeComponent {
-    private final JPanel panel = new JPanel();
+
+    private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     private final List<NodeComponent> nodeComponents = new ArrayList<>();
     private final List<JComponent> editors = new ArrayList<>();
