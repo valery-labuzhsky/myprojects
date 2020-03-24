@@ -1,14 +1,12 @@
 package streamline.plugin.refactoring.guts.flow;
 
+import org.assertj.core.util.Lists;
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import statref.model.idea.IVariableDeclaration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class VariableFlow {
     private final IElement top;
@@ -78,7 +76,7 @@ public class VariableFlow {
         return visitor.getValues().getOrDefault(usage, new ArrayList<>());
     }
 
-    public ArrayList<IVariable> getUsages(IInitializer initializer) {
-        return visitor.getUsages().getOrDefault(initializer, new ArrayList<>());
+    public Collection<IVariable> getUsages(IInitializer initializer) {
+        return visitor.getUsages().getOrDefault(initializer, Lists.emptyList());
     }
 }

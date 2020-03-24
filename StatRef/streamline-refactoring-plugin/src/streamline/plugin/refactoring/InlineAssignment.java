@@ -7,6 +7,7 @@ import streamline.plugin.refactoring.guts.RefactoringRegistry;
 import streamline.plugin.refactoring.guts.flow.VariableFlow;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 public class InlineAssignment extends Refactoring {
@@ -19,7 +20,7 @@ public class InlineAssignment extends Refactoring {
         this.initializer = initializer;
         remove = new RemoveElement(registry, initializer);
         VariableFlow flow = new VariableFlow(initializer.declaration());
-        ArrayList<IVariable> usages = flow.getUsages(initializer);
+        Collection<IVariable> usages = flow.getUsages(initializer);
         for (IVariable usage : usages) {
             // TODO here I create usage which are the same
             // TODO I must show only values which are assigned

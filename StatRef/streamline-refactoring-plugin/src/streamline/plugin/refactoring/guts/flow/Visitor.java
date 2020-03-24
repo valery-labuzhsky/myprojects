@@ -11,7 +11,7 @@ public class Visitor {
     private final VariableFlow flow;
     private final LinkedHashSet<IInitializer> assignments = new LinkedHashSet<>();
     private HashMap<IElement, ArrayList<IInitializer>> values;
-    private HashMap<IInitializer, ArrayList<IVariable>> usages;
+    private HashMap<IInitializer, Collection<IVariable>> usages;
 
     public Visitor(VariableFlow flow) {
         this.flow = flow;
@@ -68,7 +68,7 @@ public class Visitor {
         } else if (flow.getUsages().contains(element)) {
             values.put(element, new ArrayList<>(assignments));
             for (IInitializer assignment : assignments) {
-                usages.computeIfAbsent(assignment, a -> new ArrayList<>()).add((IVariable) element);
+                usages.computeIfAbsent(assignment, a -> new LinkedHashSet<>()).add((IVariable) element);
             }
             return false;
         }
@@ -87,7 +87,7 @@ public class Visitor {
         return values;
     }
 
-    public HashMap<IInitializer, ArrayList<IVariable>> getUsages() {
+    public HashMap<IInitializer, Collection<IVariable>> getUsages() {
         return usages;
     }
 }
