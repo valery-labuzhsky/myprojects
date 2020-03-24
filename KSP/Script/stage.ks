@@ -4,7 +4,7 @@ SET CONFIG:PAUSEONCOMPILE TO TRUE.
 wait until ship:unpacked.
 print "wait unpacked".
 
-local main_proc to 0.
+local lock main_proc to 0.
 local all_processors to 0.
 list processors in all_processors.
 for processor in all_processors {
