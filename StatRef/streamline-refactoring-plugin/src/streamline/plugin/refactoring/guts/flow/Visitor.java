@@ -3,6 +3,7 @@ package streamline.plugin.refactoring.guts.flow;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
+import statref.model.idea.IVariable;
 
 import java.util.*;
 
@@ -10,7 +11,7 @@ public class Visitor {
     private final VariableFlow flow;
     private final LinkedHashSet<IInitializer> assignments = new LinkedHashSet<>();
     private HashMap<IElement, ArrayList<IInitializer>> values;
-    private HashMap<IInitializer, ArrayList<IElement>> usages;
+    private HashMap<IInitializer, ArrayList<IVariable>> usages;
 
     public Visitor(VariableFlow flow) {
         this.flow = flow;
@@ -58,18 +59,16 @@ public class Visitor {
     }
 
     public boolean harvest(IElement element) {
-        if (flow.getAssignments().contains(element)) {
-            if (element instanceof IInitializer) {
-                // TODO add declaration from the start - don't bother visiting it here
-                assignments.add((IInitializer) element);
-            } else {
-                assignments.add((IInitializer) element.getParent());
-            }
+        if (flow.getDeclaration().equals(element)) {
+            assignments.add((IInitializer) element);
+            return true;
+        } else if (flow.getAssignments().contains(element)) {
+            assignments.add((IInitializer) element.getParent());
             return true;
         } else if (flow.getUsages().contains(element)) {
             values.put(element, new ArrayList<>(assignments));
             for (IInitializer assignment : assignments) {
-                usages.computeIfAbsent(assignment, a -> new ArrayList<>()).add(element);
+                usages.computeIfAbsent(assignment, a -> new ArrayList<>()).add((IVariable) element);
             }
             return false;
         }
@@ -88,7 +87,7 @@ public class Visitor {
         return values;
     }
 
-    public HashMap<IInitializer, ArrayList<IElement>> getUsages() {
+    public HashMap<IInitializer, ArrayList<IVariable>> getUsages() {
         return usages;
     }
 }

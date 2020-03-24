@@ -20,6 +20,9 @@ public class ElementPresenter extends SimplePresenter {
 
     @Nullable
     private PsiElement getContext() {
+        // TODO statement is too much,
+        // TODO I need to look at the tree!
+        // TODO I need psi viewer plugin
         return PsiTreeUtil.getParentOfType(psiElement, PsiStatement.class, false);
     }
 

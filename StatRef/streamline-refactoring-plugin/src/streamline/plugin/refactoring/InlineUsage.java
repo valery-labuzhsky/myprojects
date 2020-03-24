@@ -53,6 +53,21 @@ public class InlineUsage extends Refactoring {
     public List<Refactoring> whatElse() {
         // TODO all this whatElse staff causing too much of recursion
         // TODO what can I do with it?
+
+        // TODO the question again: groing tree vs strict structure
+        // TODO structure is better - it offers single view - no need to having weird trees like inlining one value inside of another
+        // TODO in the brain too
+        // TODO it will simplify things a lot!
+
+        // TODO so I need to fold it out not only down but up as well
+        // TODO for it I need inline variablle refactoring
+        // TODO should I jump users, probably not
+
+        // TODO it will simplify this whatElse staff a lot!
+        // TODO I will have clear dependencies
+
+        // TODO first things first - I need inline variable
+        // TODO it will contain assignments, they will contain usages
         ArrayList<Refactoring> refactorings = new ArrayList<>();
         whatElse(refactorings);
         return refactorings;

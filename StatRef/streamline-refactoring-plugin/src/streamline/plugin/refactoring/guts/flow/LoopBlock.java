@@ -14,6 +14,7 @@ public class LoopBlock extends Block {
         boolean override = condition.harvest(visitor, cycler);
         Visitor copy = visitor.copy();
         body.harvest(copy, cycler);
+        body.harvest(copy, cycler);
         visitor.combine(copy);
         return override;
     }

@@ -4,6 +4,7 @@ import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
+import streamline.plugin.refactoring.guts.flow.VariableFlow;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -17,12 +18,14 @@ public class InlineAssignment extends Refactoring {
         super(registry);
         this.initializer = initializer;
         remove = new RemoveElement(registry, initializer);
-        // TODO it's not good enough
-        // TODO I must analize the flow to see if a value is reachable
-        ArrayList<IVariable> usages = initializer.valueUsages();
-//        AssignmentFlow flow = new AssignmentFlow(initializer.declaration());
-//        ArrayList<IVariable> usages = flow.getUsages(initializer);
+        VariableFlow flow = new VariableFlow(initializer.declaration());
+        ArrayList<IVariable> usages = flow.getUsages(initializer);
         for (IVariable usage : usages) {
+            // TODO here I create usage which are the same
+            // TODO I must show only values which are assigned
+            // TODO I should hide other values
+            // TODO enabling must select a value
+            // TODO selecting value must disable it
             this.usages.add(registry.getRefactoring(new InlineUsage(usage, registry)));
         }
         remove.setEnabled(!areUsagesLeft());
