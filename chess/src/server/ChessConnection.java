@@ -2,6 +2,7 @@ package server;
 
 import board.Board;
 import board.IllegalMoveException;
+import board.Move;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -90,15 +91,21 @@ public class ChessConnection extends Thread {
                         case "force":
                             board.force();
                             break;
-                        case "result":
-                            // TODO game has ended
-                            break;
-
                         case "black":
                             board.black();
                             break;
                         case "white":
                             board.white();
+                            break;
+                        case "result":
+                            if (line.contains("invalid move")) {
+                                board.undo();
+                            }
+                            // TODO game has ended
+                            break;
+
+                        case "undo":
+                            board.undo();
                             break;
                         case "go":
                             board.go();
@@ -121,7 +128,9 @@ public class ChessConnection extends Thread {
 
         private boolean parseMove(String move) {
             try {
-                if (!board.move(move)) return false;
+                if (!board.move(move)) {
+                    return false;
+                }
             } catch (IllegalMoveException e) {
                 e.printStackTrace();
                 illegalMove(e.getMessage(), move);
@@ -133,7 +142,17 @@ public class ChessConnection extends Thread {
 
         private void makeMove() {
             if (!board.force) {
-                respond("move " + board.move().toString());
+                Move move = board.move();
+                if (move != null) {
+                    respond("move " + move.toString());
+                } else {
+                    // TODO stalemate
+                    if (board.color == -1) {
+                        respond("1-0 {White mates}");
+                    } else {
+                        respond("0-1 {Black mates}");
+                    }
+                }
             }
         }
 

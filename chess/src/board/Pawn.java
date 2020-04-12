@@ -37,4 +37,9 @@ public class Pawn extends Piece {
         }
         return super.move(mark);
     }
+
+    @Override
+    public boolean captures(Mark mark) {
+        return mark.square.pair.file != square.pair.file;
+    }
 }

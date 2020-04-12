@@ -127,4 +127,8 @@ public abstract class Piece {
     public String toString() {
         return "" + type.name() + "[" + square.pair + "]";
     }
+
+    public boolean captures(Mark mark) {
+        return true;
+    }
 }

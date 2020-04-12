@@ -23,4 +23,14 @@ public class King extends Piece {
         // TODO castling
     }
 
+    @Override
+    protected Move move(Mark mark) {
+        for (Mark m : mark.square.marks) {
+            if (m.captures(this)) {
+                return null;
+            }
+        }
+        return super.move(mark);
+    }
+
 }

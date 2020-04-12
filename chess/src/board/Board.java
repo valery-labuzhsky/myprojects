@@ -1,9 +1,6 @@
 package board;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created on 09.04.2020.
@@ -16,7 +13,7 @@ public class Board {
     public int color;
     private Random random;
     public boolean force;
-    public Move lastMove;
+    public final LinkedList<Move> history = new LinkedList<>();
 
     public Board() {
         reset();
@@ -70,7 +67,7 @@ public class Board {
         random = new Random(seed);
 
         force = false;
-        lastMove = null;
+        history.clear();
     }
 
     public Square getSquare(Pair pair) {
@@ -90,14 +87,14 @@ public class Board {
     }
 
     public void move(Move move) throws IllegalMoveException {
-        lastMove = move;
-        System.out.println(this);
         // TODO check legality like piece can go there at all
         Square from = getSquare(move.from);
         if (from.piece == null) {
             throw new IllegalMoveException("no piece on " + move.from);
         }
         from.piece.move(this, move.to);
+        history.add(move);
+        System.out.println(this);
     }
 
     public boolean move(String line) throws IllegalMoveException {
@@ -110,24 +107,75 @@ public class Board {
     }
 
     public Move move() {
+        King king = null;
+
         ArrayList<Piece> myPieces = new ArrayList<>();
         for (Piece piece : pieces) {
-            if (piece.color == color && piece.canMove()) {
-                myPieces.add(piece);
+            if (piece.color == color) {
+                if (piece.type == PieceType.King) {
+                    king = (King) piece;
+                }
+                if (piece.canMove()) {
+                    myPieces.add(piece);
+                }
+            }
+        }
+        ArrayList<Mark> danger = new ArrayList<>();
+        assert king != null;
+        for (Mark mark : king.square.marks) {
+            if (mark.captures(king)) {
+                danger.add(mark);
             }
         }
 
-        Piece piece = myPieces.get(random.nextInt(myPieces.size()));
-        List<Move> moves = piece.getMoves();
+        List<Move> moves = new ArrayList<>();
+        if (danger.size() == 0) {
+            Piece piece = myPieces.get(random.nextInt(myPieces.size()));
+            moves.addAll(piece.getMoves());
+        } else {
+            moves.addAll(king.getMoves());
+            if (danger.size() == 1) {
+                Mark mark = danger.get(0);
+                for (Mark capture : mark.piece.square.marks) {
+                    if (capture.captures(mark.piece)) {
+                        capture.enrich(moves);
+                    }
+                }
+                while (mark.prev != null) {
+                    mark = mark.prev;
+                    for (Mark protect : mark.square.marks) {
+                        if (protect.piece.color == color) {
+                            protect.enrich(moves);
+                        }
+                    }
+
+                }
+            }
+        }
+
+        // TODO just check if it's there!
+        for (Move move : moves) {
+            if (move.toString().equals("e3d4")) {
+                try {
+                    move(move);
+                    return move;
+                } catch (IllegalMoveException e) {
+                    throw new RuntimeException("I made illegal move! " + move, e);
+                }
+            }
+        }
+
+        if (moves.isEmpty()) {
+            return null;
+        }
 
         Move move = moves.get(random.nextInt(moves.size()));
         try {
             move(move);
+            return move;
         } catch (IllegalMoveException e) {
             throw new RuntimeException("I made illegal move! " + move, e);
         }
-
-        return move;
     }
 
     public void go() {
@@ -203,5 +251,15 @@ public class Board {
 
     public void black() {
         color = -1;
+    }
+
+    public void undo() {
+        Move move = history.removeLast();
+        try {
+            // TODO undo promotion
+            move(new Move(move.to, move.from));
+        } catch (IllegalMoveException e) {
+            e.printStackTrace();
+        }
     }
 }
