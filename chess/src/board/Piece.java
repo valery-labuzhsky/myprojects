@@ -15,7 +15,8 @@ public abstract class Piece {
     public final PieceType type;
     public Square square;
 
-    public final HashSet<Mark> marks = new HashSet<>();
+    public final HashSet<Waypoint> waypoints = new HashSet<>();
+    public final HashSet<Waypoint> obstructs = new HashSet<>();
 
     public Piece(PieceType type, Board board, int color) {
         this.board = board;
@@ -40,11 +41,10 @@ public abstract class Piece {
         square.piece = this;
         marksOn();
 
-        for (Mark mark : square.marks) {
-            Mark next = mark.next;
+        for (Waypoint waypoint : square.waypoints) {
+            Waypoint next = waypoint.next;
             if (next != null) {
-                next.obstructs.add(this);
-                this.marks.add(next);
+                next.obstruct(this);
             }
         }
     }
@@ -61,7 +61,7 @@ public abstract class Piece {
         markLine(null, file, rank);
     }
 
-    private void markLine(Mark prev, int file, int rank) {
+    private void markLine(Waypoint prev, int file, int rank) {
         prev = mark(prev, file, rank);
         if (prev != null) {
             markLine(prev, file, rank);
@@ -72,7 +72,7 @@ public abstract class Piece {
         mark(null, file, rank);
     }
 
-    protected Mark mark(Mark prev, int file, int rank) {
+    protected Waypoint mark(Waypoint prev, int file, int rank) {
         Square square;
         if (prev != null) {
             square = prev.square;
@@ -82,41 +82,37 @@ public abstract class Piece {
         Pair pair = square.pair.go(file, rank);
         if (pair.isValid()) {
             square = board.getSquare(pair);
-            return new Mark(this, square, prev);
+            return new Waypoint(this, square, prev);
         } else {
             return null;
         }
     }
 
     private void marksOff() {
-        for (Mark mark : marks) {
-            if (mark.piece == this) {
-                mark.square.marks.remove(mark);
-            } else {
-                mark.obstructs.remove(this);
-            }
+        while (!obstructs.isEmpty()) {
+            obstructs.iterator().next().free(this);
         }
-        marks.clear();
+        while (!waypoints.isEmpty()) {
+            waypoints.iterator().next().remove();
+        }
     }
 
     public List<Move> getMoves() {
         ArrayList<Move> moves = new ArrayList<>();
-        for (Mark mark : marks) {
-            if (mark.piece == this && mark.obstructs.isEmpty()) {
-                Move move = move(mark);
-                if (move != null) {
-                    moves.add(move);
-                }
-            }
+        for (Waypoint waypoint : waypoints) {
+            waypoint.enrich(moves);
         }
         return moves;
     }
 
-    protected Move move(Mark mark) {
-        if (mark.square.piece != null && mark.square.piece.color == color) {
+    protected Move move(Waypoint waypoint) {
+        if (waypoint.square.piece != null && waypoint.square.piece.color == color) {
             return null;
         }
-        return new Move(square.pair, mark.square.pair);
+        // TODO for every piece I must know which other piece I'm putting in danger
+        // TODO combining it with the knowledge of all the pieces I'm protecting gives me knowledge whether or not the move is worth taking
+        // TODO I must know all the obscured marks
+        return new Move(square.pair, waypoint.square.pair);
     }
 
     public boolean canMove() {
@@ -128,7 +124,7 @@ public abstract class Piece {
         return "" + type.name() + "[" + square.pair + "]";
     }
 
-    public boolean captures(Mark mark) {
+    public boolean captures(Waypoint waypoint) {
         return true;
     }
 }

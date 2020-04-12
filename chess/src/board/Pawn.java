@@ -12,7 +12,7 @@ public class Pawn extends Piece {
 
     @Override
     protected void marksOn() {
-        Mark first = mark(null, 0, color);
+        Waypoint first = mark(null, 0, color);
         mark(-1, color);
         mark(1, color);
         // enpassant
@@ -24,22 +24,22 @@ public class Pawn extends Piece {
     }
 
     @Override
-    protected Move move(Mark mark) {
-        if (mark.square.pair.file == square.pair.file) {
-            if (mark.square.piece != null) {
+    protected Move move(Waypoint waypoint) {
+        if (waypoint.square.pair.file == square.pair.file) {
+            if (waypoint.square.piece != null) {
                 return null;
             }
         } else {
             // TODO enpassant
-            if (mark.square.piece == null) {
+            if (waypoint.square.piece == null) {
                 return null;
             }
         }
-        return super.move(mark);
+        return super.move(waypoint);
     }
 
     @Override
-    public boolean captures(Mark mark) {
-        return mark.square.pair.file != square.pair.file;
+    public boolean captures(Waypoint waypoint) {
+        return waypoint.square.pair.file != square.pair.file;
     }
 }

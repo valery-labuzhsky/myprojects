@@ -120,11 +120,11 @@ public class Board {
                 }
             }
         }
-        ArrayList<Mark> danger = new ArrayList<>();
+        ArrayList<Waypoint> danger = new ArrayList<>();
         assert king != null;
-        for (Mark mark : king.square.marks) {
-            if (mark.captures(king)) {
-                danger.add(mark);
+        for (Waypoint waypoint : king.square.waypoints) {
+            if (waypoint.captures(king)) {
+                danger.add(waypoint);
             }
         }
 
@@ -135,15 +135,15 @@ public class Board {
         } else {
             moves.addAll(king.getMoves());
             if (danger.size() == 1) {
-                Mark mark = danger.get(0);
-                for (Mark capture : mark.piece.square.marks) {
-                    if (capture.captures(mark.piece)) {
+                Waypoint waypoint = danger.get(0);
+                for (Waypoint capture : waypoint.piece.square.waypoints) {
+                    if (capture.captures(waypoint.piece)) {
                         capture.enrich(moves);
                     }
                 }
-                while (mark.prev != null) {
-                    mark = mark.prev;
-                    for (Mark protect : mark.square.marks) {
+                while (waypoint.prev != null) {
+                    waypoint = waypoint.prev;
+                    for (Waypoint protect : waypoint.square.waypoints) {
                         if (protect.piece.color == color) {
                             protect.enrich(moves);
                         }
@@ -154,16 +154,16 @@ public class Board {
         }
 
         // TODO just check if it's there!
-        for (Move move : moves) {
-            if (move.toString().equals("e3d4")) {
-                try {
-                    move(move);
-                    return move;
-                } catch (IllegalMoveException e) {
-                    throw new RuntimeException("I made illegal move! " + move, e);
-                }
-            }
-        }
+//        for (Move move : moves) {
+//            if (move.toString().equals("b1b3")) {
+//                try {
+//                    move(move);
+//                    return move;
+//                } catch (IllegalMoveException e) {
+//                    throw new RuntimeException("I made illegal move! " + move, e);
+//                }
+//            }
+//        }
 
         if (moves.isEmpty()) {
             return null;

@@ -13,7 +13,7 @@ public class Square {
     public final Pair pair;
     public Piece piece;
 
-    public final HashSet<Mark> marks = new HashSet<>();
+    public final HashSet<Waypoint> waypoints = new HashSet<>();
 
     public Square(Board board, Pair pair) {
         this.board = board;
@@ -27,9 +27,9 @@ public class Square {
 
     private String marks() {
         StringBuilder go = new StringBuilder("");
-        for (Mark mark : marks) {
-            if (mark.obstructs.isEmpty()) {
-                go.append(toString(mark.piece));
+        for (Waypoint waypoint : waypoints) {
+            if (waypoint.obstructed.isEmpty()) {
+                go.append(toString(waypoint.piece));
             }
         }
         return go.length() > 0 ? "x " + go : "";

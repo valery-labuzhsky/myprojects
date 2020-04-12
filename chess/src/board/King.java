@@ -24,13 +24,13 @@ public class King extends Piece {
     }
 
     @Override
-    protected Move move(Mark mark) {
-        for (Mark m : mark.square.marks) {
+    protected Move move(Waypoint waypoint) {
+        for (Waypoint m : waypoint.square.waypoints) {
             if (m.captures(this)) {
                 return null;
             }
         }
-        return super.move(mark);
+        return super.move(waypoint);
     }
 
 }
