@@ -8,12 +8,19 @@ import java.util.Objects;
  * @author ptasha
  */
 public enum PieceType {
-    Pawn(null), Rook('R'), Knight('N'), Bishop('B'), Queen('Q'), King('K');
+    Pawn(null, 100),
+    Rook('R', 500),
+    Knight('N', 300),
+    Bishop('B', 300),
+    Queen('Q', 900),
+    King('K', 100000);
 
-    final Character c;
+    public final Character c;
+    public final int score;
 
-    PieceType(Character c) {
+    PieceType(Character c, int score) {
         this.c = c;
+        this.score = score;
     }
 
     public static PieceType get(char c) {

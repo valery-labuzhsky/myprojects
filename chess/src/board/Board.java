@@ -14,6 +14,7 @@ public class Board {
     private Random random;
     public boolean force;
     public final LinkedList<Move> history = new LinkedList<>();
+    public int score;
 
     public Board() {
         reset();
@@ -68,6 +69,7 @@ public class Board {
 
         force = false;
         history.clear();
+        score = 0;
     }
 
     public Square getSquare(Pair pair) {
@@ -106,7 +108,7 @@ public class Board {
         return true;
     }
 
-    public Move move() {
+    public String move() {
         King king = null;
 
         ArrayList<Piece> myPieces = new ArrayList<>();
@@ -115,9 +117,7 @@ public class Board {
                 if (piece.type == PieceType.King) {
                     king = (King) piece;
                 }
-                if (piece.canMove()) {
-                    myPieces.add(piece);
-                }
+                myPieces.add(piece);
             }
         }
         ArrayList<Waypoint> danger = new ArrayList<>();
@@ -130,8 +130,29 @@ public class Board {
 
         List<Move> moves = new ArrayList<>();
         if (danger.size() == 0) {
-            Piece piece = myPieces.get(random.nextInt(myPieces.size()));
-            moves.addAll(piece.getMoves());
+            int bestScore = 0;
+            HashMap<Piece, ArrayList<Move>> allMoves = new HashMap<>();
+            for (Piece piece : myPieces) {
+                for (Move move : piece.getMoves()) {
+                    Piece capture = getSquare(move.to).piece;
+                    int score = 0;
+                    if (capture != null) {
+                        score = -color * capture.type.score;
+                    }
+                    if (score >= bestScore) {
+                        if (score > bestScore) {
+                            bestScore = score;
+                            allMoves.clear();
+                        }
+                        allMoves.computeIfAbsent(piece, p -> new ArrayList<>()).add(move);
+                    }
+                }
+            }
+
+            if (!allMoves.isEmpty()) {
+                Piece piece = allMoves.keySet().stream().skip(random.nextInt(allMoves.size())).findFirst().orElse(null);
+                moves = allMoves.get(piece);
+            }
         } else {
             moves.addAll(king.getMoves());
             if (danger.size() == 1) {
@@ -165,16 +186,24 @@ public class Board {
 //            }
 //        }
 
-        if (moves.isEmpty()) {
-            return null;
+        if (score * color < 0) {
+            return "resign";
         }
 
-        Move move = moves.get(random.nextInt(moves.size()));
-        try {
-            move(move);
-            return move;
-        } catch (IllegalMoveException e) {
-            throw new RuntimeException("I made illegal move! " + move, e);
+        if (moves.isEmpty()) {
+            if (this.color == -1) {
+                return "1-0 {White mates}";
+            } else {
+                return "0-1 {Black mates}";
+            }
+        } else {
+            Move move = moves.get(random.nextInt(moves.size()));
+            try {
+                move(move);
+                return "move " + move.toString();
+            } catch (IllegalMoveException e) {
+                throw new RuntimeException("I made illegal move! " + move, e);
+            }
         }
     }
 

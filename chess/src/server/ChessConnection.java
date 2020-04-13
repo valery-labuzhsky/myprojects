@@ -2,7 +2,6 @@ package server;
 
 import board.Board;
 import board.IllegalMoveException;
-import board.Move;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -142,16 +141,9 @@ public class ChessConnection extends Thread {
 
         private void makeMove() {
             if (!board.force) {
-                Move move = board.move();
-                if (move != null) {
-                    respond("move " + move.toString());
-                } else {
-                    // TODO stalemate
-                    if (board.color == -1) {
-                        respond("1-0 {White mates}");
-                    } else {
-                        respond("0-1 {Black mates}");
-                    }
+                String response = board.move();
+                if (response != null) {
+                    respond(response);
                 }
             }
         }

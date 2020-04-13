@@ -53,6 +53,7 @@ public abstract class Piece {
         this.square.piece = null;
         board.pieces.remove(this);
         marksOff();
+        board.score -= color * type.score;
     }
 
     protected abstract void marksOn();
