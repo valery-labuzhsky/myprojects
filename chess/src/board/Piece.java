@@ -24,29 +24,33 @@ public abstract class Piece {
         this.type = type;
     }
 
-    public void move(Board board, Pair to) throws IllegalMoveException {
+    public void move(Board board, Pair to) {
         Square dest = board.getSquare(to);
-        if (dest.piece != null) {
-            if (dest.piece.color == color) {
-                throw new IllegalMoveException("own color");
-            }
-            dest.piece.remove();
-        }
         // TODO it may be en passant
         // TODO Castling
 
         square.piece = null;
         marksOff();
-        square = dest;
-        square.piece = this;
+        put(dest);
+    }
+
+    public void put(Square square) {
+        this.square = square;
+        this.square.piece = this;
         marksOn();
 
-        for (Waypoint waypoint : square.waypoints) {
+        for (Waypoint waypoint : this.square.waypoints) {
             Waypoint next = waypoint.next;
             if (next != null) {
                 next.obstruct(this);
             }
         }
+    }
+
+    public void add(Square square) {
+        board.score += this.color * this.type.score;
+        board.pieces.add(this);
+        put(square);
     }
 
     public void remove() {

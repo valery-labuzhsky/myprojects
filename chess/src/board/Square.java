@@ -37,7 +37,12 @@ public class Square {
 
     private char lastMove() {
         char s;
-        Move lastMove = board.history.getLast();
+        Move lastMove;
+        if (board.history.isEmpty()) {
+            lastMove = null;
+        } else {
+            lastMove = board.history.getLast();
+        }
         if (lastMove == null) {
             s = ' ';
         } else if (lastMove.from.equals(pair)) {

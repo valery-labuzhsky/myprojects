@@ -94,17 +94,27 @@ public class Board {
         if (from.piece == null) {
             throw new IllegalMoveException("no piece on " + move.from);
         }
+
+        Square dest = getSquare(move.to);
+        if (dest.piece != null) {
+            if (dest.piece.color == from.piece.color) {
+                throw new IllegalMoveException("own color");
+            }
+            move.capture = dest.piece;
+            dest.piece.remove();
+        }
+
         from.piece.move(this, move.to);
         history.add(move);
         System.out.println(this);
     }
 
     public boolean move(String line) throws IllegalMoveException {
-        Move m = Move.parse(line);
-        if (m == null) {
+        Move move = Move.parse(line);
+        if (move == null) {
             return false;
         }
-        move(m);
+        move(move);
         return true;
     }
 
@@ -134,11 +144,19 @@ public class Board {
             HashMap<Piece, ArrayList<Move>> allMoves = new HashMap<>();
             for (Piece piece : myPieces) {
                 for (Move move : piece.getMoves()) {
-                    Piece capture = getSquare(move.to).piece;
+                    Square square = getSquare(move.to);
+                    Piece capture = square.piece;
                     int score = 0;
                     if (capture != null) {
-                        score = -color * capture.type.score;
+                        score += capture.type.score;
                     }
+                    for (Waypoint waypoint : square.waypoints) {
+                        if (waypoint.captures(piece)) {
+                            score -= piece.type.score;
+                            break;
+                        }
+                    }
+
                     if (score >= bestScore) {
                         if (score > bestScore) {
                             bestScore = score;
@@ -176,10 +194,10 @@ public class Board {
 
         // TODO just check if it's there!
 //        for (Move move : moves) {
-//            if (move.toString().equals("b1b3")) {
+//            if (move.toString().equals("e3e4")) {
 //                try {
 //                    move(move);
-//                    return move;
+//                    return "move " + move.toString();
 //                } catch (IllegalMoveException e) {
 //                    throw new RuntimeException("I made illegal move! " + move, e);
 //                }
@@ -241,7 +259,7 @@ public class Board {
         Arrays.fill(e, ' ');
         String empty = new String(e);
 
-        StringBuilder out = new StringBuilder();
+        StringBuilder out = new StringBuilder(score + "\n");
         for (ArrayList<String> row : strings) {
             for (int i = 0; i < 8; i++) {
                 out.append('|');
@@ -286,9 +304,21 @@ public class Board {
         Move move = history.removeLast();
         try {
             // TODO undo promotion
-            move(new Move(move.to, move.from));
+            Square from = getSquare(move.to);
+            if (from.piece == null) {
+                throw new IllegalMoveException("no piece on " + move.to);
+            }
+            from.piece.move(this, move.from);
+
+            Piece piece = move.capture;
+            if (piece != null) {
+                piece.add(getSquare(move.to));
+            }
+
+            System.out.println(this);
         } catch (IllegalMoveException e) {
             e.printStackTrace();
         }
     }
+
 }

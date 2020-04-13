@@ -9,6 +9,7 @@ public class Move {
     public final Pair from;
     public final Pair to;
     public final PieceType promotion;
+    public Piece capture;
 
     public final String note;
 

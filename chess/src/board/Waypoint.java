@@ -77,7 +77,7 @@ public class Waypoint {
 
     public boolean captures(Piece piece) {
         if (this.piece.color != piece.color) {
-            if (piece.captures(this)) {
+            if (this.piece.captures(this)) {
                 if (obstructed.isEmpty()) {
                     return true;
                 } else if (obstructed.size() == 1) {
