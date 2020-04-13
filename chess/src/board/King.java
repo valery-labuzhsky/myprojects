@@ -22,15 +22,4 @@ public class King extends Piece {
         mark(-1, 1);
         // TODO castling
     }
-
-    @Override
-    protected Move move(Waypoint waypoint) {
-        for (Waypoint m : waypoint.square.waypoints) {
-            if (m.captures(this)) {
-                return null;
-            }
-        }
-        return super.move(waypoint);
-    }
-
 }

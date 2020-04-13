@@ -69,9 +69,6 @@ public class Waypoint {
     }
 
     public Move move() {
-        if (!obstructed.isEmpty()) {
-            return null;
-        }
         return this.piece.move(this);
     }
 

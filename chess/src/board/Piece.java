@@ -111,13 +111,17 @@ public abstract class Piece {
     }
 
     protected Move move(Waypoint waypoint) {
-        if (waypoint.square.piece != null && waypoint.square.piece.color == color) {
-            return null;
-        }
         // TODO for every piece I must know which other piece I'm putting in danger
         // TODO combining it with the knowledge of all the pieces I'm protecting gives me knowledge whether or not the move is worth taking
         // TODO I must know all the obscured marks
+        if (!goes(waypoint)) {
+            return null; // TODO won't be needed if I check goes beforehand every time
+        }
         return new Move(square.pair, waypoint.square.pair);
+    }
+
+    public boolean goes(Waypoint waypoint) {
+        return (waypoint.square.piece == null || waypoint.square.piece.color != color) && waypoint.obstructed.isEmpty();
     }
 
     public boolean canMove() {

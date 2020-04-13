@@ -118,38 +118,104 @@ public class Board {
         return true;
     }
 
+    public static class Situation {
+        Square square;
+        int score;
+
+        public Situation(Square square, int score) {
+            this.square = square;
+            this.score = score;
+        }
+    }
+
     public String move() {
-        King king = null;
+        ArrayList<Situation> situations = new ArrayList<>();
 
         ArrayList<Piece> myPieces = new ArrayList<>();
         for (Piece piece : pieces) {
-            if (piece.color == color) {
-                if (piece.type == PieceType.King) {
-                    king = (King) piece;
+            for (Waypoint waypoint : piece.square.waypoints) {
+                if (waypoint.captures(piece)) {
+                    situations.add(new Situation(piece.square, piece.type.score));
+                    break; // TODO I can assess the situations along the way
                 }
+            }
+            if (piece.color == color) {
                 myPieces.add(piece);
             }
         }
-        ArrayList<Waypoint> danger = new ArrayList<>();
-        assert king != null;
-        for (Waypoint waypoint : king.square.waypoints) {
-            if (waypoint.captures(king)) {
-                danger.add(waypoint);
+        situations.sort(Comparator.comparingInt(s -> -s.score));
+
+        ArrayList<Waypoint> solutions = new ArrayList<>();
+        if (!situations.isEmpty()) {
+            boolean check = false;
+            int bestScore = 0;
+            for (Situation situation : situations) {
+                if (situation.score < bestScore) {
+                    break;
+                }
+                Piece piece = situation.square.piece;
+                if (piece.color != color) { // I'm capturing
+                    for (Waypoint waypoint : situation.square.waypoints) {
+                        if (waypoint.captures(piece)) {
+                            solutions.add(waypoint);
+                            bestScore = situation.score;
+                        }
+                    }
+                } else { // somebody attacks me
+                    for (Waypoint waypoint : piece.waypoints) { // escape
+                        if (!waypoint.captures(piece)) { // TODO I need to calculate score of the move instead!
+                            solutions.add(waypoint);
+                            bestScore = situation.score;
+                        }
+                    }
+                    ArrayList<Waypoint> dangers = new ArrayList<>(); // gather all the villains
+                    for (Waypoint waypoint : situation.square.waypoints) {
+                        if (waypoint.captures(piece)) {
+                            dangers.add(waypoint);
+                        }
+                    }
+                    if (dangers.size() == 1) {
+                        Waypoint danger = dangers.get(0);
+                        for (Waypoint waypoint : danger.piece.square.waypoints) { // kill him
+                            if (waypoint.captures(danger.piece)) {
+                                solutions.add(waypoint);
+                                bestScore = situation.score;
+                            }
+                        }
+                        while (danger.prev != null) { // protect
+                            danger = danger.prev;
+                            for (Waypoint protect : danger.square.waypoints) {
+                                if (protect.piece.color == color) {
+                                    solutions.add(protect);
+                                    bestScore = situation.score;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (piece.type == PieceType.King) {
+                    check = true;
+                    break;
+                }
+            }
+            if (check && solutions.isEmpty()) {
+                if (this.color == -1) {
+                    return "1-0 {White mates}";
+                } else {
+                    return "0-1 {Black mates}";
+                }
             }
         }
 
         List<Move> moves = new ArrayList<>();
-        if (danger.size() == 0) {
+
+        if (solutions.isEmpty()) {
             int bestScore = 0;
             HashMap<Piece, ArrayList<Move>> allMoves = new HashMap<>();
             for (Piece piece : myPieces) {
                 for (Move move : piece.getMoves()) {
                     Square square = getSquare(move.to);
-                    Piece capture = square.piece;
                     int score = 0;
-                    if (capture != null) {
-                        score += capture.type.score;
-                    }
                     for (Waypoint waypoint : square.waypoints) {
                         if (waypoint.captures(piece)) {
                             score -= piece.type.score;
@@ -172,56 +238,33 @@ public class Board {
                 moves = allMoves.get(piece);
             }
         } else {
-            moves.addAll(king.getMoves());
-            if (danger.size() == 1) {
-                Waypoint waypoint = danger.get(0);
-                for (Waypoint capture : waypoint.piece.square.waypoints) {
-                    if (capture.captures(waypoint.piece)) {
-                        capture.enrich(moves);
-                    }
-                }
-                while (waypoint.prev != null) {
-                    waypoint = waypoint.prev;
-                    for (Waypoint protect : waypoint.square.waypoints) {
-                        if (protect.piece.color == color) {
-                            protect.enrich(moves);
-                        }
-                    }
-
-                }
+            for (Waypoint solution : solutions) {
+                solution.enrich(moves);
             }
         }
 
         // TODO just check if it's there!
-//        for (Move move : moves) {
-//            if (move.toString().equals("e3e4")) {
-//                try {
-//                    move(move);
-//                    return "move " + move.toString();
-//                } catch (IllegalMoveException e) {
-//                    throw new RuntimeException("I made illegal move! " + move, e);
-//                }
-//            }
-//        }
-
-        if (score * color < 0) {
-            return "resign";
+        for (Move move : moves) {
+            if (move.toString().equals("b2b3")) {
+                try {
+                    move(move);
+                    return "move " + move.toString();
+                } catch (IllegalMoveException e) {
+                    throw new RuntimeException("I made illegal move! " + move, e);
+                }
+            }
         }
 
-        if (moves.isEmpty()) {
-            if (this.color == -1) {
-                return "1-0 {White mates}";
-            } else {
-                return "0-1 {Black mates}";
+        Move move = moves.get(random.nextInt(moves.size()));
+        try {
+            move(move);
+            if (score * color < 0) {
+                return "resign";
             }
-        } else {
-            Move move = moves.get(random.nextInt(moves.size()));
-            try {
-                move(move);
-                return "move " + move.toString();
-            } catch (IllegalMoveException e) {
-                throw new RuntimeException("I made illegal move! " + move, e);
-            }
+
+            return "move " + move.toString();
+        } catch (IllegalMoveException e) {
+            throw new RuntimeException("I made illegal move! " + move, e);
         }
     }
 

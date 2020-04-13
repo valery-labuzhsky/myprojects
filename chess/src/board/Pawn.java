@@ -24,18 +24,18 @@ public class Pawn extends Piece {
     }
 
     @Override
-    protected Move move(Waypoint waypoint) {
+    public boolean goes(Waypoint waypoint) {
         if (waypoint.square.pair.file == square.pair.file) {
             if (waypoint.square.piece != null) {
-                return null;
+                return false;
             }
         } else {
             // TODO enpassant
             if (waypoint.square.piece == null) {
-                return null;
+                return false;
             }
         }
-        return super.move(waypoint);
+        return super.goes(waypoint);
     }
 
     @Override
