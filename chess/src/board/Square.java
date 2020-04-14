@@ -72,8 +72,12 @@ public class Square {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Square square = (Square) o;
         return pair.equals(square.pair);
     }
@@ -81,5 +85,14 @@ public class Square {
     @Override
     public int hashCode() {
         return Objects.hash(pair);
+    }
+
+    public boolean captures(Piece piece) {
+        for (Waypoint waypoint : waypoints) {
+            if (waypoint.captures(piece)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

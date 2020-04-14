@@ -136,4 +136,13 @@ public abstract class Piece {
     public boolean captures(Waypoint waypoint) {
         return true;
     }
+
+    public int getScore(Square square) {
+        for (Waypoint waypoint : square.waypoints) {
+            if (waypoint.captures(this)) {
+                return -this.type.score;
+            }
+        }
+        return 0;
+    }
 }

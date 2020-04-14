@@ -37,6 +37,18 @@ public class Waypoint {
         }
     }
 
+    boolean isValid() {
+        return this.piece.goes(this);
+    }
+
+    public int getScore() {
+        int score = this.piece.getScore(this.square);
+        if (square.piece != null) {
+            score += square.piece.type.score;
+        }
+        return score;
+    }
+
     public void remove() {
         while (!obstructed.isEmpty()) {
             free(obstructed.iterator().next());
@@ -83,5 +95,10 @@ public class Waypoint {
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return piece.type.c + "" + piece.square.pair + "" + square.pair;
     }
 }
