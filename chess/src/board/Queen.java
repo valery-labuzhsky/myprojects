@@ -11,15 +11,15 @@ public class Queen extends Piece {
     }
 
     @Override
-    protected void marksOn() {
-        markLine(0, 1);
-        markLine(1, 1);
-        markLine(1, 0);
-        markLine(1, -1);
-        markLine(0, -1);
-        markLine(-1, -1);
-        markLine(-1, 0);
-        markLine(-1, 1);
+    protected void marksOn(Waypoint.Origin origin) {
+        origin.markLine(0, 1);
+        origin.markLine(1, 1);
+        origin.markLine(1, 0);
+        origin.markLine(1, -1);
+        origin.markLine(0, -1);
+        origin.markLine(-1, -1);
+        origin.markLine(-1, 0);
+        origin.markLine(-1, 1);
     }
 
 }

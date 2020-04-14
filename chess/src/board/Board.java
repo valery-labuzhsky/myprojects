@@ -60,7 +60,7 @@ public class Board {
         color = -1;
 
         for (Piece piece : pieces) {
-            piece.marksOn();
+            piece.marksOn(new Waypoint.Origin(piece, piece.square));
         }
 
         long seed = System.currentTimeMillis();
@@ -152,6 +152,13 @@ public class Board {
                     dangers.add(waypoint);
                 }
             }
+            for (Attack protect : this.square.attacks) {
+                if (protect.piece != piece && protect.piece.color == piece.color) {
+                    if (protect.canAttack() && protect.through.canGo()) {
+                        addSolution(protect.through);
+                    }
+                }
+            }
             if (dangers.size() == 1) {
                 Waypoint danger = dangers.get(0);
                 for (Waypoint waypoint : danger.piece.square.waypoints) { // kill him
@@ -159,11 +166,11 @@ public class Board {
                         addSolution(waypoint);
                     }
                 }
-                while (danger.prev != null) { // protect
+                while (danger.prev != null) { // obscure
                     danger = danger.prev;
-                    for (Waypoint protect : danger.square.waypoints) {
-                        if (protect.piece.color == piece.color) {
-                            addSolution(protect);
+                    for (Waypoint obscure : danger.square.waypoints) {
+                        if (obscure.piece.color == piece.color) {
+                            addSolution(obscure);
                         }
                     }
                 }
@@ -179,7 +186,7 @@ public class Board {
         }
 
         private void addSolution(Waypoint waypoint) {
-            if (waypoint.isValid()) {
+            if (waypoint.canGo()) {
                 int score = -this.score + waypoint.getScore();
                 if (score >= this.bestScore) {
                     if (score > this.bestScore) {
@@ -192,7 +199,7 @@ public class Board {
         }
 
         public String toString() {
-            return "" + score + " x " + bestScore + ": " + square.pair + " " + square + " " + solutions;
+            return "" + score + " x " + (score + bestScore) + ": " + square.pair + " " + square + " " + solutions;
         }
     }
 

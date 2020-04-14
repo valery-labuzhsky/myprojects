@@ -16,6 +16,7 @@ public abstract class Piece {
     public Square square;
 
     public final HashSet<Waypoint> waypoints = new HashSet<>();
+    public final HashSet<Attack> attacks = new HashSet<>();
     public final HashSet<Waypoint> obstructs = new HashSet<>();
 
     public Piece(PieceType type, Board board, int color) {
@@ -37,7 +38,7 @@ public abstract class Piece {
     public void put(Square square) {
         this.square = square;
         this.square.piece = this;
-        marksOn();
+        marksOn(new Waypoint.Origin(this, this.square));
 
         for (Waypoint waypoint : this.square.waypoints) {
             Waypoint next = waypoint.next;
@@ -60,42 +61,14 @@ public abstract class Piece {
         board.score -= color * type.score;
     }
 
-    protected abstract void marksOn();
-
-    protected void markLine(int file, int rank) {
-        markLine(null, file, rank);
-    }
-
-    private void markLine(Waypoint prev, int file, int rank) {
-        prev = mark(prev, file, rank);
-        if (prev != null) {
-            markLine(prev, file, rank);
-        }
-    }
-
-    protected void mark(int file, int rank) {
-        mark(null, file, rank);
-    }
-
-    protected Waypoint mark(Waypoint prev, int file, int rank) {
-        Square square;
-        if (prev != null) {
-            square = prev.square;
-        } else {
-            square = this.square;
-        }
-        Pair pair = square.pair.go(file, rank);
-        if (pair.isValid()) {
-            square = board.getSquare(pair);
-            return new Waypoint(this, square, prev);
-        } else {
-            return null;
-        }
-    }
+    protected abstract void marksOn(Waypoint.Origin origin); // TODO now I need to go the same way but differently
 
     private void marksOff() {
         while (!obstructs.isEmpty()) {
             obstructs.iterator().next().free(this);
+        }
+        while (!attacks.isEmpty()) {
+            attacks.iterator().next().remove();
         }
         while (!waypoints.isEmpty()) {
             waypoints.iterator().next().remove();
@@ -122,10 +95,6 @@ public abstract class Piece {
 
     public boolean goes(Waypoint waypoint) {
         return (waypoint.square.piece == null || waypoint.square.piece.color != color) && waypoint.obstructed.isEmpty();
-    }
-
-    public boolean canMove() {
-        return !getMoves().isEmpty();
     }
 
     @Override

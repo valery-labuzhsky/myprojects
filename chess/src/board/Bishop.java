@@ -11,11 +11,11 @@ public class Bishop extends Piece {
     }
 
     @Override
-    protected void marksOn() {
-        markLine(1, 1);
-        markLine(1, -1);
-        markLine(-1, -1);
-        markLine(-1, 1);
+    protected void marksOn(Waypoint.Origin origin) {
+        origin.markLine(1, 1);
+        origin.markLine(1, -1);
+        origin.markLine(-1, -1);
+        origin.markLine(-1, 1);
     }
 
 }

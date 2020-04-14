@@ -19,25 +19,33 @@ public class Waypoint {
     public Waypoint(Piece piece, Square square) {
         this.piece = piece;
         this.square = square;
-        piece.waypoints.add(this);
-        square.waypoints.add(this);
+        getPieceCache().add(this);
+        getSquareCache().add(this);
     }
 
-    public Waypoint(Piece piece, Square square, Waypoint prev) {
-        this(piece, square);
-        if (prev != null) {
-            prev.next = this;
-            this.prev = prev;
-            for (Piece obstruct : prev.obstructed) {
-                obstruct(obstruct);
+    protected HashSet<Waypoint> getSquareCache() {
+        return this.square.waypoints;
+    }
+
+    protected HashSet<Waypoint> getPieceCache() {
+        return this.piece.waypoints;
+    }
+
+    public Waypoint next(Waypoint next) {
+        if (next != null) {
+            this.next = next;
+            next.prev = this;
+            for (Piece obstruct : obstructed) {
+                next.obstruct(obstruct);
             }
-            if (prev.square.piece != null) {
-                obstruct(prev.square.piece);
+            if (square.piece != null) {
+                next.obstruct(square.piece);
             }
         }
+        return next;
     }
 
-    boolean isValid() {
+    boolean canGo() {
         return this.piece.goes(this);
     }
 
@@ -53,8 +61,8 @@ public class Waypoint {
         while (!obstructed.isEmpty()) {
             free(obstructed.iterator().next());
         }
-        piece.waypoints.remove(this);
-        square.waypoints.remove(this);
+        getPieceCache().remove(this);
+        getSquareCache().remove(this);
     }
 
     public void obstruct(Piece piece) {
@@ -86,12 +94,21 @@ public class Waypoint {
 
     public boolean captures(Piece piece) {
         if (this.piece.color != piece.color) {
-            if (this.piece.captures(this)) {
-                if (obstructed.isEmpty()) {
-                    return true;
-                } else if (obstructed.size() == 1) {
-                    return obstructed.contains(piece);
-                }
+            return attacks(piece);
+        }
+        return false;
+    }
+
+    public boolean canAttack() {
+        return attacks(square.piece);
+    }
+
+    public boolean attacks(Piece piece) {
+        if (this.piece.captures(this)) {
+            if (obstructed.isEmpty()) {
+                return true;
+            } else if (obstructed.size() == 1) {
+                return obstructed.contains(piece);
             }
         }
         return false;
@@ -100,5 +117,45 @@ public class Waypoint {
     @Override
     public String toString() {
         return piece.type.c + "" + piece.square.pair + "" + square.pair;
+    }
+
+    public static class Origin {
+        final Piece piece;
+        final Square square;
+
+        public Origin(Piece piece, Square square) {
+            this.piece = piece;
+            this.square = square;
+        }
+
+        protected void markLine(int file, int rank) {
+            Waypoint waypoint = mark(file, rank);
+            while (waypoint != null) {
+                waypoint = mark(waypoint, file, rank);
+            }
+        }
+
+        protected Waypoint mark(Waypoint waypoint, int file, int rank) {
+            return waypoint.next(mark(waypoint.square, file, rank));
+        }
+
+        protected Waypoint mark(int file, int rank) {
+            return mark(this.square, file, rank);
+        }
+
+        protected Waypoint mark(Square square, int file, int rank) {
+            Pair pair = square.pair.go(file, rank);
+            if (pair.isValid()) {
+                return create(this.piece.board.getSquare(pair));
+            } else {
+                return null;
+            }
+        }
+
+        public Waypoint create(Square square) {
+            Waypoint waypoint = new Waypoint(piece, square);
+            piece.marksOn(new Attack.Origin(waypoint));
+            return waypoint;
+        }
     }
 }

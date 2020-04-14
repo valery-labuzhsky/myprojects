@@ -11,14 +11,14 @@ public class Knight extends Piece {
     }
 
     @Override
-    protected void marksOn() {
-        mark(1, 2);
-        mark(-1, 2);
-        mark(2, 1);
-        mark(2, -1);
-        mark(1, -2);
-        mark(-1, -2);
-        mark(-2, 1);
-        mark(-2, -1);
+    protected void marksOn(Waypoint.Origin origin) {
+        origin.mark(1, 2);
+        origin.mark(-1, 2);
+        origin.mark(2, 1);
+        origin.mark(2, -1);
+        origin.mark(1, -2);
+        origin.mark(-1, -2);
+        origin.mark(-2, 1);
+        origin.mark(-2, -1);
     }
 }

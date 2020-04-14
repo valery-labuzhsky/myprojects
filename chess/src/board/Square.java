@@ -14,6 +14,7 @@ public class Square {
     public Piece piece;
 
     public final HashSet<Waypoint> waypoints = new HashSet<>();
+    public final HashSet<Attack> attacks = new HashSet<>();
 
     public Square(Board board, Pair pair) {
         this.board = board;

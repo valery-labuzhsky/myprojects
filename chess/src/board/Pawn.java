@@ -11,15 +11,15 @@ public class Pawn extends Piece {
     }
 
     @Override
-    protected void marksOn() {
-        Waypoint first = mark(null, 0, color);
-        mark(-1, color);
-        mark(1, color);
+    protected void marksOn(Waypoint.Origin origin) {
+        Waypoint first = origin.mark(0, color);
+        origin.mark(-1, color);
+        origin.mark(1, color);
         // enpassant
         int border = (7 - color * 7) / 2;
         int secondRow = border + color;
         if (square.pair.rank == secondRow) {
-            mark(first, 0, color);
+            origin.mark(first, 0, color);
         }
     }
 

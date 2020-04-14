@@ -11,15 +11,15 @@ public class King extends Piece {
     }
 
     @Override
-    protected void marksOn() {
-        mark(0, 1);
-        mark(1, 1);
-        mark(1, 0);
-        mark(1, -1);
-        mark(0, -1);
-        mark(-1, -1);
-        mark(-1, 0);
-        mark(-1, 1);
+    protected void marksOn(Waypoint.Origin origin) {
+        origin.mark(0, 1);
+        origin.mark(1, 1);
+        origin.mark(1, 0);
+        origin.mark(1, -1);
+        origin.mark(0, -1);
+        origin.mark(-1, -1);
+        origin.mark(-1, 0);
+        origin.mark(-1, 1);
         // TODO castling
     }
 }
