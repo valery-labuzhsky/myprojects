@@ -15,6 +15,7 @@ public class Waypoint {
     Piece piece;
     Square square;
     Set<Piece> obstructed = new HashSet<>();
+    Set<Waypoint> willBeObstructed = new HashSet<>();
 
     public Waypoint(Piece piece, Square square) {
         this.piece = piece;
@@ -35,26 +36,12 @@ public class Waypoint {
         if (next != null) {
             this.next = next;
             next.prev = this;
-            for (Piece obstruct : obstructed) {
-                next.obstruct(obstruct);
-            }
+            next.obstructed.addAll(obstructed);
             if (square.piece != null) {
-                next.obstruct(square.piece);
+                obstruct(square.piece);
             }
         }
         return next;
-    }
-
-    boolean canGo() {
-        return this.piece.goes(this);
-    }
-
-    public int getScore() {
-        int score = this.piece.getScore(this.square);
-        if (square.piece != null) {
-            score += square.piece.type.score;
-        }
-        return score;
     }
 
     public void remove() {
@@ -66,18 +53,34 @@ public class Waypoint {
     }
 
     public void obstruct(Piece piece) {
-        this.obstructed.add(piece);
-        piece.obstructs.add(this);
         if (next != null) {
+            next.obstructed.add(piece);
             next.obstruct(piece);
         }
     }
 
     public void free(Piece piece) {
-        this.obstructed.remove(piece);
-        piece.obstructs.remove(this);
         if (next != null) {
+            next.obstructed.remove(piece);
             next.free(piece);
+        }
+    }
+
+    public void obstruct(Waypoint through) {
+        if (piece != through.piece) {
+            if (next != null) {
+                next.willBeObstructed.add(through);
+                next.obstruct(through);
+            }
+        }
+    }
+
+    public void free(Waypoint through) {
+        if (piece != through.piece) {
+            if (next != null) {
+                next.willBeObstructed.remove(through);
+                next.free(through);
+            }
         }
     }
 
@@ -90,6 +93,14 @@ public class Waypoint {
 
     public Move move() {
         return this.piece.move(this);
+    }
+
+    boolean canGo() {
+        return this.piece.goes(this);
+    }
+
+    boolean isCapture() {
+        return this.piece.captures(this);
     }
 
     public boolean captures(Piece piece) {
@@ -112,6 +123,14 @@ public class Waypoint {
             }
         }
         return false;
+    }
+
+    public int getScore() {
+        int score = this.piece.getScore(this.square);
+        if (square.piece != null) {
+            score += square.piece.type.score;
+        }
+        return score;
     }
 
     @Override

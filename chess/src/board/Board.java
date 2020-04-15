@@ -142,7 +142,7 @@ public class Board {
         private void solveNegative() {
             Piece piece = this.square.piece;
             for (Waypoint waypoint : piece.waypoints) { // escape
-                if (!waypoint.square.captures(piece)) { // TODO I need to calculate score of the move instead!
+                if (!waypoint.square.captures(piece)) {
                     addSolution(waypoint);
                 }
             }
@@ -152,7 +152,8 @@ public class Board {
                     dangers.add(waypoint);
                 }
             }
-            for (Attack protect : this.square.attacks) {
+            // TODO let's estimate exchanges realistically
+            for (Attack protect : this.square.attacks) { // protect
                 if (protect.piece != piece && protect.piece.color == piece.color) {
                     if (protect.canAttack() && protect.through.canGo()) {
                         addSolution(protect.through);

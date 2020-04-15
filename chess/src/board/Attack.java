@@ -8,7 +8,7 @@ import java.util.HashSet;
  * @author ptasha
  */
 public class Attack extends Waypoint {
-    public final Waypoint through;
+    public final Waypoint through; // TODO whom does this block
 
     public Attack(Piece piece, Square square, Waypoint through) {
         super(piece, square);
@@ -36,6 +36,9 @@ public class Attack extends Waypoint {
         public Origin(Waypoint through) {
             super(through.piece, through.square);
             this.through = through;
+            for (Waypoint waypoint : this.through.square.waypoints) {
+                waypoint.obstruct(through);
+            }
         }
 
         @Override

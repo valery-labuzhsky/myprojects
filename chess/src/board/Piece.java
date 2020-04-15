@@ -17,7 +17,6 @@ public abstract class Piece {
 
     public final HashSet<Waypoint> waypoints = new HashSet<>();
     public final HashSet<Attack> attacks = new HashSet<>();
-    public final HashSet<Waypoint> obstructs = new HashSet<>();
 
     public Piece(PieceType type, Board board, int color) {
         this.board = board;
@@ -41,10 +40,7 @@ public abstract class Piece {
         marksOn(new Waypoint.Origin(this, this.square));
 
         for (Waypoint waypoint : this.square.waypoints) {
-            Waypoint next = waypoint.next;
-            if (next != null) {
-                next.obstruct(this);
-            }
+            waypoint.obstruct(this);
         }
     }
 
@@ -64,8 +60,11 @@ public abstract class Piece {
     protected abstract void marksOn(Waypoint.Origin origin); // TODO now I need to go the same way but differently
 
     private void marksOff() {
-        while (!obstructs.isEmpty()) {
-            obstructs.iterator().next().free(this);
+        for (Waypoint waypoint : this.square.waypoints) {
+            waypoint.free(this);
+            for (Waypoint through : waypoint.square.waypoints) {
+                through.free(waypoint);
+            }
         }
         while (!attacks.isEmpty()) {
             attacks.iterator().next().remove();
