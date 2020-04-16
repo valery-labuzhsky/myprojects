@@ -1,5 +1,6 @@
 package board.pieces;
 
+import board.Square;
 import board.Waypoint;
 
 /**
@@ -27,21 +28,14 @@ public class Pawn extends Piece {
 
     @Override
     public boolean goes(Waypoint waypoint) {
-        if (waypoint.square.pair.file == square.pair.file) {
-            if (waypoint.square.piece != null) {
-                return false;
-            }
-        } else {
-            // TODO enpassant
-            if (waypoint.square.piece == null) {
-                return false;
-            }
-        }
-        return super.goes(waypoint);
+        Square square = waypoint.getOriginalSquare();
+        return waypoint.square.pair.file == square.pair.file;
     }
 
     @Override
-    public boolean captures(Waypoint waypoint) {
+    public boolean attacks(Waypoint waypoint) {
+        Square square = waypoint.getOriginalSquare();
         return waypoint.square.pair.file != square.pair.file;
     }
+
 }

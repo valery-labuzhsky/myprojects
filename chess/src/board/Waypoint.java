@@ -24,6 +24,10 @@ public class Waypoint {
         getSquareCache().add(this);
     }
 
+    public Square getOriginalSquare() {
+        return this.piece.square;
+    }
+
     public Collection<Piece> getBlocks() {
         return blocks;
     }
@@ -60,27 +64,46 @@ public class Waypoint {
         return this.piece.move(this);
     }
 
-    public boolean canGo() {
+    public boolean isMove() {
+        if (square.piece == null) {
+            return isGo();
+        } else if (square.piece.color != piece.color) {
+            return isAttack();
+        } else {
+            return false;
+        }
+    }
+
+    public boolean moves() {
+        return isMove() && getBlocks().isEmpty();
+    }
+
+    public boolean isGo() {
         return this.piece.goes(this);
     }
 
-    boolean isCapture() {
-        return this.piece.captures(this);
+    public boolean goes() {
+        return isGo() && getBlocks().isEmpty() && square.piece == null;
+    }
+
+    public boolean isAttack() {
+        return this.piece.attacks(this);
+    }
+
+    public boolean attacks() {
+        return isAttack() && getBlocks().isEmpty();
+    }
+
+    public boolean isCapture() {
+        return isAttack() && square.piece != null && square.piece.color != piece.color;
+    }
+
+    public boolean captures() {
+        return isCapture() && getBlocks().isEmpty();
     }
 
     public boolean captures(Piece piece) {
-        if (this.piece.color != piece.color) {
-            return attacks(piece);
-        }
-        return false;
-    }
-
-    public boolean canAttack() {
-        return attacks(square.piece);
-    }
-
-    public boolean attacks(Piece piece) {
-        if (this.piece.captures(this)) {
+        if (isAttack() && this.piece.color != piece.color) {
             for (Piece block : getBlocks()) {
                 if (block != piece) {
                     return false;
@@ -89,6 +112,14 @@ public class Waypoint {
             return true;
         }
         return false;
+    }
+
+    public boolean isGuard() {
+        return isAttack() && square.piece != piece && square.piece != null && square.piece.color == piece.color;
+    }
+
+    public boolean guards() {
+        return isGuard() && getBlocks().isEmpty();
     }
 
     public int getScore() {
@@ -153,7 +184,7 @@ public class Waypoint {
                 @Override
                 public boolean hasNext() {
                     while (point != null) {
-                        if (point.piece != null) {
+                        if (point.square.piece != null) {
                             return true;
                         }
                         point = point.prev;
@@ -164,7 +195,7 @@ public class Waypoint {
                 @Override
                 public Piece next() {
                     try {
-                        return point.piece;
+                        return point.square.piece;
                     } finally {
                         point = point.prev;
                     }

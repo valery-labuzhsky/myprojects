@@ -95,7 +95,7 @@ public class Exchange {
 
     protected void gatherWaypoints() {
         for (Waypoint waypoint : square.waypoints) {
-            if (waypoint.isCapture()) {
+            if (waypoint.isAttack()) {
                 addWaypoint(waypoint);
             }
         }

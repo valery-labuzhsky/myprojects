@@ -23,7 +23,7 @@ public class Situations {
 
     public void lookAt(Piece piece) {
         for (Waypoint waypoint : piece.square.waypoints) {
-            if (waypoint.captures(piece)) {
+            if (waypoint.captures()) {
                 Situation situation = new Situation(piece, this.board.color);
                 if (piece.type == PieceType.King) {
                     check = situation;

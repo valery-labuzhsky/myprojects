@@ -172,7 +172,7 @@ public class Board {
 
         // TODO just check if it's there!
         for (Move move : moves) {
-            if (move.toString().equals("d1e1")) {
+            if (move.toString().equals("g2g4")) {
                 try {
                     move(move);
                     return "move " + move.toString();

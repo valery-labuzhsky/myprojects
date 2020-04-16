@@ -39,26 +39,24 @@ public class Situation {
     private void solveNegative() {
         Piece piece = this.square.piece;
         for (Waypoint waypoint : piece.waypoints) { // escape
-            if (!waypoint.square.captures(piece) && waypoint.canGo()) {
+            if (!waypoint.square.captures(piece) && waypoint.moves()) {
                 addSolution(waypoint);
             }
         }
         ArrayList<Waypoint> dangers = new ArrayList<>(); // gather all the villains
         for (Waypoint waypoint : this.square.waypoints) {
-            if (waypoint.captures(piece)) {
+            if (waypoint.captures()) {
                 dangers.add(waypoint);
             }
         }
         // TODO let's estimate exchanges realistically
         for (Attack guard : this.square.attacks) { // guard
-            if (guard.piece != piece && guard.piece.color == piece.color) {
-                if (guard.canAttack() && guard.through.canGo()) {
-                    int score = guard.getScore();
-                    if (score > 0) {
-                        score = 0;
-                    }
-                    addSolution(guard.through, -this.score + score);
+            if (guard.guards() && guard.through.moves()) {
+                int score = guard.getScore();
+                if (score > 0) {
+                    score = 0;
                 }
+                addSolution(guard.through, -this.score + score);
             }
         }
         if (dangers.size() == 1) {
@@ -70,9 +68,9 @@ public class Situation {
             }
             while (danger.prev != null) { // block
                 danger = danger.prev;
-                for (Waypoint obscure : danger.square.waypoints) {
-                    if (obscure.piece.color == piece.color) {
-                        addSolution(obscure);
+                for (Waypoint block : danger.square.waypoints) {
+                    if (block.piece.color == piece.color && block.moves()) {
+                        addSolution(block);
                     }
                 }
             }
@@ -81,7 +79,7 @@ public class Situation {
 
     private void solvePositive() {
         for (Waypoint waypoint : this.square.waypoints) {
-            if (waypoint.captures(square.piece)) {
+            if (waypoint.captures()) {
                 addSolution(waypoint);
             }
         }

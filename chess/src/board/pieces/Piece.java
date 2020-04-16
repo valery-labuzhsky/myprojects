@@ -43,9 +43,6 @@ public abstract class Piece {
         this.square = square;
         this.square.piece = this;
         marksOn(new Waypoint.Origin(this, this.square));
-
-        for (Waypoint waypoint : this.square.waypoints) {
-        }
     }
 
     public void add(Square square) {
@@ -91,15 +88,10 @@ public abstract class Piece {
     }
 
     public boolean goes(Waypoint waypoint) {
-        return (waypoint.square.piece == null || waypoint.square.piece.color != color) && waypoint.getBlocks().isEmpty();
+        return true;
     }
 
-    @Override
-    public String toString() {
-        return "" + type.name() + "[" + square.pair + "]";
-    }
-
-    public boolean captures(Waypoint waypoint) {
+    public boolean attacks(Waypoint waypoint) {
         return true;
     }
 
@@ -110,5 +102,10 @@ public abstract class Piece {
             }
         }
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "" + type.name() + "[" + square.pair + "]";
     }
 }

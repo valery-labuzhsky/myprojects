@@ -17,6 +17,11 @@ public class Attack extends Waypoint {
         this.through = through;
     }
 
+    @Override
+    public Square getOriginalSquare() {
+        return through.square;
+    }
+
     public boolean isBlocking(Waypoint waypoint) {
         return waypoint.prev != null && this.prev != null && waypoint.prev.square == this.prev.square;
     }
