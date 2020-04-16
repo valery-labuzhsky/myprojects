@@ -1,4 +1,6 @@
-package board;
+package board.pieces;
+
+import board.*;
 
 import java.util.*;
 
@@ -118,162 +120,12 @@ public class Board {
         return true;
     }
 
-    public static class Situation {
-        Square square;
-        int score;
-        int bestScore;
-        ArrayList<Waypoint> solutions = new ArrayList<>();
-
-        public Situation(Piece piece, int color) {
-            this.square = piece.square;
-            solve(color);
-        }
-
-        private void solve(int color) {
-            Piece piece = this.square.piece;
-            if (piece.color != color) { // I'm capturing
-                solvePositive();
-            } else { // somebody attacks me
-                this.score = -piece.type.score;
-                solveNegative();
-            }
-        }
-
-        private void solveNegative() {
-            Piece piece = this.square.piece;
-            for (Waypoint waypoint : piece.waypoints) { // escape
-                if (!waypoint.square.captures(piece)) {
-                    addSolution(waypoint);
-                }
-            }
-            ArrayList<Waypoint> dangers = new ArrayList<>(); // gather all the villains
-            for (Waypoint waypoint : this.square.waypoints) {
-                if (waypoint.captures(piece)) {
-                    dangers.add(waypoint);
-                }
-            }
-            // TODO let's estimate exchanges realistically
-            for (Attack protect : this.square.attacks) { // protect
-                if (protect.piece != piece && protect.piece.color == piece.color) {
-                    if (protect.canAttack() && protect.through.canGo()) {
-                        addSolution(protect.through);
-                    }
-                }
-            }
-            if (dangers.size() == 1) {
-                Waypoint danger = dangers.get(0);
-                for (Waypoint waypoint : danger.piece.square.waypoints) { // kill him
-                    if (waypoint.captures(danger.piece)) {
-                        addSolution(waypoint);
-                    }
-                }
-                while (danger.prev != null) { // obscure
-                    danger = danger.prev;
-                    for (Waypoint obscure : danger.square.waypoints) {
-                        if (obscure.piece.color == piece.color) {
-                            addSolution(obscure);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void solvePositive() {
-            for (Waypoint waypoint : this.square.waypoints) {
-                if (waypoint.captures(square.piece)) {
-                    addSolution(waypoint);
-                }
-            }
-        }
-
-        private void addSolution(Waypoint waypoint) {
-            if (waypoint.canGo()) {
-                int score = -this.score + waypoint.getScore();
-                if (score >= this.bestScore) {
-                    if (score > this.bestScore) {
-                        this.solutions.clear();
-                        this.bestScore = score;
-                    }
-                    this.solutions.add(waypoint);
-                }
-            }
-        }
-
-        public String toString() {
-            return "" + score + " x " + (score + bestScore) + ": " + square.pair + " " + square + " " + solutions;
-        }
-    }
-
-    public static class Situations {
-        public final ArrayList<Situation> situations = new ArrayList<>();
-        public final ArrayList<Waypoint> solutions = new ArrayList<>();
-        private final Board board;
-        public Situation check;
-        public int totalScore;
-
-        public Situations(Board board) {
-            this.board = board;
-        }
-
-        private void check(Piece piece) {
-            for (Waypoint waypoint : piece.square.waypoints) {
-                if (waypoint.captures(piece)) {
-                    Situation situation = new Situation(piece, this.board.color);
-                    if (piece.type == PieceType.King) {
-                        check = situation;
-                    }
-                    situations.add(situation);
-                    break;
-                }
-            }
-        }
-
-        private boolean isCheckmate() {
-            return check != null && this.solutions.isEmpty();
-        }
-
-        private List<Move> getMoves() {
-            List<Move> moves = new ArrayList<>();
-            for (Waypoint solution : this.solutions) {
-                solution.enrich(moves);
-            }
-            return moves;
-        }
-
-        private void analyse() {
-            int bestScore = 0;
-            if (check == null) {
-                this.situations.sort(Comparator.comparingInt(s -> -s.bestScore));
-                for (Situation situation : situations) {
-                    if (situation.bestScore < bestScore) {
-                        break;
-                    }
-                    bestScore = situation.bestScore;
-                    solutions.addAll(situation.solutions);
-                }
-            } else {
-                solutions.addAll(check.solutions);
-            }
-            boolean turn = true;
-            for (Situation situation : situations) {
-                if (turn) {
-                    totalScore += situation.score + situation.bestScore;
-                } else {
-                    totalScore += situation.score;
-                }
-                turn = !turn;
-                System.out.println(situation);
-            }
-            System.out.println("Total: " + totalScore);
-        }
-    }
-
     public String move() {
         Situations situations = new Situations(this);
 
         ArrayList<Piece> myPieces = new ArrayList<>();
         for (Piece piece : pieces) {
-            situations.check(piece);
+            situations.lookAt(piece);
             if (piece.color == color) {
                 myPieces.add(piece);
             }

@@ -1,4 +1,6 @@
-package board;
+package board.pieces;
+
+import board.Waypoint;
 
 /**
  * Created on 09.04.2020.
@@ -11,7 +13,7 @@ public class Knight extends Piece {
     }
 
     @Override
-    protected void marksOn(Waypoint.Origin origin) {
+    public void marksOn(Waypoint.Origin origin) {
         origin.mark(1, 2);
         origin.mark(-1, 2);
         origin.mark(2, 1);

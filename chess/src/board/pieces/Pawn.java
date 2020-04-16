@@ -1,4 +1,6 @@
-package board;
+package board.pieces;
+
+import board.Waypoint;
 
 /**
  * Created on 09.04.2020.
@@ -11,7 +13,7 @@ public class Pawn extends Piece {
     }
 
     @Override
-    protected void marksOn(Waypoint.Origin origin) {
+    public void marksOn(Waypoint.Origin origin) {
         Waypoint first = origin.mark(0, color);
         origin.mark(-1, color);
         origin.mark(1, color);

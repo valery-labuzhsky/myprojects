@@ -1,4 +1,6 @@
-package board;
+package board.pieces;
+
+import board.Pair;
 
 /**
  * Created on 10.04.2020.

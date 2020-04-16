@@ -1,5 +1,7 @@
 package board;
 
+import board.pieces.Piece;
+
 import java.util.HashSet;
 
 /**
@@ -13,6 +15,14 @@ public class Attack extends Waypoint {
     public Attack(Piece piece, Square square, Waypoint through) {
         super(piece, square);
         this.through = through;
+    }
+
+    public boolean isBlocking(Waypoint waypoint) {
+        return waypoint.prev != null && this.prev != null && waypoint.prev.square == this.prev.square;
+    }
+
+    public int getScore() {
+        return -new AttackExchange(this).getScore(-piece.color);
     }
 
     @Override
@@ -37,7 +47,6 @@ public class Attack extends Waypoint {
             super(through.piece, through.square);
             this.through = through;
             for (Waypoint waypoint : this.through.square.waypoints) {
-                waypoint.obstruct(through);
             }
         }
 

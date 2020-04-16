@@ -1,4 +1,6 @@
-package board;
+package board.pieces;
+
+import board.Waypoint;
 
 /**
  * Created on 09.04.2020.
@@ -11,7 +13,7 @@ public class Bishop extends Piece {
     }
 
     @Override
-    protected void marksOn(Waypoint.Origin origin) {
+    public void marksOn(Waypoint.Origin origin) {
         origin.markLine(1, 1);
         origin.markLine(1, -1);
         origin.markLine(-1, -1);

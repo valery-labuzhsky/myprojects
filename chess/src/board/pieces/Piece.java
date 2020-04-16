@@ -1,4 +1,9 @@
-package board;
+package board.pieces;
+
+import board.Attack;
+import board.Pair;
+import board.Square;
+import board.Waypoint;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,7 +15,7 @@ import java.util.List;
  * @author ptasha
  */
 public abstract class Piece {
-    protected final Board board;
+    public final Board board;
     public final int color;
     public final PieceType type;
     public Square square;
@@ -40,7 +45,6 @@ public abstract class Piece {
         marksOn(new Waypoint.Origin(this, this.square));
 
         for (Waypoint waypoint : this.square.waypoints) {
-            waypoint.obstruct(this);
         }
     }
 
@@ -57,15 +61,9 @@ public abstract class Piece {
         board.score -= color * type.score;
     }
 
-    protected abstract void marksOn(Waypoint.Origin origin); // TODO now I need to go the same way but differently
+    public abstract void marksOn(Waypoint.Origin origin); // TODO now I need to go the same way but differently
 
     private void marksOff() {
-        for (Waypoint waypoint : this.square.waypoints) {
-            waypoint.free(this);
-            for (Waypoint through : waypoint.square.waypoints) {
-                through.free(waypoint);
-            }
-        }
         while (!attacks.isEmpty()) {
             attacks.iterator().next().remove();
         }
@@ -82,7 +80,7 @@ public abstract class Piece {
         return moves;
     }
 
-    protected Move move(Waypoint waypoint) {
+    public Move move(Waypoint waypoint) {
         // TODO for every piece I must know which other piece I'm putting in danger
         // TODO combining it with the knowledge of all the pieces I'm protecting gives me knowledge whether or not the move is worth taking
         // TODO I must know all the obscured marks
@@ -93,7 +91,7 @@ public abstract class Piece {
     }
 
     public boolean goes(Waypoint waypoint) {
-        return (waypoint.square.piece == null || waypoint.square.piece.color != color) && waypoint.obstructed.isEmpty();
+        return (waypoint.square.piece == null || waypoint.square.piece.color != color) && waypoint.getBlocks().isEmpty();
     }
 
     @Override

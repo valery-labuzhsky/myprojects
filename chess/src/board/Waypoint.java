@@ -1,8 +1,9 @@
 package board;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import board.pieces.Move;
+import board.pieces.Piece;
+
+import java.util.*;
 
 /**
  * Created on 11.04.2020.
@@ -11,17 +12,20 @@ import java.util.Set;
  */
 public class Waypoint {
     Waypoint next;
-    Waypoint prev;
-    Piece piece;
-    Square square;
-    Set<Piece> obstructed = new HashSet<>();
-    Set<Waypoint> willBeObstructed = new HashSet<>();
+    public Waypoint prev;
+    public Piece piece;
+    public Square square;
+    private final Blocks blocks = new Blocks();
 
     public Waypoint(Piece piece, Square square) {
         this.piece = piece;
         this.square = square;
         getPieceCache().add(this);
         getSquareCache().add(this);
+    }
+
+    public Collection<Piece> getBlocks() {
+        return blocks;
     }
 
     protected HashSet<Waypoint> getSquareCache() {
@@ -36,52 +40,13 @@ public class Waypoint {
         if (next != null) {
             this.next = next;
             next.prev = this;
-            next.obstructed.addAll(obstructed);
-            if (square.piece != null) {
-                obstruct(square.piece);
-            }
         }
         return next;
     }
 
     public void remove() {
-        while (!obstructed.isEmpty()) {
-            free(obstructed.iterator().next());
-        }
         getPieceCache().remove(this);
         getSquareCache().remove(this);
-    }
-
-    public void obstruct(Piece piece) {
-        if (next != null) {
-            next.obstructed.add(piece);
-            next.obstruct(piece);
-        }
-    }
-
-    public void free(Piece piece) {
-        if (next != null) {
-            next.obstructed.remove(piece);
-            next.free(piece);
-        }
-    }
-
-    public void obstruct(Waypoint through) {
-        if (piece != through.piece) {
-            if (next != null) {
-                next.willBeObstructed.add(through);
-                next.obstruct(through);
-            }
-        }
-    }
-
-    public void free(Waypoint through) {
-        if (piece != through.piece) {
-            if (next != null) {
-                next.willBeObstructed.remove(through);
-                next.free(through);
-            }
-        }
     }
 
     public void enrich(List<Move> moves) {
@@ -95,7 +60,7 @@ public class Waypoint {
         return this.piece.move(this);
     }
 
-    boolean canGo() {
+    public boolean canGo() {
         return this.piece.goes(this);
     }
 
@@ -116,11 +81,12 @@ public class Waypoint {
 
     public boolean attacks(Piece piece) {
         if (this.piece.captures(this)) {
-            if (obstructed.isEmpty()) {
-                return true;
-            } else if (obstructed.size() == 1) {
-                return obstructed.contains(piece);
+            for (Piece block : getBlocks()) {
+                if (block != piece) {
+                    return false;
+                }
             }
+            return true;
         }
         return false;
     }
@@ -135,7 +101,7 @@ public class Waypoint {
 
     @Override
     public String toString() {
-        return piece.type.c + "" + piece.square.pair + "" + square.pair;
+        return piece.type.getLetter() + "" + piece.square.pair + "" + square.pair;
     }
 
     public static class Origin {
@@ -147,18 +113,18 @@ public class Waypoint {
             this.square = square;
         }
 
-        protected void markLine(int file, int rank) {
+        public void markLine(int file, int rank) {
             Waypoint waypoint = mark(file, rank);
             while (waypoint != null) {
                 waypoint = mark(waypoint, file, rank);
             }
         }
 
-        protected Waypoint mark(Waypoint waypoint, int file, int rank) {
+        public Waypoint mark(Waypoint waypoint, int file, int rank) {
             return waypoint.next(mark(waypoint.square, file, rank));
         }
 
-        protected Waypoint mark(int file, int rank) {
+        public Waypoint mark(int file, int rank) {
             return mark(this.square, file, rank);
         }
 
@@ -175,6 +141,44 @@ public class Waypoint {
             Waypoint waypoint = new Waypoint(piece, square);
             piece.marksOn(new Attack.Origin(waypoint));
             return waypoint;
+        }
+    }
+
+    private class Blocks extends AbstractCollection<Piece> {
+        @Override
+        public Iterator<Piece> iterator() {
+            return new Iterator<>() {
+                Waypoint point = Waypoint.this.prev;
+
+                @Override
+                public boolean hasNext() {
+                    while (point != null) {
+                        if (point.piece != null) {
+                            return true;
+                        }
+                        point = point.prev;
+                    }
+                    return false;
+                }
+
+                @Override
+                public Piece next() {
+                    try {
+                        return point.piece;
+                    } finally {
+                        point = point.prev;
+                    }
+                }
+            };
+        }
+
+        @Override
+        public int size() {
+            int size = 0;
+            for (Iterator<Piece> iterator = this.iterator(); iterator.hasNext(); size++) {
+                iterator.next();
+            }
+            return size;
         }
     }
 }

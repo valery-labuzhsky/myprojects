@@ -1,4 +1,4 @@
-package board;
+package board.pieces;
 
 import java.util.Objects;
 
@@ -30,6 +30,16 @@ public enum PieceType {
             }
         }
         return null;
+    }
+
+    public String getLetter() {
+        String p;
+        if (this == Pawn) {
+            p = "P";
+        } else {
+            p = toString();
+        }
+        return p;
     }
 
     public String toString() {
