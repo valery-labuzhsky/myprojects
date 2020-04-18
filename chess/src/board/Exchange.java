@@ -28,9 +28,11 @@ public class Exchange {
     protected void setScene() {
         gatherWaypoints();
 
+        sides.put(1, new Side());
+        sides.put(-1, new Side());
         for (Waypoint waypoint : waypoints) {
             Piece piece = waypoint.piece;
-            sides.computeIfAbsent(piece.color, c -> new Side()).add(waypoint);
+            sides.get(piece.color).add(waypoint);
         }
 
         onSquare.set(square.piece);
@@ -123,8 +125,8 @@ public class Exchange {
     private final LinkedList<Turn> stack = new LinkedList<>();
 
     private void playBack(Runnable runnable) {
-        Turn turn = stack.getLast();
-        if (turn != null) {
+        if (!stack.isEmpty()) {
+            Turn turn = stack.getLast();
             turn.add(runnable);
         }
     }
