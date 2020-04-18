@@ -13,7 +13,7 @@ public class AttackExchange extends Exchange {
     private final Attack attack;
 
     public AttackExchange(Attack attack) {
-        super(attack.square);
+        super(attack.square, -attack.piece.color);
         this.attack = attack;
     }
 

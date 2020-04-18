@@ -11,86 +11,79 @@ import java.util.*;
  */
 public class Exchange {
 
-    private HashSet<Piece> potential = new HashSet<>();
-    private LinkedList<Waypoint> waypoints = new LinkedList<>();
+    protected LinkedList<Waypoint> waypoints = new LinkedList<>();
 
     private final Square square;
+    private final HashMap<Integer, Side> sides = new HashMap<>();
 
-    public Exchange(Square square) {
+    public Exchange(Square square, int color) {
         this.square = square;
+        playing.set(color);
     }
 
-    public int getScore(int color) {
-        gatherWaypoints();
-        waypoints.sort(Comparator.comparingInt(w -> w.piece.type.score));
+    private final State<Integer> playing = new State<>();
+    private final State<Piece> onSquare = new State<>();
+    private final State<Integer> score = new State<>(0);
 
-        HashMap<Integer, LinkedList<Piece>> sides = new HashMap<>();
-        HashSet<Piece> played = new HashSet<>();
-        HashMap<Piece, HashSet<Piece>> waiting = new LinkedHashMap<>();
+    protected void setScene() {
+        gatherWaypoints();
 
         for (Waypoint waypoint : waypoints) {
             Piece piece = waypoint.piece;
-            HashSet<Piece> blocks = getBlocks(waypoint);
-            if (played.containsAll(blocks)) {
-                boolean progress = true;
-                while (progress) {
-                    progress = false;
-                    played.add(piece);
-                    sides.computeIfAbsent(piece.color, c -> new LinkedList<>()).add(piece);
-                    for (HashSet<Piece> s : waiting.values()) {
-                        s.remove(piece);
-                    }
-                    // TODO it can be even more complex: I don't choose dependent pieces, but player can modify the score by just keeping the adversary blocked
-                    for (Iterator<Map.Entry<Piece, HashSet<Piece>>> iterator = waiting.entrySet().iterator(); iterator.hasNext(); ) {
-                        Map.Entry<Piece, HashSet<Piece>> entry = iterator.next();
-                        if (entry.getValue().isEmpty()) {
-                            piece = entry.getKey();
-                            iterator.remove();
-                            progress = true;
-                            break;
-                        }
-                    }
-                }
-            } else if (potential.containsAll(blocks)) {
-                waiting.put(piece, blocks);
-            } else {
-                Piece removed = piece;
-                waiting.entrySet().removeIf(entry -> entry.getValue().contains(removed));
-                potential.remove(piece);
-            }
+            sides.computeIfAbsent(piece.color, c -> new Side()).add(waypoint);
         }
 
-        ArrayList<Piece> sequence = new ArrayList<>();
-        int playingColor = color;
-        while (true) {
-            LinkedList<Piece> pieces = sides.get(playingColor);
-            if (pieces.isEmpty()) {
-                break;
-            }
-            sequence.add(pieces.removeFirst());
-            playingColor *= -1;
-        }
-
-        sequence.remove(sequence.size() - 1);
-
-        int score = 0;
-        while (!sequence.isEmpty()) {
-            if (score > 0) {
-                score = 0;
-            }
-            Piece last = sequence.remove(sequence.size() - 1);
-            score += last.type.score;
-            score *= -1;
-        }
-
-        if (square.piece != null) {
-            score += square.piece.type.score;
-        }
-        return score;
+        onSquare.set(square.piece);
     }
 
-    protected HashSet<Piece> getBlocks(Waypoint waypoint) {
-        return new HashSet<>(waypoint.getBlocks());
+    public int getScore() {
+        setScene();
+        return play() + score.get();
+    }
+
+    private int play() {
+        if (!hasNextTurn()) {
+            return 0;
+        } else {
+            try {
+                return nextTurn();
+            } finally {
+                playBack();
+            }
+        }
+    }
+
+    private boolean hasNextTurn() {
+        return !sides.get(playing.get()).isEmpty();
+    }
+
+    protected int nextTurn() {
+        int lastScore = score.get();
+
+        makeTurn();
+
+        int score = -play();
+        if (score < lastScore) { // TODO make it a choice to make
+            return lastScore;
+        }
+        return 0;
+    }
+
+    private void makeTurn() {
+        makeTurn(sides.get(playing.get()).chooseMove());
+    }
+
+    protected void makeTurn(Piece piece) {
+        stack.add(new Turn());
+
+        sides.get(playing.get()).makeTurn(piece);
+
+        Piece onSquare = this.onSquare.set(piece);
+        if (onSquare != null) {
+            score.set(score.get() + onSquare.type.score);
+        }
+        playing.set(-playing.get());
+        score.set(-score.get());
     }
 
     protected void gatherWaypoints() {
@@ -103,6 +96,107 @@ public class Exchange {
 
     protected void addWaypoint(Waypoint waypoint) {
         waypoints.add(waypoint);
-        potential.add(waypoint.piece);
     }
+
+    protected class State<E> {
+        E value;
+
+        public State() {
+        }
+
+        public State(E value) {
+            this.value = value;
+        }
+
+        public E get() {
+            return value;
+        }
+
+        public E set(E value) {
+            E oldValue = this.value;
+            playBack(() -> this.value = oldValue);
+            this.value = value;
+            return oldValue;
+        }
+    }
+
+    private final LinkedList<Turn> stack = new LinkedList<>();
+
+    private void playBack(Runnable runnable) {
+        Turn turn = stack.getLast();
+        if (turn != null) {
+            turn.add(runnable);
+        }
+    }
+
+    private void playBack() {
+        stack.removeLast().run();
+    }
+
+    private class Turn {
+        private final LinkedList<Runnable> revert = new LinkedList<>();
+
+        public void run() {
+            for (Runnable runnable : revert) {
+                runnable.run();
+            }
+        }
+
+        public void add(Runnable runnable) {
+            revert.addFirst(runnable);
+        }
+    }
+
+    HashMap<Waypoint, HashSet<Piece>> blockedBy = new HashMap<>();
+    HashMap<Piece, HashSet<Waypoint>> blocking = new HashMap<>();
+
+    protected HashSet<Piece> getBlocks(Waypoint waypoint) {
+        return new HashSet<>(waypoint.getBlocks());
+    }
+
+    private class Side {
+        TreeSet<Piece> pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> p.type.score).thenComparingInt(Object::hashCode));
+
+        private void add(Piece piece) {
+            this.pieces.add(piece);
+            playBack(() -> pieces.remove(piece));
+        }
+
+        public boolean isEmpty() {
+            return pieces.isEmpty();
+        }
+
+        private Piece chooseMove() {
+            return this.pieces.first();
+        }
+
+        private void makeTurn(Piece piece) {
+            pieces.remove(piece);
+            playBack(() -> pieces.add(piece));
+            HashSet<Waypoint> blocked = blocking.get(piece);
+            if (blocked != null) {
+                for (Waypoint waypoint : blocked) {
+                    HashSet<Piece> blocks = blockedBy.get(waypoint);
+                    blocks.remove(piece);
+                    playBack(() -> blocks.add(piece));
+                    if (blocks.isEmpty()) {
+                        sides.get(waypoint.piece.color).add(waypoint.piece);
+                    }
+                }
+            }
+        }
+
+        public void add(Waypoint waypoint) {
+            HashSet<Piece> blocks = getBlocks(waypoint);
+            if (blocks.isEmpty()) {
+                pieces.add(waypoint.piece);
+            } else {
+                blockedBy.put(waypoint, blocks);
+                for (Piece block : blocks) {
+                    blocking.computeIfAbsent(block, b -> new HashSet<>()).add(waypoint);
+                }
+            }
+        }
+    }
+
 }

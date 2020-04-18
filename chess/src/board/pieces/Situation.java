@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class Situation {
     Square square;
     int score;
-    int bestScore = Integer.MIN_VALUE;
+    int bestScore;
     ArrayList<Solution> solutions = new ArrayList<>();
 
     public Situation(Piece piece, int color) {
@@ -30,12 +30,11 @@ public class Situation {
         if (piece.color != color) { // I'm capturing
             solvePositive();
         } else { // somebody attacks me
-            this.score = -piece.type.score;
+            this.score = piece.getScore();
             solveNegative();
         }
     }
 
-    // TODO review all the ifs and methods used
     private void solveNegative() {
         Piece piece = this.square.piece;
         for (Waypoint waypoint : piece.waypoints) { // escape
@@ -49,7 +48,6 @@ public class Situation {
                 dangers.add(waypoint);
             }
         }
-        // TODO let's estimate exchanges realistically
         for (Attack guard : this.square.attacks) { // guard
             if (guard.guards() && guard.through.moves()) {
                 int score = guard.getScore();

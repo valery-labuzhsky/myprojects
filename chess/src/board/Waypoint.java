@@ -3,7 +3,10 @@ package board;
 import board.pieces.Move;
 import board.pieces.Piece;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Created on 11.04.2020.
@@ -53,15 +56,8 @@ public class Waypoint {
         getSquareCache().remove(this);
     }
 
-    public void enrich(List<Move> moves) {
-        Move move = move();
-        if (move != null) {
-            moves.add(move);
-        }
-    }
-
     public Move move() {
-        return this.piece.move(this);
+        return new Move(this.piece.square.pair, square.pair);
     }
 
     public boolean isMove() {
@@ -123,11 +119,7 @@ public class Waypoint {
     }
 
     public int getScore() {
-        int score = this.piece.getScore(this.square);
-        if (square.piece != null) {
-            score += square.piece.type.score;
-        }
-        return score;
+        return new WaypointExchange(this).getScore();
     }
 
     @Override

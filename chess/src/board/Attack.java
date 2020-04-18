@@ -10,7 +10,7 @@ import java.util.HashSet;
  * @author ptasha
  */
 public class Attack extends Waypoint {
-    public final Waypoint through; // TODO whom does this block
+    public final Waypoint through;
 
     public Attack(Piece piece, Square square, Waypoint through) {
         super(piece, square);
@@ -27,7 +27,10 @@ public class Attack extends Waypoint {
     }
 
     public int getScore() {
-        return -new AttackExchange(this).getScore(-piece.color);
+        if (square.piece != null) {
+            return -new AttackExchange(this).getScore() * square.piece.color * piece.color;
+        }
+        return 0;
     }
 
     @Override

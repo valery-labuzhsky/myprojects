@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class Situations {
     public final ArrayList<Situation> situations = new ArrayList<>();
-    public final HashSet<Waypoint> solutions = new HashSet<>();
+    public final ArrayList<Waypoint> solutions = new ArrayList<>();
     private final Board board;
     public Situation check;
     public int totalScore;
@@ -25,6 +25,13 @@ public class Situations {
         for (Waypoint waypoint : piece.square.waypoints) {
             if (waypoint.captures()) {
                 Situation situation = new Situation(piece, this.board.color);
+                if (this.board.color == piece.color) {
+                    if (situation.score > 0) {
+                        break;
+                    }
+                } else if (situation.bestScore < 0) {
+                    break;
+                }
                 if (piece.type == PieceType.King) {
                     check = situation;
                 }
@@ -38,12 +45,8 @@ public class Situations {
         return check != null && check.solutions.isEmpty();
     }
 
-    public List<Move> getMoves() {
-        List<Move> moves = new ArrayList<>();
-        for (Waypoint solution : this.solutions) {
-            solution.enrich(moves);
-        }
-        return moves;
+    public List<Waypoint> getMoves() {
+        return this.solutions;
     }
 
     public void analyse() {
@@ -112,7 +115,7 @@ public class Situations {
                     situation.addSolutions(solutions);
                 }
                 if (unsolved.remove(situation)) {
-                    if (turn && situation.bestScore > 0) {
+                    if (turn) {
                         totalScore += situation.score + situation.bestScore;
                     } else {
                         totalScore += situation.score;
@@ -150,7 +153,7 @@ public class Situations {
             }
         }
 
-        public void addSolutions(HashSet<Waypoint> solutions) {
+        public void addSolutions(Collection<Waypoint> solutions) {
             for (Tempo tempo : tempos) {
                 if (tempo.score == bestScore) {
                     solutions.add(tempo.solution);

@@ -88,11 +88,6 @@ public class Square {
         return Objects.hash(pair);
     }
 
-    // TODO it calculates if I place some unknown piece from nowhere, of piece is already there
-    public int getExchangeScore(int color) {
-        return new Exchange(this).getScore(color);
-    }
-
     public boolean captures(Piece piece) {
         for (Waypoint waypoint : waypoints) {
             if (waypoint.captures(piece)) {
@@ -100,6 +95,10 @@ public class Square {
             }
         }
         return false;
+    }
+
+    public int getScore(int color) {
+        return new Exchange(this, color).getScore();
     }
 
 }

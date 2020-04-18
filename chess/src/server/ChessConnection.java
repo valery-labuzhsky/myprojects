@@ -149,7 +149,17 @@ public class ChessConnection extends Thread {
         }
 
         private void illegalMove(String reason, String move) {
+            if (reason == null) {
+                illegalMove(move);
+                return;
+            }
             String response = "Illegal move (" + reason + "):" + move;
+            System.err.println("[engine]: " + response);
+            output.println(response);
+        }
+
+        private void illegalMove(String move) {
+            String response = "Illegal move:" + move;
             System.err.println("[engine]: " + response);
             output.println(response);
         }

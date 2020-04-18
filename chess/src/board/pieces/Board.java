@@ -91,17 +91,20 @@ public class Board {
     }
 
     public void move(Move move) throws IllegalMoveException {
-        // TODO check legality like piece can go there at all
         Square from = getSquare(move.from);
         if (from.piece == null) {
             throw new IllegalMoveException("no piece on " + move.from);
         }
 
         Square dest = getSquare(move.to);
+        Waypoint waypoint = dest.waypoints.stream().
+                filter(w -> w.piece == from.piece).
+                findFirst().orElse(null);
+        if (waypoint == null || !waypoint.moves()) {
+            throw new IllegalMoveException();
+        }
+        // TODO check if it brings (leaves) king in danger
         if (dest.piece != null) {
-            if (dest.piece.color == from.piece.color) {
-                throw new IllegalMoveException("own color");
-            }
             move.capture = dest.piece;
             dest.piece.remove();
         }
@@ -144,15 +147,17 @@ public class Board {
             return "resign";
         }
 
-        List<Move> moves = situations.getMoves();
+        Waypoint badWaypoint = null;
+        Move badMove = Move.parse("h2h4");
+        badWaypoint = getSquare(badMove.to).waypoints.stream().filter(w -> w.piece.square.pair.equals(badMove.from)).findFirst().orElse(null);
+
+        List<Waypoint> moves = situations.getMoves();
         if (moves.isEmpty()) {
             int bestScore = 0;
-            HashMap<Piece, ArrayList<Move>> allMoves = new HashMap<>();
+            HashMap<Piece, ArrayList<Waypoint>> allMoves = new HashMap<>();
             for (Piece piece : myPieces) {
-                for (Move move : piece.getMoves()) {
-                    Square square = getSquare(move.to);
-                    int score = 0;
-                    score += piece.getScore(square);
+                for (Waypoint move : piece.getMoves()) {
+                    int score = move.getScore();
 
                     if (score >= bestScore) {
                         if (score > bestScore) {
@@ -164,25 +169,31 @@ public class Board {
                 }
             }
 
+            if (bestScore != 0) {
+                System.out.println("Best score: " + bestScore);
+                Waypoint bs = allMoves.values().iterator().next().get(0);
+                bs.getScore();
+            }
+
             if (!allMoves.isEmpty()) {
                 Piece piece = allMoves.keySet().stream().skip(random.nextInt(allMoves.size())).findFirst().orElse(null);
                 moves = allMoves.get(piece);
             }
-        }
 
-        // TODO just check if it's there!
-        for (Move move : moves) {
-            if (move.toString().equals("g2g4")) {
-                try {
-                    move(move);
-                    return "move " + move.toString();
-                } catch (IllegalMoveException e) {
-                    throw new RuntimeException("I made illegal move! " + move, e);
+            if (badWaypoint != null) {
+                if (allMoves.getOrDefault(badWaypoint.piece, new ArrayList<>()).contains(badWaypoint)) {
+                    moves = new ArrayList<>();
+                    moves.add(badWaypoint);
                 }
             }
         }
 
-        Move move = moves.get(random.nextInt(moves.size()));
+        Move move;
+        if (moves.contains(badWaypoint)) {
+            move = badWaypoint.move();
+        } else {
+            move = moves.get(random.nextInt(moves.size())).move();
+        }
         try {
             move(move);
             if (score * color < 0) {

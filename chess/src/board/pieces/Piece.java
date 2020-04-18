@@ -58,7 +58,7 @@ public abstract class Piece {
         board.score -= color * type.score;
     }
 
-    public abstract void marksOn(Waypoint.Origin origin); // TODO now I need to go the same way but differently
+    public abstract void marksOn(Waypoint.Origin origin);
 
     private void marksOff() {
         while (!attacks.isEmpty()) {
@@ -69,22 +69,14 @@ public abstract class Piece {
         }
     }
 
-    public List<Move> getMoves() {
-        ArrayList<Move> moves = new ArrayList<>();
+    public List<Waypoint> getMoves() {
+        ArrayList<Waypoint> moves = new ArrayList<>();
         for (Waypoint waypoint : waypoints) {
-            waypoint.enrich(moves);
+            if (waypoint.moves()) {
+                moves.add(waypoint);
+            }
         }
         return moves;
-    }
-
-    public Move move(Waypoint waypoint) {
-        // TODO for every piece I must know which other piece I'm putting in danger
-        // TODO combining it with the knowledge of all the pieces I'm protecting gives me knowledge whether or not the move is worth taking
-        // TODO I must know all the obscured marks
-        if (!goes(waypoint)) {
-            return null; // TODO won't be needed if I check goes beforehand every time
-        }
-        return new Move(square.pair, waypoint.square.pair);
     }
 
     public boolean goes(Waypoint waypoint) {
@@ -95,13 +87,8 @@ public abstract class Piece {
         return true;
     }
 
-    public int getScore(Square square) {
-        for (Waypoint waypoint : square.waypoints) {
-            if (waypoint.captures(this)) {
-                return -this.type.score;
-            }
-        }
-        return 0;
+    public int getScore() {
+        return -square.getScore(-color);
     }
 
     @Override
