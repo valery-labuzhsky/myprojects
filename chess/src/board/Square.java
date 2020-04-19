@@ -27,17 +27,11 @@ public class Square {
 
     @Override
     public String toString() {
-        return toString(this.piece) + lastMove() + marks();
+        return toString(this.piece) + pair;
     }
 
-    private String marks() {
-        StringBuilder go = new StringBuilder("");
-        for (Waypoint waypoint : waypoints) {
-            if (waypoint.getBlocks().isEmpty()) {
-                go.append(toString(waypoint.piece));
-            }
-        }
-        return go.length() > 0 ? "x " + go : "";
+    public String toBoard() {
+        return toString(this.piece) + lastMove();
     }
 
     private char lastMove() {
@@ -63,7 +57,7 @@ public class Square {
     private String toString(Piece piece) {
         String p;
         if (piece == null) {
-            p = " ";
+            p = ".";
         } else {
             p = piece.type.getLetter();
             p = piece.color > 0 ? p : p.toLowerCase();

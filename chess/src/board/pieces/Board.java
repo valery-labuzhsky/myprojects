@@ -222,7 +222,7 @@ public class Board {
             ArrayList<String> r = new ArrayList<>();
             Square[] row = squares[i];
             for (Square square : row) {
-                String string = square.toString();
+                String string = square.toBoard();
                 if (string.length() > length) {
                     length = string.length();
                 }
@@ -230,47 +230,48 @@ public class Board {
             }
             strings.add(r);
         }
-        double l = Math.sqrt(length * 0.5);
+        int scale = 3;
+        double l = Math.sqrt(length * 1.0 / scale);
         length = (int) Math.ceil(l);
 
 
-        char[] horizontal = new char[length * 2];
-        Arrays.fill(horizontal, '-');
+        char[] horizontal = new char[length * scale];
+        Arrays.fill(horizontal, ' ');
 
-        char[] e = new char[length * 2];
+        char[] e = new char[length * scale];
         Arrays.fill(e, ' ');
         String empty = new String(e);
 
         StringBuilder out = new StringBuilder(score + "\n");
         for (ArrayList<String> row : strings) {
             for (int i = 0; i < 8; i++) {
-                out.append('|');
+                out.append(' ');
                 out.append(horizontal);
             }
-            out.append('|').append('\n');
+            out.append(' ').append('\n');
             for (int i = 0; i < length; i++) {
                 for (int column = 0; column < row.size(); column++) {
                     String string = row.get(column);
-                    out.append('|');
-                    if (string.length() >= length * 2) {
-                        out.append(string, 0, length * 2);
-                        row.set(column, string.substring(length * 2));
+                    out.append(' ');
+                    if (string.length() >= length * scale) {
+                        out.append(string, 0, length * scale);
+                        row.set(column, string.substring(length * scale));
                     } else if (string.length() > 0) {
                         out.append(string);
-                        out.append(empty, string.length(), length * 2);
+                        out.append(empty, string.length(), length * scale);
                         row.set(column, "");
                     } else {
                         out.append(empty);
                     }
                 }
-                out.append('|').append('\n');
+                out.append(' ').append('\n');
             }
         }
         for (int i = 0; i < 8; i++) {
-            out.append('|');
+            out.append(' ');
             out.append(horizontal);
         }
-        out.append('|').append('\n');
+        out.append(' ').append('\n');
         return out.toString();
     }
 
