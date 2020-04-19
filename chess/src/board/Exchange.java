@@ -10,6 +10,8 @@ import java.util.*;
  * @author ptasha
  */
 public class Exchange {
+    // TODO I need to implement true waypoint exchange, it will have
+    //  waypoint -> piece moved from + piece moved to, square to analyze
 
     protected LinkedList<Waypoint> waypoints = new LinkedList<>();
 
@@ -45,7 +47,7 @@ public class Exchange {
 
     private int play() {
         if (!hasNextTurn()) {
-            return 0;
+            return score.get();
         } else {
             try {
                 return nextTurn();
@@ -68,7 +70,7 @@ public class Exchange {
         if (score < lastScore) { // TODO make it a choice to make
             return lastScore;
         }
-        return 0;
+        return score;
     }
 
     private void makeTurn() {
@@ -91,6 +93,10 @@ public class Exchange {
     protected void gatherWaypoints() {
         for (Waypoint waypoint : square.waypoints) {
             if (waypoint.isAttack()) {
+                // TODO I can free some of them,
+                //  I can block some of them
+                //  I can add R there
+                // TODO blocks are calculated not here
                 addWaypoint(waypoint);
             }
         }
@@ -119,6 +125,11 @@ public class Exchange {
             playBack(() -> this.value = oldValue);
             this.value = value;
             return oldValue;
+        }
+
+        @Override
+        public String toString() {
+            return "" + value;
         }
     }
 

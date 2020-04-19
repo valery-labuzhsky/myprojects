@@ -6,6 +6,7 @@ import board.Waypoint;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ public class Situation {
     Square square;
     int score;
     int bestScore;
-    ArrayList<Solution> solutions = new ArrayList<>();
+    HashSet<Solution> solutions = new HashSet<>();
 
     public Situation(Piece piece, int color) {
         this.square = piece.square;
@@ -67,7 +68,7 @@ public class Situation {
             while (danger.prev != null) { // block
                 danger = danger.prev;
                 for (Waypoint block : danger.square.waypoints) {
-                    if (block.piece.color == piece.color && block.moves()) {
+                    if (block.piece != piece && block.piece.color == piece.color && block.moves()) {
                         addSolution(block);
                     }
                 }
@@ -88,10 +89,11 @@ public class Situation {
     }
 
     private void addSolution(Waypoint waypoint, int score) {
-        if (score > this.bestScore) {
-            this.bestScore = score;
+        if (this.solutions.add(new Solution(this, waypoint, score))) {
+            if (score > this.bestScore) {
+                this.bestScore = score;
+            }
         }
-        this.solutions.add(new Solution(this, waypoint, score));
     }
 
     void addSolutions(Collection<Waypoint> solutions) {

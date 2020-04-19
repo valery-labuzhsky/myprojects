@@ -18,4 +18,9 @@ public class WaypointExchange extends Exchange {
         super.setScene();
         makeTurn(waypoint.piece);
     }
+
+    @Override
+    public int getScore() {
+        return -super.getScore();
+    }
 }

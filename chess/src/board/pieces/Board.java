@@ -148,7 +148,7 @@ public class Board {
         }
 
         Waypoint badWaypoint = null;
-        Move badMove = Move.parse("h2h4");
+        Move badMove = Move.parse("d2e1");
         badWaypoint = getSquare(badMove.to).waypoints.stream().filter(w -> w.piece.square.pair.equals(badMove.from)).findFirst().orElse(null);
 
         List<Waypoint> moves = situations.getMoves();

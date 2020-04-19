@@ -27,10 +27,11 @@ public class Attack extends Waypoint {
     }
 
     public int getScore() {
+        int score = through.getScore();
         if (square.piece != null) {
-            return -new AttackExchange(this).getScore() * square.piece.color * piece.color;
+            return -new AttackExchange(this).getScore() * square.piece.color * piece.color + score;
         }
-        return 0;
+        return score;
     }
 
     @Override

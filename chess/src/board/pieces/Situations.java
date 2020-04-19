@@ -26,10 +26,12 @@ public class Situations {
             if (waypoint.captures()) {
                 Situation situation = new Situation(piece, this.board.color);
                 if (this.board.color == piece.color) {
-                    if (situation.score > 0) {
+                    if (situation.score >= 0) {
+                        System.out.println("- " + situation);
                         break;
                     }
-                } else if (situation.bestScore < 0) {
+                } else if (situation.bestScore <= 0) {
+                    System.out.println("- " + situation);
                     break;
                 }
                 if (piece.type == PieceType.King) {
