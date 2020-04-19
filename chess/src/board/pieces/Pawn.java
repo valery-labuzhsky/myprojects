@@ -1,5 +1,6 @@
 package board.pieces;
 
+import board.MovesTracer;
 import board.Square;
 import board.Waypoint;
 
@@ -14,16 +15,19 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public void marksOn(Waypoint.Origin origin) {
-        Waypoint first = origin.mark(0, color);
-        origin.mark(-1, color);
-        origin.mark(1, color);
+    public void trace(MovesTracer tracer) {
+        tracer.start();
+        tracer.step(0, color);
         // enpassant
         int border = (7 - color * 7) / 2;
         int secondRow = border + color;
         if (square.pair.rank == secondRow) {
-            origin.mark(first, 0, color);
+            tracer.step(0, color);
         }
+        tracer.end();
+
+        tracer.go(-1, color);
+        tracer.go(1, color);
     }
 
     @Override

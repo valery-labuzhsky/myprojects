@@ -1,13 +1,11 @@
 package board.pieces;
 
-import board.Attack;
-import board.Pair;
-import board.Square;
-import board.Waypoint;
+import board.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created on 09.04.2020.
@@ -42,7 +40,7 @@ public abstract class Piece {
     public void put(Square square) {
         this.square = square;
         this.square.piece = this;
-        marksOn(new Waypoint.Origin(this, this.square));
+        trace(new Waypoint.Origin(this, this.square));
     }
 
     public void add(Square square) {
@@ -58,7 +56,16 @@ public abstract class Piece {
         board.score -= color * type.score;
     }
 
-    public abstract void marksOn(Waypoint.Origin origin);
+    public abstract void trace(MovesTracer tracer);
+
+    public void trace(Pair start, Function<Pair, Boolean> listener) {
+        trace(new MovesTracer(start) {
+            @Override
+            protected boolean step() {
+                return listener.apply(pair);
+            }
+        });
+    }
 
     private void marksOff() {
         while (!attacks.isEmpty()) {

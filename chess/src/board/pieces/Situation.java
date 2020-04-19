@@ -49,7 +49,7 @@ public class Situation {
                 dangers.add(waypoint);
             }
         }
-        for (Attack guard : this.square.attacks) { // guard
+        for (Attack guard : this.square.attacks.values()) { // guard
             if (guard.guards() && guard.through.moves()) {
                 int score = guard.getScore();
                 if (score > 0) {

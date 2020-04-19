@@ -4,6 +4,7 @@ import board.pieces.Board;
 import board.pieces.Move;
 import board.pieces.Piece;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
@@ -18,7 +19,7 @@ public class Square {
     public Piece piece;
 
     public final HashSet<Waypoint> waypoints = new HashSet<>();
-    public final HashSet<Attack> attacks = new HashSet<>();
+    public final HashMap<Waypoint, Attack> attacks = new HashMap<>();
 
     public Square(Board board, Pair pair) {
         this.board = board;

@@ -1,6 +1,6 @@
 package board.pieces;
 
-import board.Waypoint;
+import board.MovesTracer;
 
 /**
  * Created on 09.04.2020.
@@ -13,15 +13,15 @@ public class King extends Piece {
     }
 
     @Override
-    public void marksOn(Waypoint.Origin origin) {
-        origin.mark(0, 1);
-        origin.mark(1, 1);
-        origin.mark(1, 0);
-        origin.mark(1, -1);
-        origin.mark(0, -1);
-        origin.mark(-1, -1);
-        origin.mark(-1, 0);
-        origin.mark(-1, 1);
+    public void trace(MovesTracer tracer) {
+        tracer.go(0, 1);
+        tracer.go(1, 1);
+        tracer.go(1, 0);
+        tracer.go(1, -1);
+        tracer.go(0, -1);
+        tracer.go(-1, -1);
+        tracer.go(-1, 0);
+        tracer.go(-1, 1);
         // TODO castling
     }
 }

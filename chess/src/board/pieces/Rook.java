@@ -1,6 +1,6 @@
 package board.pieces;
 
-import board.Waypoint;
+import board.MovesTracer;
 
 /**
  * Created on 09.04.2020.
@@ -13,10 +13,10 @@ public class Rook extends Piece {
     }
 
     @Override
-    public void marksOn(Waypoint.Origin origin) {
-        origin.markLine(0, 1);
-        origin.markLine(1, 0);
-        origin.markLine(0, -1);
-        origin.markLine(-1, 0);
+    public void trace(MovesTracer tracer) {
+        tracer.markLine(0, 1);
+        tracer.markLine(1, 0);
+        tracer.markLine(0, -1);
+        tracer.markLine(-1, 0);
     }
 }

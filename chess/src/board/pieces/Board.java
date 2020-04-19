@@ -62,7 +62,7 @@ public class Board {
         color = -1;
 
         for (Piece piece : pieces) {
-            piece.marksOn(new Waypoint.Origin(piece, piece.square));
+            piece.trace(new Waypoint.Origin(piece, piece.square));
         }
 
         long seed = System.currentTimeMillis();

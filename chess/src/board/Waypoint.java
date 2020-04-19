@@ -3,10 +3,8 @@ package board;
 import board.pieces.Move;
 import board.pieces.Piece;
 
-import java.util.AbstractCollection;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * Created on 11.04.2020.
@@ -24,7 +22,34 @@ public class Waypoint {
         this.piece = piece;
         this.square = square;
         getPieceCache().add(this);
-        getSquareCache().add(this);
+        register();
+    }
+
+    protected void register() {
+        this.square.waypoints.add(this);
+    }
+
+    protected void unregister() {
+        this.square.waypoints.remove(this);
+    }
+
+    public Waypoint prev(Waypoint prev) {
+        if (prev != null) {
+            prev.next = this;
+        }
+        this.prev = prev;
+        return this;
+    }
+
+    public Piece getNearestPiece() {
+        Waypoint waypoint = this;
+        while ((waypoint = waypoint.next) != null) {
+            Piece piece = waypoint.square.piece;
+            if (piece != null) {
+                return piece;
+            }
+        }
+        return null;
     }
 
     public Square getOriginalSquare() {
@@ -35,25 +60,13 @@ public class Waypoint {
         return blocks;
     }
 
-    protected HashSet<Waypoint> getSquareCache() {
-        return this.square.waypoints;
-    }
-
     protected HashSet<Waypoint> getPieceCache() {
         return this.piece.waypoints;
     }
 
-    public Waypoint next(Waypoint next) {
-        if (next != null) {
-            this.next = next;
-            next.prev = this;
-        }
-        return next;
-    }
-
     public void remove() {
         getPieceCache().remove(this);
-        getSquareCache().remove(this);
+        unregister();
     }
 
     public Move move() {
@@ -118,8 +131,77 @@ public class Waypoint {
         return isGuard() && getBlocks().isEmpty();
     }
 
+    private class FutureSquareExchange extends Exchange {
+        private final Waypoint through;
+
+        public FutureSquareExchange(Square square, int color, Waypoint through) {
+            super(square, color);
+            this.through = through;
+        }
+
+        @Override
+        protected void gatherWaypoints() {
+            super.gatherWaypoints();
+            Attack attack = square.attacks.get(through);
+            if (attack != null) {
+                addWaypoint(attack);
+            }
+        }
+
+        @Override
+        protected HashSet<Piece> getBlocks(Waypoint waypoint) {
+            HashSet<Piece> blocks = super.getBlocks(waypoint);
+            waypoint = waypoint.prev; // TODO I can optimize it by changing getBlocks method - I'm going this way twice
+            while (waypoint != null) {
+                if (waypoint.square.piece == piece) {
+                    blocks.add(piece);
+                    break;
+                }
+                waypoint = waypoint.prev;
+            }
+            return blocks;
+        }
+    }
+
     public int getScore() {
-        return new WaypointExchange(this).getScore();
+        Function<Piece, Integer> score = p -> -p.square.getScore(-p.color) * p.color * piece.color
+                + new FutureSquareExchange(p.square, -p.color, this).getScore() * p.color * piece.color;
+
+        HashMap<Piece, Integer> affected = new HashMap<>();
+        for (Waypoint waypoint : piece.waypoints) { // whom I attack or guard
+            if (waypoint.square.piece != null) {
+                affected.computeIfAbsent(waypoint.square.piece, score);
+            }
+        }
+
+        for (Waypoint waypoint : piece.square.waypoints) { // whom I block
+            Piece piece = waypoint.getNearestPiece();
+            if (piece != null) {
+                affected.computeIfAbsent(piece, score);
+            }
+        }
+
+        piece.trace(square.pair, pair -> { // whom I will attack or guard
+            Piece p = piece.board.getSquare(pair).piece;
+            if (p != null && p != piece) {
+                affected.computeIfAbsent(p, score);
+                return false;
+            }
+            return true;
+        });
+
+        for (Waypoint waypoint : square.waypoints) { // whom I will block
+            Piece piece = waypoint.getNearestPiece();
+            if (piece != null && piece != this.piece) {
+                affected.computeIfAbsent(piece, score);
+            }
+        }
+
+        int s = new WaypointExchange(this).getScore();
+        for (Integer value : affected.values()) {
+            s += value;
+        }
+        return s;
     }
 
     @Override
@@ -127,42 +209,31 @@ public class Waypoint {
         return piece.type.getLetter() + "" + piece.square.pair + "" + square.pair;
     }
 
-    public static class Origin {
+    public static class Origin extends MovesTracer {
         final Piece piece;
-        final Square square;
+        Waypoint waypoint;
 
         public Origin(Piece piece, Square square) {
+            super(square.pair);
             this.piece = piece;
-            this.square = square;
         }
 
-        public void markLine(int file, int rank) {
-            Waypoint waypoint = mark(file, rank);
-            while (waypoint != null) {
-                waypoint = mark(waypoint, file, rank);
-            }
+        @Override
+        public void start() {
+            super.start();
+            waypoint = null;
         }
 
-        public Waypoint mark(Waypoint waypoint, int file, int rank) {
-            return waypoint.next(mark(waypoint.square, file, rank));
-        }
-
-        public Waypoint mark(int file, int rank) {
-            return mark(this.square, file, rank);
-        }
-
-        protected Waypoint mark(Square square, int file, int rank) {
-            Pair pair = square.pair.go(file, rank);
-            if (pair.isValid()) {
-                return create(this.piece.board.getSquare(pair));
-            } else {
-                return null;
-            }
+        @Override
+        protected boolean step() {
+            Square square = this.piece.board.getSquare(pair);
+            waypoint = create(square).prev(waypoint);
+            return true;
         }
 
         public Waypoint create(Square square) {
             Waypoint waypoint = new Waypoint(piece, square);
-            piece.marksOn(new Attack.Origin(waypoint));
+            piece.trace(new Attack.Origin(waypoint));
             return waypoint;
         }
     }

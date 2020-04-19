@@ -23,7 +23,7 @@ public class Attack extends Waypoint {
     }
 
     public boolean isBlocking(Waypoint waypoint) {
-        return waypoint.prev != null && this.prev != null && waypoint.prev.square == this.prev.square;
+        return waypoint.prev != null && this.prev != null && waypoint.prev.square == this.prev.square; // TODO it won't work for pawn and king
     }
 
     public int getScore() {
@@ -35,8 +35,13 @@ public class Attack extends Waypoint {
     }
 
     @Override
-    protected HashSet<Waypoint> getSquareCache() {
-        return (HashSet) square.attacks;
+    protected void register() {
+        square.attacks.put(through, this);
+    }
+
+    @Override
+    protected void unregister() {
+        square.attacks.remove(through);
     }
 
     @Override
