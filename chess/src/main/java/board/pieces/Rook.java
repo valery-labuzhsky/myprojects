@@ -1,6 +1,7 @@
 package board.pieces;
 
 import board.MovesTracer;
+import board.Pair;
 
 /**
  * Created on 09.04.2020.
@@ -8,8 +9,16 @@ import board.MovesTracer;
  * @author ptasha
  */
 public class Rook extends Piece {
+    public boolean moved = false;
+
     public Rook(Board board, int color) {
         super(PieceType.Rook, board, color);
+    }
+
+    @Override
+    public void move(Pair to) {
+        super.move(to);
+        moved = true;
     }
 
     @Override

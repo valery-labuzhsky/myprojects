@@ -3,6 +3,7 @@ package board;
 import board.pieces.Board;
 import board.pieces.Move;
 import board.pieces.Piece;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,4 +97,7 @@ public class Square {
         return new Exchange(this, color).getScore();
     }
 
+    public Logger log() {
+        return pair.log();
+    }
 }

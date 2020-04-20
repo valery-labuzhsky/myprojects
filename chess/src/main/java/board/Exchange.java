@@ -15,7 +15,7 @@ public class Exchange {
 
     protected LinkedList<Waypoint> waypoints = new LinkedList<>();
 
-    private final Square square;
+    protected final Square square;
     private final HashMap<Integer, Side> sides = new HashMap<>();
 
     public Exchange(Square square, int color) {

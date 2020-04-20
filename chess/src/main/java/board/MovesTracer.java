@@ -6,8 +6,8 @@ package board;
  * @author ptasha
  */
 public abstract class MovesTracer {
-    protected Pair start;
-    protected Pair pair;
+    public Pair start;
+    public Pair pair;
 
     public MovesTracer(Pair pair) { // TODO squares will be more convenient?
         this.start = pair;

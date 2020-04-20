@@ -2,6 +2,8 @@ package board;
 
 import board.pieces.Move;
 import board.pieces.Piece;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.function.Function;
@@ -162,11 +164,23 @@ public class Waypoint {
             }
             return blocks;
         }
+
+        @Override
+        public int getScore() {
+            int score = super.getScore();
+            log().debug("Score: " + score);
+            return score;
+        }
+
+        public Logger log() {
+            return LogManager.getLogger(through.log().getName() + "." + super.square.log().getName());
+        }
+
     }
 
     public int getScore() {
-        Function<Piece, Integer> score = p -> -p.square.getScore(-p.color) * p.color * piece.color
-                + new FutureSquareExchange(p.square, -p.color, this).getScore() * p.color * piece.color;
+        Function<Piece, Integer> score = p -> - -p.square.getScore(-p.color) * p.color * piece.color
+                + -new FutureSquareExchange(p.square, -p.color, this).getScore() * p.color * piece.color;
 
         HashMap<Piece, Integer> affected = new HashMap<>();
         for (Waypoint waypoint : piece.waypoints) { // whom I attack or guard
@@ -203,9 +217,13 @@ public class Waypoint {
             s += value;
         }
 
-        System.out.println(this + ": " + s + " " + affected);
+        log().debug(this + ": " + s + " " + affected);
 
         return s;
+    }
+
+    public Logger log() {
+        return LogManager.getLogger(piece.log().getName() + "." + square.log().getName());
     }
 
     @Override

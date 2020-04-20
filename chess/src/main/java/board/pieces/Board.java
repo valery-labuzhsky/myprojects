@@ -109,7 +109,7 @@ public class Board {
             dest.piece.remove();
         }
 
-        from.piece.move(this, move.to);
+        from.piece.move(move.to);
         history.add(move);
         System.out.println(this);
     }
@@ -148,7 +148,7 @@ public class Board {
         }
 
         Waypoint badWaypoint = null;
-        Move badMove = Move.parse("a1a4");
+        Move badMove = Move.parse("d3f5");
         badWaypoint = getSquare(badMove.to).waypoints.stream().filter(w -> w.piece.square.pair.equals(badMove.from)).findFirst().orElse(null);
 
         List<Waypoint> moves = situations.getMoves();
@@ -291,7 +291,7 @@ public class Board {
             if (from.piece == null) {
                 throw new IllegalMoveException("no piece on " + move.to);
             }
-            from.piece.move(this, move.from);
+            from.piece.move(move.from);
 
             Piece piece = move.capture;
             if (piece != null) {

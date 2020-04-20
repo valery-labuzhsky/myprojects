@@ -1,5 +1,8 @@
 package board;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Objects;
 
 /**
@@ -47,7 +50,9 @@ public class Pair {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Pair pair = (Pair) o;
         return file == pair.file &&
                 rank == pair.rank;
@@ -56,5 +61,9 @@ public class Pair {
     @Override
     public int hashCode() {
         return Objects.hash(file, rank);
+    }
+
+    public Logger log() {
+        return LogManager.getLogger("" + toString());
     }
 }

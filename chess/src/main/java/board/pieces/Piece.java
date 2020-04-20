@@ -1,6 +1,7 @@
 package board.pieces;
 
 import board.*;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,10 +28,9 @@ public abstract class Piece {
         this.type = type;
     }
 
-    public void move(Board board, Pair to) {
+    public void move(Pair to) {
         Square dest = board.getSquare(to);
         // TODO it may be en passant
-        // TODO Castling
 
         square.piece = null;
         marksOff();
@@ -101,5 +101,9 @@ public abstract class Piece {
     @Override
     public String toString() {
         return "" + type.getLetter() + square.pair;
+    }
+
+    public Logger log() {
+        return square.log();
     }
 }

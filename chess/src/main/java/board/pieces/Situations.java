@@ -48,7 +48,8 @@ public class Situations {
     }
 
     public List<Waypoint> getMoves() {
-        return this.solutions;
+//        return this.solutions;
+        return new ArrayList<>();
     }
 
     public void analyse() {
