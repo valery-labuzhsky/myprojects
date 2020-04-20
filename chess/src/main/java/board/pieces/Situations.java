@@ -98,7 +98,7 @@ public class Situations {
                     tempo.addSolutions(solutions);
                 }
                 if (unsolved.containsAll(tempo.situations)) {
-                    unsolved.removeAll(tempo.situations);
+//                    unsolved.removeAll(tempo.situations);
 //                    if (turn && tempo.bestScore > 0) {
 //                        totalScore += tempo.score + tempo.bestScore;
 //                    } else {

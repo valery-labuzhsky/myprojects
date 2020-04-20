@@ -212,7 +212,7 @@ public class Waypoint {
             }
         }
 
-        int s = new WaypointExchange(this).getScore();
+        int s = new WaypointExchange(this).getScore() + piece.square.getScore(-piece.color);
         for (Integer value : affected.values()) {
             s += value;
         }
