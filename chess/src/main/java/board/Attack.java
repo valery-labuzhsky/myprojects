@@ -15,6 +15,7 @@ public class Attack extends Waypoint {
     public Attack(Piece piece, Square square, Waypoint through) {
         super(piece, square);
         this.through = through;
+        square.attacks.put(through, this);
     }
 
     @Override
@@ -36,7 +37,6 @@ public class Attack extends Waypoint {
 
     @Override
     protected void register() {
-        square.attacks.put(through, this);
     }
 
     @Override

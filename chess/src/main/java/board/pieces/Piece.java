@@ -100,6 +100,6 @@ public abstract class Piece {
 
     @Override
     public String toString() {
-        return "" + type.name() + "[" + square.pair + "]";
+        return "" + type.getLetter() + square.pair;
     }
 }

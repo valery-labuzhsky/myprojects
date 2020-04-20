@@ -151,9 +151,10 @@ public class Waypoint {
         @Override
         protected HashSet<Piece> getBlocks(Waypoint waypoint) {
             HashSet<Piece> blocks = super.getBlocks(waypoint);
+            blocks.remove(piece);
             waypoint = waypoint.prev; // TODO I can optimize it by changing getBlocks method - I'm going this way twice
             while (waypoint != null) {
-                if (waypoint.square.piece == piece) {
+                if (waypoint.square == through.square) {
                     blocks.add(piece);
                     break;
                 }
@@ -201,6 +202,9 @@ public class Waypoint {
         for (Integer value : affected.values()) {
             s += value;
         }
+
+        System.out.println(this + ": " + s + " " + affected);
+
         return s;
     }
 
