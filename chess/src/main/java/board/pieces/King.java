@@ -27,8 +27,8 @@ public class King extends Piece {
                     break;
             }
         }
-        super.move(to);
         moved = true;
+        super.move(to);
     }
 
     @Override

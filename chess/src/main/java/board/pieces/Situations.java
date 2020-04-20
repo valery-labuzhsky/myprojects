@@ -99,11 +99,11 @@ public class Situations {
                 }
                 if (unsolved.containsAll(tempo.situations)) {
                     unsolved.removeAll(tempo.situations);
-                    if (turn && tempo.bestScore > 0) {
-                        totalScore += tempo.score + tempo.bestScore;
-                    } else {
-                        totalScore += tempo.score;
-                    }
+//                    if (turn && tempo.bestScore > 0) {
+//                        totalScore += tempo.score + tempo.bestScore;
+//                    } else {
+//                        totalScore += tempo.score;
+//                    }
                     turn = !turn;
                     System.out.println(tempo);
                 }
@@ -118,9 +118,10 @@ public class Situations {
                     situation.addSolutions(solutions);
                 }
                 if (unsolved.remove(situation)) {
-                    if (turn) {
-                        totalScore += situation.score + situation.bestScore;
-                    } else {
+//                    if (turn) {
+//                        totalScore += situation.score + situation.bestScore;
+//                    } else
+                    {
                         totalScore += situation.score;
                     }
                     turn = !turn;

@@ -184,21 +184,21 @@ public class Waypoint {
 
         HashMap<Piece, Integer> affected = new HashMap<>();
         for (Waypoint waypoint : piece.waypoints) { // whom I attack or guard
-            if (waypoint.square.piece != null) {
+            if (waypoint.square.piece != null && waypoint.square.piece.color == piece.color) {
                 affected.computeIfAbsent(waypoint.square.piece, score);
             }
         }
 
         for (Waypoint waypoint : piece.square.waypoints) { // whom I block
             Piece piece = waypoint.getNearestPiece();
-            if (piece != null) {
+            if (piece != null && piece.color == this.piece.color) {
                 affected.computeIfAbsent(piece, score);
             }
         }
 
         piece.trace(square.pair, pair -> { // whom I will attack or guard
             Piece p = piece.board.getSquare(pair).piece;
-            if (p != null && p != piece) {
+            if (p != null && p != piece && p.color == piece.color) {
                 affected.computeIfAbsent(p, score);
                 return false;
             }
@@ -207,7 +207,7 @@ public class Waypoint {
 
         for (Waypoint waypoint : square.waypoints) { // whom I will block
             Piece piece = waypoint.getNearestPiece();
-            if (piece != null && piece != this.piece) {
+            if (piece != null && piece != this.piece && piece.color == this.piece.color) {
                 affected.computeIfAbsent(piece, score);
             }
         }
