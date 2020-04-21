@@ -4,6 +4,7 @@ import board.Waypoint;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -12,15 +13,28 @@ import java.util.List;
  * @author ptasha
  */
 public class Situations {
-    public final ArrayList<Situation> situations = new ArrayList<>();
-    public final ArrayList<Waypoint> solutions = new ArrayList<>();
+    public final ArrayList<Solution> moves = new ArrayList<>();
+
+    public final HashSet<Waypoint> waypoints = new HashSet<>();
+    public final ArrayList<Solution> solutions = new ArrayList<>();
+
     private final Board board;
     public Situation check;
-    public int totalScore;
-    public int bestScore;
+    public int score;
+    private int defenceScore;
 
     public Situations(Board board) {
         this.board = board;
+    }
+
+    int result() {
+        return this.score + this.getDefenceScore();
+    }
+
+    void addSolution(Waypoint waypoint) {
+        if (waypoints.add(waypoint)) {
+            this.solutions.add(new Solution(waypoint));
+        }
     }
 
     // TODO I must have negative situations score
@@ -32,39 +46,46 @@ public class Situations {
     public void lookAt(Piece piece) {
         for (Waypoint waypoint : piece.square.waypoints) {
             if (waypoint.captures()) {
-                Situation situation = new Situation(piece, this.board.color);
+                Situation situation = new Situation(this, piece, this.board.color);
                 if (piece.type == PieceType.King) {
                     check = situation;
                 }
-                situations.add(situation);
+                score += situation.score;
                 break;
             }
         }
     }
 
     public boolean isCheckmate() {
-        return check != null && totalScore - bestScore < -PieceType.King.score / 2;
+        return check != null && result() < -PieceType.King.score / 2;
     }
 
-    public List<Waypoint> getMoves() {
-        return this.solutions;
+    public List<Solution> getMoves() {
+        return this.moves;
     }
 
     public void analyse() {
-        this.situations.sort(Comparator.comparingInt(s -> -s.bestScore));
+        solutions.sort(Comparator.reverseOrder());
 
-        for (Situation situation : situations) {
-            totalScore += situation.score;
-            if (situation.bestScore >= bestScore && situation.bestScore > 0) {
-                if (situation.bestScore > bestScore) {
-                    solutions.clear();
+        Solution best = null;
+
+        for (Solution solution : solutions) {
+            if (solution.defence > 0) {
+                if (best == null) {
+                    best = solution;
+                    defenceScore = solution.defence;
+                } else if (best.compareTo(solution) > 0) {
+                    break;
                 }
-                bestScore = situation.bestScore;
-                situation.addSolutions(solutions);
+                moves.add(solution);
             }
         }
 
-        System.out.println("Total: " + totalScore);
-        System.out.println("Best: " + bestScore + " " + solutions);
+        System.out.println("Total: " + score);
+        System.out.println("Defend: " + getDefenceScore() + " " + moves);
+    }
+
+    public int getDefenceScore() {
+        return defenceScore;
     }
 }

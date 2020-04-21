@@ -166,7 +166,7 @@ public class Exchange {
     }
 
     private class Side {
-        TreeSet<Piece> pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> p.type.score).thenComparingInt(Object::hashCode));
+        TreeSet<Piece> pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> p.type.score).thenComparingInt(Object::hashCode)); // TODO it's better to use something else hashCode may be the same once in the blue moon
 
         private void add(Piece piece) {
             this.pieces.add(piece);

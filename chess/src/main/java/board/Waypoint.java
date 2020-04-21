@@ -5,8 +5,10 @@ import board.pieces.Piece;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Created on 11.04.2020.
@@ -133,102 +135,13 @@ public class Waypoint {
         return isGuard() && getBlocks().isEmpty();
     }
 
-    private class FutureSquareExchange extends Exchange {
-        private final Waypoint through;
-
-        public FutureSquareExchange(Square square, int color, Waypoint through) {
-            super(square, color);
-            this.through = through;
-        }
-
-        @Override
-        protected void gatherWaypoints() {
-            super.gatherWaypoints();
-            Attack attack = square.attacks.get(through);
-            if (attack != null) {
-                waypoints.add(attack);
-            }
-        }
-
-        @Override
-        protected void addWaypoint(Waypoint waypoint) {
-            if (waypoint.piece != piece) {
-                super.addWaypoint(waypoint);
-            }
-        }
-
-        @Override
-        protected HashSet<Piece> getBlocks(Waypoint waypoint) {
-            HashSet<Piece> blocks = super.getBlocks(waypoint);
-            blocks.remove(piece);
-            waypoint = waypoint.prev; // TODO I can optimize it by changing getBlocks method - I'm going this way twice
-            while (waypoint != null) {
-                if (waypoint.square == through.square) {
-                    blocks.add(piece);
-                    break;
-                }
-                waypoint = waypoint.prev;
-            }
-            return blocks;
-        }
-
-        @Override
-        public int getScore() {
-            int score = super.getScore();
-            log().debug("Score: " + score);
-            return score;
-        }
-
-        public Logger log() {
-            return LogManager.getLogger(through.log().getName() + "." + super.square.log().getName());
-        }
-
-    }
-
     public int getScore() {
-        Function<Piece, Integer> score = p -> - -p.square.getScore(-p.color) * p.color * piece.color
-                + -new FutureSquareExchange(p.square, -p.color, this).getScore() * p.color * piece.color;
-
-        HashMap<Piece, Integer> affected = new HashMap<>();
-        for (Waypoint waypoint : piece.waypoints) { // whom I attack or guard
-            if (waypoint.square.piece != null && waypoint.square.piece.color == piece.color) {
-                affected.computeIfAbsent(waypoint.square.piece, score);
-            }
-        }
-
-        for (Waypoint waypoint : piece.square.waypoints) { // whom I block
-            Piece piece = waypoint.getNearestPiece();
-            if (piece != null && piece.color == this.piece.color) {
-                affected.computeIfAbsent(piece, score);
-            }
-        }
-
-        piece.trace(square.pair, pair -> { // whom I will attack or guard
-            Piece p = piece.board.getSquare(pair).piece;
-            if (p != null && p != piece && p.color == piece.color) {
-                affected.computeIfAbsent(p, score);
-                return false;
-            }
-            return true;
-        });
-
-        for (Waypoint waypoint : square.waypoints) { // whom I will block
-            Piece piece = waypoint.getNearestPiece();
-            if (piece != null && piece != this.piece && piece.color == this.piece.color) {
-                affected.computeIfAbsent(piece, score);
-            }
-        }
-
         int waypointScore = new WaypointExchange(this).getScore();
         int squareScore = piece.square.getScore(-piece.color);
-        int s = waypointScore + squareScore;
-        for (Integer value : affected.values()) {
-            s += value;
-        }
 
-        log().debug(this + ": " + waypointScore + " + " + squareScore + " " + affected);
+        log().debug(this + ": " + waypointScore + " + " + squareScore);
 
-        return s;
+        return waypointScore + squareScore;
     }
 
     public Logger log() {

@@ -143,34 +143,35 @@ public class Board {
             }
         }
 
-        if (situations.totalScore + situations.bestScore < 0) {
+        if (situations.result() < 0) {
             return "resign";
         }
 
         Waypoint badWaypoint = null;
-        Move badMove = Move.parse("f1e2");
+        Move badMove = Move.parse("f1a6");
         badWaypoint = getSquare(badMove.to).waypoints.stream().filter(w -> w.piece.square.pair.equals(badMove.from)).findFirst().orElse(null);
+        Solution badSolution = null;
 
-        List<Waypoint> moves = situations.getMoves();
+        List<Solution> moves = situations.getMoves();
         if (moves.isEmpty()) {
-            int bestScore = 0;
-            HashMap<Piece, ArrayList<Waypoint>> allMoves = new HashMap<>();
+            Solution bestSolution = null;
+            HashMap<Piece, ArrayList<Solution>> allMoves = new HashMap<>();
             for (Piece piece : myPieces) {
                 for (Waypoint move : piece.getMoves()) {
-                    int score = move.getScore();
-
-                    if (score >= bestScore) {
-                        if (score > bestScore) {
-                            bestScore = score;
-                            allMoves.clear();
-                        }
-                        allMoves.computeIfAbsent(piece, p -> new ArrayList<>()).add(move);
+                    Solution solution = new Solution(move);
+                    if (move == badWaypoint) {
+                        badSolution = solution;
                     }
+                    if (bestSolution == null) {
+                        bestSolution = solution;
+                    } else if (bestSolution.compareTo(solution) < 0) {
+                        allMoves.clear();
+                        bestSolution = solution;
+                    } else if (bestSolution.compareTo(solution) > 0) {
+                        continue;
+                    }
+                    allMoves.computeIfAbsent(piece, p -> new ArrayList<>()).add(solution);
                 }
-            }
-
-            if (bestScore != 0) {
-                System.out.println("Best score: " + bestScore);
             }
 
             if (!allMoves.isEmpty()) {
@@ -178,19 +179,16 @@ public class Board {
                 moves = allMoves.get(piece);
             }
 
-            if (badWaypoint != null) {
-                if (allMoves.getOrDefault(badWaypoint.piece, new ArrayList<>()).contains(badWaypoint)) {
-                    moves = new ArrayList<>();
-                    moves.add(badWaypoint);
-                }
+            if (badSolution != null && badSolution.compareTo(bestSolution) == 0) {
+                moves.add(badSolution);
             }
         }
 
         Move move;
-        if (moves.contains(badWaypoint)) {
-            move = badWaypoint.move();
+        if (moves.contains(badSolution)) {
+            move = badSolution.move.move();
         } else {
-            move = moves.get(random.nextInt(moves.size())).move();
+            move = moves.get(random.nextInt(moves.size())).move.move();
         }
         try {
             move(move);
