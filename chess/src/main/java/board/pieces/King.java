@@ -2,6 +2,8 @@ package board.pieces;
 
 import board.MovesTracer;
 import board.Pair;
+import board.Square;
+import board.Waypoint;
 
 /**
  * Created on 09.04.2020.
@@ -44,16 +46,13 @@ public class King extends Piece {
 
         Pair pair = tracer.start;
         if (!moved && pair.rank == (7 - color * 7) / 2 && pair.file == 4) {
-//            if (square.captures(this)) {
-//                return;
-//            }
-            if (checkCastlingRule(pair, 1)) {
+            {
                 Piece rook = board.getSquare(pair.go(3, 0)).piece;
                 if (rook instanceof Rook && !((Rook) rook).moved) {
                     tracer.go(2, 0);
                 }
             }
-            if (checkCastlingRule(pair, -1)) {
+            {
                 Piece rook = board.getSquare(pair.go(-4, 0)).piece;
                 if (rook instanceof Rook && !((Rook) rook).moved) {
                     tracer.go(-2, 0);
@@ -62,20 +61,45 @@ public class King extends Piece {
         }
     }
 
+    @Override
+    public boolean attacks(Waypoint waypoint) {
+        if (!super.attacks(waypoint)) {
+            return false;
+        }
+        if (!moved) {
+            return waypoint.square.pair.file != 2 && waypoint.square.pair.file != 6;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean goes(Waypoint waypoint) {
+        if (!super.goes(waypoint)) {
+            return false;
+        }
+        if (!moved) {
+            if (waypoint.square.pair.file == 2) {
+                return !square.captures(this) && checkCastlingRule(square.pair, -1);
+            } else if (waypoint.square.pair.file == 6) {
+                return !square.captures(this) && checkCastlingRule(square.pair, 1);
+            }
+        }
+        return true;
+    }
+
     private boolean checkCastlingRule(Pair pair, int file) {
-        // TODO I don't recalculate pieces, so I must check this rule later!
-//        {
-//            Square square = board.getSquare(pair.go(file, 0));
-//            if (square.piece != null || square.captures(this)) {
-//                return false;
-//            }
-//        }
-//        {
-//            Square square = board.getSquare(pair.go(2 * file, 0));
-//            if (square.piece != null || square.captures(this)) {
-//                return false;
-//            }
-//        }
+        {
+            Square square = board.getSquare(pair.go(file, 0));
+            if (square.piece != null || square.captures(this)) {
+                return false;
+            }
+        }
+        {
+            Square square = board.getSquare(pair.go(2 * file, 0));
+            if (square.piece != null || square.captures(this)) {
+                return false;
+            }
+        }
         return true;
     }
 }

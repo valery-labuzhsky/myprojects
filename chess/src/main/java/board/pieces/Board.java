@@ -143,12 +143,12 @@ public class Board {
             }
         }
 
-//        if (situations.totalScore + score < 0) {
-//            return "resign";
-//        }
+        if (situations.totalScore + situations.bestScore < 0) {
+            return "resign";
+        }
 
         Waypoint badWaypoint = null;
-        Move badMove = Move.parse("b2b3");
+        Move badMove = Move.parse("f1e2");
         badWaypoint = getSquare(badMove.to).waypoints.stream().filter(w -> w.piece.square.pair.equals(badMove.from)).findFirst().orElse(null);
 
         List<Waypoint> moves = situations.getMoves();
@@ -171,11 +171,6 @@ public class Board {
 
             if (bestScore != 0) {
                 System.out.println("Best score: " + bestScore);
-                int result = score + bestScore + situations.totalScore;
-                System.out.println("Resulting score: " + result);
-                if (result < 0) {
-                    return "resign";
-                }
             }
 
             if (!allMoves.isEmpty()) {

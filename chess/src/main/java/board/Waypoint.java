@@ -146,7 +146,14 @@ public class Waypoint {
             super.gatherWaypoints();
             Attack attack = square.attacks.get(through);
             if (attack != null) {
-                addWaypoint(attack);
+                waypoints.add(attack);
+            }
+        }
+
+        @Override
+        protected void addWaypoint(Waypoint waypoint) {
+            if (waypoint.piece != piece) {
+                super.addWaypoint(waypoint);
             }
         }
 
@@ -212,12 +219,14 @@ public class Waypoint {
             }
         }
 
-        int s = new WaypointExchange(this).getScore() + piece.square.getScore(-piece.color);
+        int waypointScore = new WaypointExchange(this).getScore();
+        int squareScore = piece.square.getScore(-piece.color);
+        int s = waypointScore + squareScore;
         for (Integer value : affected.values()) {
             s += value;
         }
 
-        log().debug(this + ": " + s + " " + affected);
+        log().debug(this + ": " + waypointScore + " + " + squareScore + " " + affected);
 
         return s;
     }

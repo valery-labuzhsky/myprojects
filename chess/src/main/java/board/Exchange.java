@@ -1,6 +1,7 @@
 package board;
 
 import board.pieces.Piece;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -42,7 +43,7 @@ public class Exchange {
 
     public int getScore() {
         setScene();
-        return play() + score.get();
+        return play();
     }
 
     private int play() {
@@ -86,6 +87,7 @@ public class Exchange {
         if (onSquare != null) {
             score.set(score.get() + onSquare.type.score);
         }
+        log().debug("Moving " + piece + ": " + score.get());
         playing.set(-playing.get());
         score.set(-score.get());
     }
@@ -93,10 +95,6 @@ public class Exchange {
     protected void gatherWaypoints() {
         for (Waypoint waypoint : square.waypoints) {
             if (waypoint.isAttack()) {
-                // TODO I can free some of them,
-                //  I can block some of them
-                //  I can add R there
-                // TODO blocks are calculated not here
                 addWaypoint(waypoint);
             }
         }
@@ -212,4 +210,7 @@ public class Exchange {
         }
     }
 
+    protected Logger log() {
+        return square.log();
+    }
 }

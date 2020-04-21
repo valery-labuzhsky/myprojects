@@ -1,5 +1,7 @@
 package board;
 
+import org.apache.logging.log4j.Logger;
+
 /**
  * Created on 16.04.2020.
  *
@@ -22,5 +24,10 @@ public class WaypointExchange extends Exchange {
     @Override
     public int getScore() {
         return -super.getScore();
+    }
+
+    @Override
+    protected Logger log() {
+        return waypoint.log();
     }
 }

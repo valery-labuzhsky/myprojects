@@ -19,7 +19,7 @@ public class Situation {
     Square square;
     int score;
     int bestScore;
-    HashSet<Solution> solutions = new HashSet<>();
+    HashSet<Solution> solutions = new HashSet<>(); // TODO I must add solutions right to situations themselves
 
     public Situation(Piece piece, int color) {
         this.square = piece.square;
@@ -51,11 +51,7 @@ public class Situation {
         }
         for (Attack guard : this.square.attacks.values()) { // guard
             if (guard.guards() && guard.through.moves()) {
-                int score = guard.getScore();
-                if (score > 0) {
-                    score = 0;
-                }
-                addSolution(guard.through, -this.score + score);
+                addSolution(guard.through);
             }
         }
         if (dangers.size() == 1) {
@@ -85,7 +81,7 @@ public class Situation {
     }
 
     private void addSolution(Waypoint waypoint) {
-        addSolution(waypoint, -this.score + waypoint.getScore());
+        addSolution(waypoint, waypoint.getScore());
     }
 
     private void addSolution(Waypoint waypoint, int score) {
