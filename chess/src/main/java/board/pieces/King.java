@@ -28,8 +28,25 @@ public class King extends Piece {
                     board.getSquare(new Pair(7, to.rank)).piece.move(new Pair(5, to.rank));
                     break;
             }
+            moved = true;
+        } else {
+            int diff = to.file - square.pair.file;
+            Rook rook;
+            switch (diff) {
+                case -2:
+                    rook = (Rook) board.getSquare(new Pair(5, to.rank)).piece;
+                    rook.move(new Pair(7, to.rank));
+                    rook.moved = false;
+                    moved = false;
+                    break;
+                case 2:
+                    rook = (Rook) board.getSquare(new Pair(3, to.rank)).piece;
+                    rook.move(new Pair(0, to.rank));
+                    rook.moved = false;
+                    moved = false;
+                    break;
+            }
         }
-        moved = true;
         super.move(to);
     }
 
