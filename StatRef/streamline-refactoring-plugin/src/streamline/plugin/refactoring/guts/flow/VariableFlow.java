@@ -1,6 +1,5 @@
 package streamline.plugin.refactoring.guts.flow;
 
-import org.assertj.core.util.Lists;
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
@@ -77,6 +76,6 @@ public class VariableFlow {
     }
 
     public Collection<IVariable> getUsages(IInitializer initializer) {
-        return visitor.getUsages().getOrDefault(initializer, Lists.emptyList());
+        return visitor.getUsages().getOrDefault(initializer, Collections.emptyList());
     }
 }
