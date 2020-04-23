@@ -10,9 +10,10 @@
     ]]></description>
 
     <change-notes><![CDATA[
+      Contains only:
       <ul>
+      <li>Inline variable</li>
       <li>Inline parameter</li>
-      <li>A lot of refactoring</li>
       </ul>
     ]]>
     </change-notes>
