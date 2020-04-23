@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Objects;
 
 /**
  * Created on 09.04.2020.
@@ -81,7 +80,7 @@ public class Square {
 
     @Override
     public int hashCode() {
-        return Objects.hash(pair);
+        return pair.hashCode();
     }
 
     public boolean captures(Piece piece) {

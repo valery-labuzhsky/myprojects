@@ -23,10 +23,6 @@ public class Attack extends Waypoint {
         return through.square;
     }
 
-    public boolean isBlocking(Waypoint waypoint) {
-        return waypoint.prev != null && this.prev != null && waypoint.prev.square == this.prev.square; // TODO it won't work for pawn and king
-    }
-
     public int getScore() {
         return through.getScore();
     }

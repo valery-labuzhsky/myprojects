@@ -60,10 +60,6 @@ public class Waypoint {
         return this.piece.square;
     }
 
-    public Collection<Piece> getBlocks() {
-        return blocks;
-    }
-
     protected HashSet<Waypoint> getPieceCache() {
         return this.piece.waypoints;
     }
@@ -135,6 +131,21 @@ public class Waypoint {
         return isGuard() && getBlocks().isEmpty();
     }
 
+    public boolean isBlockedBy(Square square) {
+        if (prev != null) {
+            if (prev.square == square) {
+                return true;
+            } else {
+                return prev.isBlockedBy(square);
+            }
+        }
+        return false;
+    }
+
+    public Collection<Piece> getBlocks() {
+        return blocks;
+    }
+
     public int getScore() {
         int waypointScore = new WaypointExchange(this).getScore();
         int squareScore = piece.square.getScore(-piece.color);
@@ -158,7 +169,7 @@ public class Waypoint {
         Waypoint waypoint;
 
         public Origin(Piece piece, Square square) {
-            super(square.pair);
+            super(piece.board, square);
             this.piece = piece;
         }
 
@@ -170,8 +181,7 @@ public class Waypoint {
 
         @Override
         protected boolean step() {
-            Square square = this.piece.board.getSquare(pair);
-            waypoint = create(square).prev(waypoint);
+            waypoint = create(now).prev(waypoint);
             return true;
         }
 

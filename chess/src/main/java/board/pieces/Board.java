@@ -104,6 +104,7 @@ public class Board {
             throw new IllegalMoveException();
         }
         // TODO check if it brings (leaves) king in danger
+        // TODO I can just throw an exception later
         if (dest.piece != null) {
             move.capture = dest.piece;
             dest.piece.remove();

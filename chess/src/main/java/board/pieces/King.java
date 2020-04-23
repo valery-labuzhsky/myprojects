@@ -61,7 +61,7 @@ public class King extends Piece {
         tracer.go(-1, 0);
         tracer.go(-1, 1);
 
-        Pair pair = tracer.start;
+        Pair pair = tracer.start.pair;
         if (!moved && pair.rank == (7 - color * 7) / 2 && pair.file == 4) {
             {
                 Piece rook = board.getSquare(pair.go(3, 0)).piece;

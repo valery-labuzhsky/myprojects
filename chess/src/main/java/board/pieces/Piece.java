@@ -58,11 +58,11 @@ public abstract class Piece {
 
     public abstract void trace(MovesTracer tracer);
 
-    public void trace(Pair start, Function<Pair, Boolean> listener) {
-        trace(new MovesTracer(start) {
+    public void trace(Square start, Function<Square, Boolean> listener) {
+        trace(new MovesTracer(board, start) {
             @Override
             protected boolean step() {
-                return listener.apply(pair);
+                return listener.apply(now);
             }
         });
     }
@@ -105,5 +105,22 @@ public abstract class Piece {
 
     public Logger log() {
         return square.log();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Piece piece = (Piece) o;
+        return square.equals(piece.square);
+    }
+
+    @Override
+    public int hashCode() {
+        return square.hashCode();
     }
 }

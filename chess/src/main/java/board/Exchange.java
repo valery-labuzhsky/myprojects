@@ -11,9 +11,6 @@ import java.util.*;
  * @author ptasha
  */
 public class Exchange {
-    // TODO I need to implement true waypoint exchange, it will have
-    //  waypoint -> piece moved from + piece moved to, square to analyze
-
     protected LinkedList<Waypoint> waypoints = new LinkedList<>();
 
     protected final Square square;
@@ -166,7 +163,7 @@ public class Exchange {
     }
 
     private class Side {
-        TreeSet<Piece> pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> p.type.score).thenComparingInt(Object::hashCode)); // TODO it's better to use something else hashCode may be the same once in the blue moon
+        TreeSet<Piece> pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> p.type.score).thenComparingInt(Object::hashCode));
 
         private void add(Piece piece) {
             this.pieces.add(piece);

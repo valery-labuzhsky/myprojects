@@ -38,14 +38,10 @@ public class FutureSquareExchange extends Exchange {
     @Override
     protected HashSet<Piece> getBlocks(Waypoint waypoint) {
         HashSet<Piece> blocks = super.getBlocks(waypoint);
-        blocks.remove(this.through.piece);
-        waypoint = waypoint.prev; // TODO I can optimize it by changing getBlocks method - I'm going this way twice
-        while (waypoint != null) {
-            if (waypoint.square == through.square) {
-                blocks.add(this.through.piece);
-                break;
-            }
-            waypoint = waypoint.prev;
+        if (waypoint.isBlockedBy(through.square)) {
+            blocks.add(this.through.piece);
+        } else {
+            blocks.remove(this.through.piece);
         }
         return blocks;
     }

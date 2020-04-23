@@ -42,8 +42,8 @@ public class Solution implements Comparable<Solution> {
             }
         }
 
-        move.piece.trace(move.square.pair, pair -> { // whom I will attack or guard
-            Piece p = move.piece.board.getSquare(pair).piece;
+        move.piece.trace(move.square, s -> { // whom I will attack or guard
+            Piece p = s.piece;
             if (p != null && p != move.piece) {
                 affected.computeIfAbsent(p, pieceScore);
                 return false;

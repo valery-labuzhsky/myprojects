@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Chess Engine</name>
-    <!--  TODO  <url>http://maven.apache.org</url>-->
+    <url>https://github.com/valery-labuzhsky/myprojects/tree/master/chess</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

@@ -1,16 +1,20 @@
 package board;
 
+import board.pieces.Board;
+
 /**
  * Created on 19.04.2020.
  *
  * @author ptasha
  */
 public abstract class MovesTracer {
-    public Pair start;
-    public Pair pair;
+    private final Board board;
+    public Square start;
+    public Square now;
 
-    public MovesTracer(Pair pair) { // TODO squares will be more convenient?
-        this.start = pair;
+    public MovesTracer(Board board, Square start) {
+        this.board = board;
+        this.start = start;
     }
 
     public void markLine(int file, int rank) {
@@ -19,12 +23,12 @@ public abstract class MovesTracer {
             if (!step(file, rank)) {
                 break;
             }
-        } while (pair != null);
+        } while (now != null);
         end();
     }
 
     public void start() {
-        pair = start;
+        now = start;
     }
 
     public void end() {
@@ -37,11 +41,13 @@ public abstract class MovesTracer {
     }
 
     public boolean step(int file, int rank) {
-        pair = pair.go(file, rank);
-        if (!pair.isValid()) {
-            pair = null;
+        Pair go = now.pair.go(file, rank);
+        if (!go.isValid()) {
+            now = null;
+        } else {
+            now = board.getSquare(go);
         }
-        if (pair != null) {
+        if (now != null) {
             return step();
         }
         return true;

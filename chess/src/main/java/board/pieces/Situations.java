@@ -37,12 +37,6 @@ public class Situations {
         }
     }
 
-    // TODO I must have negative situations score
-    //  positive situations will be part of solutions
-    //  then I check all the negative situations and find solutions for them
-    //  if there are no negative situations I check all the moves
-    //  then I choose the best based on negative score
-    //  then I choose the best based on positive score
     public void lookAt(Piece piece) {
         for (Waypoint waypoint : piece.square.waypoints) {
             if (waypoint.captures()) {
