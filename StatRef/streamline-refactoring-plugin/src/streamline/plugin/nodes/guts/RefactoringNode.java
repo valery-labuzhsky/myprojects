@@ -8,6 +8,7 @@ import streamline.plugin.refactoring.guts.Listeners;
 import streamline.plugin.refactoring.guts.Refactoring;
 
 import javax.swing.tree.TreePath;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     @Override
     public List<SelfPresentingNode> getChildren() {
         if (children == null) {
-            children = createChildren();
+            children = new ArrayList<>(createChildren());
             for (SelfPresentingNode child : children) {
                 child.setParent(this);
             }

@@ -27,7 +27,7 @@ public interface IVariableReference {
     }
 
     @NotNull
-    default ArrayList<IVariable> valueUsages() { // TODO use iterable?
+    default ArrayList<IVariable> valueUsages() {
         ArrayList<IVariable> valueUsages = new ArrayList<>();
         for (IVariable mention : mentions()) {
             if (!mention.isAssignment()) {

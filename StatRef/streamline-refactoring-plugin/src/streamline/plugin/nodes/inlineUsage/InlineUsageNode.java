@@ -50,6 +50,8 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
         // TODO the problem with lock is that it should actually reflect
         // TODO the other problem is that it doesn't recreate the children
         // TODO how should this tree look like?
+
+        // TODO I'm only showing my variants
         if (assignment != null && assignment.equals(refactoring.getSelected())) {
             nodes.add(new VariantElementNode(this, assignment).lock());
             lockedNode = true;
@@ -57,7 +59,7 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
         ConflictManyValuesNode conflict = new ConflictManyValuesNode(getProject());
         nodes.add(conflict);
         for (IInitializer variant : refactoring.getVariants()) {
-            if (!lockedNode || !variant.equals(assignment)) {
+            if (!lockedNode || !variant.equals(assignment)) { // TODO are they enabled for choosing?
                 nodes.add(new VariantElementNode(this, variant));
             }
         }

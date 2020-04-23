@@ -1,5 +1,6 @@
 package streamline.plugin.nodes.guts;
 
+import com.intellij.ui.components.panels.HorizontalLayout;
 import com.intellij.ui.treeStructure.Tree;
 
 import javax.swing.*;
@@ -11,7 +12,8 @@ import java.util.EventObject;
 import java.util.List;
 
 public class NodePanel extends NodeComponent {
-    private final JPanel panel = new JPanel();
+
+    private final JPanel panel = new JPanel(new HorizontalLayout(5));
 
     private final List<NodeComponent> nodeComponents = new ArrayList<>();
     private final List<JComponent> editors = new ArrayList<>();

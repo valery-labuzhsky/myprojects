@@ -25,7 +25,8 @@ public class CompoundRefactoring extends Refactoring {
     }
 
     public <R extends Refactoring> R add(R refactoring) {
-        refactorings.add(refactoring);
+        // TODO I can get rid of registry if I don't have this recursion madness!
+        refactorings.add(registry.getRefactoring(refactoring));
         return refactoring;
     }
 }

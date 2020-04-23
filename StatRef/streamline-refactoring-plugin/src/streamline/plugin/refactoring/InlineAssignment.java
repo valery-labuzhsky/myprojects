@@ -4,8 +4,10 @@ import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
+import streamline.plugin.refactoring.guts.flow.VariableFlow;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 public class InlineAssignment extends Refactoring {
@@ -17,8 +19,15 @@ public class InlineAssignment extends Refactoring {
         super(registry);
         this.initializer = initializer;
         remove = new RemoveElement(registry, initializer);
-        for (IVariable usage : initializer.valueUsages()) {
-            usages.add(registry.getRefactoring(new InlineUsage(usage, registry)));
+        VariableFlow flow = new VariableFlow(initializer.declaration());
+        Collection<IVariable> usages = flow.getUsages(initializer);
+        for (IVariable usage : usages) {
+            // TODO here I create usage which are the same
+            // TODO I must show only values which are assigned
+            // TODO I should hide other values
+            // TODO enabling must select a value
+            // TODO selecting value must disable it
+            this.usages.add(registry.getRefactoring(new InlineUsage(usage, registry)));
         }
         remove.setEnabled(!areUsagesLeft());
     }

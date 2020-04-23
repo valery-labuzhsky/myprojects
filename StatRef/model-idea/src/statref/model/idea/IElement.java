@@ -22,8 +22,13 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
     }
 
     @Override
+    public boolean after(SElement element) {
+        return getElement().getTextRange().getStartOffset() > ((IElement)element).getElement().getTextRange().getEndOffset();
+    }
+
+    @Override
     public boolean before(SElement element) {
-        return getElement().getTextOffset() < ((IElement)element).getElement().getTextOffset();
+        return getElement().getTextRange().getEndOffset() < ((IElement)element).getElement().getTextRange().getStartOffset();
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -16,13 +15,13 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.*;
-import streamline.plugin.nodes.InlineAssignmentNode;
 import streamline.plugin.nodes.guts.NodesRegistry;
 import streamline.plugin.nodes.guts.RefactoringNode;
 import streamline.plugin.nodes.inlineUsage.InlineUsageNode;
 import streamline.plugin.refactoring.InlineAssignment;
 import streamline.plugin.refactoring.InlineParameter;
 import streamline.plugin.refactoring.InlineUsage;
+import streamline.plugin.refactoring.InlineVariable;
 
 public class SLInlineAction extends AnAction {
     private static final Logger log = Logger.getInstance(IFactory.class);
@@ -41,11 +40,14 @@ public class SLInlineAction extends AnAction {
             Project project = getEventProject(event);
             NodesRegistry registry = new NodesRegistry(project);
             if (parent instanceof PsiLocalVariable) {
-                IInitializer declaration = new IVariableDeclaration((PsiLocalVariable) parent);
-                InlineAssignment refactoring = registry.getRefactorings().getRefactoring(new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant());
+                IVariableDeclaration declaration = new IVariableDeclaration((PsiLocalVariable) parent);
+                RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + declaration.getText());
+                InlineVariable refactoring = registry.getRefactorings().getRefactoring(new InlineVariable(declaration, registry.getRefactorings()));
+                toolWindow.setNode(registry.create(refactoring));
                 // TODO now I must improve a tree to make in comfortable to work with
                 // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
-                createRefactoringTree(project, event, "Inline " + declaration.getText(), new InlineAssignmentNode(refactoring, registry));
+//                InlineAssignment refactoring = registry.getRefactorings().getRefactoring(new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant());
+//                createRefactoringTree(project, event, "Inline " + declaration.getText(), new InlineAssignmentNode(refactoring, registry));
             } else if (parent instanceof PsiReferenceExpression) {
                 IVariable variable = new IVariable((PsiReferenceExpression) parent);
 
@@ -104,9 +106,9 @@ public class SLInlineAction extends AnAction {
     private ContentManager getStreamlineToolWindow(Project project) {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow toolWindow = toolWindowManager.getToolWindow("Streamline");
-        if (toolWindow == null) {
-            toolWindow = toolWindowManager.registerToolWindow("Streamline", true, ToolWindowAnchor.RIGHT);
-        }
+//        if (toolWindow == null) {
+//            toolWindow = toolWindowManager.registerToolWindow("Streamline", true, ToolWindowAnchor.RIGHT);
+//        }
         toolWindow.show(null);
         return toolWindow.getContentManager();
     }

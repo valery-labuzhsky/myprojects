@@ -2,9 +2,9 @@ package streamline.plugin.refactoring;
 
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
-import streamline.plugin.refactoring.guts.AssignmentFlow;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
+import streamline.plugin.refactoring.guts.flow.VariableFlow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class InlineUsage extends Refactoring {
     public InlineUsage(IVariable usage, RefactoringRegistry registry) {
         super(registry);
         this.usage = usage;
-        this.variants.addAll(new AssignmentFlow(usage).getVariants(usage));
+        this.variants.addAll(new VariableFlow(usage).getAssignments(usage));
         if (variants.size() == 1) setSelected(variants.get(0));
         else if (variants.size() > 1) setEnabled(false);
     }
@@ -28,6 +28,7 @@ public class InlineUsage extends Refactoring {
         if (selected != null) {
             usage.replace(selected.getInitializer());
         }
+        setEnabled(false); // TODO kludge to get rid of recursion
         for (Refactoring refactoring : whatElse()) {
             refactoring.refactor();
         }
@@ -50,6 +51,23 @@ public class InlineUsage extends Refactoring {
     }
 
     public List<Refactoring> whatElse() {
+        // TODO all this whatElse staff causing too much of recursion
+        // TODO what can I do with it?
+
+        // TODO the question again: groing tree vs strict structure
+        // TODO structure is better - it offers single view - no need to having weird trees like inlining one value inside of another
+        // TODO in the brain too
+        // TODO it will simplify things a lot!
+
+        // TODO so I need to fold it out not only down but up as well
+        // TODO for it I need inline variablle refactoring
+        // TODO should I jump users, probably not
+
+        // TODO it will simplify this whatElse staff a lot!
+        // TODO I will have clear dependencies
+
+        // TODO first things first - I need inline variable
+        // TODO it will contain assignments, they will contain usages
         ArrayList<Refactoring> refactorings = new ArrayList<>();
         whatElse(refactorings);
         return refactorings;

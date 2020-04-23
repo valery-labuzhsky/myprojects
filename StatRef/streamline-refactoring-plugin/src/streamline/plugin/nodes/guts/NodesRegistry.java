@@ -15,6 +15,7 @@ public class NodesRegistry {
     private static final BiFunctionRegistry<Refactoring, NodesRegistry, RefactoringNode> NODES = new BiFunctionRegistry<Refactoring, NodesRegistry, RefactoringNode>() {{
         register(InlineUsage.class, InlineUsageNode::new);
         register(InlineAssignment.class, InlineAssignmentNode::new);
+        register(InlineVariable.class, InlineVariableNode::new);
         register(InlineParameter.class, InlineParameterNode::new);
         register(CompoundRefactoring.class, CompoundNode::new);
         register(CreateMethod.class, CreateMethodNode::new);

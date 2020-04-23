@@ -81,11 +81,14 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
     }
 
     protected void return_(SExpression expression) {
-        SType type = expression.getType();
+        SType type = returnType;
+        if (type.isClass(void.class)) {
+            type = expression.getType();
+            returnType(type);
+        }
         if (type.isClass(void.class)) {
             this.code(createStatement(expression));
         } else {
-            returnType(type);
             this.code(new BReturn(expression));
         }
     }
