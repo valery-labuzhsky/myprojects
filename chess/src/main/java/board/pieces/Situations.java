@@ -1,6 +1,8 @@
 package board.pieces;
 
 import board.Waypoint;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,6 +43,7 @@ public class Situations {
         for (Waypoint waypoint : piece.square.waypoints) {
             if (waypoint.captures()) {
                 Situation situation = new Situation(this, piece, this.board.color);
+                log().info(situation);
                 if (piece.type == PieceType.King) {
                     check = situation;
                 }
@@ -60,6 +63,7 @@ public class Situations {
 
     public void analyse() {
         solutions.sort(Comparator.reverseOrder());
+        log().info("solutions " + solutions);
 
         Solution best = null;
 
@@ -77,6 +81,10 @@ public class Situations {
 
         System.out.println("Total: " + score);
         System.out.println("Defend: " + getDefenceScore() + " " + moves);
+    }
+
+    private Logger log() {
+        return LogManager.getLogger("situations");
     }
 
     public int getDefenceScore() {

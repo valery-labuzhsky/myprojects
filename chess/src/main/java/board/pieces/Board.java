@@ -92,26 +92,37 @@ public class Board {
 
     public void move(Move move) throws IllegalMoveException {
         Square from = getSquare(move.from);
-        if (from.piece == null) {
+        Piece piece = from.piece;
+        if (piece == null) {
             throw new IllegalMoveException("no piece on " + move.from);
         }
 
         Square dest = getSquare(move.to);
         Waypoint waypoint = dest.waypoints.stream().
-                filter(w -> w.piece == from.piece).
+                filter(w -> w.piece == piece).
                 findFirst().orElse(null);
         if (waypoint == null || !waypoint.moves()) {
             throw new IllegalMoveException();
         }
-        // TODO check if it brings (leaves) king in danger
-        // TODO I can just throw an exception later
+
         if (dest.piece != null) {
             move.capture = dest.piece;
             dest.piece.remove();
         }
 
-        from.piece.move(move.to);
+        piece.move(move.to);
         history.add(move);
+
+        for (Piece king : pieces) {
+            if (king.type == PieceType.King && king.color == piece.color) {
+                if (king.isInDanger()) {
+                    undo();
+                    throw new IllegalMoveException("check");
+                }
+                break;
+            }
+        }
+
         System.out.println(this);
     }
 

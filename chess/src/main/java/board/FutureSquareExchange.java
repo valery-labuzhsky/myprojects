@@ -30,7 +30,8 @@ public class FutureSquareExchange extends Exchange {
 
     @Override
     protected void addWaypoint(Waypoint waypoint) {
-        if (waypoint.piece != this.through.piece) {
+        if (waypoint.piece != this.through.piece && // Filter out my own moves
+                through.square != waypoint.piece.square) { // Filter our pieces I captured
             super.addWaypoint(waypoint);
         }
     }

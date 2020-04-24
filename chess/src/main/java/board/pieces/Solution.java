@@ -58,6 +58,14 @@ public class Solution implements Comparable<Solution> {
             }
         }
 
+        if (move.square.piece != null) {
+            for (Waypoint waypoint : move.square.piece.waypoints) { // whom he attack or guard
+                if (waypoint.square.piece != null && waypoint.attacks()) {
+                    affected.computeIfAbsent(waypoint.square.piece, pieceScore);
+                }
+            }
+        }
+
         for (Map.Entry<Piece, Integer> entry : affected.entrySet()) {
             if (entry.getKey().color == move.piece.color) {
                 defence += entry.getValue();
@@ -65,11 +73,12 @@ public class Solution implements Comparable<Solution> {
                 attack += entry.getValue();
             }
         }
+
         move.log().debug("Defence: " + defence + ", attack: " + attack);
     }
 
     public String toString() {
-        return move.toString();
+        return "" + move + "+" + defence + "-" + attack;
     }
 
     @Override

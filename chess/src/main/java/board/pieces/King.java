@@ -96,9 +96,9 @@ public class King extends Piece {
         }
         if (!moved) {
             if (waypoint.square.pair.file == 2) {
-                return !square.captures(this) && checkCastlingRule(square.pair, -1);
+                return !isInDanger() && checkCastlingRule(square.pair, -1);
             } else if (waypoint.square.pair.file == 6) {
-                return !square.captures(this) && checkCastlingRule(square.pair, 1);
+                return !isInDanger() && checkCastlingRule(square.pair, 1);
             }
         }
         return true;

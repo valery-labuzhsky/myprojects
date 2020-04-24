@@ -28,7 +28,9 @@ public class Situation {
             solvePositive();
         } else { // somebody attacks me
             this.score = piece.getScore();
-            solveNegative();
+            if (score < 0) {
+                solveNegative();
+            }
         }
     }
 
@@ -76,6 +78,6 @@ public class Situation {
     }
 
     public String toString() {
-        return "" + score + ": " + square.pair + " " + square;
+        return "" + square + ": " + score;
     }
 }

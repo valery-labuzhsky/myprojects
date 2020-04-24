@@ -6,7 +6,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="f1.a6" level="debug"/>
+        <Logger name="e3.d4" level="debug"/>
         <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>

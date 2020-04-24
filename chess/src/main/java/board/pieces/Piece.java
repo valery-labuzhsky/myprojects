@@ -28,6 +28,10 @@ public abstract class Piece {
         this.type = type;
     }
 
+    public boolean isInDanger() {
+        return this.square.captures(this);
+    }
+
     public void move(Pair to) {
         Square dest = board.getSquare(to);
         // TODO it may be en passant
