@@ -160,7 +160,7 @@ public class Board {
         }
 
         Waypoint badWaypoint = null;
-        Move badMove = Move.parse("f1a6");
+        Move badMove = Move.parse("e1f2");
         badWaypoint = getSquare(badMove.to).waypoints.stream().filter(w -> w.piece.square.pair.equals(badMove.from)).findFirst().orElse(null);
         Solution badSolution = null;
 

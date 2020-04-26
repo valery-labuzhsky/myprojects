@@ -51,6 +51,15 @@ public class Situations {
                 break;
             }
         }
+        // TODO gather future situations per attack at least for now
+        //  first I estimate worthiness
+        //  second I estimate the move itself
+        // TODO try some countermeasures
+        //  gather solutions
+        //  estimate cost of initial move based on the countermeasure, that's our score
+        // TODO does it worth to check every attack? some of them might be fruitless
+        //  I need to have some score, having it and a piece I must be able to estimate worthiness of the attack
+        //  I already thought about it it doesn't seem to be feasible
     }
 
     public boolean isCheckmate() {

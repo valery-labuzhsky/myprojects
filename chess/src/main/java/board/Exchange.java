@@ -28,8 +28,8 @@ public class Exchange {
     protected void setScene() {
         gatherWaypoints();
 
-        sides.put(1, new Side());
-        sides.put(-1, new Side());
+        sides.put(1, new Side(1));
+        sides.put(-1, new Side(-1));
         for (Waypoint waypoint : waypoints) {
             Piece piece = waypoint.piece;
             sides.get(piece.color).add(waypoint);
@@ -39,13 +39,19 @@ public class Exchange {
     }
 
     public int getScore() {
-        setScene();
-        return play();
+        return getResult().score;
     }
 
-    private int play() {
+    public Result getResult() {
+        setScene();
+        Result result = play();
+        result.score = result.score * result.lastPlayer * playing.get();
+        return result;
+    }
+
+    private Result play() {
         if (!hasNextTurn()) {
-            return score.get();
+            return sides.get(playing.get()).getResult();
         } else {
             try {
                 return nextTurn();
@@ -59,20 +65,8 @@ public class Exchange {
         return !sides.get(playing.get()).isEmpty();
     }
 
-    protected int nextTurn() {
-        int lastScore = score.get();
-
-        makeTurn();
-
-        int score = -play();
-        if (score < lastScore) { // TODO make it a choice to make
-            return lastScore;
-        }
-        return score;
-    }
-
-    private void makeTurn() {
-        makeTurn(sides.get(playing.get()).chooseMove());
+    protected Result nextTurn() {
+        return sides.get(playing.get()).makeMove();
     }
 
     protected void makeTurn(Piece piece) {
@@ -162,8 +156,38 @@ public class Exchange {
         return new HashSet<>(waypoint.getBlocks());
     }
 
+    public static class Result {
+        int score;
+        int lastPlayer;
+
+        HashMap<Integer, Side> sides = new HashMap<>();
+
+        public Result(int score, int lastPlayer) {
+            this.score = score;
+            this.lastPlayer = lastPlayer;
+        }
+
+        public static class Side {
+            int win;
+            int piecesLeft;
+
+            public Side(int win, int piecesLeft) {
+                this.win = win;
+                this.piecesLeft = piecesLeft;
+            }
+        }
+    }
+
+
     private class Side {
+        final int color;
         TreeSet<Piece> pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> p.type.score).thenComparingInt(Object::hashCode));
+        State<Integer> bestScore = new State<>();
+        State<Integer> win = new State<>(0);
+
+        public Side(int color) {
+            this.color = color;
+        }
 
         private void add(Piece piece) {
             this.pieces.add(piece);
@@ -172,6 +196,46 @@ public class Exchange {
 
         public boolean isEmpty() {
             return pieces.isEmpty();
+        }
+
+        public Result makeMove() {
+            int lastScore = score.get();
+
+            if (bestScore.get() == null || bestScore.get() < lastScore) {
+                bestScore.set(lastScore);
+            }
+
+            // TODO account for blocks
+            Piece piece = chooseMove();
+            Exchange.this.makeTurn(piece);
+
+            if (-score.get() < bestScore.get()) {
+                playBack();
+                stack.add(new Turn());
+
+                return getResult();
+            }
+
+            int scoreToZero = bestScore.get() + score.get() + piece.type.score;
+
+            if (scoreToZero <= 0) {
+                win.set(piece.type.score);
+            } else {
+                win.set(piece.type.score - scoreToZero);
+            }
+
+            return play();
+        }
+
+        private Result getResult() {
+            Result result = new Result(-bestScore.get(), -color);
+            storeResults(result);
+            sides.get(-color).storeResults(result);
+            return result;
+        }
+
+        private void storeResults(Result result) {
+            result.sides.put(color, new Result.Side(win.get(), pieces.size()));
         }
 
         private Piece chooseMove() {
