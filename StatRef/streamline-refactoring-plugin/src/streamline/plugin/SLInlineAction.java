@@ -54,13 +54,16 @@ public class SLInlineAction extends AnAction {
                 RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + variable.getName());
 
                 if (variable.isAssignment()) {
-                    InlineAssignment refactoring = new InlineAssignment(registry.getRefactorings(), (IInitializer) variable.getParent());
-                    toolWindow.setNode(registry.create(refactoring));
+                    InlineAssignment assignment = registry.getRefactorings().getRefactoring(new InlineAssignment(registry.getRefactorings(), (IInitializer) variable.getParent()));
+                    InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
+                    inlineVariable.enableOnly(assignment);
+                    toolWindow.setNode(registry.create(inlineVariable)).select(assignment);
                 } else {
-                    InlineUsage refactoring = registry.getRefactorings().getRefactoring(new InlineUsage(variable, registry.getRefactorings()));
-                    InlineUsageNode node = registry.create(refactoring);
-                    toolWindow.setNode(node);
-                    node.selectAny();
+                    InlineUsage usage = registry.getRefactorings().getRefactoring(new InlineUsage(variable, registry.getRefactorings()));
+
+                    InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
+                    inlineVariable.enableOnly(usage);
+                    ((InlineUsageNode) toolWindow.setNode(registry.create(inlineVariable)).select(usage)).selectAny();
                 }
             } else if (parent instanceof PsiParameter) {
                 IParameter parameter = IFactory.getElement(parent);

@@ -35,7 +35,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         setupTree();
     }
 
-    public void setNode(RefactoringNode node) {
+    public <N extends RefactoringNode> N setNode(N node) {
         TreePath[] paths = getTree().getSelectionPaths();
 
         this.node = node;
@@ -54,6 +54,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
                 }
             }
         }
+        return node;
     }
 
     public Tree getTree() {

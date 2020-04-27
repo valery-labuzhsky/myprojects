@@ -25,4 +25,5 @@ public class InlineVariable extends CompoundRefactoring {
     public IVariableDeclaration getDeclaration() {
         return declaration;
     }
+
 }

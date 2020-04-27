@@ -70,17 +70,27 @@ public class InlineAssignment extends Refactoring {
         return remove;
     }
 
-    public void setOnlyEnabled(InlineUsage usage) {
+    @Override
+    public boolean enableOnly(Refactoring enabled) {
+        boolean found = false;
         for (InlineUsage u : usages) {
-            u.setEnabled(u.equals(usage));
+            if (u.equals(enabled)) {
+                u.setEnabled(true);
+                found = true;
+            }
         }
         remove.setEnabled(!areUsagesLeft());
+        return found;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         InlineAssignment that = (InlineAssignment) o;
         return initializer.equals(that.initializer);
     }
@@ -88,5 +98,9 @@ public class InlineAssignment extends Refactoring {
     @Override
     public int hashCode() {
         return Objects.hash(initializer);
+    }
+
+    public String toString() {
+        return "" + initializer.getText();
     }
 }

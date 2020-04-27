@@ -25,8 +25,20 @@ public class CompoundRefactoring extends Refactoring {
     }
 
     public <R extends Refactoring> R add(R refactoring) {
-        // TODO I can get rid of registry if I don't have this recursion madness!
         refactorings.add(registry.getRefactoring(refactoring));
         return refactoring;
+    }
+
+    @Override
+    public boolean enableOnly(Refactoring enabled) {
+        boolean found = false;
+        for (Refactoring refactoring : getRefactorings()) {
+            if (!refactoring.equals(enabled) && !refactoring.enableOnly(enabled)) {
+                refactoring.setEnabled(false);
+            } else {
+                found = true;
+            }
+        }
+        return found;
     }
 }

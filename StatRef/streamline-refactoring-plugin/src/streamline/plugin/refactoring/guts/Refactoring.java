@@ -33,4 +33,8 @@ public abstract class Refactoring {
     public RefactoringRegistry getRegistry() {
         return registry;
     }
+
+    public boolean enableOnly(Refactoring enabled) {
+        return false;
+    }
 }

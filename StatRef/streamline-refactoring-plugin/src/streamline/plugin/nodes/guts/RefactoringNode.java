@@ -36,10 +36,13 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
     public void afterTreeNodeCreated() {
         getListeners().invoke(() -> {
             TreePath path = getPath();
-            if (getRefactoring().isEnabled()) {
-                getTree().expandPath(path);
-            } else {
-                getTree().collapsePath(path);
+            TreePath parent = path.getParentPath();
+            if (parent == null || getTree().isExpanded(parent)) {
+                if (getRefactoring().isEnabled()) {
+                    getTree().expandPath(path);
+                } else {
+                    getTree().collapsePath(path);
+                }
             }
         });
         for (SelfPresentingNode child : getChildren()) {
@@ -76,6 +79,23 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         };
     }
 
+    public RefactoringNode select(Refactoring selected) {
+        if (refactoring.equals(selected)) {
+            select();
+            return this;
+        } else {
+            for (SelfPresentingNode child : getChildren()) {
+                if (child instanceof RefactoringNode) {
+                    RefactoringNode node = ((RefactoringNode) child).select(selected);
+                    if (node != null) {
+                        return node;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public class RefactoringPresenter extends ElementPresenter {
         public RefactoringPresenter(String prefix, PsiElement psiElement) {
             super(prefix, psiElement);
@@ -104,8 +124,12 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RefactoringNode<?> that = (RefactoringNode<?>) o;
         return refactoring.equals(that.refactoring);
     }
