@@ -52,8 +52,6 @@ public class Attack extends Waypoint {
         public Origin(Waypoint through) {
             super(through.piece, through.square);
             this.through = through;
-            for (Waypoint waypoint : this.through.square.waypoints) {
-            }
         }
 
         @Override

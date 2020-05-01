@@ -1,9 +1,10 @@
 package board.pieces;
 
-import board.MovesTracer;
-import board.Pair;
-import board.Square;
-import board.Waypoint;
+import board.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Stream;
 
 /**
  * Created on 09.04.2020.
@@ -20,12 +21,13 @@ public class King extends Piece {
     @Override
     public void move(Pair to) {
         if (!moved) {
+            // TODO I also need the knowledge of it in planning machinery
             switch (to.file) {
                 case 2:
-                    board.getSquare(new Pair(0, to.rank)).piece.move(new Pair(3, to.rank));
+                    board.getSquare(0, to.rank).piece.move(new Pair(3, to.rank));
                     break;
                 case 6:
-                    board.getSquare(new Pair(7, to.rank)).piece.move(new Pair(5, to.rank));
+                    board.getSquare(7, to.rank).piece.move(new Pair(5, to.rank));
                     break;
             }
             moved = true;
@@ -34,13 +36,13 @@ public class King extends Piece {
             Rook rook;
             switch (diff) {
                 case -2:
-                    rook = (Rook) board.getSquare(new Pair(5, to.rank)).piece;
+                    rook = (Rook) board.getSquare(5, to.rank).piece;
                     rook.move(new Pair(7, to.rank));
                     rook.moved = false;
                     moved = false;
                     break;
                 case 2:
-                    rook = (Rook) board.getSquare(new Pair(3, to.rank)).piece;
+                    rook = (Rook) board.getSquare(3, to.rank).piece;
                     rook.move(new Pair(0, to.rank));
                     rook.moved = false;
                     moved = false;
@@ -62,7 +64,7 @@ public class King extends Piece {
         tracer.go(-1, 1);
 
         Pair pair = tracer.start.pair;
-        if (!moved && pair.rank == (7 - color * 7) / 2 && pair.file == 4) {
+        if (!moved && pair.rank == border() && pair.file == 4) {
             {
                 Piece rook = board.getSquare(pair.go(3, 0)).piece;
                 if (rook instanceof Rook && !((Rook) rook).moved) {
@@ -90,33 +92,58 @@ public class King extends Piece {
     }
 
     @Override
+    public boolean isMove(Square from, Square to) {
+        return isAttack(from, to) || (isCastling(from, to) && isCastlingAllowed(from, to));
+    }
+
+    @Override
+    public boolean isAttack(Square from, Square to) {
+        int file = Math.abs(from.pair.file - to.pair.file);
+        int rank = Math.abs(from.pair.rank - to.pair.rank);
+        return file <= 1 && rank <= 1;
+    }
+
+    @Override
     public boolean goes(Waypoint waypoint) {
         if (!super.goes(waypoint)) {
             return false;
         }
-        if (!moved) {
-            if (waypoint.square.pair.file == 2) {
-                return !isInDanger() && checkCastlingRule(square.pair, -1);
-            } else if (waypoint.square.pair.file == 6) {
-                return !isInDanger() && checkCastlingRule(square.pair, 1);
-            }
+        Square from = this.square;
+        Square to = waypoint.square;
+        if (isCastling(from, to)) {
+            return isCastlingAllowed(from, to);
         }
         return true;
     }
 
-    private boolean checkCastlingRule(Pair pair, int file) {
-        {
-            Square square = board.getSquare(pair.go(file, 0));
-            if (square.piece != null || square.captures(this)) {
-                return false;
+    private boolean isCastlingAllowed(Square from, Square to) {
+        return Stream.concat(Stream.of(to), from.ray(square)).noneMatch(s -> s.captures(this) || s.piece != null) && !from.captures(this);
+    }
+
+    private boolean isCastling(Square from, Square to) {
+        return !moved && Math.abs(to.pair.file - from.pair.file) == 2 && from.pair.rank == to.pair.rank && from.pair.rank == border();
+    }
+
+    @Override
+    public Collection<Piece> getBlocks(Square from, Square to) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<Square> getPotentialAttacks(Square square) {
+        Stream.Builder<Square> builder = Stream.builder();
+        Pair from = this.square.pair;
+        Pair to = square.pair;
+
+        for (int f = Math.max(to.file, from.file) - 1; f < Math.min(to.file, from.file) + 1; f++) {
+            for (int r = Math.max(to.rank, from.rank) - 1; r < Math.min(to.rank, from.rank) + 1; r++) {
+                Square s = board.getSquare(f, r);
+                if (s != null && s != this.square && s != square) {
+                    builder.add(s);
+                }
             }
         }
-        {
-            Square square = board.getSquare(pair.go(2 * file, 0));
-            if (square.piece != null || square.captures(this)) {
-                return false;
-            }
-        }
-        return true;
+        // TODO castling
+        return builder.build();
     }
 }

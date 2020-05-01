@@ -1,7 +1,7 @@
 package server;
 
+import board.Board;
 import board.IllegalMoveException;
-import board.pieces.Board;
 
 import java.io.BufferedReader;
 import java.io.IOException;

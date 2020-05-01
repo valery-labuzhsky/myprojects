@@ -21,14 +21,22 @@ public class Pair {
 
     public static int getFile(char c) {
         int x = c - 'a';
-        if (x > 7) return -1;
+        if (x > 7) {
+            return -1;
+        }
         return x;
     }
 
     public static int parseRank(char c) {
         int y = c - '1';
-        if (y > 7) return -1;
+        if (y > 7) {
+            return -1;
+        }
         return y;
+    }
+
+    public Pair diagonal() {
+        return new Pair(this.file + this.rank, this.file - this.rank);
     }
 
     public Pair go(int file, int rank) {
@@ -44,12 +52,18 @@ public class Pair {
     }
 
     public boolean isValid() {
+        return isValid(this.file, this.rank);
+    }
+
+    public static boolean isValid(int file, int rank) {
         return file >= 0 && file < 8 && rank >= 0 && rank < 8;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
@@ -65,5 +79,19 @@ public class Pair {
 
     public Logger log() {
         return LogManager.getLogger("" + toString());
+    }
+
+    public Pair step(Pair to) {
+        int file = to.file - this.file;
+        int rank = to.rank - this.rank;
+        if (file == 0) {
+            rank = Integer.signum(rank);
+        } else if (rank == 0) {
+            file = Integer.signum(file);
+        } else if (Math.abs(file) == Math.abs(rank)) {
+            file = Integer.signum(file);
+            rank = Integer.signum(rank);
+        }
+        return new Pair(file, rank);
     }
 }

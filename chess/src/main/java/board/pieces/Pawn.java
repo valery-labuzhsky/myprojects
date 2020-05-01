@@ -1,8 +1,8 @@
 package board.pieces;
 
-import board.MovesTracer;
-import board.Square;
-import board.Waypoint;
+import board.*;
+
+import java.util.stream.Stream;
 
 /**
  * Created on 09.04.2020.
@@ -19,7 +19,7 @@ public class Pawn extends Piece {
         tracer.start();
         tracer.step(0, color);
         // enpassant
-        int border = (7 - color * 7) / 2;
+        int border = border();
         int secondRow = border + color;
         if (square.pair.rank == secondRow) {
             tracer.step(0, color);
@@ -38,8 +38,50 @@ public class Pawn extends Piece {
 
     @Override
     public boolean attacks(Waypoint waypoint) {
-        Square square = waypoint.getOriginalSquare();
-        return waypoint.square.pair.file != square.pair.file;
+        Square from = waypoint.getOriginalSquare();
+        return waypoint.square.pair.file != from.pair.file;
     }
 
+    @Override
+    public boolean isGo(Square from, Square to) {
+        if (from.pair.file != to.pair.file) {
+            return false;
+        }
+        switch ((to.pair.rank - from.pair.rank) * color) {
+            case 1:
+                return true;
+            case 2:
+                return from.pair.rank == border() + color;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAttack(Square from, Square to) {
+        return from.pair.rank + color == to.pair.rank &&
+                Math.abs(from.pair.file - to.pair.file) == 1;
+    }
+
+    @Override
+    public boolean isMove(Square from, Square to) {
+        return isGo(from, to) || isAttack(from, to);
+    }
+
+    @Override
+    public Stream<Square> getPotentialAttacks(Square square) {
+        Pair from = this.square.pair;
+        Pair to = square.pair;
+        if (Math.abs(from.file - to.file) != 1) {
+            return Stream.empty();
+        }
+        switch ((to.rank - from.rank) * color) {
+            case 2:
+                return Stream.of(board.getSquare(from.go(0, color)));
+            case 3:
+                if (from.rank == border() + color) {
+                    return Stream.of(board.getSquare(from.go(0, 2 * color)));
+                }
+        }
+        return Stream.empty();
+    }
 }

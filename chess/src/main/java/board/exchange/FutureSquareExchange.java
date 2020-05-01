@@ -1,5 +1,7 @@
-package board;
+package board.exchange;
 
+import board.Square;
+import board.Waypoint;
 import board.pieces.Piece;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,24 +24,23 @@ public class FutureSquareExchange extends Exchange {
     @Override
     protected void gatherWaypoints() {
         super.gatherWaypoints();
-        Attack attack = square.attacks.get(through);
-        if (attack != null) {
-            waypoints.add(attack);
+        if (through.piece.isAttack(through.square, square)) {
+            pieces.add(through.piece);
         }
     }
 
     @Override
-    protected void addWaypoint(Waypoint waypoint) {
-        if (waypoint.piece != this.through.piece && // Filter out my own moves
-                through.square != waypoint.piece.square) { // Filter our pieces I captured
-            super.addWaypoint(waypoint);
+    protected void addPiece(Piece piece) {
+        if (piece != this.through.piece && // Filter out my own moves
+                through.square != piece.square) { // Filter our pieces I captured
+            super.addPiece(piece);
         }
     }
 
     @Override
-    protected HashSet<Piece> getBlocks(Waypoint waypoint) {
-        HashSet<Piece> blocks = super.getBlocks(waypoint);
-        if (waypoint.isBlockedBy(through.square)) {
+    protected HashSet<Piece> getBlocks(Piece piece) {
+        HashSet<Piece> blocks = super.getBlocks(piece);
+        if (piece.ray(square).anyMatch(s -> through.square == s)) {
             blocks.add(this.through.piece);
         } else {
             blocks.remove(this.through.piece);

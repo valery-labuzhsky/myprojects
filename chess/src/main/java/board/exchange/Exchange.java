@@ -1,5 +1,7 @@
-package board;
+package board.exchange;
 
+import board.Square;
+import board.Waypoint;
 import board.pieces.Piece;
 import org.apache.logging.log4j.Logger;
 
@@ -11,7 +13,7 @@ import java.util.*;
  * @author ptasha
  */
 public class Exchange {
-    protected LinkedList<Waypoint> waypoints = new LinkedList<>();
+    protected LinkedList<Piece> pieces = new LinkedList<>();
 
     protected final Square square;
     private final HashMap<Integer, Side> sides = new HashMap<>();
@@ -30,9 +32,8 @@ public class Exchange {
 
         sides.put(1, new Side(1));
         sides.put(-1, new Side(-1));
-        for (Waypoint waypoint : waypoints) {
-            Piece piece = waypoint.piece;
-            sides.get(piece.color).add(waypoint);
+        for (Piece piece : pieces) {
+            sides.get(piece.color).add(piece);
         }
 
         onSquare.set(square.piece);
@@ -86,13 +87,13 @@ public class Exchange {
     protected void gatherWaypoints() {
         for (Waypoint waypoint : square.waypoints) {
             if (waypoint.isAttack()) {
-                addWaypoint(waypoint);
+                addPiece(waypoint.piece);
             }
         }
     }
 
-    protected void addWaypoint(Waypoint waypoint) {
-        waypoints.add(waypoint);
+    protected void addPiece(Piece piece) {
+        pieces.add(piece);
     }
 
     protected class State<E> {
@@ -149,11 +150,11 @@ public class Exchange {
         }
     }
 
-    HashMap<Waypoint, HashSet<Piece>> blockedBy = new HashMap<>();
-    HashMap<Piece, HashSet<Waypoint>> blocking = new HashMap<>();
+    HashMap<Piece, HashSet<Piece>> blockedBy = new HashMap<>();
+    HashMap<Piece, HashSet<Piece>> blocking = new HashMap<>();
 
-    protected HashSet<Piece> getBlocks(Waypoint waypoint) {
-        return new HashSet<>(waypoint.getBlocks());
+    protected HashSet<Piece> getBlocks(Piece piece) {
+        return new HashSet<>(piece.getBlocks(square));
     }
 
     public static class Result {
@@ -175,6 +176,14 @@ public class Exchange {
                 this.win = win;
                 this.piecesLeft = piecesLeft;
             }
+
+            public String toString() {
+                return win + ", " + piecesLeft + " left";
+            }
+        }
+
+        public String toString() {
+            return "" + score + ", last " + lastPlayer + " " + sides;
         }
     }
 
@@ -187,11 +196,6 @@ public class Exchange {
 
         public Side(int color) {
             this.color = color;
-        }
-
-        private void add(Piece piece) {
-            this.pieces.add(piece);
-            playBack(() -> pieces.remove(piece));
         }
 
         public boolean isEmpty() {
@@ -228,7 +232,8 @@ public class Exchange {
         }
 
         private Result getResult() {
-            Result result = new Result(-bestScore.get(), -color);
+            Integer bs = bestScore.get();
+            Result result = new Result(bs == null ? 0 : -bs, -color);
             storeResults(result);
             sides.get(-color).storeResults(result);
             return result;
@@ -245,27 +250,32 @@ public class Exchange {
         private void makeTurn(Piece piece) {
             pieces.remove(piece);
             playBack(() -> pieces.add(piece));
-            HashSet<Waypoint> blocked = blocking.get(piece);
+            HashSet<Piece> blocked = blocking.get(piece);
             if (blocked != null) {
-                for (Waypoint waypoint : blocked) {
-                    HashSet<Piece> blocks = blockedBy.get(waypoint);
+                for (Piece blockedPiece : blocked) {
+                    HashSet<Piece> blocks = blockedBy.get(blockedPiece);
                     blocks.remove(piece);
                     playBack(() -> blocks.add(piece));
                     if (blocks.isEmpty()) {
-                        sides.get(waypoint.piece.color).add(waypoint.piece);
+                        sides.get(blockedPiece.color).free(blockedPiece);
                     }
                 }
             }
         }
 
-        public void add(Waypoint waypoint) {
-            HashSet<Piece> blocks = getBlocks(waypoint);
+        private void free(Piece piece) {
+            this.pieces.add(piece);
+            playBack(() -> pieces.remove(piece));
+        }
+
+        public void add(Piece piece) {
+            HashSet<Piece> blocks = getBlocks(piece);
             if (blocks.isEmpty()) {
-                pieces.add(waypoint.piece);
+                pieces.add(piece);
             } else {
-                blockedBy.put(waypoint, blocks);
+                blockedBy.put(piece, blocks);
                 for (Piece block : blocks) {
-                    blocking.computeIfAbsent(block, b -> new HashSet<>()).add(waypoint);
+                    blocking.computeIfAbsent(block, b -> new HashSet<>()).add(piece);
                 }
             }
         }

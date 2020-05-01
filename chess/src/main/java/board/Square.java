@@ -1,12 +1,12 @@
 package board;
 
-import board.pieces.Board;
-import board.pieces.Move;
+import board.exchange.Exchange;
 import board.pieces.Piece;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.stream.Stream;
 
 /**
  * Created on 09.04.2020.
@@ -14,7 +14,7 @@ import java.util.HashSet;
  * @author ptasha
  */
 public class Square {
-    private final Board board;
+    public final Board board;
     public final Pair pair;
     public Piece piece;
 
@@ -24,6 +24,39 @@ public class Square {
     public Square(Board board, Pair pair) {
         this.board = board;
         this.pair = pair;
+    }
+
+    public Square diagonal(int fx, int ty) {
+        return this.board.diagonal(fx, ty);
+    }
+
+    public Stream<Square> ray(Square to) {
+        Pair step = this.pair.step(to.pair);
+        return Stream.iterate(this, s -> s != null && s != to, s -> s.step(step)).skip(1);
+    }
+
+    public Stream<Square> line(Square to) {
+        if (pair.file == to.pair.file) {
+            return Stream.iterate(0, r -> r < 8, r -> ++r).map(r -> board.getSquare(pair.file, r));
+        } else {
+            int df = to.pair.file - pair.file;
+            int dr = to.pair.rank - pair.rank;
+            if (dr % df == 0) {
+                dr /= df;
+                df = 1;
+
+                int fdr = dr;
+                return Stream.concat(
+                        Stream.iterate(this,
+                                s -> s != null,
+                                s -> board.getSquare(s.pair.file + 1, s.pair.rank + fdr)),
+                        Stream.iterate(this,
+                                s -> s != null,
+                                s -> board.getSquare(s.pair.file - 1, s.pair.rank - fdr)).skip(1)
+                );
+            }
+        }
+        return Stream.empty();
     }
 
     @Override
@@ -96,7 +129,15 @@ public class Square {
         return new Exchange(this, color).getScore();
     }
 
+    public Exchange.Result getExchangeResult(int color) {
+        return new Exchange(this, color).getResult();
+    }
+
     public Logger log() {
         return pair.log();
+    }
+
+    public Square step(Pair step) {
+        return board.getSquare(pair.go(step));
     }
 }

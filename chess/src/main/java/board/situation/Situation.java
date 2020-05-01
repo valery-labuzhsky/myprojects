@@ -1,8 +1,9 @@
-package board.pieces;
+package board.situation;
 
 import board.Attack;
 import board.Square;
 import board.Waypoint;
+import board.pieces.Piece;
 
 import java.util.ArrayList;
 
@@ -18,7 +19,7 @@ public class Situation {
 
     public Situation(Situations situations, Piece piece, int color) {
         this.situations = situations;
-        this.square = piece.square;
+        this.square = piece.square; // TODO should I use piece instead?
         solve(color);
     }
 
@@ -47,6 +48,16 @@ public class Situation {
                 dangers.add(waypoint);
             }
         }
+
+        // TODO I need to get rid of waypoints here as well
+//        for (Piece guard : situations.board.pieces.get(piece.color)) {
+//            if (guard!=piece) {
+//                guard.getAttacks(piece.square).forEach(
+//                        s -> addSolution();
+//                );
+//            }
+//        }
+
         for (Attack guard : this.square.attacks.values()) { // guard
             if (guard.guards() && guard.through.moves()) {
                 addSolution(guard.through);

@@ -1,7 +1,8 @@
 package board.pieces;
 
-import board.MovesTracer;
-import board.Pair;
+import board.*;
+
+import java.util.stream.Stream;
 
 /**
  * Created on 09.04.2020.
@@ -27,5 +28,16 @@ public class Rook extends Piece {
         tracer.markLine(1, 0);
         tracer.markLine(0, -1);
         tracer.markLine(-1, 0);
+    }
+
+    @Override
+    public boolean isMove(Square from, Square to) {
+        return from.pair.rank == to.pair.rank ||
+                from.pair.file == to.pair.file;
+    }
+
+    @Override
+    public Stream<Square> getPotentialAttacks(Square square) {
+        return getPotentialAttacks(square, XY.Transform.LINEAR);
     }
 }

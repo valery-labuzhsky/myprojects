@@ -1,6 +1,9 @@
-package board.pieces;
+package board.situation;
 
+import board.Board;
 import board.Waypoint;
+import board.pieces.Piece;
+import board.pieces.PieceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,7 +23,7 @@ public class Situations {
     public final HashSet<Waypoint> waypoints = new HashSet<>();
     public final ArrayList<Solution> solutions = new ArrayList<>();
 
-    private final Board board;
+    public final Board board;
     public Situation check;
     public int score;
     private int defenceScore;
@@ -29,7 +32,7 @@ public class Situations {
         this.board = board;
     }
 
-    int result() {
+    public int result() {
         return this.score + this.getDefenceScore();
     }
 
@@ -51,6 +54,9 @@ public class Situations {
                 break;
             }
         }
+
+        piece.log().info(piece.square.getExchangeResult(-piece.color));
+
         // TODO gather future situations per attack at least for now
         //  first I estimate worthiness
         //  second I estimate the move itself
@@ -60,6 +66,11 @@ public class Situations {
         // TODO does it worth to check every attack? some of them might be fruitless
         //  I need to have some score, having it and a piece I must be able to estimate worthiness of the attack
         //  I already thought about it it doesn't seem to be feasible
+
+        // TODO I need do my game recursive as exchange to be able to do all those steps,
+        //  actually I already have it, I can write all moves to history and revert them
+        //  but to do it I must do moving pieces more lightweight, at least attacks must go away
+        //  I'm not so sure about waypoints, but I could do special collections on the fly
     }
 
     public boolean isCheckmate() {

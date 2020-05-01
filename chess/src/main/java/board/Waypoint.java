@@ -1,11 +1,10 @@
 package board;
 
-import board.pieces.Move;
+import board.exchange.WaypointExchange;
 import board.pieces.Piece;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,7 +19,6 @@ public class Waypoint {
     public Waypoint prev;
     public Piece piece;
     public Square square;
-    private final Blocks blocks = new Blocks();
 
     public Waypoint(Piece piece, Square square) {
         this.piece = piece;
@@ -143,7 +141,7 @@ public class Waypoint {
     }
 
     public Collection<Piece> getBlocks() {
-        return blocks;
+        return piece.getBlocks(square);
     }
 
     public int getScore() {
@@ -192,41 +190,26 @@ public class Waypoint {
         }
     }
 
-    private class Blocks extends AbstractCollection<Piece> {
-        @Override
-        public Iterator<Piece> iterator() {
-            return new Iterator<>() {
-                Waypoint point = Waypoint.this.prev;
+    private class BackwardWaypointSquareIterator implements Iterator<Square> {
+        private Waypoint point;
 
-                @Override
-                public boolean hasNext() {
-                    while (point != null) {
-                        if (point.square.piece != null) {
-                            return true;
-                        }
-                        point = point.prev;
-                    }
-                    return false;
-                }
-
-                @Override
-                public Piece next() {
-                    try {
-                        return point.square.piece;
-                    } finally {
-                        point = point.prev;
-                    }
-                }
-            };
+        public BackwardWaypointSquareIterator(Waypoint point) {
+            this.point = point;
         }
 
         @Override
-        public int size() {
-            int size = 0;
-            for (Iterator<Piece> iterator = this.iterator(); iterator.hasNext(); size++) {
-                iterator.next();
+        public boolean hasNext() {
+            return point != null;
+        }
+
+        @Override
+        public Square next() {
+            try {
+                return point.square;
+            } finally {
+                point = point.prev;
             }
-            return size;
         }
     }
+
 }

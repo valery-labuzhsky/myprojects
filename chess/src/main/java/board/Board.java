@@ -1,6 +1,9 @@
-package board.pieces;
+package board;
 
-import board.*;
+import board.pieces.Piece;
+import board.pieces.PieceType;
+import board.situation.Situations;
+import board.situation.Solution;
 
 import java.util.*;
 
@@ -11,7 +14,7 @@ import java.util.*;
  */
 public class Board {
     private Square[][] squares;
-    public final ArrayList<Piece> pieces = new ArrayList<>();
+    public final HashMap<Integer, ArrayList<Piece>> pieces = new HashMap<>();
     public int color;
     private Random random;
     public boolean force;
@@ -20,6 +23,13 @@ public class Board {
 
     public Board() {
         reset();
+    }
+
+    public Square diagonal(int dx, int dy) {
+        if (dx % 2 != dy % 2) {
+            return null;
+        }
+        return getSquare((dx + dy) / 2, (dx - dy) / 2);
     }
 
     public void reset() {
@@ -54,15 +64,17 @@ public class Board {
                 if (piece != null) {
                     square.piece = piece;
                     piece.square = square;
-                    pieces.add(piece);
+                    pieces.computeIfAbsent(piece.color, c -> new ArrayList<>()).add(piece);
                 }
             }
         }
 
         color = -1;
 
-        for (Piece piece : pieces) {
-            piece.trace(new Waypoint.Origin(piece, piece.square));
+        for (ArrayList<Piece> pieces : pieces.values()) {
+            for (Piece piece : pieces) {
+                piece.trace(new Waypoint.Origin(piece, piece.square));
+            }
         }
 
         long seed = System.currentTimeMillis();
@@ -75,7 +87,14 @@ public class Board {
     }
 
     public Square getSquare(Pair pair) {
-        return squares[pair.rank][pair.file];
+        return getSquare(pair.file, pair.rank);
+    }
+
+    public Square getSquare(int file, int rank) {
+        if (!Pair.isValid(file, rank)) {
+            return null;
+        }
+        return squares[rank][file];
     }
 
     private Piece blank() {
@@ -113,8 +132,8 @@ public class Board {
         piece.move(move.to);
         history.add(move);
 
-        for (Piece king : pieces) {
-            if (king.type == PieceType.King && king.color == piece.color) {
+        for (Piece king : pieces.get(piece.color)) {
+            if (king.type == PieceType.King) {
                 if (king.isInDanger()) {
                     undo();
                     throw new IllegalMoveException("check");
@@ -138,11 +157,9 @@ public class Board {
     public String move() {
         Situations situations = new Situations(this);
 
-        ArrayList<Piece> myPieces = new ArrayList<>();
-        for (Piece piece : pieces) {
-            situations.lookAt(piece);
-            if (piece.color == color) {
-                myPieces.add(piece);
+        for (ArrayList<Piece> pieces : pieces.values()) {
+            for (Piece piece : pieces) {
+                situations.lookAt(piece); // TODO separate by colors
             }
         }
 
@@ -168,7 +185,7 @@ public class Board {
         if (moves.isEmpty()) {
             Solution bestSolution = null;
             HashMap<Piece, ArrayList<Solution>> allMoves = new HashMap<>();
-            for (Piece piece : myPieces) {
+            for (Piece piece : pieces.get(color)) {
                 for (Waypoint move : piece.getMoves()) {
                     Solution solution = new Solution(move);
                     if (move == badWaypoint) {
@@ -303,7 +320,7 @@ public class Board {
 
             Piece piece = move.capture;
             if (piece != null) {
-                piece.add(getSquare(move.to));
+                piece.add(from);
             }
 
             System.out.println(this);

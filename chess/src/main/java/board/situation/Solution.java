@@ -1,7 +1,8 @@
-package board.pieces;
+package board.situation;
 
-import board.FutureSquareExchange;
 import board.Waypoint;
+import board.exchange.FutureSquareExchange;
+import board.pieces.Piece;
 
 import java.util.Comparator;
 import java.util.HashMap;

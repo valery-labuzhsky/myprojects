@@ -1,7 +1,5 @@
 package board;
 
-import board.pieces.Board;
-
 /**
  * Created on 19.04.2020.
  *

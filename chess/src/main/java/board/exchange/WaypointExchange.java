@@ -1,5 +1,6 @@
-package board;
+package board.exchange;
 
+import board.Waypoint;
 import org.apache.logging.log4j.Logger;
 
 /**
