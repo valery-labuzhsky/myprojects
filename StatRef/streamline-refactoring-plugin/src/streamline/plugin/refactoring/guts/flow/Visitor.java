@@ -40,8 +40,19 @@ public class Visitor {
         return new Visitor(this);
     }
 
+    public enum Reaction {
+        JUMP_OFF,
+        SKIP,
+        EXPLORE
+    }
+
+    // climb: jump off, skip, continue
     public boolean visit(IElement element) {
+        Reaction reaction = null;
         if (harvest(element)) {
+            // TODO it means override, it doesn't necessary mean I should jump off
+            //  but how would I model it
+            //  I need something to return
             return true;
         } else if (worthVisiting(element)) {
             return Cycler.createCycler(element).harvest(this);

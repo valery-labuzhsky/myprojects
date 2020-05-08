@@ -16,8 +16,6 @@ import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.*;
 import streamline.plugin.nodes.guts.NodesRegistry;
-import streamline.plugin.nodes.guts.RefactoringNode;
-import streamline.plugin.nodes.inlineUsage.InlineUsageNode;
 import streamline.plugin.refactoring.InlineAssignment;
 import streamline.plugin.refactoring.InlineParameter;
 import streamline.plugin.refactoring.InlineUsage;
@@ -54,16 +52,13 @@ public class SLInlineAction extends AnAction {
                 RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + variable.getName());
 
                 if (variable.isAssignment()) {
-                    InlineAssignment assignment = registry.getRefactorings().getRefactoring(new InlineAssignment(registry.getRefactorings(), (IInitializer) variable.getParent()));
                     InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
-                    inlineVariable.enableOnly(assignment);
+                    InlineAssignment assignment = inlineVariable.enableOnly((IInitializer) variable.getParent());
                     toolWindow.setNode(registry.create(inlineVariable)).select(assignment);
                 } else {
-                    InlineUsage usage = registry.getRefactorings().getRefactoring(new InlineUsage(variable, registry.getRefactorings()));
-
                     InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
-                    inlineVariable.enableOnly(usage);
-                    ((InlineUsageNode) toolWindow.setNode(registry.create(inlineVariable)).select(usage)).selectAny();
+                    InlineUsage usage = inlineVariable.enableOnly(variable);
+                    toolWindow.setNode(registry.create(inlineVariable)).select(usage);
                 }
             } else if (parent instanceof PsiParameter) {
                 IParameter parameter = IFactory.getElement(parent);
@@ -71,8 +66,7 @@ public class SLInlineAction extends AnAction {
                 InlineParameter refactoring = new InlineParameter(registry, parameter);
 
                 RefactoringToolWindow tree = createTree(project, event, "Inline " + parameter.getName());
-                RefactoringNode node = registry.create(refactoring);
-                tree.setNode(node);
+                tree.setNode(registry.create(refactoring));
             } else {
                 // TODO do not need to catch Exception from here
                 invokeNative(event);
@@ -85,12 +79,6 @@ public class SLInlineAction extends AnAction {
 
     public void invokeNative(@NotNull AnActionEvent event) {
         ActionManager.getInstance().getAction("Inline").actionPerformed(event);
-    }
-
-    private RefactoringToolWindow createRefactoringTree(Project project, AnActionEvent event, String displayName, RefactoringNode node) {
-        RefactoringToolWindow toolWindow = createTree(project, event, displayName);
-        toolWindow.setNode(node);
-        return toolWindow;
     }
 
     @NotNull
@@ -109,9 +97,6 @@ public class SLInlineAction extends AnAction {
     private ContentManager getStreamlineToolWindow(Project project) {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow toolWindow = toolWindowManager.getToolWindow("Streamline");
-//        if (toolWindow == null) {
-//            toolWindow = toolWindowManager.registerToolWindow("Streamline", true, ToolWindowAnchor.RIGHT);
-//        }
         toolWindow.show(null);
         return toolWindow.getContentManager();
     }

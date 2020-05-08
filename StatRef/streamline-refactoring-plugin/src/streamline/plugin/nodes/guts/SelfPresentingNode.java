@@ -4,10 +4,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.refactoring.guts.Listeners;
+import streamline.plugin.tree.Monkey;
+import streamline.plugin.tree.NodeTreeterator;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -129,6 +132,27 @@ public abstract class SelfPresentingNode extends AbstractTreeNode<SelfPresenting
         for (Consumer<NodePanel> part : parts) {
             panelBuilder.add(part);
         }
+    }
+
+    public static class SelfPresentingTreeterator extends NodeTreeterator<SelfPresentingNode> {
+        public SelfPresentingTreeterator(SelfPresentingNode node) {
+            super(node);
+        }
+
+        @Override
+        protected boolean isLeaf(SelfPresentingNode node) {
+            return node.isLeaf();
+        }
+
+        @Override
+        @NotNull
+        protected Iterator<SelfPresentingNode> children(SelfPresentingNode node) {
+            return node.getChildren().iterator();
+        }
+    }
+
+    public Monkey<SelfPresentingNode> monkey() {
+        return new Monkey<>(new SelfPresentingTreeterator(this));
     }
 
     // TODO maybe just list will be enough?

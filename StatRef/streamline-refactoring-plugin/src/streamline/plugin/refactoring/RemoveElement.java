@@ -8,7 +8,7 @@ public class RemoveElement extends Refactoring {
     private final IInitializer initializer;
 
     public RemoveElement(RefactoringRegistry registry, IInitializer initializer) {
-        super(registry);
+        super(registry, initializer);
         this.initializer = initializer;
     }
 

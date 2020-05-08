@@ -11,7 +11,7 @@ public class ReplaceElement extends Refactoring {
     private final SElement replacement;
 
     public ReplaceElement(RefactoringRegistry registry, IElement target, SElement replacement) {
-        super(registry);
+        super(registry, target);
         this.target = target;
         this.replacement = replacement;
     }

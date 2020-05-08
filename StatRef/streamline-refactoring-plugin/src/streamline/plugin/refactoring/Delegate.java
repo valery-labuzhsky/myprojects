@@ -26,7 +26,7 @@ public class Delegate extends CompoundRefactoring {
 
     public Delegate(RefactoringRegistry registry, ExpressionFragment fragment, HashSet<SMethodDeclaration.Signature> signatures) {
         // TODO I could get rid of signature if did step by step refactoring
-        super(registry);
+        super(registry, fragment.getBase());
         this.fragment = fragment;
         this.signatures = signatures;
         this.delegate = chooseName(new BMethodDeclaration(getName()) {

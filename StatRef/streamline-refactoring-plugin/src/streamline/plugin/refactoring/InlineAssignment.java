@@ -16,18 +16,13 @@ public class InlineAssignment extends Refactoring {
     private final RemoveElement remove;
 
     public InlineAssignment(RefactoringRegistry registry, IInitializer initializer) {
-        super(registry);
+        super(registry, initializer);
         this.initializer = initializer;
         remove = new RemoveElement(registry, initializer);
         VariableFlow flow = new VariableFlow(initializer.declaration());
         Collection<IVariable> usages = flow.getUsages(initializer);
         for (IVariable usage : usages) {
-            // TODO here I create usage which are the same
-            // TODO I must show only values which are assigned
-            // TODO I should hide other values
-            // TODO enabling must select a value
-            // TODO selecting value must disable it
-            this.usages.add(registry.getRefactoring(new InlineUsage(usage, registry)));
+            this.usages.add(registry.getRefactoring(new InlineUsage(registry, usage, initializer)));
         }
         remove.setEnabled(!areUsagesLeft());
     }
@@ -70,17 +65,18 @@ public class InlineAssignment extends Refactoring {
         return remove;
     }
 
-    @Override
-    public boolean enableOnly(Refactoring enabled) {
-        boolean found = false;
-        for (InlineUsage u : usages) {
-            if (u.equals(enabled)) {
-                u.setEnabled(true);
-                found = true;
+    public InlineUsage enableOnly(IVariable toEnable) {
+        InlineUsage enabled = null;
+        for (InlineUsage usage : usages) {
+            if (enabled == null && usage.getUsage().equals(toEnable)) {
+                usage.setEnabled(true);
+                enabled = usage;
+            } else {
+                usage.setEnabled(false);
             }
         }
         remove.setEnabled(!areUsagesLeft());
-        return found;
+        return enabled;
     }
 
     @Override

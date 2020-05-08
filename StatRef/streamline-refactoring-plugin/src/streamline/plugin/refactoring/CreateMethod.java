@@ -12,7 +12,7 @@ public class CreateMethod extends Refactoring {
     private final BMethodDeclaration method;
 
     public CreateMethod(RefactoringRegistry registry, IMethodDeclaration after, BMethodDeclaration method) {
-        super(registry);
+        super(registry, method);
         this.after = after;
         this.method = method;
     }

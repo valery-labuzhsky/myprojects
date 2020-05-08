@@ -1,16 +1,21 @@
 package streamline.plugin.refactoring;
 
+import org.jetbrains.annotations.NotNull;
+import statref.model.SElement;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
+import streamline.plugin.tree.Monkey;
+import streamline.plugin.tree.NodeTreeterator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class CompoundRefactoring extends Refactoring {
     private final List<Refactoring> refactorings = new ArrayList<>();
 
-    public CompoundRefactoring(RefactoringRegistry registry) {
-        super(registry);
+    public CompoundRefactoring(RefactoringRegistry registry, SElement element) {
+        super(registry, element);
     }
 
     public List<Refactoring> getRefactorings() {
@@ -29,16 +34,18 @@ public class CompoundRefactoring extends Refactoring {
         return refactoring;
     }
 
-    @Override
-    public boolean enableOnly(Refactoring enabled) {
-        boolean found = false;
-        for (Refactoring refactoring : getRefactorings()) {
-            if (!refactoring.equals(enabled) && !refactoring.enableOnly(enabled)) {
-                refactoring.setEnabled(false);
-            } else {
-                found = true;
+    public Monkey<Refactoring> monkey() {
+        return new Monkey<>(new NodeTreeterator<Refactoring>(this) {
+            @Override
+            protected boolean isLeaf(Refactoring node) {
+                return !(node instanceof CompoundRefactoring) || ((CompoundRefactoring) node).getRefactorings().isEmpty();
             }
-        }
-        return found;
+
+            @NotNull
+            @Override
+            protected Iterator<Refactoring> children(Refactoring node) {
+                return ((CompoundRefactoring) node).getRefactorings().iterator();
+            }
+        });
     }
 }

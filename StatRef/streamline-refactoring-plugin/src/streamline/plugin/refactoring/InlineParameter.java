@@ -23,7 +23,7 @@ public class InlineParameter extends CompoundRefactoring {
     // TODO make enter work
 
     public InlineParameter(NodesRegistry registry, IParameter parameter) {
-        super(registry.getRefactorings());
+        super(registry.getRefactorings(), parameter);
         this.parameter = parameter;
 
         IMethodDeclaration method = parameter.getParent();
