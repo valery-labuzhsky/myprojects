@@ -19,37 +19,40 @@ public class King extends Piece {
     }
 
     @Override
-    public void move(Pair to) {
+    public void makeMove(Square to) {
         if (!moved) {
             // TODO I also need the knowledge of it in planning machinery
-            switch (to.file) {
+            Piece rook;
+            switch (to.pair.file) {
                 case 2:
-                    board.getSquare(0, to.rank).piece.move(new Pair(3, to.rank));
+                    rook = board.getSquare(0, to.pair.rank).piece;
+                    rook.makeMove(board.getSquare(3, to.pair.rank));
                     break;
                 case 6:
-                    board.getSquare(7, to.rank).piece.move(new Pair(5, to.rank));
+                    rook = board.getSquare(7, to.pair.rank).piece;
+                    rook.makeMove(board.getSquare(5, to.pair.rank));
                     break;
             }
             moved = true;
         } else {
-            int diff = to.file - square.pair.file;
+            int diff = to.pair.file - square.pair.file;
             Rook rook;
             switch (diff) {
                 case -2:
-                    rook = (Rook) board.getSquare(5, to.rank).piece;
-                    rook.move(new Pair(7, to.rank));
+                    rook = (Rook) board.getSquare(5, to.pair.rank).piece;
+                    rook.makeMove(board.getSquare(7, to.pair.rank));
                     rook.moved = false;
                     moved = false;
                     break;
                 case 2:
-                    rook = (Rook) board.getSquare(3, to.rank).piece;
-                    rook.move(new Pair(0, to.rank));
+                    rook = (Rook) board.getSquare(3, to.pair.rank).piece;
+                    rook.makeMove(board.getSquare(0, to.pair.rank));
                     rook.moved = false;
                     moved = false;
                     break;
             }
         }
-        super.move(to);
+        super.makeMove(to);
     }
 
     @Override

@@ -19,7 +19,7 @@ public class Pair {
         this.rank = rank;
     }
 
-    public static int getFile(char c) {
+    public static int parseFile(char c) {
         int x = c - 'a';
         if (x > 7) {
             return -1;
@@ -33,6 +33,10 @@ public class Pair {
             return -1;
         }
         return y;
+    }
+
+    public static Pair parse(char file, char rank) {
+        return new Pair(parseFile(file), parseRank(rank));
     }
 
     public Pair diagonal() {

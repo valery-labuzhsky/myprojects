@@ -1,6 +1,7 @@
 package board.situation;
 
 import board.Board;
+import board.Move;
 import board.Waypoint;
 import board.pieces.Piece;
 import board.pieces.PieceType;
@@ -20,7 +21,7 @@ import java.util.List;
 public class Situations {
     public final ArrayList<Solution> moves = new ArrayList<>();
 
-    public final HashSet<Waypoint> waypoints = new HashSet<>();
+    public final HashSet<Move> waypoints = new HashSet<Move>();
     public final ArrayList<Solution> solutions = new ArrayList<>();
 
     public final Board board;
@@ -37,8 +38,14 @@ public class Situations {
     }
 
     void addSolution(Waypoint waypoint) {
-        if (waypoints.add(waypoint)) {
+        if (waypoints.add(waypoint.move())) {
             this.solutions.add(new Solution(waypoint));
+        }
+    }
+
+    void addSolution(Move move) {
+        if (waypoints.add(move)) {
+            this.solutions.add(new Solution(move));
         }
     }
 

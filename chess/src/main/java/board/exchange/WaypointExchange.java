@@ -1,6 +1,8 @@
 package board.exchange;
 
-import board.Waypoint;
+import board.Logged;
+import board.Move;
+import board.pieces.Piece;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -9,17 +11,17 @@ import org.apache.logging.log4j.Logger;
  * @author ptasha
  */
 public class WaypointExchange extends Exchange {
-    private final Waypoint waypoint;
+    private final Piece piece;
 
-    public WaypointExchange(Waypoint waypoint) {
-        super(waypoint.square, waypoint.piece.color);
-        this.waypoint = waypoint;
+    public WaypointExchange(Move move) {
+        super(move.to, move.color());
+        this.piece = move.piece();
     }
 
     @Override
     protected void setScene() {
         super.setScene();
-        makeTurn(waypoint.piece);
+        makeTurn(piece);
     }
 
     @Override
@@ -28,7 +30,7 @@ public class WaypointExchange extends Exchange {
     }
 
     @Override
-    protected Logger log() {
-        return waypoint.log();
+    public Logger log() {
+        return Logged.log(piece, square);
     }
 }

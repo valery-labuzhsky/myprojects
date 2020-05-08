@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public class Square {
+public class Square implements Logged {
     public final Board board;
     public final Pair pair;
     public Piece piece;

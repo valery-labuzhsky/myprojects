@@ -15,7 +15,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public abstract class Piece {
+public abstract class Piece implements Logged {
     public final Board board;
     public final int color;
     public final PieceType type;
@@ -30,17 +30,19 @@ public abstract class Piece {
         this.type = type;
     }
 
+    public Move move(Square to) {
+        return new Move(this.square, to);
+    }
+
     public boolean isInDanger() {
         return this.square.captures(this);
     }
 
-    public void move(Pair to) {
-        Square dest = board.getSquare(to);
+    public void makeMove(Square to) {
         // TODO it may be en passant
-
         square.piece = null;
         marksOff();
-        put(dest);
+        put(to);
     }
 
     public void put(Square square) {

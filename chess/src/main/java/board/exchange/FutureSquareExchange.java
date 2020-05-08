@@ -1,9 +1,9 @@
 package board.exchange;
 
+import board.Logged;
+import board.Move;
 import board.Square;
-import board.Waypoint;
 import board.pieces.Piece;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
@@ -13,26 +13,28 @@ import java.util.HashSet;
  *
  * @author ptasha
  */
-public class FutureSquareExchange extends Exchange {
-    private final Waypoint through;
+public class FutureSquareExchange extends Exchange implements Logged {
+    private final Piece piece;
+    private final Square to;
 
-    public FutureSquareExchange(Square square, int color, Waypoint through) {
+    public FutureSquareExchange(Square square, int color, Move move) {
         super(square, color);
-        this.through = through;
+        this.piece = move.piece();
+        this.to = move.to;
     }
 
     @Override
     protected void gatherWaypoints() {
         super.gatherWaypoints();
-        if (through.piece.isAttack(through.square, square)) {
-            pieces.add(through.piece);
+        if (piece.isAttack(to, square)) {
+            pieces.add(piece);
         }
     }
 
     @Override
     protected void addPiece(Piece piece) {
-        if (piece != this.through.piece && // Filter out my own moves
-                through.square != piece.square) { // Filter our pieces I captured
+        if (piece != this.piece && // Filter out my own moves
+                to != piece.square) { // Filter our pieces I captured
             super.addPiece(piece);
         }
     }
@@ -40,10 +42,10 @@ public class FutureSquareExchange extends Exchange {
     @Override
     protected HashSet<Piece> getBlocks(Piece piece) {
         HashSet<Piece> blocks = super.getBlocks(piece);
-        if (piece.ray(square).anyMatch(s -> through.square == s)) {
-            blocks.add(this.through.piece);
+        if (piece.ray(square).anyMatch(s -> to == s)) {
+            blocks.add(this.piece);
         } else {
-            blocks.remove(this.through.piece);
+            blocks.remove(this.piece);
         }
         return blocks;
     }
@@ -56,7 +58,7 @@ public class FutureSquareExchange extends Exchange {
     }
 
     public Logger log() {
-        return LogManager.getLogger(through.log().getName() + "." + super.square.log().getName());
+        return Logged.log(piece, to, square);
     }
 
 }

@@ -1,20 +1,17 @@
 package board;
 
-import board.exchange.WaypointExchange;
 import board.pieces.Piece;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * Created on 11.04.2020.
  *
  * @author ptasha
  */
-public class Waypoint {
+public class Waypoint implements Logged {
     Waypoint next;
     public Waypoint prev;
     public Piece piece;
@@ -68,7 +65,7 @@ public class Waypoint {
     }
 
     public Move move() {
-        return new Move(this.piece.square.pair, square.pair);
+        return new Move(this.piece.square, square);
     }
 
     public boolean isMove() {
@@ -144,17 +141,8 @@ public class Waypoint {
         return piece.getBlocks(square);
     }
 
-    public int getScore() {
-        int waypointScore = new WaypointExchange(this).getScore();
-        int squareScore = piece.square.getScore(-piece.color);
-
-        log().debug(this + ": " + waypointScore + " + " + squareScore);
-
-        return waypointScore + squareScore;
-    }
-
     public Logger log() {
-        return LogManager.getLogger(piece.log().getName() + "." + square.log().getName());
+        return Logged.log(piece, square);
     }
 
     @Override
@@ -187,28 +175,6 @@ public class Waypoint {
             Waypoint waypoint = new Waypoint(piece, square);
             piece.trace(new Attack.Origin(waypoint));
             return waypoint;
-        }
-    }
-
-    private class BackwardWaypointSquareIterator implements Iterator<Square> {
-        private Waypoint point;
-
-        public BackwardWaypointSquareIterator(Waypoint point) {
-            this.point = point;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return point != null;
-        }
-
-        @Override
-        public Square next() {
-            try {
-                return point.square;
-            } finally {
-                point = point.prev;
-            }
         }
     }
 

@@ -110,13 +110,13 @@ public class Board {
     }
 
     public void move(Move move) throws IllegalMoveException {
-        Square from = getSquare(move.from);
+        Square from = move.from;
         Piece piece = from.piece;
         if (piece == null) {
             throw new IllegalMoveException("no piece on " + move.from);
         }
 
-        Square dest = getSquare(move.to);
+        Square dest = move.to;
         Waypoint waypoint = dest.waypoints.stream().
                 filter(w -> w.piece == piece).
                 findFirst().orElse(null);
@@ -129,7 +129,7 @@ public class Board {
             dest.piece.remove();
         }
 
-        piece.move(move.to);
+        piece.makeMove(move.from);
         history.add(move);
 
         for (Piece king : pieces.get(piece.color)) {
@@ -145,8 +145,27 @@ public class Board {
         System.out.println(this);
     }
 
+    private Move parse(String move) {
+        PieceType promotion = null;
+        switch (move.length()) {
+            case 4:
+                break;
+            case 5:
+                promotion = PieceType.get(Character.toUpperCase(move.charAt(4)));
+                break;
+            default:
+                return null;
+        }
+        Square from = getSquare(Pair.parse(move.charAt(0), move.charAt(1)));
+        Square to = getSquare(Pair.parse(move.charAt(2), move.charAt(3)));
+        if (from == null || to == null) {
+            return null;
+        }
+        return new Move(from, to, promotion);
+    }
+
     public boolean move(String line) throws IllegalMoveException {
-        Move move = Move.parse(line);
+        Move move = this.parse(line);
         if (move == null) {
             return false;
         }
@@ -177,8 +196,8 @@ public class Board {
         }
 
         Waypoint badWaypoint = null;
-        Move badMove = Move.parse("e1f2");
-        badWaypoint = getSquare(badMove.to).waypoints.stream().filter(w -> w.piece.square.pair.equals(badMove.from)).findFirst().orElse(null);
+        Move badMove = this.parse("e1f2");
+        badWaypoint = badMove.to.waypoints.stream().filter(w -> w.piece.square.equals(badMove.from)).findFirst().orElse(null);
         Solution badSolution = null;
 
         List<Solution> moves = situations.getMoves();
@@ -215,9 +234,9 @@ public class Board {
 
         Move move;
         if (moves.contains(badSolution)) {
-            move = badSolution.move.move();
+            move = badSolution.move;
         } else {
-            move = moves.get(random.nextInt(moves.size())).move.move();
+            move = moves.get(random.nextInt(moves.size())).move;
         }
         try {
             move(move);
@@ -312,11 +331,11 @@ public class Board {
         Move move = history.removeLast();
         try {
             // TODO undo promotion
-            Square from = getSquare(move.to);
+            Square from = move.to;
             if (from.piece == null) {
                 throw new IllegalMoveException("no piece on " + move.to);
             }
-            from.piece.move(move.from);
+            from.piece.makeMove(move.from);
 
             Piece piece = move.capture;
             if (piece != null) {

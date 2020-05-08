@@ -1,6 +1,9 @@
 package board.pieces;
 
-import board.*;
+import board.Board;
+import board.MovesTracer;
+import board.Square;
+import board.XY;
 
 import java.util.stream.Stream;
 
@@ -17,8 +20,8 @@ public class Rook extends Piece {
     }
 
     @Override
-    public void move(Pair to) {
-        super.move(to);
+    public void makeMove(Square to) {
+        super.makeMove(to);
         moved = true;
     }
 

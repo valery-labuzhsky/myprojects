@@ -1,6 +1,6 @@
 package board.situation;
 
-import board.Attack;
+import board.Move;
 import board.Square;
 import board.Waypoint;
 import board.pieces.Piece;
@@ -49,20 +49,13 @@ public class Situation {
             }
         }
 
-        // TODO I need to get rid of waypoints here as well
-//        for (Piece guard : situations.board.pieces.get(piece.color)) {
-//            if (guard!=piece) {
-//                guard.getAttacks(piece.square).forEach(
-//                        s -> addSolution();
-//                );
-//            }
-//        }
-
-        for (Attack guard : this.square.attacks.values()) { // guard
-            if (guard.guards() && guard.through.moves()) {
-                addSolution(guard.through);
+        for (Piece guard : situations.board.pieces.get(piece.color)) { // guard
+            if (guard != piece) {
+                guard.getAttacks(piece.square).forEach(
+                        s -> addSolution(guard.move(s)));
             }
         }
+
         if (dangers.size() == 1) {
             Waypoint danger = dangers.get(0);
             while (danger.prev != null) { // block
@@ -86,6 +79,10 @@ public class Situation {
 
     private void addSolution(Waypoint waypoint) {
         situations.addSolution(waypoint);
+    }
+
+    private void addSolution(Move move) {
+        situations.addSolution(move);
     }
 
     public String toString() {

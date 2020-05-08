@@ -1,5 +1,6 @@
 package board.exchange;
 
+import board.Logged;
 import board.Square;
 import board.Waypoint;
 import board.pieces.Piece;
@@ -12,7 +13,7 @@ import java.util.*;
  *
  * @author ptasha
  */
-public class Exchange {
+public class Exchange implements Logged {
     protected LinkedList<Piece> pieces = new LinkedList<>();
 
     protected final Square square;
@@ -281,7 +282,7 @@ public class Exchange {
         }
     }
 
-    protected Logger log() {
+    public Logger log() {
         return square.log();
     }
 }

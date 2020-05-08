@@ -23,10 +23,6 @@ public class Attack extends Waypoint {
         return through.square;
     }
 
-    public int getScore() {
-        return through.getScore();
-    }
-
     @Override
     protected void register() {
     }
