@@ -22,7 +22,6 @@ public abstract class Piece implements Logged {
     public Square square;
 
     public final HashSet<Waypoint> waypoints = new HashSet<>();
-    public final HashSet<Attack> attacks = new HashSet<>();
 
     public Piece(PieceType type, Board board, int color) {
         this.board = board;
@@ -76,9 +75,6 @@ public abstract class Piece implements Logged {
     }
 
     private void marksOff() {
-        while (!attacks.isEmpty()) {
-            attacks.iterator().next().remove();
-        }
         while (!waypoints.isEmpty()) {
             waypoints.iterator().next().remove();
         }

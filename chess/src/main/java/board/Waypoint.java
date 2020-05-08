@@ -172,9 +172,7 @@ public class Waypoint implements Logged {
         }
 
         public Waypoint create(Square square) {
-            Waypoint waypoint = new Waypoint(piece, square);
-            piece.trace(new Attack.Origin(waypoint));
-            return waypoint;
+            return new Waypoint(piece, square);
         }
     }
 

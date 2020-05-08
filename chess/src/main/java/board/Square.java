@@ -4,7 +4,6 @@ import board.exchange.Exchange;
 import board.pieces.Piece;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
@@ -19,7 +18,6 @@ public class Square implements Logged {
     public Piece piece;
 
     public final HashSet<Waypoint> waypoints = new HashSet<>();
-    public final HashMap<Waypoint, Attack> attacks = new HashMap<>();
 
     public Square(Board board, Pair pair) {
         this.board = board;
