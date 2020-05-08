@@ -68,6 +68,19 @@ public class Pawn extends Piece {
     }
 
     @Override
+    public boolean moves(Square from, Square to) {
+        return attacks(from, to) || goes(from, to);
+    }
+
+    public boolean goes(Square from, Square to) {
+        return to.piece == null && isGo(from, to) && getBlocks(from, to).isEmpty();
+    }
+
+    public boolean attacks(Square from, Square to) {
+        return to.piece != null && to.piece.color != color && isAttack(from, to);
+    }
+
+    @Override
     public Stream<Square> getPotentialAttacks(Square square) {
         Pair from = this.square.pair;
         Pair to = square.pair;

@@ -129,7 +129,7 @@ public abstract class Piece implements Logged {
     }
 
     public Collection<Piece> getBlocks(Square from, Square to) {
-        return new Blocks(from.ray(to));
+        return new Blocks(() -> from.ray(to));
     }
 
     public abstract Stream<Square> getPotentialAttacks(Square square);

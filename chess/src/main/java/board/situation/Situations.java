@@ -73,6 +73,11 @@ public class Situations {
         // TODO does it worth to check every attack? some of them might be fruitless
         //  I need to have some score, having it and a piece I must be able to estimate worthiness of the attack
         //  I already thought about it it doesn't seem to be feasible
+        // TODO how can I estimate worthiness of the attack?
+        //  piece must be weakly protected
+        //  thus for every piece I must know which piece can change the score
+        //  but I can not only attack, I can block defence or make a fork, or capture defence
+        //  checking all the moves is defeat
 
         // TODO I need do my game recursive as exchange to be able to do all those steps,
         //  actually I already have it, I can write all moves to history and revert them

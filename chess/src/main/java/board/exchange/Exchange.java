@@ -48,18 +48,15 @@ public class Exchange implements Logged {
         setScene();
         Result result = play();
         result.score = result.score * result.lastPlayer * playing.get();
+        log().debug("Result: " + result);
         return result;
     }
 
     private Result play() {
-        if (!hasNextTurn()) {
-            return sides.get(playing.get()).getResult();
-        } else {
-            try {
-                return nextTurn();
-            } finally {
-                playBack();
-            }
+        try {
+            return nextTurn();
+        } finally {
+            playBack();
         }
     }
 
@@ -208,6 +205,11 @@ public class Exchange implements Logged {
 
             if (bestScore.get() == null || bestScore.get() < lastScore) {
                 bestScore.set(lastScore);
+            }
+
+            if (pieces.isEmpty()) {
+                stack.add(new Turn());
+                return getResult();
             }
 
             // TODO account for blocks

@@ -5,6 +5,7 @@ import board.pieces.Piece;
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -14,15 +15,15 @@ import java.util.stream.Stream;
  */
 public class Blocks extends AbstractCollection<Piece> {
 
-    private final Stream<Square> stream;
+    private final Supplier<Stream<Square>> stream;
 
-    public Blocks(Stream<Square> stream) {
+    public Blocks(Supplier<Stream<Square>> stream) {
         this.stream = stream;
     }
 
     @Override
     public Iterator<Piece> iterator() {
-        return stream.
+        return stream.get().
                 map(s -> s.piece).
                 filter(Objects::nonNull).iterator();
     }

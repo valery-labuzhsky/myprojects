@@ -129,7 +129,7 @@ public class Board {
             dest.piece.remove();
         }
 
-        piece.makeMove(move.from);
+        piece.makeMove(move.to);
         history.add(move);
 
         for (Piece king : pieces.get(piece.color)) {
@@ -196,7 +196,7 @@ public class Board {
         }
 
         Waypoint badWaypoint = null;
-        Move badMove = this.parse("e1f2");
+        Move badMove = this.parse("g2g3");
         badWaypoint = badMove.to.waypoints.stream().filter(w -> w.piece.square.equals(badMove.from)).findFirst().orElse(null);
         Solution badSolution = null;
 
