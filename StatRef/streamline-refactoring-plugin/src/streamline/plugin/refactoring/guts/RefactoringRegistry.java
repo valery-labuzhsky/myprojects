@@ -4,7 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import statref.model.SElement;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 public class RefactoringRegistry {
     private final HashMap<Refactoring, Refactoring> registry = new HashMap<>();
@@ -19,4 +21,11 @@ public class RefactoringRegistry {
         });
     }
 
+    public List<Refactoring> getRefactorings(SElement element) {
+        ArrayList<Refactoring> list = perElement.get(element);
+        if (list == null) {
+            return Collections.emptyList();
+        }
+        return list;
+    }
 }

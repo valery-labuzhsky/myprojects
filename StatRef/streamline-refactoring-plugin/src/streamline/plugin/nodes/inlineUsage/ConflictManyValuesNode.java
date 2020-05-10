@@ -21,7 +21,7 @@ public class ConflictManyValuesNode extends SelfPresentingNode {
         return presentation -> {
             // TODO use SimplePresenter
             presentation.clearText();
-            presentation.addText("Conflict: there are many possible values", SimpleTextAttributes.ERROR_ATTRIBUTES);
+            presentation.addText("Conflict: other values", SimpleTextAttributes.ERROR_ATTRIBUTES);
         };
     }
 

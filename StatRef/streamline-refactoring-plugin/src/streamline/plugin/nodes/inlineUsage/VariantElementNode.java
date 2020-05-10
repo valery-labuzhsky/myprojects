@@ -1,7 +1,6 @@
 package streamline.plugin.nodes.inlineUsage;
 
 import org.jetbrains.annotations.NotNull;
-import statref.model.idea.IInitializer;
 import streamline.plugin.nodes.guts.ElementPresenter;
 import streamline.plugin.nodes.guts.SelfPresentingNode;
 import streamline.plugin.refactoring.InlineUsage;
@@ -12,20 +11,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class VariantElementNode extends SelfPresentingNode {
-    private final IInitializer variant;
+    private final InlineUsage variant;
 
-    public VariantElementNode(InlineUsageNode parent, IInitializer variant) {
-        super(variant.getElement().getProject());
+    public VariantElementNode(InlineUsageNode parent, InlineUsage variant) {
+        super(variant.getValue().getElement().getProject());
         this.variant = variant;
         Listeners controller = parent.getListeners();
         controller.invoke(this::update);
-        InlineUsage refactoring = parent.getRefactoring();
         setNodePanelParts(panel -> {
             JRadioButton radioButton = new JRadioButton();
-            controller.invoke(() -> radioButton.setSelected(variant.equals(refactoring.getSelected())));
+            controller.invoke(() -> radioButton.setSelected(variant.isEnabled()));
             radioButton.addActionListener(e -> {
-                refactoring.setSelected(variant);
-                refactoring.setEnabled(true);
+                variant.setEnabled(true);
                 controller.fire();
             });
             panel.add(radioButton);
@@ -38,8 +35,8 @@ public class VariantElementNode extends SelfPresentingNode {
         return this;
     }
 
-    protected ElementPresenter createPresenter() {
-        return new ElementPresenter("with ", variant.getInitializer().getElement());
+    private ElementPresenter createPresenter() {
+        return new ElementPresenter("with ", variant.getValue().getElement());
     }
 
     @NotNull

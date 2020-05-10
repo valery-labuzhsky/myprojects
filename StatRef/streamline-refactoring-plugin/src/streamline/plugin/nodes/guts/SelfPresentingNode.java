@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public abstract class SelfPresentingNode extends AbstractTreeNode<SelfPresentingNode> {
-    protected final Listeners onUpdate = new Listeners();
+    private final Listeners onUpdate = new Listeners();
     private final Project project;
     protected Tree tree;
     private NodeComponent component;
@@ -37,7 +37,7 @@ public abstract class SelfPresentingNode extends AbstractTreeNode<SelfPresenting
     @Override
     public abstract List<SelfPresentingNode> getChildren();
 
-    public void setChildren(ArrayList<SelfPresentingNode> children) {
+    private void setChildren(ArrayList<SelfPresentingNode> children) {
         getChildren().clear();
         getChildren().addAll(children);
     }

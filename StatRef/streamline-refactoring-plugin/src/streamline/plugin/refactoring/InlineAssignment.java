@@ -27,13 +27,6 @@ public class InlineAssignment extends Refactoring {
         remove.setEnabled(!areUsagesLeft());
     }
 
-    public InlineAssignment selectDefaultVariant() {
-        for (InlineUsage usage : usages) {
-            usage.setSelected(this.initializer);
-        }
-        return this;
-    }
-
     public boolean areUsagesLeft() {
         boolean usagesLeft = false;
         for (InlineUsage usage : usages) {
