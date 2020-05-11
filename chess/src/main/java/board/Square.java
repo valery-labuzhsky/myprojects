@@ -17,15 +17,13 @@ public class Square implements Logged {
     public final Pair pair;
     public Piece piece;
 
+    public final Scores scores = new Scores(this);
+
     public final HashSet<Waypoint> waypoints = new HashSet<>();
 
     public Square(Board board, Pair pair) {
         this.board = board;
         this.pair = pair;
-    }
-
-    public Square diagonal(int fx, int ty) {
-        return this.board.diagonal(fx, ty);
     }
 
     public Stream<Square> ray(Square to) {
@@ -68,17 +66,12 @@ public class Square implements Logged {
 
     private char lastMove() {
         char s;
-        Move lastMove;
-        if (board.history.isEmpty()) {
-            lastMove = null;
-        } else {
-            lastMove = board.history.getLast();
-        }
+        Move lastMove = board.history.getLastMove();
         if (lastMove == null) {
             s = ' ';
-        } else if (lastMove.from.equals(pair)) {
+        } else if (lastMove.from.equals(this)) {
             s = '-';
-        } else if (lastMove.to.equals(pair)) {
+        } else if (lastMove.to.equals(this)) {
             s = '+';
         } else {
             s = ' ';
@@ -124,11 +117,11 @@ public class Square implements Logged {
     }
 
     public int getScore(int color) {
-        return new Exchange(this, color).getScore();
+        return scores.getResult(color).score;
     }
 
     public Exchange.Result getExchangeResult(int color) {
-        return new Exchange(this, color).getResult();
+        return scores.getResult(color);
     }
 
     public Logger log() {

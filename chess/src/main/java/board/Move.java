@@ -34,6 +34,18 @@ public class Move implements Logged {
         this.note = note;
     }
 
+    public int getScore(Piece piece) {
+        return piece.getScore() * piece.color * color();
+    }
+
+    public void undo() {
+        this.from.board.undo();
+    }
+
+    public void imagine() {
+        this.from.board.imagine(this);
+    }
+
     public int color() {
         return piece().color;
     }

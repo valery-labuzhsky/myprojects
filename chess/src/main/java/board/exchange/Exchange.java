@@ -14,6 +14,8 @@ import java.util.*;
  * @author ptasha
  */
 public class Exchange implements Logged {
+    // TODO I must really move the pieces
+
     protected LinkedList<Piece> pieces = new LinkedList<>();
 
     protected final Square square;
@@ -40,10 +42,6 @@ public class Exchange implements Logged {
         onSquare.set(square.piece);
     }
 
-    public int getScore() {
-        return getResult().score;
-    }
-
     public Result getResult() {
         setScene();
         Result result = play();
@@ -58,10 +56,6 @@ public class Exchange implements Logged {
         } finally {
             playBack();
         }
-    }
-
-    private boolean hasNextTurn() {
-        return !sides.get(playing.get()).isEmpty();
     }
 
     protected Result nextTurn() {
@@ -134,7 +128,7 @@ public class Exchange implements Logged {
         stack.removeLast().run();
     }
 
-    private class Turn {
+    private static class Turn {
         private final LinkedList<Runnable> revert = new LinkedList<>();
 
         public void run() {
@@ -156,7 +150,7 @@ public class Exchange implements Logged {
     }
 
     public static class Result {
-        int score;
+        public int score;
         int lastPlayer;
 
         HashMap<Integer, Side> sides = new HashMap<>();
@@ -194,10 +188,6 @@ public class Exchange implements Logged {
 
         public Side(int color) {
             this.color = color;
-        }
-
-        public boolean isEmpty() {
-            return pieces.isEmpty();
         }
 
         public Result makeMove() {

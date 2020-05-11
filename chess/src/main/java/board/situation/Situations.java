@@ -83,6 +83,11 @@ public class Situations {
         //  actually I already have it, I can write all moves to history and revert them
         //  but to do it I must do moving pieces more lightweight, at least attacks must go away
         //  I'm not so sure about waypoints, but I could do special collections on the fly
+
+        // TODO first thing to do it to calculate score realistically
+        //  preventing something from happening is another matter
+        //  I also need displaying exchanges to control them
+        //  I need get rid of future and waypoint exchanges and make real move
     }
 
     public boolean isCheckmate() {

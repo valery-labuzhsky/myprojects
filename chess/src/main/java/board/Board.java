@@ -18,18 +18,11 @@ public class Board {
     public int color;
     private Random random;
     public boolean force;
-    public final LinkedList<Move> history = new LinkedList<>();
+    public final History history = new History();
     public int score;
 
     public Board() {
         reset();
-    }
-
-    public Square diagonal(int dx, int dy) {
-        if (dx % 2 != dy % 2) {
-            return null;
-        }
-        return getSquare((dx + dy) / 2, (dx - dy) / 2);
     }
 
     public void reset() {
@@ -82,7 +75,7 @@ public class Board {
         random = new Random(seed);
 
         force = false;
-        history.clear();
+        history.newGame();
         score = 0;
     }
 
@@ -130,7 +123,7 @@ public class Board {
         }
 
         piece.makeMove(move.to);
-        history.add(move);
+        history.push(move, true);
 
         for (Piece king : pieces.get(piece.color)) {
             if (king.type == PieceType.King) {
@@ -143,6 +136,21 @@ public class Board {
         }
 
         System.out.println(this);
+    }
+
+    public void imagine(Move move) {
+        Square from = move.from;
+        Piece piece = from.piece;
+
+        Square dest = move.to;
+
+        if (dest.piece != null) {
+            move.capture = dest.piece;
+            dest.piece.remove();
+        }
+
+        piece.makeMove(move.to);
+        history.push(move, false);
     }
 
     private Move parse(String move) {
@@ -328,7 +336,7 @@ public class Board {
     }
 
     public void undo() {
-        Move move = history.removeLast();
+        Move move = history.pop();
         try {
             // TODO undo promotion
             Square from = move.to;
