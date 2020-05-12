@@ -2,13 +2,12 @@ package streamline.plugin.nodes;
 
 import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.*;
-import streamline.plugin.refactoring.CompoundRefactoring;
-import streamline.plugin.refactoring.guts.Refactoring;
+import streamline.plugin.refactoring.SimpleCompoundRefactoring;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode<R> {
+public class CompoundNode<R extends SimpleCompoundRefactoring> extends RefactoringNode<R> {
     public CompoundNode(R refactoring, NodesRegistry registry) {
         super(refactoring, registry);
         setNodePanelParts(createPresenter());
@@ -18,9 +17,7 @@ public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode
     @Override
     public List<SelfPresentingNode> createChildren() {
         ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
-        for (Refactoring r : refactoring.getRefactorings()) {
-            nodes.add(registry.create(r));
-        }
+        refactoring.getRefactorings().forEach(r -> nodes.add(registry.create(r)));
         return nodes;
     }
 
@@ -33,7 +30,7 @@ public class CompoundNode<R extends CompoundRefactoring> extends RefactoringNode
     }
 
     private boolean isPlain() {
-        return refactoring.getClass().equals(CompoundRefactoring.class);
+        return refactoring.getClass().equals(SimpleCompoundRefactoring.class);
     }
 
     @Override

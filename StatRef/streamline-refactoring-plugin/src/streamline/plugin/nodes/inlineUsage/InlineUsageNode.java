@@ -1,7 +1,7 @@
 package streamline.plugin.nodes.inlineUsage;
 
 import org.jetbrains.annotations.NotNull;
-import statref.model.idea.IInitializer;
+import streamline.plugin.nodes.InlineAssignmentNode;
 import streamline.plugin.nodes.guts.NodesRegistry;
 import streamline.plugin.nodes.guts.RefactoringNode;
 import streamline.plugin.nodes.guts.SelfPresentingNode;
@@ -15,15 +15,14 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
     public InlineUsageNode(InlineUsage refactoring, NodesRegistry registry) {
         super(refactoring, registry);
         setNodePanelParts(new RefactoringPresenter("Replace ", this.refactoring.getUsage().getElement()));
-        refactoring.onUpdate.listen(() -> getListeners().fire()); // TODO get rid of node listeners eventually?
     }
 
     @NotNull
     @Override
     public List<SelfPresentingNode> createChildren() {
         ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
-        // TODO make me part of InlineUsageNode
-        nodes.add(new VariantElementNode(this, refactoring).lock());
+        // TODO your only use is when without parent
+//        nodes.add(new VariantElementNode(this, refactoring).lock());
 
         if (!refactoring.getVariants().isEmpty()) {
             ConflictManyValuesNode conflict = new ConflictManyValuesNode(getProject());
@@ -36,6 +35,8 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
         return nodes;
     }
 
-    public void setAssignment(IInitializer assignment) {
+    @Override
+    public InlineAssignmentNode getParent() {
+        return (InlineAssignmentNode) super.getParent();
     }
 }

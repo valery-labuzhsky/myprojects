@@ -3,11 +3,12 @@ package streamline.plugin.refactoring;
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
 import statref.model.idea.IVariableDeclaration;
-import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 import streamline.plugin.refactoring.guts.flow.VariableFlow;
 
-public class InlineVariable extends CompoundRefactoring {
+import java.util.Objects;
+
+public class InlineVariable extends SimpleCompoundRefactoring {
     private final IVariableDeclaration declaration;
 
     public InlineVariable(IVariableDeclaration declaration, RefactoringRegistry registry) {
@@ -28,34 +29,33 @@ public class InlineVariable extends CompoundRefactoring {
     }
 
     public InlineUsage enableOnly(IVariable usage) {
-        InlineUsage enabled = null;
-        for (Refactoring refactoring : getRefactorings()) {
-            if (refactoring instanceof InlineAssignment) {
-                InlineAssignment assignment = (InlineAssignment) refactoring;
-                if (enabled == null) {
-                    enabled = assignment.enableOnly(usage);
-                    assignment.setEnabled(enabled != null);
-                } else {
-                    assignment.setEnabled(false);
-                }
-            }
-        }
-        return enabled;
+        disableAll();
+
+        return getRefactorings().map(r -> (InlineAssignment) r).
+                map(r -> r.enableOnly(usage)).
+                filter(Objects::nonNull).findFirst().
+                map(r -> {
+                    r.setEnabled(true);
+                    return r;
+                }).orElse(null);
+    }
+
+    private void disableAll() {
+        // TODO it will cause massive listeners response
+        //  anything I can do about it?
+        //  disable me first
+//        setEnabled(false);
+        getRefactorings().forEach(r -> r.setEnabled(false));
     }
 
     public InlineAssignment enableOnly(IInitializer variable) {
-        InlineAssignment enabled = null;
-        for (Refactoring refactoring : getRefactorings()) {
-            if (refactoring instanceof InlineAssignment) {
-                InlineAssignment assignment = (InlineAssignment) refactoring;
-                if (enabled == null && assignment.getInitializer().equals(variable)) {
-                    assignment.setEnabled(true);
-                    enabled = assignment;
-                } else {
-                    assignment.setEnabled(false);
-                }
-            }
-        }
-        return enabled;
+        disableAll();
+
+        return getRefactorings().map(r -> (InlineAssignment) r).
+                filter(r -> r.getInitializer().equals(variable)).findFirst().
+                map(r -> {
+                    r.setEnabled(true);
+                    return r;
+                }).orElse(null);
     }
 }

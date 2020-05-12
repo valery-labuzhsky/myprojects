@@ -26,6 +26,7 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         this.registry = registry;
         listeners = registry.getListeners(refactoring);
         getListeners().invoke(this::update);
+        refactoring.onUpdate.listen(() -> getListeners().fire()); // TODO get rid of node listeners eventually?
     }
 
     protected void setNodePanelParts(Presenter presenter) {

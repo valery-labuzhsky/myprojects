@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class Delegate extends CompoundRefactoring {
+public class Delegate extends SimpleCompoundRefactoring {
     private final BMethodDeclaration delegate;
     private final ExpressionFragment fragment;
     private final CreateMethod create;

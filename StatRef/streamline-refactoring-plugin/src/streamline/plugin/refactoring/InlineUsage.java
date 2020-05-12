@@ -2,7 +2,6 @@ package streamline.plugin.refactoring;
 
 import statref.model.idea.IInitializer;
 import statref.model.idea.IVariable;
-import streamline.plugin.refactoring.guts.Listeners;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 
@@ -10,17 +9,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class InlineUsage extends Refactoring {
-    // TODO lefties:
-    //  1. Focus selected branch
-    //  2. Make default variant part of inline usage node
-    //  3. Select alternative branch
-    //  4. Make selecting inline assignment as well as inline variable comfortable
+    // TODO Make selecting inline assignment as well as inline variable comfortable
 
     private final IVariable usage;
     private final IInitializer value;
     private final ArrayList<InlineUsage> variants = new ArrayList<>();
-
-    public final Listeners onUpdate = new Listeners();
 
     public InlineUsage(RefactoringRegistry registry, IVariable usage, IInitializer value) {
         super(registry, usage);
@@ -33,15 +26,6 @@ public class InlineUsage extends Refactoring {
                 sibling.meetSibling(this);
             }
         }
-    }
-
-    @Override
-    public boolean setEnabled(boolean enabled) {
-        boolean changed = super.setEnabled(enabled);
-        if (changed) { // TODO move it to Refactoring
-            onUpdate.fire();
-        }
-        return changed;
     }
 
     private void meetSibling(InlineUsage sibling) {

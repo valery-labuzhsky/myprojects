@@ -7,38 +7,32 @@ import streamline.plugin.refactoring.guts.RefactoringRegistry;
 import streamline.plugin.tree.Monkey;
 import streamline.plugin.tree.NodeTreeterator;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.stream.Stream;
 
-public class CompoundRefactoring extends Refactoring {
-    private final List<Refactoring> refactorings = new ArrayList<>();
-
+/**
+ * Created on 11.05.2020.
+ *
+ * @author unicorn
+ */
+public abstract class CompoundRefactoring extends Refactoring {
     public CompoundRefactoring(RefactoringRegistry registry, SElement element) {
         super(registry, element);
     }
 
-    public List<Refactoring> getRefactorings() {
-        return refactorings;
-    }
+    @NotNull
+    public abstract Stream<Refactoring> getRefactorings();
 
     @Override
     protected void doRefactor() {
-        for (Refactoring refactoring : refactorings) {
-            refactoring.refactor();
-        }
-    }
-
-    public <R extends Refactoring> R add(R refactoring) {
-        refactorings.add(registry.getRefactoring(refactoring));
-        return refactoring;
+        getRefactorings().forEach(Refactoring::refactor);
     }
 
     public Monkey<Refactoring> monkey() {
         return new Monkey<>(new NodeTreeterator<Refactoring>(this) {
             @Override
             protected boolean isLeaf(Refactoring node) {
-                return !(node instanceof CompoundRefactoring) || ((CompoundRefactoring) node).getRefactorings().isEmpty();
+                return !(node instanceof CompoundRefactoring) || ((CompoundRefactoring) node).getRefactorings().anyMatch(p -> true);
             }
 
             @NotNull

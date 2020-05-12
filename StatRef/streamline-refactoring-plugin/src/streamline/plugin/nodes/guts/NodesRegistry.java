@@ -17,7 +17,7 @@ public class NodesRegistry {
         register(InlineAssignment.class, InlineAssignmentNode::new);
         register(InlineVariable.class, InlineVariableNode::new);
         register(InlineParameter.class, InlineParameterNode::new);
-        register(CompoundRefactoring.class, CompoundNode::new);
+        register(SimpleCompoundRefactoring.class, CompoundNode::new);
         register(CreateMethod.class, CreateMethodNode::new);
         register(ReplaceElement.class, ReplaceElementNode::new);
         register(Delegate.class, DelegateNode::new);

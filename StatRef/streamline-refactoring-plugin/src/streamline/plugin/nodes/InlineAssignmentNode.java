@@ -15,7 +15,7 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
 
     public InlineAssignmentNode(InlineAssignment inlineAssignment, NodesRegistry registry) {
         super(inlineAssignment, registry);
-        setNodePanelParts(new RefactoringPresenter("Inline ", refactoring.getInitializer().getElement()));
+        setNodePanelParts(new RefactoringPresenter("Inline ", refactoring.getInitializer().getInitializer().getElement()));
     }
 
     @Override
@@ -42,7 +42,6 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
         ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
         for (InlineUsage usage : this.refactoring.getUsages()) {
             InlineUsageNode usageNode = new InlineUsageNode(usage, registry);
-            usageNode.setAssignment(refactoring.getInitializer());
             usageNode.getListeners().invoke(usageListeners);
             nodes.add(usageNode);
         }
@@ -50,4 +49,8 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
         return nodes;
     }
 
+    @Override
+    public InlineVariableNode getParent() {
+        return (InlineVariableNode) super.getParent();
+    }
 }

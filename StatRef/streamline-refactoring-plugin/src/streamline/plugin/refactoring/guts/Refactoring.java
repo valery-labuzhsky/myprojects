@@ -3,6 +3,7 @@ package streamline.plugin.refactoring.guts;
 import statref.model.SElement;
 
 public abstract class Refactoring {
+    public final Listeners onUpdate = new Listeners();
     protected final RefactoringRegistry registry;
     private final SElement element;
     private boolean enabled = true;
@@ -28,6 +29,7 @@ public abstract class Refactoring {
             return false;
         } else {
             this.enabled = enabled;
+            onUpdate.fire();
             return true;
         }
     }

@@ -12,7 +12,7 @@ import streamline.plugin.nodes.guts.NodesRegistry;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class InlineParameter extends CompoundRefactoring {
+public class InlineParameter extends SimpleCompoundRefactoring {
     @org.jetbrains.annotations.NotNull
     private final IParameter parameter;
 

@@ -24,6 +24,7 @@ public class VariantElementNode extends SelfPresentingNode {
             radioButton.addActionListener(e -> {
                 variant.setEnabled(true);
                 controller.fire();
+                parent.getParent().getParent().select(variant);
             });
             panel.add(radioButton);
             panel.dispatchKeyEvents(radioButton);
@@ -36,7 +37,7 @@ public class VariantElementNode extends SelfPresentingNode {
     }
 
     private ElementPresenter createPresenter() {
-        return new ElementPresenter("with ", variant.getValue().getElement());
+        return new ElementPresenter("", variant.getValue().getInitializer().getElement());
     }
 
     @NotNull
