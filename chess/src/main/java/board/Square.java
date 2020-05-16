@@ -1,10 +1,13 @@
 package board;
 
 import board.exchange.Exchange;
+import board.pieces.Knight;
 import board.pieces.Piece;
+import board.pieces.Queen;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -24,6 +27,10 @@ public class Square implements Logged {
     public Square(Board board, Pair pair) {
         this.board = board;
         this.pair = pair;
+    }
+
+    public Stream<Square> ray(int file, int rank) {
+        return Stream.iterate(go(file, rank), Objects::nonNull, s -> s.go(file, rank));
     }
 
     public Stream<Square> ray(Square to) {
@@ -130,5 +137,16 @@ public class Square implements Logged {
 
     public Square step(Pair step) {
         return board.getSquare(pair.go(step));
+    }
+
+    public Stream<Piece> attackers() {
+        return Stream.concat(
+                Queen.getRays(this).map(r -> r.filter(s -> s.piece != null).findFirst().orElse(null)).filter(Objects::nonNull),
+                Knight.getMoves(this)
+        ).map(s -> s.piece).filter(Objects::nonNull).filter(p -> p.isAttack(p.square, this));
+    }
+
+    public Square go(int file, int rank) {
+        return board.getSquare(pair.file + file, pair.rank + rank);
     }
 }

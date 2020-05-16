@@ -1,12 +1,15 @@
 package board.exchange;
 
 import board.Logged;
+import board.Move;
 import board.Square;
-import board.Waypoint;
 import board.pieces.Piece;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.TreeSet;
 
 /**
  * Created on 15.04.2020.
@@ -14,7 +17,24 @@ import java.util.*;
  * @author ptasha
  */
 public class Exchange implements Logged {
-    // TODO I must really move the pieces
+    // TODO current plan
+    //  1. Create universal exchange score
+    //  2. I must know which moves are good which ar bad just to know my situation here to be able to see what's going on to be able to do rationally
+    //  3. So I need to print out bad moves and try to filter them out
+    //  4. On the other hand I can create an heuristic to play around attack + defence + freedom and see how one translates to another
+
+    // TODO to create universal exchange score I need:
+    //  1. make real moves
+    //  2. collect pieces I can move on the fly
+    //  3. create universal algorithm for checking variants (branch and bound method)
+    //   for that I need a) heuristic b) scoring
+    //  it probably worth starting with 3
+    //  4. use board score
+
+    // TODO I don't need universal exchange, I need to model all links between exchanges to understand what's going on
+    //  to the pin problem: I need to know that moving that piece would cost me additional points as the piece is pinned
+    //  I have an exchange and all the actors in it
+    //  I need to rise it's role, maybe cache it, that's what I need to know
 
     protected LinkedList<Piece> pieces = new LinkedList<>();
 
@@ -31,13 +51,11 @@ public class Exchange implements Logged {
     private final State<Integer> score = new State<>(0);
 
     protected void setScene() {
-        gatherWaypoints();
 
         sides.put(1, new Side(1));
         sides.put(-1, new Side(-1));
-        for (Piece piece : pieces) {
-            sides.get(piece.color).add(piece);
-        }
+
+        square.attackers().forEach(p -> sides.get(p.color).pieces.add(p));
 
         onSquare.set(square.piece);
     }
@@ -74,18 +92,6 @@ public class Exchange implements Logged {
         log().debug("Moving " + piece + ": " + score.get());
         playing.set(-playing.get());
         score.set(-score.get());
-    }
-
-    protected void gatherWaypoints() {
-        for (Waypoint waypoint : square.waypoints) {
-            if (waypoint.isAttack()) {
-                addPiece(waypoint.piece);
-            }
-        }
-    }
-
-    protected void addPiece(Piece piece) {
-        pieces.add(piece);
     }
 
     protected class State<E> {
@@ -142,13 +148,6 @@ public class Exchange implements Logged {
         }
     }
 
-    HashMap<Piece, HashSet<Piece>> blockedBy = new HashMap<>();
-    HashMap<Piece, HashSet<Piece>> blocking = new HashMap<>();
-
-    protected HashSet<Piece> getBlocks(Piece piece) {
-        return new HashSet<>(piece.getBlocks(square));
-    }
-
     public static class Result {
         public int score;
         int lastPlayer;
@@ -202,7 +201,7 @@ public class Exchange implements Logged {
                 return getResult();
             }
 
-            // TODO account for blocks
+            // TODO try variants
             Piece piece = chooseMove();
             Exchange.this.makeTurn(piece);
 
@@ -237,41 +236,56 @@ public class Exchange implements Logged {
         }
 
         private Piece chooseMove() {
+            // TODO I should probably add batteries back, but not so stupidly
+
+            // TODO now we know that some piece is pinned
+            //  what does it mean to know it?
+            //  what effect does it give?
+            //  merely more score? it definitely helps
+            //  how can I find it out
+            //  I must have exchanges for all pieces
+            //  to check what it does to an exchange
+            //  and I don't always need to play an exchange through to find out that it does nothing
+            //  basically every piece is part of other pieces
+            //  what about cyclic dependencies?
+            //  I don't really have them as my situation is different all the time
+            //  was it right decision to do a real moves at all?
+            //  I will certainly need it in some future...
+
+            // TODO I need to know that this piece is part of another exchange
+            //  see what effect it does to this exchange
+            //  isn't it to broad?
+            //  let it be that way for a time being
+
+            // TODO now I need to know if this part is participating in another exchange
+            //  so I need to include all that pieces in my arsenal
+            //  just to be able to see what effect does it do
+
+            // TODO here I may introduce roles
+
+            // TODO how do I do it
+            //  Exchange is not yet calculated
+            //  So the first thing is to store exchanges somewhere
+            //  It must be emptied after every move (for now at least)
+            //  then I need to calculate it
+            //  I must calculate additional cost once and recalculate it on some event
+
+            // TODO so I need:
+            //  1. make Exchange recursive
+            //  2. take board score
+            //  3. cache exchange and change it only on situation is changed (it is useful not only for performance but for monitoring all that cases as well)
             return this.pieces.first();
         }
 
         private void makeTurn(Piece piece) {
+            Move move = piece.move(square);
+            move.imagine();
+            playBack(move::undo);
+
             pieces.remove(piece);
             playBack(() -> pieces.add(piece));
-            HashSet<Piece> blocked = blocking.get(piece);
-            if (blocked != null) {
-                for (Piece blockedPiece : blocked) {
-                    HashSet<Piece> blocks = blockedBy.get(blockedPiece);
-                    blocks.remove(piece);
-                    playBack(() -> blocks.add(piece));
-                    if (blocks.isEmpty()) {
-                        sides.get(blockedPiece.color).free(blockedPiece);
-                    }
-                }
-            }
         }
 
-        private void free(Piece piece) {
-            this.pieces.add(piece);
-            playBack(() -> pieces.remove(piece));
-        }
-
-        public void add(Piece piece) {
-            HashSet<Piece> blocks = getBlocks(piece);
-            if (blocks.isEmpty()) {
-                pieces.add(piece);
-            } else {
-                blockedBy.put(piece, blocks);
-                for (Piece block : blocks) {
-                    blocking.computeIfAbsent(block, b -> new HashSet<>()).add(piece);
-                }
-            }
-        }
     }
 
     public Logger log() {

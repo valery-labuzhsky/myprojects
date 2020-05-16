@@ -7,6 +7,7 @@ import board.XY;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -70,5 +71,11 @@ public class Knight extends Piece {
             xy.x *= 2;
         }
         return xy;
+    }
+
+    public static Stream<Square> getMoves(Square square) {
+        return Stream.of(2, -2).flatMap(x -> Stream.of(1, -1).flatMap(y ->
+                Stream.of(square.go(x, y), square.go(y, x)).filter(Objects::nonNull)
+        ));
     }
 }
