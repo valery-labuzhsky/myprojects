@@ -335,6 +335,14 @@ public class Board {
         color = -1;
     }
 
+    public int score(int color) {
+        return score(this.score, color);
+    }
+
+    public int score(int score, int color) {
+        return score * color * this.color;
+    }
+
     public void undo() {
         Move move = history.pop();
         try {

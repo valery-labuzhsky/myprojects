@@ -28,7 +28,7 @@ public class Solution implements Comparable<Solution>, Logged {
     }
 
     public Solution(Move move) {
-        Piece piece = move.piece();
+        Piece piece = move.piece;
         Square to = move.to;
 
         this.move = move;
@@ -76,9 +76,9 @@ public class Solution implements Comparable<Solution>, Logged {
 
         for (Piece p : affected) {
             if (p.color == move.color()) {
-                defence -= move.getScore(p);
+                defence -= p.getScore();
             } else {
-                attack -= move.getScore(p);
+                attack -= -p.getScore();
             }
         }
 
@@ -88,9 +88,9 @@ public class Solution implements Comparable<Solution>, Logged {
         this.defence += piece.getScore();
         for (Piece p : affected) {
             if (p.color == move.color()) {
-                defence += move.getScore(p);
+                defence += p.getScore();
             } else {
-                attack += move.getScore(p);
+                attack += -p.getScore();
             }
         }
 

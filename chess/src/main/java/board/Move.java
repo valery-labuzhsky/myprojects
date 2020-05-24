@@ -18,6 +18,7 @@ public class Move implements Logged {
     public Piece capture;
 
     public final String note;
+    public final Piece piece;
 
     public Move(Square from, Square to) {
         this(from, to, null, null);
@@ -32,10 +33,7 @@ public class Move implements Logged {
         this.to = to;
         this.promotion = promotion;
         this.note = note;
-    }
-
-    public int getScore(Piece piece) {
-        return piece.getScore() * piece.color * color();
+        this.piece = this.from.piece;
     }
 
     public void undo() {
@@ -47,11 +45,7 @@ public class Move implements Logged {
     }
 
     public int color() {
-        return piece().color;
-    }
-
-    public Piece piece() {
-        return this.from.piece;
+        return piece.color;
     }
 
     @Override
