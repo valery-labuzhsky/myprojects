@@ -35,6 +35,35 @@
         <group id="StreamlineRefactor" text="Stream_line Refactor">
             <add-to-group group-id="MainMenu" relative-to-action="RefactoringMenu" anchor="after"/>
             <action id="streamline.plugin.SLInlineAction" class="streamline.plugin.SLInlineAction" text="_Inline"/>
+            <group id="CopyIntroduceActionsGroup" popup="true" text="E_xtract">
+                <action id="CopyIntroduceVariable" text="_Variable..."
+                        class="com.intellij.refactoring.actions.IntroduceVariableAction"/>
+                <action id="CopyIntroduceConstant" text="_Constant..."
+                        class="com.intellij.refactoring.actions.IntroduceConstantAction"/>
+                <action id="CopyIntroduceField" text="_Field..."
+                        class="com.intellij.refactoring.actions.IntroduceFieldAction"/>
+                <action id="CopyIntroduceParameter" text="_Parameter..."
+                        class="com.intellij.refactoring.actions.IntroduceParameterAction"/>
+                <separator/>
+                <action id="CopyIntroduceFunctionalParameter" text="Functiona_l Parameter..."
+                        class="com.intellij.refactoring.actions.IntroduceFunctionalParameterAction"/>
+                <action id="CopyIntroduceParameterObject" text="Functional V_ariable..."
+                        class="com.intellij.refactoring.actions.IntroduceFunctionalVariableAction"/>
+                <separator/>
+                <action id="CopyExtractMethod" text="_Method..."
+                        class="com.intellij.refactoring.actions.ExtractMethodAction"/>
+                <separator/>
+                <action id="CopyExtractClass" text="_Delegate..."
+                        class="com.intellij.refactoring.actions.ExtractClassAction"/>
+                <action id="CopyExtractInclude" text="_Include File..."
+                        class="com.intellij.refactoring.actions.ExtractIncludeAction"/>
+                <action id="CopyExtractInterface" text="_Interface..."
+                        class="com.intellij.refactoring.actions.ExtractInterfaceAction"/>
+                <action id="CopyExtractSuperclass" text="S_uperclass..."
+                        class="com.intellij.refactoring.actions.ExtractSuperclassAction"/>
+                <action id="CopyExtractModule" text="_Module..."
+                        class="com.intellij.refactoring.actions.ExtractModuleAction"/>
+            </group>
         </group>
         <action id="streamline.plugin.RefactorAction" class="com.intellij.openapi.actionSystem.EmptyAction" text="Refactor">
             <keyboard-shortcut first-keystroke="ENTER" keymap="$default"/>

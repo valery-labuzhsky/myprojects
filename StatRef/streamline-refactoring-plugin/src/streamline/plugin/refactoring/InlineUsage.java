@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class InlineUsage extends Refactoring {
+    // TODO I can do immediate benefit of my plugin by assigning letters to idea refactoring menu
+
     // TODO Make selecting inline assignment as well as inline variable comfortable
+    //  1. select all with Alt+A
 
     private final IVariable usage;
     private final IInitializer value;
