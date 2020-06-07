@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public class Bishop extends Piece {
+public class Bishop extends RayPiece {
     public Bishop(Board board, int color) {
         super(PieceType.Bishop, board, color);
     }
@@ -31,9 +31,15 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square square) {
-        return getPotentialAttacks(square,
+    public Stream<Square> getPotentialAttacks(Square to) {
+        return getPotentialAttacks(to,
                 XY.Transform.DIAGONAL);
     }
 
+    @Override
+    public Stream<Stream<Square>> rays() {
+        return Stream.concat(
+                Stream.of(1, -1).map(f -> square.ray(f, f)),
+                Stream.of(1, -1).map(r -> square.ray(r, -r)));
+    }
 }

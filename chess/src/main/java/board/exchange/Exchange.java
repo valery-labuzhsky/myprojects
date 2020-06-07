@@ -39,6 +39,18 @@ public class Exchange implements Logged {
     public Result getResult() {
         setScene();
         sides.get(color).play();
+
+        // TODO now I need to calculate each piece move cost
+        //  actually, I should count for this square count
+        //  the score of this square implies that the move was actually done
+        //  I must calculate the score of all the others exchanges except this very exchange
+        //  how to use this score?
+        //  after the move of my piece I should do all the other moves
+        //  let's do it simple:
+        //  each piece has a score
+        //  I add this score to the resulting score
+        //  impreciseness is a good thing
+        //  it differentiate main law against additional ones
         Result result = square.getExchangeResult(color);
         log().debug("Result: " + result);
         return result;
@@ -140,11 +152,6 @@ public class Exchange implements Logged {
             return this.pieces.first();
         }
 
-        private void makeTurn(Piece piece) {
-            piece.move(square).imagine();
-            pieces.remove(piece);
-        }
-
         private Result play() {
             int lastScore = getScore(color);
 
@@ -159,7 +166,8 @@ public class Exchange implements Logged {
             } else {
                 // TODO try variants
                 Piece piece = chooseMove();
-                makeTurn(piece);
+                piece.move(square).imagine();
+                pieces.remove(piece);
 
                 log().debug("Moving " + piece + ": " + getScore(color));
 
@@ -171,7 +179,8 @@ public class Exchange implements Logged {
                 pieces.add(piece);
                 board().undo();
 
-                if (board().score(result.score, color) <= lastScore) {
+                board();
+                if (result.score * color <= lastScore) {
                     result = getResult();
                 }
             }

@@ -8,7 +8,6 @@ import board.pieces.Piece;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -20,83 +19,80 @@ public class Solution implements Comparable<Solution>, Logged {
     public static final Comparator<Solution> COMPARATOR = Comparator.<Solution>comparingInt(s -> s.defence).thenComparingInt(s -> s.attack);
 
     public final Move move;
-    public int defence;
-    private int attack;
+    public final int defence;
+    private final int attack;
 
     public Solution(Waypoint way) {
         this(way.move());
     }
 
     public Solution(Move move) {
-        Piece piece = move.piece;
-        Square to = move.to;
-
         this.move = move;
 
-        HashSet<Piece> affected = new HashSet<>();
-        for (Waypoint attack : piece.waypoints) { // whom I attack or guard
-            if (attack.square.piece != null) {
-                affected.add(attack.square.piece);
-            }
-        }
+        SolutionWatcher watcher = new SolutionWatcher(move);
+        watcher.calculate();
 
-        for (Waypoint block : piece.square.waypoints) { // whom I block
-            Piece blocked = block.getNearestPiece();
-            if (blocked != null) {
-                affected.add(blocked);
-            }
-        }
-
-        piece.trace(to, s -> { // whom I will attack or guard
-            Piece p = s.piece;
-            if (p != null && p != piece) {
-                affected.add(p);
-                return false;
-            }
-            return true;
-        });
-
-        for (Waypoint block : to.waypoints) { // whom I will block
-            Piece blocked = block.getNearestPiece();
-            if (blocked != null && blocked != piece) {
-                affected.add(blocked);
-            }
-        }
-
-        if (to.piece != null) {
-            for (Waypoint waypoint : to.piece.waypoints) { // whom he attack or guard
-                if (waypoint.square.piece != null && waypoint.attacks()) {
-                    affected.add(waypoint.square.piece);
-                }
-            }
-        }
-
-        this.defence -= move.from.board.score;
-        this.defence -= piece.getScore();
-
-        for (Piece p : affected) {
-            if (p.color == move.color()) {
-                defence -= p.getScore();
-            } else {
-                attack -= -p.getScore();
-            }
-        }
-
-        move.imagine();
-
-        this.defence += move.from.board.score;
-        this.defence += piece.getScore();
-        for (Piece p : affected) {
-            if (p.color == move.color()) {
-                defence += p.getScore();
-            } else {
-                attack += -p.getScore();
-            }
-        }
-
-        move.undo();
+        defence = watcher.defence.score;
+        attack = watcher.attack.score;
 
         log().debug("Defence: " + defence + ", attack: " + attack);
+    }
+
+    public static class SolutionWatcher extends MoveWatcher {
+        final ScoreWatcher defence = new ScoreWatcher();
+        final ScoreWatcher attack = new ScoreWatcher();
+
+        public SolutionWatcher(Move move) {
+            super(move);
+        }
+
+        @Override
+        public void collectBefore() {
+            Piece piece = move.piece;
+            defence.collect(piece.board);
+            defence.collect(piece);
+            collect(piece.whomAttack()); // whom I attack
+            collect(piece.whomBlock()); // whom I block
+
+            // TODO I don't need this for exchange
+            Square to = move.to;
+            if (to.piece != null) {
+                exclude(to.piece);
+                collect(to.piece.whomAttack()); // whom he attack or guard
+            }
+        }
+
+        @Override
+        public void collectAfter() {
+            Piece piece = move.piece;
+            collect(piece.whomAttack()); // whom I will attack
+            collect(piece.whomBlock()); // whom I will block
+        }
+
+        @Override
+        public void calculateBefore() {
+            this.defence.before();
+            this.attack.before();
+        }
+
+        @Override
+        public void calculateAfter() {
+            this.defence.after();
+            this.attack.after();
+        }
+
+        public void exclude(Piece piece) {
+            attack.exclude(piece);
+        }
+
+        @Override
+        public void collect(Piece piece) {
+            if (color == piece.color) {
+                defence.collect(piece);
+            } else {
+                attack.collect(piece);
+            }
+        }
     }
 
     public String toString() {

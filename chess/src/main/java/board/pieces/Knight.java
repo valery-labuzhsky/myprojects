@@ -15,7 +15,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public class Knight extends Piece {
+public class Knight extends OneStepPiece {
     public Knight(Board board, int color) {
         super(PieceType.Knight, board, color);
     }
@@ -43,9 +43,9 @@ public class Knight extends Piece {
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square square) {
-        XY file = split(this.square.pair.file - square.pair.file);
-        XY rank = split(this.square.pair.rank - square.pair.rank);
+    public Stream<Square> getPotentialAttacks(Square to) {
+        XY file = split(this.square.pair.file - to.pair.file);
+        XY rank = split(this.square.pair.rank - to.pair.rank);
 
         normalize(file, rank);
         normalize(rank, file);
@@ -77,5 +77,10 @@ public class Knight extends Piece {
         return Stream.of(2, -2).flatMap(x -> Stream.of(1, -1).flatMap(y ->
                 Stream.of(square.go(x, y), square.go(y, x)).filter(Objects::nonNull)
         ));
+    }
+
+    @Override
+    public Stream<Square> moves() {
+        return getMoves(square);
     }
 }

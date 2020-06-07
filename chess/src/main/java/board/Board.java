@@ -2,6 +2,7 @@ package board;
 
 import board.pieces.Piece;
 import board.pieces.PieceType;
+import board.pieces.ScoreProvider;
 import board.situation.Situations;
 import board.situation.Solution;
 
@@ -12,7 +13,7 @@ import java.util.*;
  *
  * @author ptasha
  */
-public class Board {
+public class Board implements ScoreProvider {
     private Square[][] squares;
     public final HashMap<Integer, ArrayList<Piece>> pieces = new HashMap<>();
     public int color;
@@ -335,12 +336,13 @@ public class Board {
         color = -1;
     }
 
-    public int score(int color) {
-        return score(this.score, color);
+    @Override
+    public int getScore() {
+        return score;
     }
 
-    public int score(int score, int color) {
-        return score * color * this.color;
+    public int score(int color) {
+        return this.score * color;
     }
 
     public void undo() {
@@ -363,5 +365,4 @@ public class Board {
             e.printStackTrace();
         }
     }
-
 }

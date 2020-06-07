@@ -29,6 +29,10 @@ public class Square implements Logged {
         this.pair = pair;
     }
 
+    public Piece findPieceOnRay(int file, int rank) {
+        return ray(file, rank).map(s -> s.piece).filter(Objects::nonNull).findFirst().orElse(null);
+    }
+
     public Stream<Square> ray(int file, int rank) {
         return Stream.iterate(go(file, rank), Objects::nonNull, s -> s.go(file, rank));
     }
@@ -124,7 +128,7 @@ public class Square implements Logged {
     }
 
     public int getScore(int color) {
-        return board.score(scores.getResult(color).score, color);
+        return (scores.getResult(color).score - board.score) * color;
     }
 
     public Exchange.Result getExchangeResult(int color) {

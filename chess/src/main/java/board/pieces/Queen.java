@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public class Queen extends Piece {
+public class Queen extends RayPiece {
     public Queen(Board board, int color) {
         super(PieceType.Queen, board, color);
     }
@@ -37,8 +37,8 @@ public class Queen extends Piece {
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square square) {
-        return getPotentialAttacks(square,
+    public Stream<Square> getPotentialAttacks(Square to) {
+        return getPotentialAttacks(to,
                 XY.Transform.LINEAR,
                 XY.Transform.DIAGONAL,
                 XY.Transform.ALMOND_X_PLUS,
@@ -54,4 +54,8 @@ public class Queen extends Piece {
                         map(r -> square.ray(f, r)));
     }
 
+    @Override
+    public Stream<Stream<Square>> rays() {
+        return getRays(square);
+    }
 }

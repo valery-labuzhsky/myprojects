@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public class Rook extends Piece {
+public class Rook extends RayPiece {
     public boolean moved = false;
 
     public Rook(Board board, int color) {
@@ -40,7 +40,14 @@ public class Rook extends Piece {
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square square) {
-        return getPotentialAttacks(square, XY.Transform.LINEAR);
+    public Stream<Square> getPotentialAttacks(Square to) {
+        return getPotentialAttacks(to, XY.Transform.LINEAR);
+    }
+
+    @Override
+    public Stream<Stream<Square>> rays() {
+        return Stream.concat(
+                Stream.of(1, -1).map(f -> square.ray(f, 0)),
+                Stream.of(1, -1).map(r -> square.ray(0, r)));
     }
 }

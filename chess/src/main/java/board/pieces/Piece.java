@@ -3,11 +3,9 @@ package board.pieces;
 import board.*;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -15,7 +13,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public abstract class Piece implements Logged {
+public abstract class Piece implements Logged, ScoreProvider {
     public final Board board;
     public final int color;
     public final PieceType type;
@@ -132,18 +130,49 @@ public abstract class Piece implements Logged {
         return new Blocks(() -> from.ray(to));
     }
 
-    public abstract Stream<Square> getPotentialAttacks(Square square);
+    public abstract Stream<Square> getPotentialAttacks(Square to);
 
-    public Stream<Square> getAttacks(Square square) {
-        return getPotentialAttacks(square).
-                filter(s -> moves(s)).
-                filter(s -> attacks(s, square));
+    public Stream<Square> getAttacks(Square to) {
+        return getPotentialAttacks(to).
+                filter(this::moves).
+                filter(s -> attacks(s, to));
     }
 
-    public Stream<Square> ray(Square from) {
-        return from.ray(this.square);
+    public abstract Stream<Piece> whomAttack();
+
+    public Stream<Piece> whomBlock() {
+        Stream.Builder<Piece> stream = Stream.builder();
+
+        whomBlock(stream, Piece::isRookOrQueen, 1, 0);
+        whomBlock(stream, Piece::isRookOrQueen, 0, 1);
+        whomBlock(stream, Piece::isBishopOrQueen, 1, 1);
+        whomBlock(stream, Piece::isBishopOrQueen, -1, 1);
+
+        return stream.build();
     }
 
+    private void whomBlock(Stream.Builder<Piece> stream, Predicate<Piece> attack, int file, int rank) {
+        Piece p1 = square.findPieceOnRay(file, rank);
+        Piece p2 = square.findPieceOnRay(-file, -rank);
+        if (p1 != null && p2 != null) {
+            if (attack.test(p1)) {
+                stream.add(p2);
+            }
+            if (attack.test(p2)) {
+                stream.add(p1);
+            }
+        }
+    }
+
+    private boolean isRookOrQueen() {
+        return type == PieceType.Rook || type == PieceType.Queen;
+    }
+
+    private boolean isBishopOrQueen() {
+        return type == PieceType.Bishop || type == PieceType.Queen;
+    }
+
+    @Override
     public int getScore() {
         return -square.getScore(-color);
     }
@@ -185,7 +214,7 @@ public abstract class Piece implements Logged {
                     t.transform(to);
                     from.swap(to);
                     if (t.back(from) && t.back(to)) {
-                        return Stream.of(board.getSquare(from.x, from.y), board.getSquare(to.x, to.y)).filter(s -> s != null);
+                        return Stream.of(board.getSquare(from.x, from.y), board.getSquare(to.x, to.y)).filter(Objects::nonNull);
                     }
                     return Stream.empty();
                 });

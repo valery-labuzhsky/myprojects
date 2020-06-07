@@ -9,7 +9,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public class Pawn extends Piece {
+public class Pawn extends OneStepPiece {
     public Pawn(Board board, int color) {
         super(PieceType.Pawn, board, color);
     }
@@ -96,5 +96,23 @@ public class Pawn extends Piece {
                 }
         }
         return Stream.empty();
+    }
+
+    @Override
+    public Stream<Square> moves() {
+        return Stream.concat(attacks(), goes());
+    }
+
+    @Override
+    public Stream<Square> attacks() {
+        return Stream.of(-1, 1).map(f -> square.go(f, color));
+    }
+
+    public Stream<Square> goes() {
+        Stream<Square> go = Stream.of(square.go(0, color));
+        if (border() + color == square.pair.rank) {
+            return Stream.concat(go, Stream.of(square.go(0, 2 * color)));
+        }
+        return go;
     }
 }

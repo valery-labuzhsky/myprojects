@@ -11,7 +11,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public class King extends Piece {
+public class King extends OneStepPiece {
     public boolean moved = false;
 
     public King(Board board, int color) {
@@ -148,5 +148,13 @@ public class King extends Piece {
         }
         // TODO castling
         return builder.build();
+    }
+
+    @Override
+    public Stream<Square> moves() {
+        return Stream.of(1, 0, -1).
+                flatMap(f -> Stream.of(1, 0, -1).
+                        filter(r -> f == 0 && r == 0).
+                        map(r -> square.go(f, r)));
     }
 }
