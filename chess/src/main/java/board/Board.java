@@ -103,57 +103,6 @@ public class Board implements ScoreProvider {
         return new PieceBuilder(this, -1);
     }
 
-    public void move(Move move) throws IllegalMoveException {
-        Square from = move.from;
-        Piece piece = from.piece;
-        if (piece == null) {
-            throw new IllegalMoveException("no piece on " + move.from);
-        }
-
-        Square dest = move.to;
-        Waypoint waypoint = dest.waypoints.stream().
-                filter(w -> w.piece == piece).
-                findFirst().orElse(null);
-        if (waypoint == null || !waypoint.moves()) {
-            throw new IllegalMoveException();
-        }
-
-        if (dest.piece != null) {
-            move.capture = dest.piece;
-            dest.piece.remove();
-        }
-
-        piece.makeMove(move.to);
-        history.push(move, true);
-
-        for (Piece king : pieces.get(piece.color)) {
-            if (king.type == PieceType.King) {
-                if (king.isInDanger()) {
-                    undo();
-                    throw new IllegalMoveException("check");
-                }
-                break;
-            }
-        }
-
-        System.out.println(this);
-    }
-
-    public void imagine(Move move) {
-        Square from = move.from;
-        Piece piece = from.piece;
-
-        Square dest = move.to;
-
-        if (dest.piece != null) {
-            move.capture = dest.piece;
-            dest.piece.remove();
-        }
-
-        piece.makeMove(move.to);
-        history.push(move, false);
-    }
-
     private Move parse(String move) {
         PieceType promotion = null;
         switch (move.length()) {
@@ -178,7 +127,7 @@ public class Board implements ScoreProvider {
         if (move == null) {
             return false;
         }
-        move(move);
+        move.move();
         return true;
     }
 
@@ -248,7 +197,7 @@ public class Board implements ScoreProvider {
             move = moves.get(random.nextInt(moves.size())).move;
         }
         try {
-            move(move);
+            move.move();
             if (score * color < 0) {
                 undo();
                 return "resign";
@@ -346,23 +295,6 @@ public class Board implements ScoreProvider {
     }
 
     public void undo() {
-        Move move = history.pop();
-        try {
-            // TODO undo promotion
-            Square from = move.to;
-            if (from.piece == null) {
-                throw new IllegalMoveException("no piece on " + move.to);
-            }
-            from.piece.makeMove(move.from);
-
-            Piece piece = move.capture;
-            if (piece != null) {
-                piece.add(from);
-            }
-
-            System.out.println(this);
-        } catch (IllegalMoveException e) {
-            e.printStackTrace();
-        }
+        history.getLastMove().undo();
     }
 }

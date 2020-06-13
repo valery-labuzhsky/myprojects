@@ -12,11 +12,11 @@ public class History {
         game = new Game(null, null, true);
     }
 
-    public void push(Move move, boolean permanent) {
+    public void push(Action move, boolean permanent) {
         game = new Game(game, move, permanent);
     }
 
-    public Move pop() {
+    public Action pop() {
         try {
             return game.last;
         } finally {
@@ -24,7 +24,7 @@ public class History {
         }
     }
 
-    public Move getLastMove() {
+    public Action getLastMove() {
         return game.last;
     }
 }

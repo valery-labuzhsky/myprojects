@@ -5,6 +5,7 @@ import board.Move;
 import board.Square;
 import board.Waypoint;
 import board.pieces.Piece;
+import board.pieces.ScoreProvider;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Comparator;
@@ -38,12 +39,15 @@ public class Solution implements Comparable<Solution>, Logged {
         log().debug("Defence: " + defence + ", attack: " + attack);
     }
 
-    public static class SolutionWatcher extends MoveWatcher {
+    public static class SolutionWatcher extends MoveWatcher<Move> {
         final ScoreWatcher defence = new ScoreWatcher();
         final ScoreWatcher attack = new ScoreWatcher();
+        final int color;
 
         public SolutionWatcher(Move move) {
             super(move);
+            Piece piece = move.piece;
+            this.color = piece.color;
         }
 
         @Override
@@ -86,7 +90,7 @@ public class Solution implements Comparable<Solution>, Logged {
         }
 
         @Override
-        public void collect(Piece piece) {
+        public void collect(ScoreProvider piece) {
             if (color == piece.color) {
                 defence.collect(piece);
             } else {

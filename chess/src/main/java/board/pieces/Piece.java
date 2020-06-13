@@ -4,7 +4,6 @@ import board.*;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -49,7 +48,7 @@ public abstract class Piece implements Logged, ScoreProvider {
     }
 
     public void add(Square square) {
-        board.score += this.color * this.type.score;
+        board.score += cost();
         board.pieces.get(color).add(this);
         put(square);
     }
@@ -58,19 +57,10 @@ public abstract class Piece implements Logged, ScoreProvider {
         this.square.piece = null;
         board.pieces.get(color).remove(this);
         marksOff();
-        board.score -= color * type.score;
+        board.score -= cost();
     }
 
     public abstract void trace(MovesTracer tracer);
-
-    public void trace(Square start, Function<Square, Boolean> listener) {
-        trace(new MovesTracer(board, start) {
-            @Override
-            protected boolean step() {
-                return listener.apply(now);
-            }
-        });
-    }
 
     private void marksOff() {
         while (!waypoints.isEmpty()) {
@@ -174,7 +164,11 @@ public abstract class Piece implements Logged, ScoreProvider {
 
     @Override
     public int getScore() {
-        return -square.getScore(-color);
+        return square.getScore(-color);
+    }
+
+    public int cost() {
+        return type.score * color;
     }
 
     @Override

@@ -77,13 +77,16 @@ public class Square implements Logged {
 
     private char lastMove() {
         char s;
-        Move lastMove = board.history.getLastMove();
-        if (lastMove == null) {
-            s = ' ';
-        } else if (lastMove.from.equals(this)) {
-            s = '-';
-        } else if (lastMove.to.equals(this)) {
-            s = '+';
+        Action lastMove = board.history.getLastMove();
+        if (lastMove instanceof Move) {
+            Move move = (Move) lastMove;
+            if (move.from.equals(this)) {
+                s = '-';
+            } else if (move.to.equals(this)) {
+                s = '+';
+            } else {
+                s = ' ';
+            }
         } else {
             s = ' ';
         }

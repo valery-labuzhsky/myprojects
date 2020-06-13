@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author ptasha
  */
-public class Move implements Logged {
+public class Move extends Action implements Logged {
     public final Square from;
     public final Square to;
     public final PieceType promotion;
@@ -36,12 +36,76 @@ public class Move implements Logged {
         this.piece = this.from.piece;
     }
 
-    public void undo() {
-        this.from.board.undo();
+    @Override
+    protected Board board() {
+        return this.from.board;
     }
 
-    public void imagine() {
-        this.from.board.imagine(this);
+    public void move() throws IllegalMoveException {
+        legalCheck();
+        makeMove();
+        board().history.push(this, true);
+        afterCheck();
+    }
+
+    protected void afterCheck() throws IllegalMoveException {
+        Board board = board();
+        for (Piece king : board.pieces.get(from.piece.color)) {
+            if (king.type == PieceType.King) {
+                if (king.isInDanger()) {
+                    board.undo();
+                    throw new IllegalMoveException("check");
+                }
+                break;
+            }
+        }
+
+        System.out.println(board);
+    }
+
+    protected void legalCheck() throws IllegalMoveException {
+        Piece piece = from.piece;
+        if (piece == null) {
+            throw new IllegalMoveException("no piece on " + this.from);
+        }
+
+        Waypoint waypoint = this.to.waypoints.stream().
+                filter(w -> w.piece == piece).
+                findFirst().orElse(null);
+        if (waypoint == null || !waypoint.moves()) {
+            throw new IllegalMoveException();
+        }
+    }
+
+    @Override
+    public void undoMove() {
+        try {
+            // TODO undo promotion
+            Square from = this.to;
+            if (from.piece == null) {
+                throw new IllegalMoveException("no piece on " + this.to);
+            }
+            from.piece.makeMove(this.from);
+
+            Piece piece = this.capture;
+            if (piece != null) {
+                piece.add(from);
+            }
+
+            System.out.println(board());
+        } catch (IllegalMoveException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void makeMove() {
+        if (to.piece != null) {
+            capture = to.piece;
+            to.piece.remove();
+        }
+
+        from.piece.makeMove(to);
     }
 
     public int color() {
@@ -76,4 +140,5 @@ public class Move implements Logged {
     public int hashCode() {
         return Objects.hash(from, to, promotion);
     }
+
 }

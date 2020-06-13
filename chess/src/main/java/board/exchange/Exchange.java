@@ -1,6 +1,5 @@
 package board.exchange;
 
-import board.Board;
 import board.Logged;
 import board.Square;
 import board.pieces.Piece;
@@ -17,11 +16,14 @@ import java.util.TreeSet;
  * @author ptasha
  */
 public class Exchange implements Logged {
+    // TODO I can move back and simplify score calculation, it shouldn't be very complicated,
+    //  and even if it get I need doing it in a smart way not just playing with variants
     protected LinkedList<Piece> pieces = new LinkedList<>();
 
     protected final Square square;
-    private final HashMap<Integer, Side> sides = new HashMap<>();
+    protected final HashMap<Integer, Side> sides = new HashMap<>();
     private final int color;
+    private int score;
 
     public Exchange(Square square, int color) {
         this.square = square;
@@ -29,35 +31,40 @@ public class Exchange implements Logged {
     }
 
     protected void setScene() {
-
         sides.put(1, new Side(1));
         sides.put(-1, new Side(-1));
 
         square.attackers().forEach(p -> sides.get(p.color).pieces.add(p));
+
+        score = square.board.score;
     }
 
     public Result getResult() {
         setScene();
-        sides.get(color).play();
+        Result result = sides.get(color).play();
+//        square.scores.saveResult(color, result);
 
-        // TODO now I need to calculate each piece move cost
-        //  actually, I should count for this square count
-        //  the score of this square implies that the move was actually done
-        //  I must calculate the score of all the others exchanges except this very exchange
-        //  how to use this score?
-        //  after the move of my piece I should do all the other moves
-        //  let's do it simple:
-        //  each piece has a score
-        //  I add this score to the resulting score
-        //  impreciseness is a good thing
-        //  it differentiate main law against additional ones
-        Result result = square.getExchangeResult(color);
+        // TODO how do I do it?
+        //  I assign a score to each piece and do the calculations once again
+        //  artificially counting for this score
+
+        // TODO now I need to calc score with disappeared piece, but without recursion
+        //  so I do need different exchanges after all
+        //  one is the simple one, and another is a complex one
+        //  but I don't need to store anything until a true result is there, or?
+        //  let's just not do anything until it harms or benefits
+
+        // TODO but what to do next?
+        //  this is simple exchange, I need a complex one
+        //  it will be child of this exchange
         log().debug("Result: " + result);
         return result;
     }
 
-    public int getScore(int color) {
-        return board().score(color);
+    private int getScore(int color) {
+        // TODO I need to provide my own score
+        //  let's calculate score of my own
+        return score * color;
     }
 
     public static class Result {
@@ -89,18 +96,41 @@ public class Exchange implements Logged {
     }
 
 
-    private class Side {
+    protected class Side {
         final int color;
-        TreeSet<Piece> pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> p.type.score).thenComparingInt(Object::hashCode));
+        // TODO change it with something with additional score
+        //  actually I need a score of being there
+        //  I don't need any moves
+        //  it will be better if I just make my piece disappear
+        //  so I need a special move
+        //  not to/from one but one removing a piece
+        //  I need calculating cost of a removing piece from every exchange except this one
+        //  so I need to calculate cost of removing piece from exchange rather then defence score
+        //  for that I need to add more pieces to original?
+        //  can I use same very exchange to calculate it?
+        //  just create an exchange and get participation score
+        //  for that I'll need to modify an exchange
+
+        // TODO I need calculate score of exchange without any given piece
+        //  how?
+        //  let's extend it and implement logic of skipping a piece
+        //  I'll later see what it leads to
+
+        // TODO actually, the simplest way is to make a piece disappear
+        //  what difference does it make?
+
+        // TODO I also need an overriden score here
+        TreeSet<Piece> pieces;
 
         Integer bestScore;
 
         public Side(int color) {
             this.color = color;
+            this.pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> cost(p) * color).thenComparingInt(Object::hashCode));
         }
 
         private Result getResult() {
-            Result result = new Result(board().score, color);
+            Result result = new Result(score, color);
             storeResults(result);
             sides.get(-color).storeResults(result);
             return result;
@@ -110,6 +140,7 @@ public class Exchange implements Logged {
             result.sides.put(color, new Result.Side(pieces.size()));
         }
 
+        // TODO remove choosing move altogether?
         private Piece chooseMove() {
             // TODO I should probably add batteries back, but not so stupidly
 
@@ -137,18 +168,6 @@ public class Exchange implements Logged {
             //  just to be able to see what effect does it do
 
             // TODO here I may introduce roles
-
-            // TODO how do I do it
-            //  Exchange is not yet calculated
-            //  So the first thing is to store exchanges somewhere
-            //  It must be emptied after every move (for now at least)
-            //  then I need to calculate it
-            //  I must calculate additional cost once and recalculate it on some event
-
-            // TODO so I need:
-            //  -1. make Exchange recursive
-            //  -2. take board score
-            //  3. cache exchange and change it only on situation is changed (it is useful not only for performance but for monitoring all that cases as well)
             return this.pieces.first();
         }
 
@@ -164,10 +183,9 @@ public class Exchange implements Logged {
             if (pieces.isEmpty()) {
                 result = getResult();
             } else {
-                // TODO try variants
                 Piece piece = chooseMove();
-                piece.move(square).imagine();
                 pieces.remove(piece);
+                score -= cost(piece);
 
                 log().debug("Moving " + piece + ": " + getScore(color));
 
@@ -176,25 +194,25 @@ public class Exchange implements Logged {
                 } else {
                     result = sides.get(-color).play();
                 }
+                score += cost(piece);
                 pieces.add(piece);
-                board().undo();
 
-                board();
+                // TODO and I can just return best result as far as I don't store intermediate ones
                 if (result.score * color <= lastScore) {
                     result = getResult();
                 }
             }
 
-            square.scores.saveResult(color, result);
             return result;
         }
     }
 
-    public Board board() {
-        return square.board;
+    protected int cost(Piece piece) {
+        return piece.cost();
     }
 
     public Logger log() {
         return square.log();
     }
+
 }

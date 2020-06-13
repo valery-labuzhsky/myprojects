@@ -1,7 +1,7 @@
 package board.situation;
 
-import board.Move;
-import board.pieces.Piece;
+import board.Action;
+import board.pieces.ScoreProvider;
 
 import java.util.stream.Stream;
 
@@ -10,14 +10,11 @@ import java.util.stream.Stream;
  *
  * @author unicorn
  */
-public abstract class MoveWatcher {
-    protected final Move move;
-    protected final int color;
+public abstract class MoveWatcher<A extends Action> {
+    protected final A move;
 
-    public MoveWatcher(Move move) {
+    public MoveWatcher(A move) {
         this.move = move;
-        Piece piece = move.piece;
-        this.color = piece.color;
     }
 
     public void calculate() {
@@ -37,9 +34,9 @@ public abstract class MoveWatcher {
 
     public abstract void calculateAfter();
 
-    public void collect(Stream<Piece> stream) {
+    public void collect(Stream<? extends ScoreProvider> stream) {
         stream.forEach(this::collect);
     }
 
-    public abstract void collect(Piece piece);
+    public abstract void collect(ScoreProvider piece);
 }

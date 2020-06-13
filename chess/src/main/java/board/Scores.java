@@ -1,5 +1,6 @@
 package board;
 
+import board.exchange.ComplexExchange;
 import board.exchange.Exchange;
 
 import java.util.HashMap;
@@ -36,7 +37,7 @@ public class Scores {
         HashMap<Integer, Exchange.Result> scores = new HashMap<>();
 
         public Exchange.Result getResult(int color) {
-            return scores.computeIfAbsent(color, c -> new Exchange(square, color).getResult());
+            return scores.computeIfAbsent(color, c -> new ComplexExchange(square, color).getResult());
         }
     }
 }

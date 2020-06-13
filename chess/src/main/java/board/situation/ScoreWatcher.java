@@ -9,7 +9,7 @@ import board.pieces.ScoreProvider;
  */
 public class ScoreWatcher {
     final ScoreProviders providers = new ScoreProviders();
-    int score;
+    public int score;
 
     public ScoreWatcher() {
     }

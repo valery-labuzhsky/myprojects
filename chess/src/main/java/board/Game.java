@@ -9,12 +9,12 @@ import java.util.Objects;
  */
 public class Game {
     public final Game previous;
-    public final Move last;
+    public final Action last;
     public final boolean permanent;
 
     private final int hash;
 
-    public Game(Game previous, Move last, boolean permanent) {
+    public Game(Game previous, Action last, boolean permanent) {
         this.previous = previous;
         this.last = last;
         this.permanent = permanent;
