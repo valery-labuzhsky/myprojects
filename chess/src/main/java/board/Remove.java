@@ -1,8 +1,10 @@
 package board;
 
 import board.pieces.Piece;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Created on 11.06.2020.
@@ -28,7 +30,7 @@ public class Remove extends Action {
 
     @Override
     protected void undoMove() {
-        piece.put(piece.square);
+        piece.add(piece.square);
     }
 
     @Override
@@ -42,5 +44,10 @@ public class Remove extends Action {
     @Override
     public int hashCode() {
         return Objects.hash(piece);
+    }
+
+    @Override
+    public Logger getLogger() {
+        return Logged.log(Stream.of(piece.getLogger().getName(), "-"));
     }
 }

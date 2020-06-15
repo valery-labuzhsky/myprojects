@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author ptasha
  */
-public class Move extends Action implements Logged {
+public class Move extends Action {
     public final Square from;
     public final Square to;
     public final PieceType promotion;
@@ -50,7 +50,7 @@ public class Move extends Action implements Logged {
 
     protected void afterCheck() throws IllegalMoveException {
         Board board = board();
-        for (Piece king : board.pieces.get(from.piece.color)) {
+        for (Piece king : board.pieces.get(color())) {
             if (king.type == PieceType.King) {
                 if (king.isInDanger()) {
                     board.undo();
@@ -64,7 +64,6 @@ public class Move extends Action implements Logged {
     }
 
     protected void legalCheck() throws IllegalMoveException {
-        Piece piece = from.piece;
         if (piece == null) {
             throw new IllegalMoveException("no piece on " + this.from);
         }
@@ -91,8 +90,6 @@ public class Move extends Action implements Logged {
             if (piece != null) {
                 piece.add(from);
             }
-
-            System.out.println(board());
         } catch (IllegalMoveException e) {
             e.printStackTrace();
         }
@@ -105,7 +102,7 @@ public class Move extends Action implements Logged {
             to.piece.remove();
         }
 
-        from.piece.makeMove(to);
+        piece.makeMove(to);
     }
 
     public int color() {
@@ -118,7 +115,7 @@ public class Move extends Action implements Logged {
     }
 
     @Override
-    public Logger log() {
+    public Logger getLogger() {
         return Logged.log(from, to);
     }
 

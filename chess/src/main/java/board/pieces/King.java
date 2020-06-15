@@ -4,6 +4,7 @@ import board.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -154,7 +155,8 @@ public class King extends OneStepPiece {
     public Stream<Square> moves() {
         return Stream.of(1, 0, -1).
                 flatMap(f -> Stream.of(1, 0, -1).
-                        filter(r -> f == 0 && r == 0).
-                        map(r -> square.go(f, r)));
+                        filter(r -> f != 0 || r != 0).
+                        map(r -> square.go(f, r))).
+                filter(Objects::nonNull);
     }
 }

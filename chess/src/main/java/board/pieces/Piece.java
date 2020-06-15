@@ -176,8 +176,8 @@ public abstract class Piece implements Logged, ScoreProvider {
         return "" + type.getLetter() + square.pair;
     }
 
-    public Logger log() {
-        return square.log();
+    public Logger getLogger() {
+        return square.getLogger();
     }
 
     @Override

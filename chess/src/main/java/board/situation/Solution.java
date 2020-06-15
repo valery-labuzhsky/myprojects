@@ -91,7 +91,7 @@ public class Solution implements Comparable<Solution>, Logged {
 
         @Override
         public void collect(ScoreProvider piece) {
-            if (color == piece.color) {
+            if (color == ((Piece) piece).color) {
                 defence.collect(piece);
             } else {
                 attack.collect(piece);
@@ -126,7 +126,7 @@ public class Solution implements Comparable<Solution>, Logged {
     }
 
     @Override
-    public Logger log() {
-        return move.log();
+    public Logger getLogger() {
+        return move.getLogger();
     }
 }

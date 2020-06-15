@@ -24,23 +24,19 @@ public class ComplexExchange extends Exchange {
     }
 
     @Override
-    protected void setScene() {
-        super.setScene();
-        // TODO calculate cost for every piece
-        //  will my watcher be useful after all?
-        //  but I don't need to calculate complex score at least for now
-
-        // TODO how to calculate all the exchanges?
-        //  I need to count on the free pieces then I choose what each piece must do
-        //  I really need a case before doing anything
-        //  it must be as case specific as reasonably to do it
-
-        sides.values().stream().flatMap(s -> s.pieces.stream()).
-                forEach(p -> costs.put(p, calcCost(p)));
+    protected boolean addPiece(Piece piece) {
+        costs.put(piece, calcCost(piece));
+        return super.addPiece(piece);
     }
 
     private int calcCost(Piece piece) {
-        return piece.cost() + new RemoveWatcher(piece).score();
+        return new RemoveWatcher(piece, square).score();
+    }
+
+    @Override
+    protected void setScene() {
+        super.setScene();
+        log().debug("Costs: " + costs);
     }
 
     @Override
@@ -49,8 +45,11 @@ public class ComplexExchange extends Exchange {
     }
 
     private static class RemoveWatcher extends SimpleWatcher<Remove> {
-        public RemoveWatcher(Piece piece) {
+        private final Square exclude;
+
+        public RemoveWatcher(Piece piece, Square exclude) {
             super(new Remove(piece));
+            this.exclude = exclude;
         }
 
         @Override
@@ -61,9 +60,8 @@ public class ComplexExchange extends Exchange {
 
         public void process(Stream<Piece> pieces) {
             int color = move.piece.color;
-            collect(pieces.filter(p -> p.color == color).
+            collect(pieces.filter(p -> p.color == color).filter(p -> p.square != exclude).
                     map(p -> () -> new Exchange(p.square, -color).getResult().score));
         }
-
     }
 }

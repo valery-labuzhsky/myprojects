@@ -6,6 +6,7 @@ import board.Waypoint;
 import board.pieces.Piece;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created on 16.04.2020.
@@ -49,7 +50,8 @@ public class Situation {
             }
         }
 
-        for (Piece guard : situations.board.pieces.get(piece.color)) { // guard
+        ArrayList<Piece> pieces = new ArrayList<>(situations.board.pieces.get(piece.color)); // TODO it is changed
+        for (Piece guard : pieces) { // guard
             if (guard != piece) {
                 guard.getAttacks(piece.square).forEach(
                         s -> addSolution(guard.move(s)));
@@ -60,7 +62,8 @@ public class Situation {
             Waypoint danger = dangers.get(0);
             while (danger.prev != null) { // block
                 danger = danger.prev;
-                for (Waypoint block : danger.square.waypoints) {
+                HashSet<Waypoint> waypoints = new HashSet<>(danger.square.waypoints); // because I move
+                for (Waypoint block : waypoints) {
                     if (block.piece != piece && block.piece.color == piece.color && block.moves()) {
                         addSolution(block);
                     }
@@ -70,7 +73,8 @@ public class Situation {
     }
 
     private void solvePositive() {
-        for (Waypoint waypoint : this.square.waypoints) {
+        HashSet<Waypoint> waypoints = new HashSet<>(this.square.waypoints); // because I move
+        for (Waypoint waypoint : waypoints) {
             if (waypoint.captures()) {
                 addSolution(waypoint);
             }

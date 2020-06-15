@@ -10,7 +10,7 @@ import java.util.Objects;
  *
  * @author ptasha
  */
-public class Pair {
+public class Pair implements Logged {
     public final int file;
     public final int rank;
 
@@ -81,7 +81,8 @@ public class Pair {
         return Objects.hash(file, rank);
     }
 
-    public Logger log() {
+    @Override
+    public Logger getLogger() {
         return LogManager.getLogger("" + toString());
     }
 

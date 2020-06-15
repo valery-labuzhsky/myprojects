@@ -135,7 +135,8 @@ public class Board implements ScoreProvider {
         Situations situations = new Situations(this);
 
         for (ArrayList<Piece> pieces : pieces.values()) {
-            for (Piece piece : pieces) {
+            ArrayList<Piece> copy = new ArrayList<>(pieces); // because we are doing moves when analysing situation
+            for (Piece piece : copy) {
                 situations.lookAt(piece); // TODO separate by colors
             }
         }
@@ -162,7 +163,8 @@ public class Board implements ScoreProvider {
         if (moves.isEmpty()) {
             Solution bestSolution = null;
             HashMap<Piece, ArrayList<Solution>> allMoves = new HashMap<>();
-            for (Piece piece : pieces.get(color)) {
+            ArrayList<Piece> pieces = new ArrayList<>(this.pieces.get(color)); // because we are doing moves when analysing situation
+            for (Piece piece : pieces) {
                 for (Waypoint move : piece.getMoves()) {
                     Solution solution = new Solution(move);
                     if (move == badWaypoint) {
@@ -211,6 +213,11 @@ public class Board implements ScoreProvider {
 
     public void go() {
         this.force = false;
+        for (Square[] line : squares) {
+            for (Square square : line) {
+                square.scores.clear();
+            }
+        }
     }
 
     public void force() {

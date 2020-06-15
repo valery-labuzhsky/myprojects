@@ -141,7 +141,7 @@ public class Waypoint implements Logged {
         return piece.getBlocks(square);
     }
 
-    public Logger log() {
+    public Logger getLogger() {
         return Logged.log(piece, square);
     }
 

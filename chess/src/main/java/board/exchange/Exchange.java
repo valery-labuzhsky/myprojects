@@ -24,6 +24,8 @@ public class Exchange implements Logged {
     protected final HashMap<Integer, Side> sides = new HashMap<>();
     private final int color;
     private int score;
+    private Piece onSquare;
+
 
     public Exchange(Square square, int color) {
         this.square = square;
@@ -34,31 +36,26 @@ public class Exchange implements Logged {
         sides.put(1, new Side(1));
         sides.put(-1, new Side(-1));
 
-        square.attackers().forEach(p -> sides.get(p.color).pieces.add(p));
+        square.attackers().forEach(this::addPiece);
 
-        score = square.board.score;
+//        score = square.board.score;
+        onSquare = square.piece;
+    }
+
+    protected boolean addPiece(Piece p) {
+        return sides.get(p.color).pieces.add(p);
     }
 
     public Result getResult() {
-        setScene();
-        Result result = sides.get(color).play();
+        return stack(() -> {
+            setScene();
+            log().debug("" + onSquare + ": " + sides.get(1).pieces + " vs " + sides.get(-1).pieces);
+            Result result = sides.get(color).play();
 //        square.scores.saveResult(color, result);
 
-        // TODO how do I do it?
-        //  I assign a score to each piece and do the calculations once again
-        //  artificially counting for this score
-
-        // TODO now I need to calc score with disappeared piece, but without recursion
-        //  so I do need different exchanges after all
-        //  one is the simple one, and another is a complex one
-        //  but I don't need to store anything until a true result is there, or?
-        //  let's just not do anything until it harms or benefits
-
-        // TODO but what to do next?
-        //  this is simple exchange, I need a complex one
-        //  it will be child of this exchange
-        log().debug("Result: " + result);
-        return result;
+            log().debug("Result: " + result);
+            return result;
+        });
     }
 
     private int getScore(int color) {
@@ -123,10 +120,11 @@ public class Exchange implements Logged {
         TreeSet<Piece> pieces;
 
         Integer bestScore;
+        Result bestResult;
 
         public Side(int color) {
             this.color = color;
-            this.pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> cost(p) * color).thenComparingInt(Object::hashCode));
+            this.pieces = new TreeSet<>(Comparator.<Piece>comparingInt(p -> (cost(p) + p.cost()) * color).thenComparingInt(Object::hashCode));
         }
 
         private Result getResult() {
@@ -176,31 +174,36 @@ public class Exchange implements Logged {
 
             if (bestScore == null || bestScore < lastScore) {
                 bestScore = lastScore;
+                bestResult = getResult();
             }
 
             Result result;
 
             if (pieces.isEmpty()) {
-                result = getResult();
+//                result = getResult();
+                result = bestResult;
             } else {
                 Piece piece = chooseMove();
                 pieces.remove(piece);
-                score -= cost(piece);
+                score += cost(piece) - onSquare.cost();
+                onSquare = piece;
 
-                log().debug("Moving " + piece + ": " + getScore(color));
+                log().debug("Moving " + piece + ": " + score);
 
                 if (getScore(color) <= bestScore) {
-                    result = sides.get(-color).getResult();
+//                    result = sides.get(-color).getResult();
+                    result = bestResult;
                 } else {
                     result = sides.get(-color).play();
                 }
-                score += cost(piece);
-                pieces.add(piece);
+//                score += cost(piece);
+//                pieces.add(piece);
 
                 // TODO and I can just return best result as far as I don't store intermediate ones
-                if (result.score * color <= lastScore) {
-                    result = getResult();
-                }
+                // TODO it depends on everything put back
+//                if (result.score * color <= lastScore) {
+//                    result = getResult();
+//                }
             }
 
             return result;
@@ -208,11 +211,11 @@ public class Exchange implements Logged {
     }
 
     protected int cost(Piece piece) {
-        return piece.cost();
+        return 0;
     }
 
-    public Logger log() {
-        return square.log();
+    public Logger getLogger() {
+        return square.getLogger();
     }
 
 }

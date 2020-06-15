@@ -1,6 +1,7 @@
 package board.situation;
 
 import board.Action;
+import board.Logged;
 import board.pieces.ScoreProvider;
 
 import java.util.stream.Stream;
@@ -18,12 +19,16 @@ public abstract class MoveWatcher<A extends Action> {
     }
 
     public void calculate() {
-        collectBefore();
-        move.imagine();
-        collectAfter();
-        calculateAfter();
-        move.undo();
-        calculateBefore();
+        move.stack(() -> {
+            Logged.log("bfr").stack(this::collectBefore);
+            move.imagine();
+            Logged.log("aft").stack(() -> {
+                collectAfter();
+                calculateAfter();
+            });
+            move.undo();
+            Logged.log("bfr").stack(this::calculateBefore);
+        });
     }
 
     public abstract void collectBefore();

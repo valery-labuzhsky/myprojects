@@ -1,11 +1,13 @@
 package board;
 
+import org.apache.logging.log4j.Logger;
+
 /**
  * Created on 10.05.2020.
  *
  * @author unicorn
  */
-public class History {
+public class History implements Logged {
     public Game game;
 
     public void newGame() {
@@ -26,5 +28,10 @@ public class History {
 
     public Action getLastMove() {
         return game.last;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return game.getLogger();
     }
 }

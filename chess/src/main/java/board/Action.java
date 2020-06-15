@@ -5,7 +5,7 @@ package board;
  *
  * @author unicorn
  */
-public abstract class Action {
+public abstract class Action implements Logged {
     protected abstract Board board();
 
     public void imagine() {

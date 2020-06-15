@@ -131,15 +131,15 @@ public class Square implements Logged {
     }
 
     public int getScore(int color) {
-        return (scores.getResult(color).score - board.score) * color;
+        return scores.getResult(color).score - board.score;
     }
 
     public Exchange.Result getExchangeResult(int color) {
         return scores.getResult(color);
     }
 
-    public Logger log() {
-        return pair.log();
+    public Logger getLogger() {
+        return pair.getLogger();
     }
 
     public Square step(Pair step) {

@@ -50,7 +50,7 @@ public class Queen extends RayPiece {
     public static Stream<Stream<Square>> getRays(Square square) {
         return Stream.of(1, 0, -1).
                 flatMap(f -> Stream.of(1, 0, -1).
-                        filter(r -> f == 0 && r == 0).
+                        filter(r -> f != 0 || r != 0).
                         map(r -> square.ray(f, r)));
     }
 

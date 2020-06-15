@@ -2,6 +2,7 @@ package board.pieces;
 
 import board.*;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -105,7 +106,7 @@ public class Pawn extends OneStepPiece {
 
     @Override
     public Stream<Square> attacks() {
-        return Stream.of(-1, 1).map(f -> square.go(f, color));
+        return Stream.of(-1, 1).map(f -> square.go(f, color)).filter(Objects::nonNull);
     }
 
     public Stream<Square> goes() {
@@ -113,6 +114,6 @@ public class Pawn extends OneStepPiece {
         if (border() + color == square.pair.rank) {
             return Stream.concat(go, Stream.of(square.go(0, 2 * color)));
         }
-        return go;
+        return go.filter(Objects::nonNull);
     }
 }

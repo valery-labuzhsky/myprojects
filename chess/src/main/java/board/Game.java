@@ -1,5 +1,8 @@
 package board;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Objects;
 
 /**
@@ -7,7 +10,7 @@ import java.util.Objects;
  *
  * @author unicorn
  */
-public class Game {
+public class Game implements Logged {
     public final Game previous;
     public final Action last;
     public final boolean permanent;
@@ -47,5 +50,12 @@ public class Game {
     @Override
     public int hashCode() {
         return hash;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return permanent ?
+                LogManager.getLogger("") :
+                Logged.log(previous, last);
     }
 }

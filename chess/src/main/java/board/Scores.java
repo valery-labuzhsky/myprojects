@@ -33,6 +33,10 @@ public class Scores {
         caches.computeIfAbsent(square.board.history.game, g -> new Cache()).scores.put(color, result);
     }
 
+    public void clear() {
+        caches.clear();
+    }
+
     private class Cache {
         HashMap<Integer, Exchange.Result> scores = new HashMap<>();
 
