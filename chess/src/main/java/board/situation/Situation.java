@@ -6,7 +6,6 @@ import board.Waypoint;
 import board.pieces.Piece;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 /**
  * Created on 16.04.2020.
@@ -29,6 +28,7 @@ public class Situation {
         if (piece.color != color) { // I'm capturing
             solvePositive();
         } else { // somebody attacks me
+            // TODO to have exchange here I must store it instead of result
             this.score = piece.getScore();
             if (score < 0) {
                 solveNegative();
@@ -38,7 +38,7 @@ public class Situation {
 
     private void solveNegative() {
         Piece piece = this.square.piece;
-        for (Waypoint waypoint : piece.waypoints) { // escape
+        for (Waypoint waypoint : piece.getWaypoints()) { // escape
             if (!waypoint.square.captures(piece) && waypoint.moves()) {
                 addSolution(waypoint);
             }
@@ -62,8 +62,7 @@ public class Situation {
             Waypoint danger = dangers.get(0);
             while (danger.prev != null) { // block
                 danger = danger.prev;
-                HashSet<Waypoint> waypoints = new HashSet<>(danger.square.waypoints); // because I move
-                for (Waypoint block : waypoints) {
+                for (Waypoint block : danger.square.getWaypoints()) {
                     if (block.piece != piece && block.piece.color == piece.color && block.moves()) {
                         addSolution(block);
                     }
@@ -73,8 +72,7 @@ public class Situation {
     }
 
     private void solvePositive() {
-        HashSet<Waypoint> waypoints = new HashSet<>(this.square.waypoints); // because I move
-        for (Waypoint waypoint : waypoints) {
+        for (Waypoint waypoint : this.square.getWaypoints()) {
             if (waypoint.captures()) {
                 addSolution(waypoint);
             }
@@ -90,6 +88,7 @@ public class Situation {
     }
 
     public String toString() {
+        // TODO here to print must store not only score but exchange itself
         return "" + square + ": " + score;
     }
 }

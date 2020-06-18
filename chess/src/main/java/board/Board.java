@@ -155,7 +155,7 @@ public class Board implements ScoreProvider {
         }
 
         Waypoint badWaypoint = null;
-        Move badMove = this.parse("g2g3");
+        Move badMove = this.parse("f2e1");
         badWaypoint = badMove.to.waypoints.stream().filter(w -> w.piece.square.equals(badMove.from)).findFirst().orElse(null);
         Solution badSolution = null;
 
@@ -193,8 +193,8 @@ public class Board implements ScoreProvider {
         }
 
         Move move;
-        if (moves.contains(badSolution)) {
-            move = badSolution.move;
+        if (moves.stream().map(s -> s.move).anyMatch(m -> m.equals(badMove))) {
+            move = badMove;
         } else {
             move = moves.get(random.nextInt(moves.size())).move;
         }

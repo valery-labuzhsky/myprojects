@@ -26,6 +26,10 @@ public abstract class Piece implements Logged, ScoreProvider {
         this.type = type;
     }
 
+    public HashSet<Waypoint> getWaypoints() {
+        return new HashSet<>(this.waypoints);
+    }
+
     public Move move(Square to) {
         return new Move(this.square, to);
     }

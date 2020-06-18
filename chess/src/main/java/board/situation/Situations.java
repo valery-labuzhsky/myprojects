@@ -53,6 +53,10 @@ public class Situations {
         for (Waypoint waypoint : piece.square.waypoints) {
             if (waypoint.captures()) {
                 Situation situation = new Situation(this, piece, this.board.color);
+                // TODO next step is to work on printing
+                //  1. initial set
+                //  2. additional score
+                //  3. final result
                 log().info(situation);
                 if (piece.type == PieceType.King) {
                     check = situation;
@@ -62,7 +66,7 @@ public class Situations {
             }
         }
 
-        piece.log().info(piece.square.getExchangeResult(-piece.color));
+//        piece.log().info(piece.square.getExchangeResult(-piece.color));
 
         // TODO gather future situations per attack at least for now
         //  first I estimate worthiness

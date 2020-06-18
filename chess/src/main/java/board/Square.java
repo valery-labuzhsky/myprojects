@@ -29,6 +29,10 @@ public class Square implements Logged {
         this.pair = pair;
     }
 
+    public HashSet<Waypoint> getWaypoints() { // TODO because I move
+        return new HashSet<>(this.waypoints);
+    }
+
     public Piece findPieceOnRay(int file, int rank) {
         return ray(file, rank).map(s -> s.piece).filter(Objects::nonNull).findFirst().orElse(null);
     }

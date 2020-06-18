@@ -4,7 +4,6 @@ import board.Remove;
 import board.Square;
 import board.pieces.Piece;
 
-import java.util.HashMap;
 import java.util.stream.Stream;
 
 /**
@@ -16,7 +15,6 @@ public class ComplexExchange extends Exchange {
     // TODO I need to cache exchanges themselves
     //  I'll need not separate exchange into simple and complex, but analyse complex situation
     //  in the future...
-    private final HashMap<Piece, Integer> costs = new HashMap<>();
 
     // TODO here I need check score of removed pieces and calculate score with it
     public ComplexExchange(Square square, int color) {
@@ -24,24 +22,11 @@ public class ComplexExchange extends Exchange {
     }
 
     @Override
-    protected boolean addPiece(Piece piece) {
-        costs.put(piece, calcCost(piece));
-        return super.addPiece(piece);
-    }
-
-    private int calcCost(Piece piece) {
-        return new RemoveWatcher(piece, square).score();
-    }
-
-    @Override
     protected void setScene() {
         super.setScene();
-        log().debug("Costs: " + costs);
-    }
-
-    @Override
-    protected int cost(Piece piece) {
-        return costs.get(piece);
+        sides.values().forEach(s -> s.pieces.forEach(
+                p -> costs.put(p, new RemoveWatcher(p, square).score())));
+        sort();
     }
 
     private static class RemoveWatcher extends SimpleWatcher<Remove> {
