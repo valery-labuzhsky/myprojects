@@ -3,6 +3,7 @@ package board.situation;
 import board.Move;
 import board.Square;
 import board.Waypoint;
+import board.exchange.Exchange;
 import board.pieces.Piece;
 
 import java.util.ArrayList;
@@ -15,11 +16,14 @@ import java.util.ArrayList;
 public class Situation {
     private final Situations situations;
     Square square;
-    int score;
+    private final int color;
+    private final Exchange exchange;
 
     public Situation(Situations situations, Piece piece, int color) {
         this.situations = situations;
         this.square = piece.square; // TODO should I use piece instead?
+        this.color = color;
+        exchange = square.scores.getExchange(-color);
         solve(color);
     }
 
@@ -28,9 +32,7 @@ public class Situation {
         if (piece.color != color) { // I'm capturing
             solvePositive();
         } else { // somebody attacks me
-            // TODO to have exchange here I must store it instead of result
-            this.score = piece.getScore();
-            if (score < 0) {
+            if (score() < 0) {
                 solveNegative();
             }
         }
@@ -87,8 +89,16 @@ public class Situation {
         situations.addSolution(move);
     }
 
+    public int score() {
+        if (square.piece.color == color) {
+            return exchange.result.score;
+        } else {
+            return 0;
+        }
+    }
+
     public String toString() {
         // TODO here to print must store not only score but exchange itself
-        return "" + square + ": " + score;
+        return "" + square + ": " + exchange;
     }
 }

@@ -21,16 +21,16 @@ public class Scores {
     }
 
     public Exchange.Result getResult(int color) {
+        return getExchange(color).result;
+    }
+
+    public Exchange getExchange(int color) {
         Game current = square.board.history.game;
         if (current.permanent && !current.equals(permanent)) {
             caches.keySet().removeIf(cached -> !cached.related(current));
             permanent = current;
         }
-        return caches.computeIfAbsent(current, g -> new Cache()).getResult(color);
-    }
-
-    public void saveResult(int color, Exchange.Result result) {
-        caches.computeIfAbsent(square.board.history.game, g -> new Cache()).scores.put(color, result);
+        return caches.computeIfAbsent(current, g -> new Cache()).getExchange(color);
     }
 
     public void clear() {
@@ -38,10 +38,10 @@ public class Scores {
     }
 
     private class Cache {
-        HashMap<Integer, Exchange.Result> scores = new HashMap<>();
+        HashMap<Integer, Exchange> scores = new HashMap<>();
 
-        public Exchange.Result getResult(int color) {
-            return scores.computeIfAbsent(color, c -> new ComplexExchange(square, color).getResult());
+        public Exchange getExchange(int color) {
+            return scores.computeIfAbsent(color, c -> new ComplexExchange(square, color));
         }
     }
 }

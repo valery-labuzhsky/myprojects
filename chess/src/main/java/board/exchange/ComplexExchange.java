@@ -46,7 +46,7 @@ public class ComplexExchange extends Exchange {
         public void process(Stream<Piece> pieces) {
             int color = move.piece.color;
             collect(pieces.filter(p -> p.color == color).filter(p -> p.square != exclude).
-                    map(p -> () -> new Exchange(p.square, -color).getResult().score));
+                    map(p -> () -> new Exchange(p.square, -color).result.score));
         }
     }
 }

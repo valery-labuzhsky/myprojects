@@ -61,7 +61,7 @@ public class Situations {
                 if (piece.type == PieceType.King) {
                     check = situation;
                 }
-                score += situation.score;
+                score += situation.score();
                 break;
             }
         }

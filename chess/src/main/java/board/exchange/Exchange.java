@@ -20,7 +20,7 @@ public class Exchange implements Logged {
     protected final HashMap<Integer, Side> sides = new HashMap<>();
     protected final HashMap<Piece, Integer> costs = new HashMap<>();
     public final int color;
-    private Result result;
+    public Result result;
 
     public Exchange(Square square, int color) {
         this.square = square;
@@ -30,7 +30,7 @@ public class Exchange implements Logged {
         result = calculate();
     }
 
-    public Result calculate() {
+    private Result calculate() {
         return new ExchangeCalculator(this).calculate();
     }
 
@@ -41,10 +41,6 @@ public class Exchange implements Logged {
 
     protected void sort() {
         sides.values().forEach(Side::sort);
-    }
-
-    public Result getResult() {
-        return result;
     }
 
     public String toString() {

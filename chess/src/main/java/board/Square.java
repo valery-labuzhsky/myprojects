@@ -135,7 +135,7 @@ public class Square implements Logged {
     }
 
     public int getScore(int color) {
-        return scores.getResult(color).score - board.score;
+        return scores.getResult(color).score;
     }
 
     public Exchange.Result getExchangeResult(int color) {
