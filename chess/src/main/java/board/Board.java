@@ -128,6 +128,7 @@ public class Board implements ScoreProvider {
             return false;
         }
         move.move();
+        System.out.println(this);
         return true;
     }
 

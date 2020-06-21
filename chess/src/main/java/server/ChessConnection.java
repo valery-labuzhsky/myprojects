@@ -105,6 +105,7 @@ public class ChessConnection extends Thread {
 
                         case "undo":
                             board.undo();
+                            System.out.println(board);
                             break;
                         case "go":
                             board.go();
@@ -143,6 +144,7 @@ public class ChessConnection extends Thread {
             if (!board.force) {
                 String response = board.move();
                 if (response != null) {
+                    System.out.println(board);
                     respond(response);
                 }
             }

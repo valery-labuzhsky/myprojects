@@ -21,7 +21,7 @@ import java.util.List;
 public class Situations {
     public final ArrayList<Solution> moves = new ArrayList<>();
 
-    public final HashSet<Move> waypoints = new HashSet<Move>();
+    public final HashSet<Move> waypoints = new HashSet<>();
     public final ArrayList<Solution> solutions = new ArrayList<>();
 
     public final Board board;
@@ -37,15 +37,10 @@ public class Situations {
         return this.score + this.getDefenceScore();
     }
 
-    void addSolution(Waypoint waypoint) {
-        if (waypoints.add(waypoint.move())) {
-            this.solutions.add(new Solution(waypoint));
-        }
-    }
-
-    void addSolution(Move move) {
-        if (waypoints.add(move)) {
-            this.solutions.add(new Solution(move));
+    public void addSolution(Solution solution) {
+        // TODO I can gather solutions from situations instead
+        if (waypoints.add(solution.move)) { // TODO do we need waypoint at all?
+            this.solutions.add(solution);
         }
     }
 
@@ -54,9 +49,7 @@ public class Situations {
             if (waypoint.captures()) {
                 Situation situation = new Situation(this, piece, this.board.color);
                 // TODO next step is to work on printing
-                //  1. initial set
-                //  2. additional score
-                //  3. final result
+                //  I need adding solutions to the mix to know why are we trying to move this ways
                 log().info(situation);
                 if (piece.type == PieceType.King) {
                     check = situation;

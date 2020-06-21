@@ -28,6 +28,7 @@ public abstract class MoveWatcher<A extends Action> {
             });
             move.undo();
             Logged.log("bfr").stack(this::calculateBefore);
+            finish();
         });
     }
 
@@ -38,6 +39,8 @@ public abstract class MoveWatcher<A extends Action> {
     public abstract void calculateBefore();
 
     public abstract void calculateAfter();
+
+    public abstract void finish();
 
     public void collect(Stream<? extends ScoreProvider> stream) {
         stream.forEach(this::collect);

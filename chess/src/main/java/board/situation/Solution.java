@@ -22,6 +22,7 @@ public class Solution implements Comparable<Solution>, Logged {
     public final Move move;
     public final int defence;
     private final int attack;
+    private final SolutionWatcher watcher;
 
     public Solution(Waypoint way) {
         this(way.move());
@@ -30,18 +31,18 @@ public class Solution implements Comparable<Solution>, Logged {
     public Solution(Move move) {
         this.move = move;
 
-        SolutionWatcher watcher = new SolutionWatcher(move);
+        watcher = new SolutionWatcher(move);
         watcher.calculate();
 
-        defence = watcher.defence.score;
-        attack = watcher.attack.score;
+        defence = watcher.defence.getScore();
+        attack = watcher.attack.getScore();
 
         log().debug("Defence: " + defence + ", attack: " + attack);
     }
 
     public static class SolutionWatcher extends MoveWatcher<Move> {
-        final ScoreWatcher defence = new ScoreWatcher();
-        final ScoreWatcher attack = new ScoreWatcher();
+        final ListScoreWatcher defence = new ListScoreWatcher();
+        final ListScoreWatcher attack = new ListScoreWatcher();
         final int color;
 
         public SolutionWatcher(Move move) {
@@ -53,7 +54,6 @@ public class Solution implements Comparable<Solution>, Logged {
         @Override
         public void collectBefore() {
             Piece piece = move.piece;
-            defence.collect(piece.board);
             defence.collect(piece);
             collect(piece.whomAttack()); // whom I attack
             collect(piece.whomBlock()); // whom I block
@@ -61,6 +61,7 @@ public class Solution implements Comparable<Solution>, Logged {
             // TODO I don't need this for exchange
             Square to = move.to;
             if (to.piece != null) {
+                defence.collect(new CaptureScore(to.piece));
                 exclude(to.piece);
                 collect(to.piece.whomAttack()); // whom he attack or guard
             }
@@ -85,6 +86,12 @@ public class Solution implements Comparable<Solution>, Logged {
             this.attack.after();
         }
 
+        @Override
+        public void finish() {
+            defence.calculate();
+            attack.calculate();
+        }
+
         public void exclude(Piece piece) {
             attack.exclude(piece);
         }
@@ -97,10 +104,18 @@ public class Solution implements Comparable<Solution>, Logged {
                 attack.collect(piece);
             }
         }
+
+        public String toString() {
+            // TODO I need all the participants and their score
+            //  I need calculating not only score but structure as well
+            //  It will hold score before and then diff
+            return "+" + defence + " -" + attack;
+        }
+
     }
 
     public String toString() {
-        return "" + move + "+" + defence + "-" + attack;
+        return "" + move + ": " + watcher;
     }
 
     @Override
@@ -129,4 +144,5 @@ public class Solution implements Comparable<Solution>, Logged {
     public Logger getLogger() {
         return move.getLogger();
     }
+
 }

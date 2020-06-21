@@ -2,8 +2,8 @@ package board.exchange;
 
 import board.Action;
 import board.pieces.ScoreProvider;
+import board.situation.ListScoreWatcher;
 import board.situation.MoveWatcher;
-import board.situation.ScoreWatcher;
 
 /**
  * Created on 13.06.2020.
@@ -11,11 +11,11 @@ import board.situation.ScoreWatcher;
  * @author unicorn
  */
 public abstract class SimpleWatcher<A extends Action> extends MoveWatcher<A> {
-    final ScoreWatcher score;
+    final ListScoreWatcher score;
 
     public SimpleWatcher(A move) {
         super(move);
-        score = new ScoreWatcher();
+        score = new ListScoreWatcher();
     }
 
     @Override
@@ -33,12 +33,17 @@ public abstract class SimpleWatcher<A extends Action> extends MoveWatcher<A> {
     }
 
     @Override
+    public void finish() {
+        score.calculate();
+    }
+
+    @Override
     public void collect(ScoreProvider piece) {
         score.collect(piece);
     }
 
     public int score() {
         calculate();
-        return score.score;
+        return score.getScore();
     }
 }

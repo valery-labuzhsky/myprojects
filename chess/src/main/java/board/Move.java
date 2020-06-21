@@ -59,8 +59,6 @@ public class Move extends Action {
                 break;
             }
         }
-
-        System.out.println(board);
     }
 
     protected void legalCheck() throws IllegalMoveException {

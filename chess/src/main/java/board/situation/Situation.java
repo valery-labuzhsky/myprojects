@@ -18,6 +18,7 @@ public class Situation {
     Square square;
     private final int color;
     private final Exchange exchange;
+    private final ArrayList<Solution> solutions = new ArrayList<>();
 
     public Situation(Situations situations, Piece piece, int color) {
         this.situations = situations;
@@ -42,9 +43,10 @@ public class Situation {
         Piece piece = this.square.piece;
         for (Waypoint waypoint : piece.getWaypoints()) { // escape
             if (!waypoint.square.captures(piece) && waypoint.moves()) {
-                addSolution(waypoint);
+                addSolution(waypoint.move());
             }
         }
+
         ArrayList<Waypoint> dangers = new ArrayList<>(); // gather all the villains
         for (Waypoint waypoint : this.square.waypoints) {
             if (waypoint.captures()) {
@@ -52,11 +54,14 @@ public class Situation {
             }
         }
 
-        ArrayList<Piece> pieces = new ArrayList<>(situations.board.pieces.get(piece.color)); // TODO it is changed
-        for (Piece guard : pieces) { // guard
-            if (guard != piece) {
-                guard.getAttacks(piece.square).forEach(
-                        s -> addSolution(guard.move(s)));
+        int attackCost = dangers.stream().map(w -> w.piece.type.score).min(Integer::compareTo).orElse(0);
+        if (attackCost > piece.type.score) {
+            ArrayList<Piece> pieces = new ArrayList<>(situations.board.pieces.get(piece.color)); // TODO it is changed
+            for (Piece guard : pieces) { // guard
+                if (guard != piece) {
+                    guard.getAttacks(piece.square).forEach(
+                            s -> addSolution(guard.move(s)));
+                }
             }
         }
 
@@ -66,7 +71,7 @@ public class Situation {
                 danger = danger.prev;
                 for (Waypoint block : danger.square.getWaypoints()) {
                     if (block.piece != piece && block.piece.color == piece.color && block.moves()) {
-                        addSolution(block);
+                        addSolution(block.move());
                     }
                 }
             }
@@ -76,17 +81,17 @@ public class Situation {
     private void solvePositive() {
         for (Waypoint waypoint : this.square.getWaypoints()) {
             if (waypoint.captures()) {
-                addSolution(waypoint);
+                addSolution(waypoint.move());
             }
         }
     }
 
-    private void addSolution(Waypoint waypoint) {
-        situations.addSolution(waypoint);
-    }
-
     private void addSolution(Move move) {
-        situations.addSolution(move);
+        Solution solution = new Solution(move);
+        if (solution.defence > 0) {
+            solutions.add(solution);
+            situations.addSolution(solution);
+        }
     }
 
     public int score() {
@@ -98,7 +103,7 @@ public class Situation {
     }
 
     public String toString() {
-        // TODO here to print must store not only score but exchange itself
-        return "" + square + ": " + exchange;
+        return "" + exchange + solutions.stream().map(Solution::toString).
+                reduce("", (h, t) -> h + "\n\t" + t);
     }
 }
