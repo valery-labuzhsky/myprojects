@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public abstract class Piece implements Logged, ScoreProvider {
+public abstract class Piece implements Logged {
     public final Board board;
     public final int color;
     public final PieceType type;
@@ -26,11 +26,18 @@ public abstract class Piece implements Logged, ScoreProvider {
         this.type = type;
     }
 
+    public boolean onBoard() {
+        return this.square.piece == this;
+    }
+
     public HashSet<Waypoint> getWaypoints() {
         return new HashSet<>(this.waypoints);
     }
 
     public Move move(Square to) {
+        if (square.piece == null) {
+            throw new IllegalStateException(this + ": " + square);
+        }
         return new Move(this.square, to);
     }
 
@@ -126,10 +133,14 @@ public abstract class Piece implements Logged, ScoreProvider {
 
     public abstract Stream<Square> getPotentialAttacks(Square to);
 
-    public Stream<Square> getAttacks(Square to) {
+    public Stream<Square> getAttackSquares(Square to) {
         return getPotentialAttacks(to).
                 filter(this::moves).
                 filter(s -> attacks(s, to));
+    }
+
+    public Stream<Move> getAttacks(Square to) {
+        return getAttackSquares(to).map(this::move);
     }
 
     public abstract Stream<Piece> whomAttack();
@@ -166,11 +177,6 @@ public abstract class Piece implements Logged, ScoreProvider {
         return type == PieceType.Bishop || type == PieceType.Queen;
     }
 
-    @Override
-    public int getScore() {
-        return square.getScore(-color);
-    }
-
     public int cost() {
         return type.score * color;
     }
@@ -182,23 +188,6 @@ public abstract class Piece implements Logged, ScoreProvider {
 
     public Logger getLogger() {
         return square.getLogger();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Piece piece = (Piece) o;
-        return square.equals(piece.square);
-    }
-
-    @Override
-    public int hashCode() {
-        return square.hashCode();
     }
 
     protected Stream<Square> getPotentialAttacks(Square square, XY.Transform... transforms) {

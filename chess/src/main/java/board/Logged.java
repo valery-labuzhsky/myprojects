@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -62,6 +63,18 @@ public interface Logged {
 
     static Logged log(String name) {
         return () -> LogManager.getLogger(name);
+    }
+
+    static String tabs(Collection<?> list) {
+//        if (list.isEmpty()) {
+//            return "[]";
+//        } else if (list.size()==1) {
+//            return "" + list.iterator().next();
+//        } else {
+        StringBuilder string = new StringBuilder();
+        list.forEach(i -> string.append("\n").append(i));
+        return string.toString().replace("\n", "\n\t");
+//        }
     }
 }
 

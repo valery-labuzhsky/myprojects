@@ -12,10 +12,8 @@ import java.util.stream.Stream;
  * @author unicorn
  */
 public class Remove extends Action {
-    public final Piece piece;
-
     public Remove(Piece piece) {
-        this.piece = piece;
+        super(piece);
     }
 
     @Override

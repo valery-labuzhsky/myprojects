@@ -1,5 +1,6 @@
 package board.situation;
 
+import board.Logged;
 import board.Move;
 import board.Square;
 import board.Waypoint;
@@ -14,20 +15,26 @@ import java.util.ArrayList;
  * @author ptasha
  */
 public class Situation {
-    private final Situations situations;
     Square square;
     private final int color;
     private final Exchange exchange;
-    private final ArrayList<Solution> solutions = new ArrayList<>();
+    public final ArrayList<Solution> solutions = new ArrayList<>();
 
-    public Situation(Situations situations, Piece piece, int color) {
-        this.situations = situations;
+    public Situation(Piece piece, int color) {
         this.square = piece.square; // TODO should I use piece instead?
         this.color = color;
         exchange = square.scores.getExchange(-color);
         solve(color);
     }
 
+    // TODO next score - situation score
+    //  basically I need ComplexExchange score and get best solution for it depending on solution
+    //  but solution must be single cell
+    //  I must stop taking all the other into account
+    //  I must develop special cases
+    //  so the score = exchange score - best solution score,
+    //  it can't be better then 0
+    //  actually, who cares?
     private void solve(int color) {
         Piece piece = this.square.piece;
         if (piece.color != color) { // I'm capturing
@@ -56,10 +63,10 @@ public class Situation {
 
         int attackCost = dangers.stream().map(w -> w.piece.type.score).min(Integer::compareTo).orElse(0);
         if (attackCost > piece.type.score) {
-            ArrayList<Piece> pieces = new ArrayList<>(situations.board.pieces.get(piece.color)); // TODO it is changed
+            ArrayList<Piece> pieces = new ArrayList<>(square.board.pieces.get(piece.color)); // TODO it is changed
             for (Piece guard : pieces) { // guard
                 if (guard != piece) {
-                    guard.getAttacks(piece.square).forEach(
+                    guard.getAttackSquares(piece.square).forEach(
                             s -> addSolution(guard.move(s)));
                 }
             }
@@ -88,9 +95,8 @@ public class Situation {
 
     private void addSolution(Move move) {
         Solution solution = new Solution(move);
-        if (solution.defence > 0) {
+        if (solution.getDefence() > 0) {
             solutions.add(solution);
-            situations.addSolution(solution);
         }
     }
 
@@ -103,7 +109,8 @@ public class Situation {
     }
 
     public String toString() {
-        return "" + exchange + solutions.stream().map(Solution::toString).
-                reduce("", (h, t) -> h + "\n\t" + t);
+//        return "" + exchange + solutions.stream().map(Solution::toString).
+//                reduce("", (h, t) -> h + "\n\t" + t);
+        return "" + exchange + Logged.tabs(solutions);
     }
 }

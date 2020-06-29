@@ -2,27 +2,26 @@ package board.situation;
 
 import board.Logged;
 import board.Move;
-import board.Square;
 import board.Waypoint;
-import board.pieces.Piece;
-import board.pieces.ScoreProvider;
+import board.exchange.ComplexExchange;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created on 16.04.2020.
  *
  * @author ptasha
  */
-public class Solution implements Comparable<Solution>, Logged {
-    public static final Comparator<Solution> COMPARATOR = Comparator.<Solution>comparingInt(s -> s.defence).thenComparingInt(s -> s.attack);
-
+public class Solution implements Logged {
     public final Move move;
-    public final int defence;
-    private final int attack;
-    private final SolutionWatcher watcher;
+    private DefenceCalculator defenceWatcher;
+    private AttackCalculator attackWatcher;
 
     public Solution(Waypoint way) {
         this(way.move());
@@ -30,92 +29,52 @@ public class Solution implements Comparable<Solution>, Logged {
 
     public Solution(Move move) {
         this.move = move;
-
-        watcher = new SolutionWatcher(move);
-        watcher.calculate();
-
-        defence = watcher.defence.getScore();
-        attack = watcher.attack.getScore();
-
-        log().debug("Defence: " + defence + ", attack: " + attack);
+        // TODO I cannot calculate it lazily - move might be illegal
+        calculateDefence();
+        calculateAttack();
     }
 
-    public static class SolutionWatcher extends MoveWatcher<Move> {
-        final ListScoreWatcher defence = new ListScoreWatcher();
-        final ListScoreWatcher attack = new ListScoreWatcher();
-        final int color;
+    public static ArrayList<Solution> best(Collection<Solution> input, int color) {
+        return best(best(input, Solution::getDefence, color), Solution::getAttack, color);
+    }
 
-        public SolutionWatcher(Move move) {
-            super(move);
-            Piece piece = move.piece;
-            this.color = piece.color;
-        }
+    private static <S, C extends Comparable<C>> ArrayList<S> best(Collection<S> input, Function<S, C> score) {
+        ArrayList<S> filtered = new ArrayList<>();
+        best(input.iterator(), score, filtered::add, filtered::clear);
+        return filtered;
+    }
 
-        @Override
-        public void collectBefore() {
-            Piece piece = move.piece;
-            defence.collect(piece);
-            collect(piece.whomAttack()); // whom I attack
-            collect(piece.whomBlock()); // whom I block
+    public static <C> ArrayList<C> best(Collection<C> input, Function<C, Integer> score, int color) {
+        return best(input, colored(score, color));
+    }
 
-            // TODO I don't need this for exchange
-            Square to = move.to;
-            if (to.piece != null) {
-                defence.collect(new CaptureScore(to.piece));
-                exclude(to.piece);
-                collect(to.piece.whomAttack()); // whom he attack or guard
+    public static <C> Function<C, Integer> colored(Function<C, Integer> simple, int color) {
+        return c -> color * simple.apply(c);
+    }
+
+    private static <S, C extends Comparable<C>> void best(Iterator<S> input, Function<S, C> score, Consumer<S> output, Runnable clear) {
+        if (input.hasNext()) {
+            S solution;
+            solution = input.next();
+            C best = score.apply(solution);
+            output.accept(solution);
+            while (input.hasNext()) {
+                solution = input.next();
+                C solutionScore = score.apply(solution);
+                int diff = best.compareTo(solutionScore);
+                if (diff < 0) {
+                    best = solutionScore;
+                    clear.run();
+                    output.accept(solution);
+                } else if (diff == 0) {
+                    output.accept(solution);
+                }
             }
         }
-
-        @Override
-        public void collectAfter() {
-            Piece piece = move.piece;
-            collect(piece.whomAttack()); // whom I will attack
-            collect(piece.whomBlock()); // whom I will block
-        }
-
-        @Override
-        public void calculateBefore() {
-            this.defence.before();
-            this.attack.before();
-        }
-
-        @Override
-        public void calculateAfter() {
-            this.defence.after();
-            this.attack.after();
-        }
-
-        @Override
-        public void finish() {
-            defence.calculate();
-            attack.calculate();
-        }
-
-        public void exclude(Piece piece) {
-            attack.exclude(piece);
-        }
-
-        @Override
-        public void collect(ScoreProvider piece) {
-            if (color == ((Piece) piece).color) {
-                defence.collect(piece);
-            } else {
-                attack.collect(piece);
-            }
-        }
-
-        public String toString() {
-            // TODO I need all the participants and their score
-            //  I need calculating not only score but structure as well
-            //  It will hold score before and then diff
-            return "+" + defence + " -" + attack;
-        }
-
     }
 
     public String toString() {
-        return "" + move + ": " + watcher;
+        return "+" + getDefenceWatcher() + "\n-" + getAttackWatcher();
     }
 
     @Override
@@ -136,13 +95,39 @@ public class Solution implements Comparable<Solution>, Logged {
     }
 
     @Override
-    public int compareTo(Solution solution) {
-        return COMPARATOR.compare(this, solution);
-    }
-
-    @Override
     public Logger getLogger() {
         return move.getLogger();
     }
 
+    private void calculateDefence() {
+        if (defenceWatcher == null) {
+            defenceWatcher = new DefenceCalculator(move);
+            defenceWatcher.calculate();
+        }
+    }
+
+    private DefenceCalculator getDefenceWatcher() {
+        calculateDefence();
+        return defenceWatcher;
+    }
+
+    public int getDefence() {
+        return getDefenceWatcher().getScore();
+    }
+
+    private void calculateAttack() {
+        if (attackWatcher == null) {
+            attackWatcher = new AttackCalculator(move, ComplexExchange::diff);
+            attackWatcher.calculate();
+        }
+    }
+
+    private AttackCalculator getAttackWatcher() {
+        calculateAttack();
+        return attackWatcher;
+    }
+
+    public int getAttack() {
+        return getAttackWatcher().getScore();
+    }
 }

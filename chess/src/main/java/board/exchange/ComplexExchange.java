@@ -3,6 +3,8 @@ package board.exchange;
 import board.Remove;
 import board.Square;
 import board.pieces.Piece;
+import board.situation.PieceScore;
+import board.situation.ScoreWatcher;
 
 import java.util.stream.Stream;
 
@@ -12,41 +14,39 @@ import java.util.stream.Stream;
  * @author unicorn
  */
 public class ComplexExchange extends Exchange {
-    // TODO I need to cache exchanges themselves
-    //  I'll need not separate exchange into simple and complex, but analyse complex situation
-    //  in the future...
-
-    // TODO here I need check score of removed pieces and calculate score with it
     public ComplexExchange(Square square, int color) {
         super(square, color);
+    }
+
+    public static ScoreWatcher diff(Piece piece) {
+        return PieceScore.diff(piece, p -> new ComplexExchange(p.square, -p.color));
     }
 
     @Override
     protected void setScene() {
         super.setScene();
         sides.values().forEach(s -> s.pieces.forEach(
-                p -> costs.put(p, new RemoveWatcher(p, square).score())));
+                p -> costs.put(p, new RemoveCalculator(p, square).score())));
         sort();
     }
 
-    private static class RemoveWatcher extends SimpleWatcher<Remove> {
+    private static class RemoveCalculator extends ScoredMoveCalculator<Remove> {
         private final Square exclude;
 
-        public RemoveWatcher(Piece piece, Square exclude) {
-            super(new Remove(piece));
+        public RemoveCalculator(Piece piece, Square exclude) {
+            super(new Remove(piece), Exchange::diff);
             this.exclude = exclude;
         }
 
         @Override
         public void collectBefore() {
-            process(move.piece.whomAttack());
-            process(move.piece.whomBlock());
+            myColor(move.piece.whomAttack());
+            myColor(move.piece.whomBlock());
         }
 
-        public void process(Stream<Piece> pieces) {
-            int color = move.piece.color;
-            collect(pieces.filter(p -> p.color == color).filter(p -> p.square != exclude).
-                    map(p -> () -> new Exchange(p.square, -color).result.score));
+        @Override
+        public void pieces(Stream<Piece> stream) {
+            super.pieces(stream.filter(p -> p.square != exclude));
         }
     }
 }

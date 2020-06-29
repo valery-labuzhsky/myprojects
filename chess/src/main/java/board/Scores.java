@@ -20,10 +20,6 @@ public class Scores {
         this.square = square;
     }
 
-    public Exchange.Result getResult(int color) {
-        return getExchange(color).result;
-    }
-
     public Exchange getExchange(int color) {
         Game current = square.board.history.game;
         if (current.permanent && !current.equals(permanent)) {

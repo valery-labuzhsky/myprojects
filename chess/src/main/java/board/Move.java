@@ -18,7 +18,6 @@ public class Move extends Action {
     public Piece capture;
 
     public final String note;
-    public final Piece piece;
 
     public Move(Square from, Square to) {
         this(from, to, null, null);
@@ -29,11 +28,11 @@ public class Move extends Action {
     }
 
     public Move(Square from, Square to, PieceType promotion, String note) {
+        super(from.piece);
         this.from = from;
         this.to = to;
         this.promotion = promotion;
         this.note = note;
-        this.piece = this.from.piece;
     }
 
     @Override
@@ -95,6 +94,10 @@ public class Move extends Action {
 
     @Override
     protected void makeMove() {
+        if (piece.square != from) {
+            throw new IllegalStateException();
+        }
+
         if (to.piece != null) {
             capture = to.piece;
             to.piece.remove();

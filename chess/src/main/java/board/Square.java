@@ -1,6 +1,5 @@
 package board;
 
-import board.exchange.Exchange;
 import board.pieces.Knight;
 import board.pieces.Piece;
 import board.pieces.Queen;
@@ -132,14 +131,6 @@ public class Square implements Logged {
             }
         }
         return false;
-    }
-
-    public int getScore(int color) {
-        return scores.getResult(color).score;
-    }
-
-    public Exchange.Result getExchangeResult(int color) {
-        return scores.getResult(color);
     }
 
     public Logger getLogger() {

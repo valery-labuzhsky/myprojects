@@ -1,7 +1,7 @@
 package board.situation;
 
 import board.Board;
-import board.Move;
+import board.Logged;
 import board.Waypoint;
 import board.pieces.Piece;
 import board.pieces.PieceType;
@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -21,8 +20,7 @@ import java.util.List;
 public class Situations {
     public final ArrayList<Solution> moves = new ArrayList<>();
 
-    public final HashSet<Move> waypoints = new HashSet<>();
-    public final ArrayList<Solution> solutions = new ArrayList<>();
+    public final HashSet<Solution> solutions = new HashSet<>();
 
     public final Board board;
     public Situation check;
@@ -37,19 +35,11 @@ public class Situations {
         return this.score + this.getDefenceScore();
     }
 
-    public void addSolution(Solution solution) {
-        // TODO I can gather solutions from situations instead
-        if (waypoints.add(solution.move)) { // TODO do we need waypoint at all?
-            this.solutions.add(solution);
-        }
-    }
-
     public void lookAt(Piece piece) {
         for (Waypoint waypoint : piece.square.waypoints) {
             if (waypoint.captures()) {
-                Situation situation = new Situation(this, piece, this.board.color);
-                // TODO next step is to work on printing
-                //  I need adding solutions to the mix to know why are we trying to move this ways
+                Situation situation = new Situation(piece, this.board.color);
+                solutions.addAll(situation.solutions);
                 log().info(situation);
                 if (piece.type == PieceType.King) {
                     check = situation;
@@ -60,31 +50,6 @@ public class Situations {
         }
 
 //        piece.log().info(piece.square.getExchangeResult(-piece.color));
-
-        // TODO gather future situations per attack at least for now
-        //  first I estimate worthiness
-        //  second I estimate the move itself
-        // TODO try some countermeasures
-        //  gather solutions
-        //  estimate cost of initial move based on the countermeasure, that's our score
-        // TODO does it worth to check every attack? some of them might be fruitless
-        //  I need to have some score, having it and a piece I must be able to estimate worthiness of the attack
-        //  I already thought about it it doesn't seem to be feasible
-        // TODO how can I estimate worthiness of the attack?
-        //  piece must be weakly protected
-        //  thus for every piece I must know which piece can change the score
-        //  but I can not only attack, I can block defence or make a fork, or capture defence
-        //  checking all the moves is defeat
-
-        // TODO I need do my game recursive as exchange to be able to do all those steps,
-        //  actually I already have it, I can write all moves to history and revert them
-        //  but to do it I must do moving pieces more lightweight, at least attacks must go away
-        //  I'm not so sure about waypoints, but I could do special collections on the fly
-
-        // TODO first thing to do it to calculate score realistically
-        //  preventing something from happening is another matter
-        //  I also need displaying exchanges to control them
-        //  I need get rid of future and waypoint exchanges and make real move
     }
 
     public boolean isCheckmate() {
@@ -96,25 +61,16 @@ public class Situations {
     }
 
     public void analyse() {
-        solutions.sort(Comparator.reverseOrder());
-        log().info("solutions " + solutions);
+        moves.addAll(Solution.best(solutions, board.color));
 
-        Solution best = null;
-
-        for (Solution solution : solutions) {
-            if (solution.defence > 0) {
-                if (best == null) {
-                    best = solution;
-                    defenceScore = solution.defence;
-                } else if (best.compareTo(solution) > 0) {
-                    break;
-                }
-                moves.add(solution);
-            }
-        }
+        moves.stream().findFirst().ifPresent(m -> defenceScore = m.getDefence());
 
         System.out.println("Total: " + score);
-        System.out.println("Defend: " + getDefenceScore() + " " + moves);
+        System.out.println("Defend: " + getDefenceScore() + " " + Logged.tabs(this.moves));
+
+        for (Solution move : moves) {
+            log().info("Retaliation " + new RetaliationScore(move.move));
+        }
     }
 
     private Logger log() {

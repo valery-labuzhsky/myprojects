@@ -1,11 +1,19 @@
 package board;
 
+import board.pieces.Piece;
+
 /**
  * Created on 11.06.2020.
  *
  * @author unicorn
  */
 public abstract class Action implements Logged {
+    public final Piece piece;
+
+    protected Action(Piece piece) {
+        this.piece = piece;
+    }
+
     protected abstract Board board();
 
     public void imagine() {

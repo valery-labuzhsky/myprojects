@@ -11,8 +11,8 @@ import java.util.Objects;
  */
 public class ScoreWatcher implements ScoreDiff {
     final ScoreProvider provider;
-    private int before;
-    private int after;
+    private Analytics before;
+    private Analytics after;
 
     public ScoreWatcher(ScoreProvider provider) {
         this.provider = provider;
@@ -20,22 +20,22 @@ public class ScoreWatcher implements ScoreDiff {
 
     @Override
     public void before() {
-        before = provider.getScore();
+        before = provider.analyse();
     }
 
     @Override
     public void after() {
-        after = provider.getScore();
+        after = provider.analyse();
     }
 
     @Override
     public int getBefore() {
-        return before;
+        return before.getScore();
     }
 
     @Override
     public int getAfter() {
-        return after;
+        return after.getScore();
     }
 
     @Override
@@ -53,6 +53,6 @@ public class ScoreWatcher implements ScoreDiff {
 
     @Override
     public String toString() {
-        return provider + ":" + getAfter();
+        return "" + after;
     }
 }

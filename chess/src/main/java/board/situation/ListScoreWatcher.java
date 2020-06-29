@@ -1,6 +1,6 @@
 package board.situation;
 
-import board.pieces.ScoreProvider;
+import board.Logged;
 
 import java.util.HashSet;
 
@@ -20,14 +20,6 @@ public class ListScoreWatcher {
         diffs.add(diff);
     }
 
-    public void collect(ScoreProvider provider) {
-        collect(new ScoreWatcher(provider));
-    }
-
-    public void exclude(ScoreProvider provider) {
-        diffs.remove(new ScoreWatcher(provider));
-    }
-
     public void before() {
         diffs.forEach(ScoreDiff::before);
     }
@@ -41,11 +33,13 @@ public class ListScoreWatcher {
     }
 
     public void calculate() {
+        diffs.removeIf(diff -> diff.getScore() == 0);
         score = diffs.stream().mapToInt(ScoreDiff::getScore).sum();
     }
 
     @Override
     public String toString() {
-        return "" + diffs;
+        return "" + Logged.tabs(diffs);
     }
+
 }

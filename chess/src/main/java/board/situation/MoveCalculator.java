@@ -2,19 +2,16 @@ package board.situation;
 
 import board.Action;
 import board.Logged;
-import board.pieces.ScoreProvider;
-
-import java.util.stream.Stream;
 
 /**
  * Created on 07.06.2020.
  *
  * @author unicorn
  */
-public abstract class MoveWatcher<A extends Action> {
+public abstract class MoveCalculator<A extends Action> {
     protected final A move;
 
-    public MoveWatcher(A move) {
+    public MoveCalculator(A move) {
         this.move = move;
     }
 
@@ -41,10 +38,4 @@ public abstract class MoveWatcher<A extends Action> {
     public abstract void calculateAfter();
 
     public abstract void finish();
-
-    public void collect(Stream<? extends ScoreProvider> stream) {
-        stream.forEach(this::collect);
-    }
-
-    public abstract void collect(ScoreProvider piece);
 }

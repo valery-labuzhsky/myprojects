@@ -3,6 +3,9 @@ package board.exchange;
 import board.Logged;
 import board.Square;
 import board.pieces.Piece;
+import board.situation.Analytics;
+import board.situation.PieceScore;
+import board.situation.ScoreWatcher;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
@@ -15,8 +18,9 @@ import java.util.stream.Stream;
  *
  * @author ptasha
  */
-public class Exchange implements Logged {
+public class Exchange implements Logged, Analytics {
     protected final Square square;
+    private final Piece piece;
     protected final HashMap<Integer, Side> sides = new HashMap<>();
     protected final HashMap<Piece, Integer> costs = new HashMap<>();
     public final int color;
@@ -24,14 +28,15 @@ public class Exchange implements Logged {
 
     public Exchange(Square square, int color) {
         this.square = square;
+        this.piece = square.piece;
         this.color = color;
         Stream.of(-1, 1).forEach(s -> sides.put(s, new Side()));
         setScene();
-        result = calculate();
+        result = new ExchangeCalculator(this).calculate();
     }
 
-    private Result calculate() {
-        return new ExchangeCalculator(this).calculate();
+    public static ScoreWatcher diff(Piece piece) {
+        return PieceScore.diff(piece, p -> new Exchange(p.square, -p.color));
     }
 
     protected void setScene() {
@@ -45,7 +50,12 @@ public class Exchange implements Logged {
 
     public String toString() {
         // TODO I need cost as well
-        return "" + square.piece + ": " + sides.get(1).pieces + " vs " + sides.get(-1).pieces + " => " + result;
+        return "" + piece + ": " + sides.get(1).pieces + " vs " + sides.get(-1).pieces + " => " + result;
+    }
+
+    @Override
+    public int getScore() {
+        return result.score;
     }
 
     public static class Result {

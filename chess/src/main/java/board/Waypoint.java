@@ -40,17 +40,6 @@ public class Waypoint implements Logged {
         return this;
     }
 
-    public Piece getNearestPiece() {
-        Waypoint waypoint = this;
-        while ((waypoint = waypoint.next) != null) {
-            Piece piece = waypoint.square.piece;
-            if (piece != null) {
-                return piece;
-            }
-        }
-        return null;
-    }
-
     public Square getOriginalSquare() {
         return this.piece.square;
     }
@@ -86,16 +75,8 @@ public class Waypoint implements Logged {
         return this.piece.goes(this);
     }
 
-    public boolean goes() {
-        return isGo() && getBlocks().isEmpty() && square.piece == null;
-    }
-
     public boolean isAttack() {
         return this.piece.attacks(this);
-    }
-
-    public boolean attacks() {
-        return isAttack() && getBlocks().isEmpty();
     }
 
     public boolean isCapture() {
@@ -118,29 +99,11 @@ public class Waypoint implements Logged {
         return false;
     }
 
-    public boolean isGuard() {
-        return isAttack() && square.piece != piece && square.piece != null && square.piece.color == piece.color;
-    }
-
-    public boolean guards() {
-        return isGuard() && getBlocks().isEmpty();
-    }
-
-    public boolean isBlockedBy(Square square) {
-        if (prev != null) {
-            if (prev.square == square) {
-                return true;
-            } else {
-                return prev.isBlockedBy(square);
-            }
-        }
-        return false;
-    }
-
     public Collection<Piece> getBlocks() {
         return piece.getBlocks(square);
     }
 
+    @Override
     public Logger getLogger() {
         return Logged.log(piece, square);
     }
