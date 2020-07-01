@@ -26,14 +26,14 @@ public class ComplexExchange extends Exchange {
     protected void setScene() {
         super.setScene();
         sides.values().forEach(s -> s.pieces.forEach(
-                p -> costs.put(p, new RemoveCalculator(p, square).score())));
+                p -> costs.put(p, new RemoveScore(p, square).getScore())));
         sort();
     }
 
-    private static class RemoveCalculator extends ScoredMoveCalculator<Remove> {
+    private static class RemoveScore extends DiffMoveScore<Remove> {
         private final Square exclude;
 
-        public RemoveCalculator(Piece piece, Square exclude) {
+        public RemoveScore(Piece piece, Square exclude) {
             super(new Remove(piece), Exchange::diff);
             this.exclude = exclude;
         }

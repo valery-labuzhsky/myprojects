@@ -2,7 +2,7 @@ package board.situation;
 
 import board.Move;
 import board.Square;
-import board.exchange.ScoredMoveCalculator;
+import board.exchange.DiffMoveScore;
 import board.pieces.Piece;
 
 import java.util.function.Function;
@@ -12,9 +12,9 @@ import java.util.function.Function;
  *
  * @author unicorn
  */
-public class AttackCalculator extends ScoredMoveCalculator<Move> {
+public class AttackScore extends DiffMoveScore<Move> {
 
-    public AttackCalculator(Move move, Function<Piece, ScoreWatcher> diff) {
+    public AttackScore(Move move, Function<Piece, ScoreWatcher> diff) {
         super(move, diff);
     }
 

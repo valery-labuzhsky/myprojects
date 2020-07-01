@@ -2,7 +2,7 @@ package board.situation;
 
 import board.Logged;
 import board.Move;
-import board.exchange.ScoredMoveCalculator;
+import board.exchange.DiffMoveScore;
 import board.pieces.Piece;
 
 import java.util.ArrayList;
@@ -13,29 +13,29 @@ import java.util.ArrayList;
  * @author unicorn
  */
 public class RetaliationScore {
-    private final Move myMove;
-    private final ArrayList<AttackCalculator> retaliations;
+    final Move myMove;
+    private final ArrayList<AttackScore> retaliations;
 
     public RetaliationScore(Move myMove) {
         this.myMove = myMove;
         this.myMove.imagine();
 
-        ArrayList<AttackCalculator> attacks = new ArrayList<>();
+        ArrayList<AttackScore> attacks = new ArrayList<>();
 
         ArrayList<Piece> enemies = new ArrayList<>(myMove.piece.board.pieces.get(-myMove.piece.color));
         for (Piece enemy : enemies) {
-            enemy.getAttacks(myMove.piece.square).forEach(m -> attacks.add(new AttackCalculator(m, SituationScore::diff)));
+            enemy.getAttacks(myMove.piece.square).forEach(m -> attacks.add(new AttackScore(m, SituationScore::diff)));
         }
 
-        attacks.forEach(MoveCalculator::calculate);
+        attacks.forEach(MoveScore::calculate);
 
-        retaliations = Solution.best(attacks, ScoredMoveCalculator::getScore, -myMove.piece.color);
+        retaliations = Situations.best(attacks, DiffMoveScore::getScore, -myMove.piece.color);
 
         this.myMove.undo();
     }
 
     public int getScore() {
-        return retaliations.stream().map(ScoredMoveCalculator::getScore).findAny().orElse(0);
+        return retaliations.stream().map(DiffMoveScore::getScore).findAny().orElse(0);
     }
 
     @Override

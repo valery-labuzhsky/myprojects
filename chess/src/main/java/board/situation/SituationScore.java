@@ -1,5 +1,6 @@
 package board.situation;
 
+import board.exchange.DiffMoveScore;
 import board.pieces.Piece;
 
 import java.util.ArrayList;
@@ -10,21 +11,21 @@ import java.util.ArrayList;
  * @author unicorn
  */
 public class SituationScore implements Analytics {
-    private final Situation situation;
-    private final ArrayList<Solution> best;
+    private final DefenceSituation situation;
+    private final ArrayList<DefenceScore> best;
 
     public static ScoreWatcher diff(Piece piece) {
         return PieceScore.diff(piece, SituationScore::new);
     }
 
-    public SituationScore(Piece piece) {
-        this.situation = new Situation(piece, piece.color);
-        best = Solution.best(situation.solutions, Solution::getDefence, piece.color);
+    private SituationScore(Piece piece) {
+        this.situation = new DefenceSituation(piece);
+        best = Situations.best(situation.defences, DiffMoveScore::getScore, piece.color);
     }
 
     @Override
     public int getScore() {
-        return situation.score() + best.stream().map(Solution::getDefence).findAny().orElse(0);
+        return situation.score() + best.stream().map(DefenceScore::getScore).findAny().orElse(0);
     }
 
     @Override

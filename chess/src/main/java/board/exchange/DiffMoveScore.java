@@ -3,7 +3,7 @@ package board.exchange;
 import board.Action;
 import board.pieces.Piece;
 import board.situation.ListScoreWatcher;
-import board.situation.MoveCalculator;
+import board.situation.MoveScore;
 import board.situation.ScoreDiff;
 import board.situation.ScoreWatcher;
 
@@ -15,58 +15,58 @@ import java.util.stream.Stream;
  *
  * @author unicorn
  */
-public abstract class ScoredMoveCalculator<A extends Action> extends MoveCalculator<A> {
+public abstract class DiffMoveScore<A extends Action> extends MoveScore<A> {
     protected final ListScoreWatcher score;
     protected final Function<Piece, ScoreWatcher> diff;
+    private boolean calculated;
 
-    public ScoredMoveCalculator(A move, Function<Piece, ScoreWatcher> diff) {
+    public DiffMoveScore(A move, Function<Piece, ScoreWatcher> diff) {
         super(move);
         score = new ListScoreWatcher();
         this.diff = diff;
     }
 
     @Override
-    public void collectAfter() {
+    protected void collectAfter() {
     }
 
     @Override
-    public void calculateBefore() {
+    protected void calculateBefore() {
         score.before();
     }
 
     @Override
-    public void calculateAfter() {
+    protected void calculateAfter() {
         score.after();
     }
 
     @Override
-    public void finish() {
+    protected void finish() {
         score.calculate();
     }
 
-    public int score() {
-        calculate();
-        return getScore();
-    }
-
     public int getScore() {
+        if (!calculated) {
+            calculate();
+            calculated = true;
+        }
         return score.getScore();
     }
 
     public String toString() {
-        return "" + move + "=" + score.getScore() + ": " + score;
+        return "" + move + "=" + getScore() + ": " + score;
     }
 
-    public void diffs(Stream<? extends ScoreDiff> stream) {
+    private void diffs(Stream<? extends ScoreDiff> stream) {
         stream.forEach(score::collect);
     }
 
-    public void myColor(Stream<Piece> pieces) {
+    protected void myColor(Stream<Piece> pieces) {
         int color = move.piece.color;
         pieces(pieces.filter(p -> p.color == color));
     }
 
-    public void oppositeColor(Stream<Piece> stream) {
+    protected void oppositeColor(Stream<Piece> stream) {
         int color = move.piece.color;
         pieces(stream.filter(p -> p.color != color));
     }

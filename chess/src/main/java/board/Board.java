@@ -3,7 +3,6 @@ package board;
 import board.pieces.Piece;
 import board.pieces.PieceType;
 import board.situation.Situations;
-import board.situation.Solution;
 
 import java.util.*;
 
@@ -16,7 +15,7 @@ public class Board {
     private Square[][] squares;
     public final HashMap<Integer, HashSet<Piece>> pieces = new HashMap<>();
     public int color;
-    private Random random;
+    public Random random;
     public boolean force;
     public final History history = new History();
     public int score;
@@ -102,7 +101,7 @@ public class Board {
         return new PieceBuilder(this, -1);
     }
 
-    private Move parse(String move) {
+    public Move parse(String move) {
         PieceType promotion = null;
         switch (move.length()) {
             case 4:
@@ -134,14 +133,6 @@ public class Board {
     public String move() {
         Situations situations = new Situations(this);
 
-        for (HashSet<Piece> pieces : pieces.values()) {
-            ArrayList<Piece> copy = new ArrayList<>(pieces); // TODO because we are doing moves when analysing situation
-            for (Piece piece : copy) {
-                situations.lookAt(piece); // TODO separate by colors
-            }
-        }
-
-        situations.analyse();
         if (situations.isCheckmate()) {
             if (this.color == -1) {
                 return "1-0 {White mates}";
@@ -154,38 +145,7 @@ public class Board {
             return "resign";
         }
 
-        List<Solution> moves = situations.getMoves();
-
-        if (moves.isEmpty()) {
-            ArrayList<Piece> pieces = new ArrayList<>(this.pieces.get(color)); // TODO because we are doing moves when analysing situation
-            for (Piece piece : pieces) {
-                for (Waypoint move : piece.getMoves()) {
-                    moves.add(new Solution(move));
-                }
-            }
-            moves = Solution.best(moves, color);
-        }
-
-        Move badMove = this.parse("f2e1");
-        for (Solution solution : moves) {
-            if (solution.move.equals(badMove)) {
-                moves.clear();
-                moves.add(solution);
-                break;
-            }
-        }
-
-        HashMap<Piece, ArrayList<Solution>> allMoves = new HashMap<>();
-        for (Solution solution : moves) {
-            allMoves.computeIfAbsent(solution.move.piece, p -> new ArrayList<>()).add(solution);
-        }
-
-        if (!allMoves.isEmpty()) {
-            Piece piece = allMoves.keySet().stream().skip(random.nextInt(allMoves.size())).findFirst().orElse(null);
-            moves = allMoves.get(piece);
-        }
-
-        Move move = moves.get(random.nextInt(moves.size())).move;
+        Move move = situations.getMove();
         try {
             move.move();
             if (score * color < 0) {

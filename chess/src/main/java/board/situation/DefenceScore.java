@@ -3,7 +3,7 @@ package board.situation;
 import board.Move;
 import board.Square;
 import board.exchange.ComplexExchange;
-import board.exchange.ScoredMoveCalculator;
+import board.exchange.DiffMoveScore;
 import board.pieces.Piece;
 
 /**
@@ -11,9 +11,9 @@ import board.pieces.Piece;
  *
  * @author unicorn
  */
-public class DefenceCalculator extends ScoredMoveCalculator<Move> {
+public class DefenceScore extends DiffMoveScore<Move> {
 
-    public DefenceCalculator(Move move) {
+    public DefenceScore(Move move) {
         super(move, ComplexExchange::diff);
     }
 

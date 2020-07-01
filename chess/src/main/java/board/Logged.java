@@ -76,6 +76,19 @@ public interface Logged {
         return string.toString().replace("\n", "\n\t");
 //        }
     }
+
+    static String tabs(String name, Collection<?> list) {
+        if (list.isEmpty()) {
+            return "";
+//        } else if (list.size()==1) {
+//            return "" + list.iterator().next();
+        } else {
+            StringBuilder string = new StringBuilder();
+            string.append("\n").append("===").append(name).append("===");
+            list.forEach(i -> string.append("\n").append(i));
+            return string.toString().replace("\n", "\n\t");
+        }
+    }
 }
 
 class LoggedVariables {
