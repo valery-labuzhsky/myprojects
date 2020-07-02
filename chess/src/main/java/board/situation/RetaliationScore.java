@@ -14,17 +14,17 @@ import java.util.ArrayList;
  */
 public class RetaliationScore {
     final Move myMove;
-    private final ArrayList<AttackScore> retaliations;
+    private final ArrayList<OppositePiecesMoveScore> retaliations;
 
     public RetaliationScore(Move myMove) {
         this.myMove = myMove;
         this.myMove.imagine();
 
-        ArrayList<AttackScore> attacks = new ArrayList<>();
+        ArrayList<OppositePiecesMoveScore> attacks = new ArrayList<>();
 
         ArrayList<Piece> enemies = new ArrayList<>(myMove.piece.board.pieces.get(-myMove.piece.color));
         for (Piece enemy : enemies) {
-            enemy.getAttacks(myMove.piece.square).forEach(m -> attacks.add(new AttackScore(m, SituationScore::diff)));
+            enemy.getAttacks(myMove.piece.square).forEach(m -> attacks.add(new OppositePiecesMoveScore(m, SituationScore::diff)));
         }
 
         attacks.forEach(MoveScore::calculate);

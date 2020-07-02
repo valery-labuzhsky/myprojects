@@ -33,7 +33,7 @@ public class ListScoreWatcher {
     }
 
     public void calculate() {
-        diffs.removeIf(diff -> diff.getScore() == 0);
+        diffs.removeIf(diff -> diff.getScore() == 0 && diff.getAfter() == 0);
         score = diffs.stream().mapToInt(ScoreDiff::getScore).sum();
     }
 

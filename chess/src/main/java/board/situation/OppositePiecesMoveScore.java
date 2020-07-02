@@ -12,9 +12,9 @@ import java.util.function.Function;
  *
  * @author unicorn
  */
-public class AttackScore extends DiffMoveScore<Move> {
+public class OppositePiecesMoveScore extends DiffMoveScore<Move> {
 
-    public AttackScore(Move move, Function<Piece, ScoreWatcher> diff) {
+    public OppositePiecesMoveScore(Move move, Function<Piece, ScoreWatcher> diff) {
         super(move, diff);
     }
 

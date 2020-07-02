@@ -11,21 +11,21 @@ import java.util.ArrayList;
  * @author unicorn
  */
 public class SituationScore implements Analytics {
-    private final DefenceSituation situation;
-    private final ArrayList<DefenceScore> best;
+    private final AvoidCapturingVariants situation;
+    private final ArrayList<SamePiecesMoveScore> best;
 
     public static ScoreWatcher diff(Piece piece) {
         return PieceScore.diff(piece, SituationScore::new);
     }
 
     private SituationScore(Piece piece) {
-        this.situation = new DefenceSituation(piece);
-        best = Situations.best(situation.defences, DiffMoveScore::getScore, piece.color);
+        this.situation = new AvoidCapturingVariants(piece);
+        best = Situations.best(situation.variants, DiffMoveScore::getScore, piece.color);
     }
 
     @Override
     public int getScore() {
-        return situation.score() + best.stream().map(DefenceScore::getScore).findAny().orElse(0);
+        return situation.score() + best.stream().map(SamePiecesMoveScore::getScore).findAny().orElse(0);
     }
 
     @Override

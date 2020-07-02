@@ -8,9 +8,9 @@ import board.pieces.Piece;
  *
  * @author ptasha
  */
-public class AttackSituation extends Situation {
+public class CaptureVariants extends Variants {
 
-    AttackSituation(Piece piece) {
+    CaptureVariants(Piece piece) {
         super(piece, -piece.color);
         solve();
     }

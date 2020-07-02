@@ -14,24 +14,24 @@ import static board.Logged.tabs;
  *
  * @author unicorn
  */
-public abstract class Situation {
+public abstract class Variants {
     protected final Piece piece;
     public final Square square;
     protected final Exchange exchange;
-    final ArrayList<DefenceScore> defences = new ArrayList<>();
+    final ArrayList<SamePiecesMoveScore> variants = new ArrayList<>();
 
-    Situation(Piece piece, int color) {
+    Variants(Piece piece, int color) {
         this.piece = piece;
         this.square = this.piece.square; // TODO should I use piece instead?
         exchange = square.scores.getExchange(-color);
     }
 
     void addSolution(Move move) {
-        defences.add(new DefenceScore(move));
+        variants.add(new SamePiecesMoveScore(move));
     }
 
     public String toString() {
-        return "" + exchange + tabs(defences);
+        return "" + exchange + tabs(variants);
     }
 
 }

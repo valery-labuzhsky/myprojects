@@ -11,9 +11,9 @@ import board.pieces.Piece;
  *
  * @author unicorn
  */
-public class DefenceScore extends DiffMoveScore<Move> {
+public class SamePiecesMoveScore extends DiffMoveScore<Move> {
 
-    public DefenceScore(Move move) {
+    public SamePiecesMoveScore(Move move) {
         super(move, ComplexExchange::diff);
     }
 

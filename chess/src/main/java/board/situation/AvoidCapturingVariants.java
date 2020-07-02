@@ -10,9 +10,9 @@ import java.util.ArrayList;
  *
  * @author ptasha
  */
-public class DefenceSituation extends Situation {
+public class AvoidCapturingVariants extends Variants {
 
-    DefenceSituation(Piece piece) {
+    AvoidCapturingVariants(Piece piece) {
         super(piece, piece.color);
         solve();
     }

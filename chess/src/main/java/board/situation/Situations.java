@@ -24,7 +24,7 @@ public class Situations {
     private final HashSet<Move> moves = new HashSet<>();
 
     public final Board board;
-    private Situation check;
+    private Variants check;
     public int score;
     private int defenceScore;
 
@@ -84,8 +84,8 @@ public class Situations {
     }
 
     private void analyse() {
-        ArrayList<AttackSituation> attacks = new ArrayList<>();
-        HashSet<DefenceScore> solutions = new HashSet<>();
+        ArrayList<CaptureVariants> captures = new ArrayList<>();
+        HashSet<SamePiecesMoveScore> solutions = new HashSet<>();
         for (Piece piece : new ArrayList<>(board.pieces.get(-board.color))) { // TODO because we are doing moves when analysing situation
             // TODO I can optimize it by getting rid of waypoints
             for (Waypoint waypoint : piece.square.waypoints) {
@@ -93,59 +93,58 @@ public class Situations {
                     // TODO I only count for exchanges right now
                     //  I can check for situation he cannot escape
                     //  they are equal with exchanges and must be compared together
-                    AttackSituation situation = new AttackSituation(piece);
-                    attacks.add(situation);
+                    CaptureVariants situation = new CaptureVariants(piece);
+                    captures.add(situation);
 
-                    solutions.addAll(situation.defences); // TODO they are not defences
+                    solutions.addAll(situation.variants); // TODO they are not defences
 
                     break;
                 }
             }
         }
 
-        log().info(Logged.tabs("Attacks", attacks));
+        log().info(Logged.tabs("Capture variants", captures));
 
-        ArrayList<DefenceSituation> defences = new ArrayList<>();
+        ArrayList<AvoidCapturingVariants> avoidCaptures = new ArrayList<>();
         for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
             // TODO I can optimize it by getting rid of waypoints
             for (Waypoint waypoint : piece.square.waypoints) {
                 if (waypoint.captures()) {
-                    DefenceSituation situation = new DefenceSituation(piece);
-                    defences.add(situation);
-                    solutions.addAll(situation.defences);
+                    AvoidCapturingVariants avoid = new AvoidCapturingVariants(piece);
+                    avoidCaptures.add(avoid);
+                    solutions.addAll(avoid.variants);
 
                     if (piece.type == PieceType.King) {
-                        check = situation;
+                        check = avoid;
                     }
-                    score += situation.score();
+                    score += avoid.score();
                     break;
                 }
             }
         }
 
-        log().info(Logged.tabs("Defences", defences));
+        log().info(Logged.tabs("Avoid capture variants", avoidCaptures));
 
         solutions.removeIf(s -> s.getScore() * board.color < 0);
 
         if (solutions.isEmpty()) {
             for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
                 for (Waypoint move : piece.getMoves()) {
-                    solutions.add(new DefenceScore(move.move()));
+                    solutions.add(new SamePiecesMoveScore(move.move()));
                 }
             }
-            solutions = best(solutions, new HashSet<>(), d -> d.getScore(), board.color);
-            log().info(Logged.tabs("Best moves", solutions));
-        } else {
-            solutions = best(solutions, new HashSet<>(), d -> d.getScore(), board.color);
         }
+
+        solutions = best(solutions, new HashSet<>(), d -> d.getScore(), board.color);
+        log().info(Logged.tabs("Best moves", solutions));
 
         List<RetaliationScore> retaliationScores = solutions.stream().map(a -> new RetaliationScore(a.move)).collect(Collectors.toList());
         log().info(Logged.tabs("Retaliation scores", retaliationScores));
         retaliationScores = best(retaliationScores, a -> a.getScore(), board.color);
 
-        List<AttackScore> attackScores = retaliationScores.stream().map(a -> new AttackScore(a.myMove, ComplexExchange::diff)).collect(Collectors.toList());
-        log().info(Logged.tabs("Attack scores", attackScores));
-        attackScores = best(attackScores, a -> a.getScore(), board.color);
+        List<OppositePiecesMoveScore> oppositeScores = retaliationScores.stream().map(a -> new OppositePiecesMoveScore(a.myMove, ComplexExchange::diff)).collect(Collectors.toList());
+        log().info(Logged.tabs("Opposite scores", oppositeScores));
+        oppositeScores = best(oppositeScores, a -> a.getScore(), board.color);
         // TODO print them
         //  something is wrong
         //  I have list of moves and I'd like to apply sequential filters
@@ -158,9 +157,9 @@ public class Situations {
         //  I may rewrite it many times
 
 
-        // TODO then I need collection for attacks to print it
+        // TODO then I need collection for capturings to print it
         //  why do I even need it?
-        attackScores.forEach(m -> moves.add(m.move));
+        oppositeScores.forEach(m -> moves.add(m.move));
 
         solutions.stream().findFirst().ifPresent(m -> defenceScore = m.getScore());
 

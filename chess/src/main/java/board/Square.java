@@ -58,10 +58,10 @@ public class Square implements Logged {
                 int fdr = dr;
                 return Stream.concat(
                         Stream.iterate(this,
-                                s -> s != null,
+                                Objects::nonNull,
                                 s -> board.getSquare(s.pair.file + 1, s.pair.rank + fdr)),
                         Stream.iterate(this,
-                                s -> s != null,
+                                Objects::nonNull,
                                 s -> board.getSquare(s.pair.file - 1, s.pair.rank - fdr)).skip(1)
                 );
             }
@@ -74,7 +74,7 @@ public class Square implements Logged {
         return toString(this.piece) + pair;
     }
 
-    public String toBoard() {
+    String toBoard() {
         return toString(this.piece) + lastMove();
     }
 
@@ -133,19 +133,23 @@ public class Square implements Logged {
         return false;
     }
 
+    @Override
     public Logger getLogger() {
         return pair.getLogger();
     }
 
-    public Square step(Pair step) {
+    private Square step(Pair step) {
         return board.getSquare(pair.go(step));
     }
 
     public Stream<Piece> attackers() {
+        return attackLines().map(s -> s.findFirst().orElse(null)).filter(Objects::nonNull);
+    }
+
+    public Stream<Stream<Piece>> attackLines() {
         return Stream.concat(
-                Queen.getRays(this).map(r -> r.filter(s -> s.piece != null).findFirst().orElse(null)).filter(Objects::nonNull),
-                Knight.getMoves(this)
-        ).map(s -> s.piece).filter(Objects::nonNull).filter(p -> p.isAttack(p.square, this));
+                Queen.getRays(this), Knight.getMoves(this).map(Stream::of)).
+                map(r -> r.map(s -> s.piece).filter(Objects::nonNull).takeWhile(p -> p.isAttack(p.square, this)));
     }
 
     public Square go(int file, int rank) {

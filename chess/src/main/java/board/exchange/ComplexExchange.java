@@ -23,11 +23,8 @@ public class ComplexExchange extends Exchange {
     }
 
     @Override
-    protected void setScene() {
-        super.setScene();
-        sides.values().forEach(s -> s.pieces.forEach(
-                p -> costs.put(p, new RemoveScore(p, square).getScore())));
-        sort();
+    protected void calculateCost(Piece piece) {
+        costs.put(piece, new RemoveScore(piece, square).getScore());
     }
 
     private static class RemoveScore extends DiffMoveScore<Remove> {
