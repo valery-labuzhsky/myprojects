@@ -27,6 +27,7 @@ public class Situations {
     private Variants check;
     public int score;
     private int defenceScore;
+    private int oppositeAttacksScore;
 
     public Situations(Board board) {
         this.board = board;
@@ -76,7 +77,7 @@ public class Situations {
     }
 
     public int result() {
-        return this.score + defenceScore;
+        return this.score + defenceScore + oppositeAttacksScore;
     }
 
     public boolean isCheckmate() {
@@ -105,6 +106,8 @@ public class Situations {
 
         log().info(Logged.tabs("Capture variants", captures));
 
+        ArrayList<OppositeAttacksNoEscapePieceScore> oppositeAttacks = new ArrayList<>();
+
         ArrayList<AvoidCapturingVariants> avoidCaptures = new ArrayList<>();
         for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
             // TODO I can optimize it by getting rid of waypoints
@@ -121,9 +124,21 @@ public class Situations {
                     break;
                 }
             }
+
+            OppositeAttacksNoEscapePieceScore oppositeAttack = new OppositeAttacksNoEscapePieceScore(piece);
+            if (!oppositeAttack.attacks.isEmpty()) {
+                oppositeAttacks.add(oppositeAttack);
+            }
         }
 
         log().info(Logged.tabs("Avoid capture variants", avoidCaptures));
+
+        log().info(Logged.tabs("Opposite attacks", oppositeAttacks));
+        oppositeAttacksScore = oppositeAttacks.stream().mapToInt(a -> a.getScore()).sum();
+
+        // TODO use Retaliation like defence and attack
+        // TODO simplify - it shouldn't attack another piece suddenly
+        // TODO find defence against it
 
         solutions.removeIf(s -> s.getScore() * board.color < 0);
 
@@ -142,7 +157,7 @@ public class Situations {
         log().info(Logged.tabs("Retaliation scores", retaliationScores));
         retaliationScores = best(retaliationScores, a -> a.getScore(), board.color);
 
-        List<OppositePiecesMoveScore> oppositeScores = retaliationScores.stream().map(a -> new OppositePiecesMoveScore(a.myMove, ComplexExchange::diff)).collect(Collectors.toList());
+        List<OppositePiecesDiffMoveScore> oppositeScores = retaliationScores.stream().map(a -> new OppositePiecesDiffMoveScore(a.myMove, ComplexExchange::diff)).collect(Collectors.toList());
         log().info(Logged.tabs("Opposite scores", oppositeScores));
         oppositeScores = best(oppositeScores, a -> a.getScore(), board.color);
         // TODO print them
@@ -176,7 +191,7 @@ public class Situations {
     }
 
     private Move chooseMove() {
-        Move badMove = board.parse("a5a6");
+        Move badMove = board.parse("e1f2");
         if (moves.contains(badMove)) {
             moves.clear();
             moves.add(badMove);

@@ -84,7 +84,7 @@ public interface Logged {
 //            return "" + list.iterator().next();
         } else {
             StringBuilder string = new StringBuilder();
-            string.append("\n").append("===").append(name).append("===");
+            string.append("\n").append("=== ").append(name).append(" ===");
             list.forEach(i -> string.append("\n").append(i));
             return string.toString().replace("\n", "\n\t");
         }

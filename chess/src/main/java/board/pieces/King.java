@@ -139,8 +139,8 @@ public class King extends OneStepPiece {
         Pair from = this.square.pair;
         Pair to = square.pair;
 
-        for (int f = Math.max(to.file, from.file) - 1; f < Math.min(to.file, from.file) + 1; f++) {
-            for (int r = Math.max(to.rank, from.rank) - 1; r < Math.min(to.rank, from.rank) + 1; r++) {
+        for (int f = Math.min(to.file, from.file) - 1; f < Math.max(to.file, from.file) + 1; f++) {
+            for (int r = Math.min(to.rank, from.rank) - 1; r < Math.max(to.rank, from.rank) + 1; r++) {
                 Square s = board.getSquare(f, r);
                 if (s != null && s != this.square && s != square) {
                     builder.add(s);

@@ -31,7 +31,7 @@ public abstract class Variants {
     }
 
     public String toString() {
-        return "" + exchange + tabs(variants);
+        return "" + exchange + tabs(getClass().getSimpleName(), variants);
     }
 
 }
