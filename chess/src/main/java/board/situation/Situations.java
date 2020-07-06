@@ -106,7 +106,7 @@ public class Situations {
 
         log().info(Logged.tabs("Capture variants", captures));
 
-        ArrayList<OppositeAttacksNoEscapePieceScore> oppositeAttacks = new ArrayList<>();
+        ArrayList<Problem> oppositeAttacks = new ArrayList<>();
 
         ArrayList<AvoidCapturingVariants> avoidCaptures = new ArrayList<>();
         for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
@@ -125,20 +125,31 @@ public class Situations {
                 }
             }
 
-            OppositeAttacksNoEscapePieceScore oppositeAttack = new OppositeAttacksNoEscapePieceScore(piece);
-            if (!oppositeAttack.attacks.isEmpty()) {
-                oppositeAttacks.add(oppositeAttack);
-            }
+            oppositeAttacks.addAll(new OppositeAttacksNoEscapePieceScore(piece).attacks.stream().
+                    map(a -> new OppositeAttackVariants(a)).collect(Collectors.toList()));
         }
 
         log().info(Logged.tabs("Avoid capture variants", avoidCaptures));
 
         log().info(Logged.tabs("Opposite attacks", oppositeAttacks));
-        oppositeAttacksScore = oppositeAttacks.stream().mapToInt(a -> a.getScore()).sum();
+        score += oppositeAttacks.stream().mapToInt(a -> a.getScore()).sum();
 
-        // TODO use Retaliation like defence and attack
-        // TODO simplify - it shouldn't attack another piece suddenly
-        // TODO find defence against it
+        HashMap<Move, Tempo> tempos = new HashMap<>();
+        for (Problem attack : oppositeAttacks) {
+            log().info(attack);
+            for (Solution solution : attack.solutions) {
+                tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
+            }
+        }
+        ArrayList<Tempo> bestTempos = best(tempos.values(), t -> t.getScore(), board.color);
+        log().info(Logged.tabs("Solutions", bestTempos));
+
+        // TODO print problems without solutions
+
+        if (solutions.isEmpty()) {
+            solutions.addAll(bestTempos.stream().map(t -> new SamePiecesMoveScore(t.move)).collect(Collectors.toList()));
+            score += bestTempos.stream().map(t -> t.getScore()).findAny().orElse(0);
+        }
 
         solutions.removeIf(s -> s.getScore() * board.color < 0);
 

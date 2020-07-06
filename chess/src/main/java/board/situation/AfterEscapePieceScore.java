@@ -10,15 +10,15 @@ import java.util.ArrayList;
  *
  * @author unicorn
  */
-public class SituationScore implements Analytics {
+public class AfterEscapePieceScore implements Analytics {
     private final AvoidCapturingVariants situation;
     private final ArrayList<SamePiecesMoveScore> best;
 
     public static ScoreWatcher diff(Piece piece) {
-        return PieceScore.diff(piece, SituationScore::new);
+        return PieceScore.diff(piece, AfterEscapePieceScore::new);
     }
 
-    private SituationScore(Piece piece) {
+    private AfterEscapePieceScore(Piece piece) {
         this.situation = new AvoidCapturingVariants(piece);
         best = Situations.best(situation.variants, DiffMoveScore::getScore, piece.color);
     }

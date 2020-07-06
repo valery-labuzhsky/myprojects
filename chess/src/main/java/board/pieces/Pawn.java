@@ -77,8 +77,9 @@ public class Pawn extends OneStepPiece {
         return to.piece == null && isGo(from, to) && getBlocks(from, to).isEmpty();
     }
 
+    @Override
     public boolean attacks(Square from, Square to) {
-        return to.piece != null && to.piece.color != color && isAttack(from, to);
+        return isAttack(from, to);
     }
 
     @Override

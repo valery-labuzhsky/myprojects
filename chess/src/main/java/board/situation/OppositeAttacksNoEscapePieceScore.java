@@ -13,16 +13,16 @@ import java.util.ArrayList;
  */
 public class OppositeAttacksNoEscapePieceScore {
     private final Piece piece;
-    final ArrayList<OppositePiecesDiffMoveScore> attacks;
+    final ArrayList<AfterMoveScore> attacks;
 
     public OppositeAttacksNoEscapePieceScore(Piece piece) {
         this.piece = piece;
 
-        ArrayList<OppositePiecesDiffMoveScore> attacks = new ArrayList<>();
+        ArrayList<AfterMoveScore> attacks = new ArrayList<>();
         ArrayList<Piece> enemies = new ArrayList<>(piece.board.pieces.get(-piece.color));
         for (Piece enemy : enemies) {
             enemy.getAttacks(piece.square).forEach(m -> {
-                OppositePiecesDiffMoveScore attack = new OppositePiecesDiffMoveScore(m, SituationScore::diff);
+                AfterMoveScore attack = new AfterMoveScore(piece, m, AfterEscapePieceScore::diff);
                 if (attack.getScore() * m.piece.color > 0) {
                     attacks.add(attack);
                 }
@@ -40,4 +40,5 @@ public class OppositeAttacksNoEscapePieceScore {
     public String toString() {
         return "" + piece + " " + Logged.tabs(attacks);
     }
+
 }
