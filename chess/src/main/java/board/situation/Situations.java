@@ -85,6 +85,7 @@ public class Situations {
     }
 
     private void analyse() {
+        ArrayList<AfterMoveScore> myAttacks = new ArrayList<>();
         ArrayList<CaptureVariants> captures = new ArrayList<>();
         HashSet<SamePiecesMoveScore> solutions = new HashSet<>();
         for (Piece piece : new ArrayList<>(board.pieces.get(-board.color))) { // TODO because we are doing moves when analysing situation
@@ -102,7 +103,11 @@ public class Situations {
                     break;
                 }
             }
+
+            myAttacks.addAll(new MyAttacksPieceScore(piece).attacks);
         }
+
+        log().info(Logged.tabs("My attacks", myAttacks));
 
         log().info(Logged.tabs("Capture variants", captures));
 
@@ -126,17 +131,16 @@ public class Situations {
             }
 
             oppositeAttacks.addAll(new OppositeAttacksNoEscapePieceScore(piece).attacks.stream().
-                    map(a -> new OppositeAttackVariants(a)).collect(Collectors.toList()));
+                    map(a -> new OppositeAttackVariants(a).counterAttacks(myAttacks)).collect(Collectors.toList()));
         }
 
         log().info(Logged.tabs("Avoid capture variants", avoidCaptures));
 
-        log().info(Logged.tabs("Opposite attacks", oppositeAttacks));
+        log().info(Logged.tabs("Problems", oppositeAttacks));
         score += oppositeAttacks.stream().mapToInt(a -> a.getScore()).sum();
 
         HashMap<Move, Tempo> tempos = new HashMap<>();
         for (Problem attack : oppositeAttacks) {
-            log().info(attack);
             for (Solution solution : attack.solutions) {
                 tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
             }
@@ -144,7 +148,13 @@ public class Situations {
         ArrayList<Tempo> bestTempos = best(tempos.values(), t -> t.getScore(), board.color);
         log().info(Logged.tabs("Solutions", bestTempos));
 
-        // TODO print problems without solutions
+        HashSet<Problem> unsolvedProblems = new HashSet<>(oppositeAttacks);
+        bestTempos.forEach(t -> unsolvedProblems.removeAll(t.problems));
+        log().info(Logged.shortTabs("Unsolved problems", unsolvedProblems));
+
+        // TODO counter attack is better then any attack
+        //  d1e1 is also attack which solves this equation
+        //  I attack him - it doesn't matter if he has an escape or not - he must move
 
         if (solutions.isEmpty()) {
             solutions.addAll(bestTempos.stream().map(t -> new SamePiecesMoveScore(t.move)).collect(Collectors.toList()));

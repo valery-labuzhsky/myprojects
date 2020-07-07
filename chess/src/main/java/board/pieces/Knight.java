@@ -39,13 +39,17 @@ public class Knight extends OneStepPiece {
 
     @Override
     public boolean isMove(Square from, Square to) {
-        return Math.abs(from.pair.file - to.pair.file) * Math.abs(from.pair.rank - to.pair.rank) == 2;
+        return isMove(from.pair.file - to.pair.file, from.pair.rank - to.pair.rank);
+    }
+
+    private boolean isMove(int dx, int dy) {
+        return Math.abs(dx) * Math.abs(dy) == 2;
     }
 
     @Override
     public Stream<Square> getPotentialAttacks(Square to) {
-        XY file = split(this.square.pair.file - to.pair.file);
-        XY rank = split(this.square.pair.rank - to.pair.rank);
+        XY file = split(to.pair.file - square.pair.file);
+        XY rank = split(to.pair.rank - square.pair.rank);
 
         normalize(file, rank);
         normalize(rank, file);
@@ -53,17 +57,25 @@ public class Knight extends OneStepPiece {
         file.swap(rank);
         rank.swap();
 
-        return Stream.of(file, rank).map(xy -> board.getSquare(xy.x, xy.y)).filter(s -> s != null);
+        if (isMove(file) && isMove(rank)) {
+            return Stream.of(file, rank).map(xy -> square.go(xy.x, xy.y)).filter(s -> s != null);
+        } else {
+            return Stream.empty();
+        }
     }
 
-    public void normalize(XY x, XY y) {
+    private boolean isMove(XY xy) {
+        return isMove(xy.x, xy.y);
+    }
+
+    private void normalize(XY x, XY y) {
         if (x.x == 0) {
             x.x = 3 - Math.abs(y.x);
             x.y = -x.x;
         }
     }
 
-    public XY split(int sum) {
+    private XY split(int sum) {
         XY xy = new XY(sum % 2, sum / 2);
         xy.x += xy.y;
         if (Math.abs(sum) == 1) {

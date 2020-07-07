@@ -15,7 +15,7 @@ public class Tempo {
     //  it's part of decision making so far not positional assessment
     final Move move;
     private final int negative; // TODO it's better to have not score but positional knowledge
-    private final ArrayList<Problem> problems = new ArrayList<>();
+    final ArrayList<Problem> problems = new ArrayList<>();
 
     Tempo(Solution solution) {
         negative = solution.getNegative();
@@ -34,6 +34,6 @@ public class Tempo {
 
     @Override
     public String toString() {
-        return "" + move + ": " + negative + Logged.tabs("Problems", problems);
+        return "" + move + ": " + negative + Logged.shortTabs("Problems", problems);
     }
 }

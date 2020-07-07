@@ -77,6 +77,11 @@ public class XY {
         this.y = t;
     }
 
+    @Override
+    public String toString() {
+        return x + "x" + y;
+    }
+
     public enum Transform {
         LINEAR(XY::linear, XY::linear),
         DIAGONAL(XY::diagonal, XY::diagonalBack),

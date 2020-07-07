@@ -1,6 +1,10 @@
 package board.situation;
 
+import board.Move;
+import board.exchange.Exchange;
 import board.pieces.Piece;
+
+import java.util.ArrayList;
 
 /**
  * Created on 04.07.2020.
@@ -15,9 +19,28 @@ public class OppositeAttackVariants extends Problem {
 
         Piece attacked = attack.piece;
         for (Piece friend : attacked.board.pieces.get(attacked.color)) {
-            friend.getAttacks(attack.move.to).forEach(m -> solutions.add(new Solution(m, this)));
-            // TODO let's assume it's 100%, I'll check other variants later
+            friend.getAttacks(attack.move.to).forEach(this::checkSolution);
         }
+    }
+
+    private void checkSolution(Move move) {
+        int color = attack.piece.color;
+        int score = new Exchange(move.to, -color).move(move.piece).getScore() * color;
+        if (score >= 0) {
+            solutions.add(new Solution(move, this));
+        }
+    }
+
+    public OppositeAttackVariants counterAttacks(ArrayList<AfterMoveScore> attacks) {
+        int myColor = attack.piece.color;
+        for (AfterMoveScore attack : attacks) {
+            if (attack.getScore() * myColor >= getScore() * myColor) {
+                if (this.attack.move.piece != attack.piece) {
+                    solutions.add(new Solution(attack.move, this));
+                }
+            }
+        }
+        return this;
     }
 
     @Override
@@ -27,7 +50,7 @@ public class OppositeAttackVariants extends Problem {
 
     @Override
     public String toString() {
-        return "Attack " + attack.move + " on " + attack.piece + " = " + attack.getScore();
+        return attack.toString();
     }
 
 }

@@ -66,26 +66,29 @@ public interface Logged {
     }
 
     static String tabs(Collection<?> list) {
-//        if (list.isEmpty()) {
-//            return "[]";
-//        } else if (list.size()==1) {
-//            return "" + list.iterator().next();
-//        } else {
         StringBuilder string = new StringBuilder();
         list.forEach(i -> string.append("\n").append(i));
         return string.toString().replace("\n", "\n\t");
-//        }
     }
 
     static String tabs(String name, Collection<?> list) {
         if (list.isEmpty()) {
             return "";
-//        } else if (list.size()==1) {
-//            return "" + list.iterator().next();
         } else {
             StringBuilder string = new StringBuilder();
             string.append("\n").append("=== ").append(name).append(" ===");
             list.forEach(i -> string.append("\n").append(i));
+            return string.toString().replace("\n", "\n\t");
+        }
+    }
+
+    static String shortTabs(String name, Collection<?> list) {
+        if (list.isEmpty()) {
+            return "";
+        } else {
+            StringBuilder string = new StringBuilder();
+            string.append("\n").append("=== ").append(name).append(" ===");
+            list.forEach(i -> string.append("\n").append(i.toString().lines().findFirst().orElse("")));
             return string.toString().replace("\n", "\n\t");
         }
     }

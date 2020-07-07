@@ -18,7 +18,7 @@ public class ExchangeCalculator {
     private Piece onSquare;
 
     public ExchangeCalculator(Exchange exchange) {
-        this.onSquare = exchange.square.piece;
+        this.onSquare = exchange.piece;
         exchange.sides.forEach((c, s) -> this.sides.put(c, new Side(c, s)));
         this.exchange = exchange;
     }

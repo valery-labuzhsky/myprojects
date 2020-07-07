@@ -59,6 +59,6 @@ public class AvoidCapturingVariants extends Variants {
     }
 
     public int score() {
-        return exchange.result.score;
+        return exchange.getResult().score;
     }
 }

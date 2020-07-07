@@ -24,4 +24,9 @@ public class AfterMoveScore extends DiffMoveScore<Move> {
         // TODO it's only one piece
         score.collect(diff.apply(piece));
     }
+
+    @Override
+    public String toString() {
+        return "Attack " + move + " on " + piece + " = " + getScore() + score;
+    }
 }
