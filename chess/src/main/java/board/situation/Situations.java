@@ -27,7 +27,6 @@ public class Situations {
     private Variants check;
     public int score;
     private int defenceScore;
-    private int oppositeAttacksScore;
 
     public Situations(Board board) {
         this.board = board;
@@ -77,7 +76,7 @@ public class Situations {
     }
 
     public int result() {
-        return this.score + defenceScore + oppositeAttacksScore;
+        return this.score + defenceScore;
     }
 
     public boolean isCheckmate() {
@@ -86,80 +85,55 @@ public class Situations {
 
     private void analyse() {
         ArrayList<AfterMoveScore> myAttacks = new ArrayList<>();
-        ArrayList<CaptureVariants> captures = new ArrayList<>();
-        HashSet<SamePiecesMoveScore> solutions = new HashSet<>();
+        ArrayList<Solution> captures = new ArrayList<>();
+
+        // TODO I'm capturing 900
+        //  that's what I should care about
+        //  with this move I should jump into solution
+        //  just add a solution to no problem in particular
+        //  why not
         for (Piece piece : new ArrayList<>(board.pieces.get(-board.color))) { // TODO because we are doing moves when analysing situation
-            // TODO I can optimize it by getting rid of waypoints
-            for (Waypoint waypoint : piece.square.waypoints) {
-                if (waypoint.captures()) {
-                    // TODO I only count for exchanges right now
-                    //  I can check for situation he cannot escape
-                    //  they are equal with exchanges and must be compared together
-                    CaptureVariants situation = new CaptureVariants(piece);
-                    captures.add(situation);
+            captures.addAll(new CaptureTroubleMaker(piece).takeAdvantageOf().collect(Collectors.toList()));
 
-                    solutions.addAll(situation.variants); // TODO they are not defences
-
-                    break;
-                }
-            }
-
-            myAttacks.addAll(new MyAttacksPieceScore(piece).attacks);
+            // TODO it is not necessary simple, it may be complex
+            myAttacks.addAll(new SimpleAttackTroubleMaker(piece).attacks);
         }
 
         log().info(Logged.tabs("My attacks", myAttacks));
 
-        log().info(Logged.tabs("Capture variants", captures));
+        log().info(Logged.tabs("My captures", captures));
 
-        ArrayList<Problem> oppositeAttacks = new ArrayList<>();
+        ArrayList<ProblemSolver> oppositeAttacks = new ArrayList<>();
 
-        ArrayList<AvoidCapturingVariants> avoidCaptures = new ArrayList<>();
         for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
-            // TODO I can optimize it by getting rid of waypoints
-            for (Waypoint waypoint : piece.square.waypoints) {
-                if (waypoint.captures()) {
-                    AvoidCapturingVariants avoid = new AvoidCapturingVariants(piece);
-                    avoidCaptures.add(avoid);
-                    solutions.addAll(avoid.variants);
-
-                    if (piece.type == PieceType.King) {
-                        check = avoid;
-                    }
-                    score += avoid.score();
-                    break;
-                }
-            }
-
-            oppositeAttacks.addAll(new OppositeAttacksNoEscapePieceScore(piece).attacks.stream().
-                    map(a -> new OppositeAttackVariants(a).counterAttacks(myAttacks)).collect(Collectors.toList()));
+            oppositeAttacks.addAll(new CaptureTroubleMaker(piece).makeProblems(myAttacks).collect(Collectors.toList()));
+            oppositeAttacks.addAll(new OppositeAttacksNoEscapeTroubleMaker(piece).makeProblems(myAttacks).collect(Collectors.toList()));
         }
-
-        log().info(Logged.tabs("Avoid capture variants", avoidCaptures));
 
         log().info(Logged.tabs("Problems", oppositeAttacks));
         score += oppositeAttacks.stream().mapToInt(a -> a.getScore()).sum();
 
         HashMap<Move, Tempo> tempos = new HashMap<>();
-        for (Problem attack : oppositeAttacks) {
-            for (Solution solution : attack.solutions) {
+        for (ProblemSolver attack : oppositeAttacks) {
+            for (Solution solution : attack.getSolutions()) {
                 tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
             }
         }
         ArrayList<Tempo> bestTempos = best(tempos.values(), t -> t.getScore(), board.color);
         log().info(Logged.tabs("Solutions", bestTempos));
 
-        HashSet<Problem> unsolvedProblems = new HashSet<>(oppositeAttacks);
+        HashSet<ProblemSolver> unsolvedProblems = new HashSet<>(oppositeAttacks);
         bestTempos.forEach(t -> unsolvedProblems.removeAll(t.problems));
+
+        // TODO save worst unsolved problems
+        //  it will be our decision maker
         log().info(Logged.shortTabs("Unsolved problems", unsolvedProblems));
+        check = unsolvedProblems.stream().
+                filter(p -> p instanceof CaptureProblemSolver).map(p -> (CaptureProblemSolver) p).
+                filter(p -> p.piece.type == PieceType.King).findAny().orElse(null);
 
-        // TODO counter attack is better then any attack
-        //  d1e1 is also attack which solves this equation
-        //  I attack him - it doesn't matter if he has an escape or not - he must move
-
-        if (solutions.isEmpty()) {
-            solutions.addAll(bestTempos.stream().map(t -> new SamePiecesMoveScore(t.move)).collect(Collectors.toList()));
-            score += bestTempos.stream().map(t -> t.getScore()).findAny().orElse(0);
-        }
+        HashSet<SamePiecesMoveScore> solutions = new HashSet<>(bestTempos.stream().map(t -> new SamePiecesMoveScore(t.move)).collect(Collectors.toList()));
+        score += bestTempos.stream().map(t -> t.getScore()).findAny().orElse(0);
 
         solutions.removeIf(s -> s.getScore() * board.color < 0);
 
@@ -181,30 +155,12 @@ public class Situations {
         List<OppositePiecesDiffMoveScore> oppositeScores = retaliationScores.stream().map(a -> new OppositePiecesDiffMoveScore(a.myMove, ComplexExchange::diff)).collect(Collectors.toList());
         log().info(Logged.tabs("Opposite scores", oppositeScores));
         oppositeScores = best(oppositeScores, a -> a.getScore(), board.color);
-        // TODO print them
-        //  something is wrong
-        //  I have list of moves and I'd like to apply sequential filters
-        //  but I also need to print this criteria
-        //  that's why the list must consist of new collection all the time
-        //  I can unify how I get move out of it and how I get score out of it
-
-        // TODO I need transforming them from one to another
-        //  do I ever need it or kludge will do for a while?
-        //  I may rewrite it many times
-
-
-        // TODO then I need collection for capturings to print it
-        //  why do I even need it?
         oppositeScores.forEach(m -> moves.add(m.move));
 
         solutions.stream().findFirst().ifPresent(m -> defenceScore = m.getScore());
 
         System.out.println("Total: " + score);
         System.out.println("Defend: " + defenceScore + " " + Logged.tabs(this.moves));
-//
-//        for (DefenceScore move : moves) {
-//            log().info("Retaliation " + new RetaliationScore(move.move));
-//        }
     }
 
     private Logger log() {

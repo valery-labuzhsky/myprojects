@@ -1,25 +1,36 @@
 package board.situation;
 
 import board.Waypoint;
+import board.exchange.Exchange;
 import board.pieces.Piece;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created on 16.04.2020.
  *
  * @author ptasha
  */
-public class AvoidCapturingVariants extends Variants {
+public class CaptureProblemSolver extends Variants {
 
-    AvoidCapturingVariants(Piece piece) {
-        super(piece, piece.color);
+    // TODO it's not fair
+    @Deprecated
+    static CaptureProblem createProblem(Exchange exchange) {
+        ArrayList<Piece> enemies = exchange.sides.get(-exchange.piece.color).pieces;
+        if (enemies.isEmpty()) return null;
+        Piece enemy = enemies.get(0);
+        return new CaptureProblem(exchange.piece, exchange.move(enemy));
+    }
+
+    CaptureProblemSolver(CaptureProblem problem) {
+        super(problem);
         solve();
     }
 
     private void solve() {
         // somebody attacks me
-        if (score() < 0) {
+        if (getScore() < 0) { // TODO it won't be necessary once I use trouble maker everywhere
             for (Waypoint waypoint : piece.getWaypoints()) { // escape
                 if (waypoint.moves()) {
                     addSolution(waypoint.move());
@@ -58,7 +69,26 @@ public class AvoidCapturingVariants extends Variants {
         }
     }
 
-    public int score() {
-        return exchange.getResult().score;
+    @Override
+    public int getScore() {
+        return mainExchange.getResult().score;
+    }
+
+    CaptureProblemSolver counterAttacks(List<AfterMoveScore> attacks) {
+        // TODO I'm a copy
+        int myColor = piece.color;
+        for (AfterMoveScore attack : attacks) {
+            if (attack.getScore() * myColor >= getScore() * myColor) {
+//                if (this.attack.move.piece != attack.piece) { // TODO add me back when move is added to the mixture
+                getSolutions().add(new Solution(attack.move, problem));
+//                }
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Capture " + super.toString();
     }
 }

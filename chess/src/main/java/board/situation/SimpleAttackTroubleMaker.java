@@ -10,8 +10,8 @@ import java.util.function.Function;
  *
  * @author unicorn
  */
-public class MyAttacksPieceScore extends Attacks {
-    public MyAttacksPieceScore(Piece piece) {
+public class SimpleAttackTroubleMaker extends AttackTroubleMaker {
+    public SimpleAttackTroubleMaker(Piece piece) {
         super(piece);
     }
 

@@ -11,7 +11,7 @@ import board.pieces.Piece;
  */
 public class RetaliationScore {
     final Move myMove;
-    private final OppositeAttacksNoEscapePieceScore score;
+    private final OppositeAttacksNoEscapeTroubleMaker score;
 
     public RetaliationScore(Move myMove) {
         this.myMove = myMove;
@@ -19,7 +19,7 @@ public class RetaliationScore {
 
         Piece piece = myMove.piece;
 
-        score = new OppositeAttacksNoEscapePieceScore(piece);
+        score = new OppositeAttacksNoEscapeTroubleMaker(piece);
 
         this.myMove.undo();
     }

@@ -11,32 +11,32 @@ import java.util.ArrayList;
  *
  * @author unicorn
  */
-public class OppositeAttackVariants extends Problem {
-    private final AfterMoveScore attack;
+public class AttackProblemSolver extends ProblemSolver {
+    private final AttackProblem problem;
 
-    OppositeAttackVariants(AfterMoveScore attack) {
-        this.attack = attack;
+    AttackProblemSolver(AfterMoveScore attack) {
+        problem = new AttackProblem(attack);
 
-        Piece attacked = attack.piece;
+        Piece attacked = problem.piece;
         for (Piece friend : attacked.board.pieces.get(attacked.color)) {
-            friend.getAttacks(attack.move.to).forEach(this::checkSolution);
+            friend.getAttacks(problem.move.to).forEach(this::checkSolution);
         }
     }
 
     private void checkSolution(Move move) {
-        int color = attack.piece.color;
+        int color = problem.piece.color;
         int score = new Exchange(move.to, -color).move(move.piece).getScore() * color;
         if (score >= 0) {
-            solutions.add(new Solution(move, this));
+            getSolutions().add(new Solution(move, problem));
         }
     }
 
-    public OppositeAttackVariants counterAttacks(ArrayList<AfterMoveScore> attacks) {
-        int myColor = attack.piece.color;
+    public AttackProblemSolver counterAttacks(ArrayList<AfterMoveScore> attacks) {
+        int myColor = problem.piece.color;
         for (AfterMoveScore attack : attacks) {
             if (attack.getScore() * myColor >= getScore() * myColor) {
-                if (this.attack.move.piece != attack.piece) {
-                    solutions.add(new Solution(attack.move, this));
+                if (problem.move.piece != attack.piece) {
+                    getSolutions().add(new Solution(attack.move, problem));
                 }
             }
         }
@@ -45,12 +45,12 @@ public class OppositeAttackVariants extends Problem {
 
     @Override
     public int getScore() {
-        return attack.getScore();
+        return problem.getScore();
     }
 
     @Override
     public String toString() {
-        return attack.toString();
+        return problem.toString();
     }
 
 }

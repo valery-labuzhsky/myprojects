@@ -17,9 +17,9 @@ import java.util.stream.Stream;
  * @author ptasha
  */
 public class Exchange implements Logged, Analytics {
-    protected final Square square;
-    Piece piece;
-    final HashMap<Integer, Side> sides = new HashMap<>();
+    public final Square square;
+    public Piece piece;
+    public final HashMap<Integer, Side> sides = new HashMap<>();
     final HashMap<Piece, Integer> costs = new HashMap<>();
     public final int color;
     private Result result;
@@ -30,6 +30,16 @@ public class Exchange implements Logged, Analytics {
         this.color = color;
         Stream.of(-1, 1).forEach(s -> sides.put(s, new Side()));
         setScene();
+    }
+
+    // TODO it creates effective copy of ComplexExchange but without ComplexExchange itself
+    //  I gonna change it
+    private Exchange(Exchange exchange) {
+        this.square = exchange.square;
+        this.piece = exchange.piece;
+        this.color = exchange.color;
+        Stream.of(-1, 1).forEach(s -> sides.put(s, new Side(exchange.sides.get(s))));
+        costs.putAll(exchange.costs);
     }
 
     public static ScoreWatcher diff(Piece piece) {
@@ -84,9 +94,10 @@ public class Exchange implements Logged, Analytics {
     }
 
     public Exchange move(Piece piece) {
-        sides.get(piece.color).pieces.remove(piece);
-        this.piece = piece;
-        return this;
+        Exchange copy = new Exchange(this);
+        copy.sides.get(piece.color).pieces.remove(piece);
+        copy.piece = piece;
+        return copy;
     }
 
     public static class Result {
@@ -117,8 +128,15 @@ public class Exchange implements Logged, Analytics {
         }
     }
 
-    protected static class Side {
-        protected final ArrayList<Piece> pieces = new ArrayList<>();
+    public static class Side {
+        public final ArrayList<Piece> pieces = new ArrayList<>();
+
+        Side() {
+        }
+
+        Side(Side side) {
+            pieces.addAll(side.pieces);
+        }
     }
 
     int cost(Piece piece) {

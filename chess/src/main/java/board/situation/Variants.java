@@ -14,24 +14,30 @@ import static board.Logged.tabs;
  *
  * @author unicorn
  */
-public abstract class Variants {
+// TODO remove me once no variants are in use
+public abstract class Variants extends ProblemSolver {
     protected final Piece piece;
     public final Square square;
-    protected final Exchange exchange;
+    protected final Exchange mainExchange;
     final ArrayList<SamePiecesMoveScore> variants = new ArrayList<>();
+    final CaptureProblem problem;
 
-    Variants(Piece piece, int color) {
-        this.piece = piece;
-        this.square = this.piece.square; // TODO should I use piece instead?
-        exchange = square.scores.getExchange(-color);
+    // TODO use it fairly
+    Variants(CaptureProblem problem) {
+        this.problem = problem;
+        Exchange exchange = problem.piece.getExchange();
+        this.mainExchange = exchange;
+        this.piece = exchange.piece;
+        this.square = exchange.square;
     }
 
     void addSolution(Move move) {
         variants.add(new SamePiecesMoveScore(move));
+        getSolutions().add(new Solution(move, problem));
     }
 
     public String toString() {
-        return "" + exchange + tabs(getClass().getSimpleName(), variants);
+        return "" + mainExchange + tabs(getClass().getSimpleName(), variants);
     }
 
 }

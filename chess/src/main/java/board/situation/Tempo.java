@@ -11,29 +11,32 @@ import java.util.ArrayList;
  * @author unicorn
  */
 public class Tempo {
-    // TODO it's projection of solution but with multiple problems
-    //  it's part of decision making so far not positional assessment
     final Move move;
-    private final int negative; // TODO it's better to have not score but positional knowledge
+    // TODO it's better to have not score but positional knowledge
+    //  it should me a sum of problems it creates
+    //  plus score for capturing a piece
+    private int additional;
     final ArrayList<Problem> problems = new ArrayList<>();
 
     Tempo(Solution solution) {
-        negative = solution.getNegative();
         move = solution.move;
         add(solution);
     }
 
     public Tempo add(Solution solution) {
-        problems.add(solution.problem);
+        if (solution.problem != null) {
+            problems.add(solution.problem);
+        }
+        additional += solution.getAdditional();
         return this;
     }
 
     public int getScore() {
-        return negative - problems.stream().mapToInt(p -> p.getScore()).sum();
+        return additional - problems.stream().mapToInt(p -> p.getScore()).sum();
     }
 
     @Override
     public String toString() {
-        return "" + move + ": " + negative + Logged.shortTabs("Problems", problems);
+        return "" + move + ": " + additional + Logged.shortTabs("Problems", problems);
     }
 }

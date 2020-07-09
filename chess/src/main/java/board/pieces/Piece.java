@@ -1,6 +1,7 @@
 package board.pieces;
 
 import board.*;
+import board.exchange.Exchange;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
@@ -205,5 +206,9 @@ public abstract class Piece implements Logged {
                     }
                     return Stream.empty();
                 });
+    }
+
+    public Exchange getExchange() {
+        return square.scores.getExchange(-color);
     }
 }

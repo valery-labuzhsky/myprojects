@@ -12,11 +12,11 @@ import java.util.function.Function;
  *
  * @author unicorn
  */
-public abstract class Attacks {
+public abstract class AttackTroubleMaker {
     protected final Piece piece;
     final ArrayList<AfterMoveScore> attacks;
 
-    public Attacks(Piece piece) {
+    public AttackTroubleMaker(Piece piece) {
         this.piece = piece;
 
         ArrayList<AfterMoveScore> attacks = new ArrayList<>();
@@ -29,6 +29,8 @@ public abstract class Attacks {
                 }
             });
         }
+
+        // TODO add capturing of attacking piece
 
         this.attacks = Situations.best(attacks, DiffMoveScore::getScore, -piece.color);
     }
