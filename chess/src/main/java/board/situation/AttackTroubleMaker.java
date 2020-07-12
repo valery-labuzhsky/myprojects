@@ -23,14 +23,14 @@ public abstract class AttackTroubleMaker {
         ArrayList<Piece> enemies = new ArrayList<>(piece.board.pieces.get(-piece.color));
         for (Piece enemy : enemies) {
             enemy.getAttacks(piece.square).forEach(m -> {
-                AfterMoveScore attack = new AfterMoveScore(piece, m, diff());
-                if (attack.getScore() * m.piece.color > 0) {
-                    attacks.add(attack);
+                if (m.to.scores.getExchange(enemy.color).move(enemy).getScore() * enemy.color >= 0) {
+                    AfterMoveScore attack = new AfterMoveScore(piece, m, diff());
+                    if (attack.getScore() * m.piece.color > 0) {
+                        attacks.add(attack);
+                    }
                 }
             });
         }
-
-        // TODO add capturing of attacking piece
 
         this.attacks = Situations.best(attacks, DiffMoveScore::getScore, -piece.color);
     }

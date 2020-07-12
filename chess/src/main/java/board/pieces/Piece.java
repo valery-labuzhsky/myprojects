@@ -4,7 +4,10 @@ import board.*;
 import board.exchange.Exchange;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -29,10 +32,6 @@ public abstract class Piece implements Logged {
 
     public boolean onBoard() {
         return this.square.piece == this;
-    }
-
-    public HashSet<Waypoint> getWaypoints() {
-        return new HashSet<>(this.waypoints);
     }
 
     public Move move(Square to) {
@@ -80,14 +79,8 @@ public abstract class Piece implements Logged {
         }
     }
 
-    public List<Waypoint> getMoves() {
-        ArrayList<Waypoint> moves = new ArrayList<>();
-        for (Waypoint waypoint : waypoints) {
-            if (waypoint.moves()) {
-                moves.add(waypoint);
-            }
-        }
-        return moves;
+    public Stream<Square> whereToMove() {
+        return Stream.concat(whereToGo(), whomToCapture().map(p -> p.square)); // TODO I can optimize it potentially - I'm iterating them twice
     }
 
     protected int border() {
@@ -128,6 +121,7 @@ public abstract class Piece implements Logged {
         return getBlocks(from, this.square);
     }
 
+    // TODO get rid of blocks
     public Collection<Piece> getBlocks(Square from, Square to) {
         return new Blocks(() -> from.ray(to));
     }
@@ -144,7 +138,13 @@ public abstract class Piece implements Logged {
         return getAttackSquares(to).map(this::move);
     }
 
-    public abstract Stream<Piece> whomAttack();
+    public abstract Stream<Square> whereToGo();
+
+    public abstract Stream<Piece> whomToAttack();
+
+    public Stream<Piece> whomToCapture() {
+        return whomToAttack().filter(p -> p.color == -color);
+    }
 
     public Stream<Piece> whomBlock() {
         Stream.Builder<Piece> stream = Stream.builder();
@@ -187,6 +187,7 @@ public abstract class Piece implements Logged {
         return "" + type.getLetter() + square.pair;
     }
 
+    @Override
     public Logger getLogger() {
         return square.getLogger();
     }
@@ -210,5 +211,9 @@ public abstract class Piece implements Logged {
 
     public Exchange getExchange() {
         return square.scores.getExchange(-color);
+    }
+
+    public ArrayList<Piece> friends() {
+        return new ArrayList<>(board.pieces.get(color)); // TODO use concurrent set
     }
 }

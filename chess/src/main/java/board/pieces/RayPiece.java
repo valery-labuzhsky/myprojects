@@ -19,7 +19,12 @@ public abstract class RayPiece extends Piece {
     public abstract Stream<Stream<Square>> rays();
 
     @Override
-    public Stream<Piece> whomAttack() {
+    public Stream<Square> whereToGo() {
+        return rays().flatMap(r -> r.takeWhile(s -> s.piece == null));
+    }
+
+    @Override
+    public Stream<Piece> whomToAttack() {
         return rays().map(r -> r.map(s -> s.piece).filter(Objects::nonNull).findFirst().orElse(null)).filter(Objects::nonNull);
     }
 }

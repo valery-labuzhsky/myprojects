@@ -22,19 +22,19 @@ public class SamePiecesMoveScore extends DiffMoveScore<Move> {
         Square to = move.to;
         if (to.piece != null) {
             score.collect(new CaptureScore(to.piece));
-            myColor(to.piece.whomAttack()); // whom he attack or guard
+            myColor(to.piece.whomToAttack()); // whom he attack or guard
         }
 
         Piece piece = move.piece;
         score.collect(diff.apply(piece));
-        myColor(piece.whomAttack()); // whom I attack
+        myColor(piece.whomToAttack()); // whom I attack
         myColor(piece.whomBlock()); // whom I block
     }
 
     @Override
     public void collectAfter() {
         Piece piece = move.piece;
-        myColor(piece.whomAttack()); // whom I will attack
+        myColor(piece.whomToAttack()); // whom I will attack
         myColor(piece.whomBlock()); // whom I will block
     }
 

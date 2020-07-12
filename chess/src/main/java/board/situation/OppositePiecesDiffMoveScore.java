@@ -22,18 +22,18 @@ public class OppositePiecesDiffMoveScore extends DiffMoveScore<Move> {
     public void collectBefore() {
         Square to = move.to;
         if (to.piece != null) {
-            oppositeColor(to.piece.whomAttack()); // whom he attack or guard
+            oppositeColor(to.piece.whomToAttack()); // whom he attack or guard
         }
 
         Piece piece = move.piece;
-        oppositeColor(piece.whomAttack()); // whom I attack
+        oppositeColor(piece.whomToAttack()); // whom I attack
         oppositeColor(piece.whomBlock()); // whom I block
     }
 
     @Override
     public void collectAfter() {
         Piece piece = move.piece;
-        oppositeColor(piece.whomAttack()); // whom I will attack
+        oppositeColor(piece.whomToAttack()); // whom I will attack
         oppositeColor(piece.whomBlock()); // whom I will block
     }
 }

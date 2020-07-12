@@ -44,7 +44,7 @@ public class ExchangeCalculator {
         }
 
         private Exchange.Result getResult() {
-            Exchange.Result result = new Exchange.Result(score, color);
+            Exchange.Result result = new Exchange.Result(score + exchange.score, color);
             storeResults(result);
             sides.get(-color).storeResults(result);
             return result;

@@ -110,6 +110,7 @@ public class Pawn extends OneStepPiece {
         return Stream.of(-1, 1).map(f -> square.go(f, color)).filter(Objects::nonNull);
     }
 
+    // TODO = whereToGo?
     public Stream<Square> goes() {
         Stream<Square> go = Stream.of(square.go(0, color));
         if (border() + color == square.pair.rank) {

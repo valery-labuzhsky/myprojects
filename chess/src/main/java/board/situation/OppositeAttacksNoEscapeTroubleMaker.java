@@ -2,7 +2,6 @@ package board.situation;
 
 import board.pieces.Piece;
 
-import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -22,8 +21,7 @@ public class OppositeAttacksNoEscapeTroubleMaker extends AttackTroubleMaker {
         return AfterEscapePieceScore::diff;
     }
 
-    Stream<AttackProblemSolver> makeProblems(ArrayList<AfterMoveScore> counterAttacks) {
-        return attacks.stream().
-                map(a -> new AttackProblemSolver(a).counterAttacks(counterAttacks));
+    Stream<ProblemSolver> makeProblems() {
+        return attacks.stream().map(a -> new AttackProblemSolver(a));
     }
 }

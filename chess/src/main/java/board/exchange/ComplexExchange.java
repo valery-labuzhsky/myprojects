@@ -37,7 +37,7 @@ public class ComplexExchange extends Exchange {
 
         @Override
         public void collectBefore() {
-            myColor(move.piece.whomAttack());
+            myColor(move.piece.whomToAttack());
             myColor(move.piece.whomBlock());
         }
 

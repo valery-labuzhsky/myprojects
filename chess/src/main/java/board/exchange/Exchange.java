@@ -17,11 +17,14 @@ import java.util.stream.Stream;
  * @author ptasha
  */
 public class Exchange implements Logged, Analytics {
+    // TODO use one exchange state for both calculator, result
+
     public final Square square;
     public Piece piece;
     public final HashMap<Integer, Side> sides = new HashMap<>();
     final HashMap<Piece, Integer> costs = new HashMap<>();
-    public final int color;
+    public int color;
+    int score;
     private Result result;
 
     public Exchange(Square square, int color) {
@@ -78,7 +81,7 @@ public class Exchange implements Logged, Analytics {
 
     public String toString() {
         // TODO I need cost as well
-        return "" + piece + ": " + sides.get(1).pieces + " vs " + sides.get(-1).pieces + " => " + getResult();
+        return "" + piece + ": " + sides.get(1).pieces + " vs " + sides.get(-1).pieces + " = " + getResult();
     }
 
     @Override
@@ -95,8 +98,10 @@ public class Exchange implements Logged, Analytics {
 
     public Exchange move(Piece piece) {
         Exchange copy = new Exchange(this);
+        copy.score -= copy.piece == null ? 0 : copy.piece.cost();
         copy.sides.get(piece.color).pieces.remove(piece);
         copy.piece = piece;
+        copy.color = -color;
         return copy;
     }
 

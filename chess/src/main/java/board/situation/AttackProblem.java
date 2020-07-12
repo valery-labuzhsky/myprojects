@@ -1,8 +1,5 @@
 package board.situation;
 
-import board.Move;
-import board.pieces.Piece;
-
 /**
  * Created on 09.07.2020.
  *
@@ -10,13 +7,10 @@ import board.pieces.Piece;
  */
 public class AttackProblem extends Problem {
     private final AfterMoveScore attack;
-    final Piece piece;
-    final Move move;
 
     public AttackProblem(AfterMoveScore attack) {
+        super(attack.piece, attack.move);
         this.attack = attack;
-        piece = attack.piece;
-        move = attack.move;
     }
 
     @Override

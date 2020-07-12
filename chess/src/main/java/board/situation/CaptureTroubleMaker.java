@@ -4,7 +4,6 @@ import board.exchange.Exchange;
 import board.pieces.Piece;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -21,14 +20,14 @@ class CaptureTroubleMaker {
             for (Piece enemy : exchange.sides.get(-piece.color).pieces) {
                 Exchange problem = exchange.move(enemy);
                 if (problem.getScore() * piece.color < 0) {
-                    problems.add(new CaptureProblem(piece, exchange));
+                    problems.add(new CaptureProblem(piece, problem));
                 }
             }
         }
     }
 
-    Stream<CaptureProblemSolver> makeProblems(List<AfterMoveScore> myAttacks) {
-        return problems.stream().map(p -> p.solve(myAttacks));
+    Stream<ProblemSolver> makeProblems() {
+        return problems.stream().map(p -> p.solve());
     }
 
     public Stream<Solution> takeAdvantageOf() {

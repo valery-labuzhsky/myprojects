@@ -3,7 +3,6 @@ package board.situation;
 import board.Board;
 import board.Logged;
 import board.Move;
-import board.Waypoint;
 import board.exchange.ComplexExchange;
 import board.pieces.Piece;
 import board.pieces.PieceType;
@@ -24,9 +23,8 @@ public class Situations {
     private final HashSet<Move> moves = new HashSet<>();
 
     public final Board board;
-    private Variants check;
+    private Problem check;
     public int score;
-    private int defenceScore;
 
     public Situations(Board board) {
         this.board = board;
@@ -76,7 +74,7 @@ public class Situations {
     }
 
     public int result() {
-        return this.score + defenceScore;
+        return this.score;
     }
 
     public boolean isCheckmate() {
@@ -87,11 +85,6 @@ public class Situations {
         ArrayList<AfterMoveScore> myAttacks = new ArrayList<>();
         ArrayList<Solution> captures = new ArrayList<>();
 
-        // TODO I'm capturing 900
-        //  that's what I should care about
-        //  with this move I should jump into solution
-        //  just add a solution to no problem in particular
-        //  why not
         for (Piece piece : new ArrayList<>(board.pieces.get(-board.color))) { // TODO because we are doing moves when analysing situation
             captures.addAll(new CaptureTroubleMaker(piece).takeAdvantageOf().collect(Collectors.toList()));
 
@@ -101,13 +94,18 @@ public class Situations {
 
         log().info(Logged.tabs("My attacks", myAttacks));
 
-        log().info(Logged.tabs("My captures", captures));
+        log().info(Logged.tabs("My captures", captures.stream().map(s -> s.problem).collect(Collectors.toList())));
 
         ArrayList<ProblemSolver> oppositeAttacks = new ArrayList<>();
 
         for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
-            oppositeAttacks.addAll(new CaptureTroubleMaker(piece).makeProblems(myAttacks).collect(Collectors.toList()));
-            oppositeAttacks.addAll(new OppositeAttacksNoEscapeTroubleMaker(piece).makeProblems(myAttacks).collect(Collectors.toList()));
+            oppositeAttacks.addAll(new CaptureTroubleMaker(piece).makeProblems().collect(Collectors.toList()));
+            oppositeAttacks.addAll(new OppositeAttacksNoEscapeTroubleMaker(piece).makeProblems().collect(Collectors.toList()));
+        }
+
+        for (ProblemSolver attack : oppositeAttacks) {
+            attack.counterAttacks(myAttacks);
+            attack.captures(captures);
         }
 
         log().info(Logged.tabs("Problems", oppositeAttacks));
@@ -119,36 +117,36 @@ public class Situations {
                 tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
             }
         }
+        for (Solution solution : captures) {
+            // TODO duplicate
+            tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
+        }
+
         ArrayList<Tempo> bestTempos = best(tempos.values(), t -> t.getScore(), board.color);
         log().info(Logged.tabs("Solutions", bestTempos));
 
-        HashSet<ProblemSolver> unsolvedProblems = new HashSet<>(oppositeAttacks);
-        bestTempos.forEach(t -> unsolvedProblems.removeAll(t.problems));
+        HashSet<Problem> unsolvedProblems = oppositeAttacks.stream().map(a -> a.problem).
+                collect(Collectors.toCollection(() -> new HashSet<>()));
+        bestTempos.forEach(t -> unsolvedProblems.removeAll(t.solves));
 
-        // TODO save worst unsolved problems
-        //  it will be our decision maker
         log().info(Logged.shortTabs("Unsolved problems", unsolvedProblems));
+
         check = unsolvedProblems.stream().
-                filter(p -> p instanceof CaptureProblemSolver).map(p -> (CaptureProblemSolver) p).
                 filter(p -> p.piece.type == PieceType.King).findAny().orElse(null);
 
-        HashSet<SamePiecesMoveScore> solutions = new HashSet<>(bestTempos.stream().map(t -> new SamePiecesMoveScore(t.move)).collect(Collectors.toList()));
+        HashSet<SamePiecesMoveScore> solutions = bestTempos.stream().map(t -> new SamePiecesMoveScore(t.move)).collect(Collectors.toCollection(HashSet::new));
         score += bestTempos.stream().map(t -> t.getScore()).findAny().orElse(0);
-
-        solutions.removeIf(s -> s.getScore() * board.color < 0);
 
         if (solutions.isEmpty()) {
             for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
-                for (Waypoint move : piece.getMoves()) {
-                    solutions.add(new SamePiecesMoveScore(move.move()));
-                }
+                piece.whereToMove().forEach(move -> solutions.add(new SamePiecesMoveScore(piece.move(move))));
             }
         }
 
-        solutions = best(solutions, new HashSet<>(), d -> d.getScore(), board.color);
-        log().info(Logged.tabs("Best moves", solutions));
+        HashSet<SamePiecesMoveScore> bestMoves = best(solutions, new HashSet<>(), d -> d.getScore(), board.color);
+        log().info(Logged.tabs("Best moves", bestMoves));
 
-        List<RetaliationScore> retaliationScores = solutions.stream().map(a -> new RetaliationScore(a.move)).collect(Collectors.toList());
+        List<RetaliationScore> retaliationScores = bestMoves.stream().map(a -> new RetaliationScore(a.move)).collect(Collectors.toList());
         log().info(Logged.tabs("Retaliation scores", retaliationScores));
         retaliationScores = best(retaliationScores, a -> a.getScore(), board.color);
 
@@ -157,10 +155,7 @@ public class Situations {
         oppositeScores = best(oppositeScores, a -> a.getScore(), board.color);
         oppositeScores.forEach(m -> moves.add(m.move));
 
-        solutions.stream().findFirst().ifPresent(m -> defenceScore = m.getScore());
-
-        System.out.println("Total: " + score);
-        System.out.println("Defend: " + defenceScore + " " + Logged.tabs(this.moves));
+        System.out.println("Score: " + score + " " + this.moves);
     }
 
     private Logger log() {
@@ -168,7 +163,7 @@ public class Situations {
     }
 
     private Move chooseMove() {
-        Move badMove = board.parse("e1f2");
+        Move badMove = board.parse("f4e5");
         if (moves.contains(badMove)) {
             moves.clear();
             moves.add(badMove);

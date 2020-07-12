@@ -18,12 +18,17 @@ public abstract class OneStepPiece extends Piece {
 
     public abstract Stream<Square> moves();
 
+    @Override
+    public Stream<Square> whereToGo() {
+        return moves().filter(s -> s.piece == null);
+    }
+
     public Stream<Square> attacks() {
         return moves();
     }
 
     @Override
-    public Stream<Piece> whomAttack() {
+    public Stream<Piece> whomToAttack() {
         return attacks().map(s -> s.piece).filter(Objects::nonNull);
     }
 }

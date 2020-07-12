@@ -4,18 +4,14 @@ import board.Move;
 import board.exchange.Exchange;
 import board.pieces.Piece;
 
-import java.util.ArrayList;
-
 /**
  * Created on 04.07.2020.
  *
  * @author unicorn
  */
 public class AttackProblemSolver extends ProblemSolver {
-    private final AttackProblem problem;
-
     AttackProblemSolver(AfterMoveScore attack) {
-        problem = new AttackProblem(attack);
+        super(new AttackProblem(attack));
 
         Piece attacked = problem.piece;
         for (Piece friend : attacked.board.pieces.get(attacked.color)) {
@@ -29,18 +25,6 @@ public class AttackProblemSolver extends ProblemSolver {
         if (score >= 0) {
             getSolutions().add(new Solution(move, problem));
         }
-    }
-
-    public AttackProblemSolver counterAttacks(ArrayList<AfterMoveScore> attacks) {
-        int myColor = problem.piece.color;
-        for (AfterMoveScore attack : attacks) {
-            if (attack.getScore() * myColor >= getScore() * myColor) {
-                if (problem.move.piece != attack.piece) {
-                    getSolutions().add(new Solution(attack.move, problem));
-                }
-            }
-        }
-        return this;
     }
 
     @Override

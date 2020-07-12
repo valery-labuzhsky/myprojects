@@ -3,7 +3,7 @@ package board.situation;
 import board.Logged;
 import board.Move;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created on 05.07.2020.
@@ -12,11 +12,8 @@ import java.util.ArrayList;
  */
 public class Tempo {
     final Move move;
-    // TODO it's better to have not score but positional knowledge
-    //  it should me a sum of problems it creates
-    //  plus score for capturing a piece
-    private int additional;
-    final ArrayList<Problem> problems = new ArrayList<>();
+    private final HashSet<Problem> achieves = new HashSet<>();
+    final HashSet<Problem> solves = new HashSet<>();
 
     Tempo(Solution solution) {
         move = solution.move;
@@ -24,19 +21,22 @@ public class Tempo {
     }
 
     public Tempo add(Solution solution) {
-        if (solution.problem != null) {
-            problems.add(solution.problem);
+        if (move.equals(solution.problem.move)) {
+            achieves.add(solution.problem);
+        } else {
+            solves.add(solution.problem);
         }
-        additional += solution.getAdditional();
         return this;
     }
 
     public int getScore() {
-        return additional - problems.stream().mapToInt(p -> p.getScore()).sum();
+        return achieves.stream().mapToInt(p -> p.getScore()).sum() - solves.stream().mapToInt(p -> p.getScore()).sum();
     }
 
     @Override
     public String toString() {
-        return "" + move + ": " + additional + Logged.shortTabs("Problems", problems);
+        return "" + move + ": " +
+                Logged.shortTabs("Solves", solves) +
+                Logged.shortTabs("Achieves", achieves);
     }
 }

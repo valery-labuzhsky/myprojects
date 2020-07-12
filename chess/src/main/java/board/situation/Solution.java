@@ -23,12 +23,13 @@ public class Solution {
         this.name = name;
     }
 
-    int getAdditional() { // TODO it probably won't be a simple score
-        return 0;
+    Solution fitMeToo(Problem problem) {
+        return new Solution(name, move, problem);
     }
 
     @Override
     public String toString() {
         return name + " " + move.toString();
     }
+
 }

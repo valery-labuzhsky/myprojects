@@ -29,7 +29,7 @@ public class AfterEscapePieceScore implements Analytics {
         CaptureProblem problem = CaptureProblemSolver.createProblem(piece.getExchange());
         ArrayList<SamePiecesMoveScore> best;
         if (problem != null) {
-            this.situation = new CaptureProblemSolver(problem);
+            this.situation = problem.solve();
             best = Situations.best(situation.variants, DiffMoveScore::getScore, piece.color);
             score = situation.getScore() + best.stream().map(SamePiecesMoveScore::getScore).findAny().orElse(0);
         } else {
@@ -45,6 +45,6 @@ public class AfterEscapePieceScore implements Analytics {
 
     @Override
     public String toString() {
-        return situation == null ? "No problem" : situation.toString();
+        return "After escape: " + (situation == null ? "No problem" : situation.toString());
     }
 }

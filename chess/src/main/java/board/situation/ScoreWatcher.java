@@ -53,6 +53,16 @@ public class ScoreWatcher implements ScoreDiff {
 
     @Override
     public String toString() {
-        return "" + after;
+        StringBuilder string = new StringBuilder();
+        if (before.getScore() != 0) {
+            string.append("Before (").append(before.getScore()).append(") ").append(before);
+        }
+        if (after.getScore() != 0) {
+            if (string.length() > 0) {
+                string.append("\n");
+            }
+            string.append("After (").append(after.getScore()).append(") ").append(after);
+        }
+        return string.length() == 0 ? "No change" : string.toString();
     }
 }

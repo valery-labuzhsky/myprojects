@@ -141,7 +141,7 @@ public class Board {
             }
         }
 
-        if (situations.result() < 0) {
+        if (situations.result() * color < lostLastMove()) {
             return "resign";
         }
 
@@ -155,8 +155,16 @@ public class Board {
 
             return "move " + move.toString();
         } catch (IllegalMoveException e) {
-            throw new RuntimeException("I made illegal move! " + move, e);
+            throw new RuntimeException("I made wrong move! " + move, e);
         }
+    }
+
+    private int lostLastMove() {
+        Action lastMove = history.getLastMove();
+        if (!(lastMove instanceof Move)) return 0;
+        Piece capture = ((Move) lastMove).capture;
+        if (capture == null) return 0;
+        return capture.type.score;
     }
 
     public void go() {
