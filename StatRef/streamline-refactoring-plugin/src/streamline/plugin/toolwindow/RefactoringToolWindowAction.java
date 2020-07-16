@@ -1,10 +1,10 @@
 package streamline.plugin.toolwindow;
 
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -12,11 +12,7 @@ import java.awt.*;
  *
  * @author unicorn
  */
-public abstract class RefactoringToolWindowAction extends EmptyBasedAction {
-    public RefactoringToolWindowAction(String text, String description, Icon icon) {
-        super(text, description, icon);
-    }
-
+public abstract class RefactoringToolWindowAction extends AnAction {
     protected RefactoringToolWindow getToolWindow(@NotNull AnActionEvent e) {
         Component component = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
         while (component != null && !(component instanceof RefactoringToolWindow)) {

@@ -1,12 +1,9 @@
 package streamline.plugin.toolwindow;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
-import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.KeyEventDispatcher;
 import streamline.plugin.nodes.guts.NodeComponent;
 import streamline.plugin.nodes.guts.RefactoringNode;
@@ -24,13 +21,13 @@ import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 public class RefactoringToolWindow extends SimpleToolWindowPanel {
-    private final AnActionEvent event;
+    final AnActionEvent originalEvent;
     RefactoringNode root;
     private final Tree tree = new Tree();
 
-    public RefactoringToolWindow(AnActionEvent event) {
+    public RefactoringToolWindow(AnActionEvent originalEvent) {
         super(true, true);
-        this.event = event;
+        this.originalEvent = originalEvent;
         setupToolbar();
         setupTree();
     }
@@ -140,26 +137,11 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
     }
 
     private void setupToolbar() {
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        DefaultActionGroup actionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction(RefactoringToolWindow.class.getName() + ".toolbar");
 
-        AnAction refactor = new RefactorAction();
-        actionGroup.add(refactor);
-        refactor.registerCustomShortcutSet(tree, null); // TODO for all action from toolbar
-
-        EnableAllChildrenAction enableAll = new EnableAllChildrenAction();
-        actionGroup.add(enableAll);
-        enableAll.registerCustomShortcutSet(tree, null);
-
-        actionGroup.addSeparator();
-
-        AnAction defaultInline = new AnAction("Default", "IDEA native inline action", AllIcons.Actions.Run_anything) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-                AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
-                ActionUtil.performActionDumbAware(nativeAction, event);
-            }
-        };
-        actionGroup.add(defaultInline);
+        for (AnAction action : actionGroup.getChildren(originalEvent)) {
+            action.registerCustomShortcutSet(tree, null);
+        }
 
         final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actionGroup, true);
         actionToolbar.setTargetComponent(this);
@@ -236,4 +218,5 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
             return component.isEditable(e);
         }
     }
+
 }

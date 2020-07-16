@@ -67,14 +67,22 @@
                         class="com.intellij.refactoring.actions.ExtractModuleAction"/>
             </group>
         </group>
-        <action id="streamline.plugin.toolwindow.RefactorAction" class="com.intellij.openapi.actionSystem.EmptyAction"
-                text="Refactor">
-            <keyboard-shortcut first-keystroke="ctrl ENTER" keymap="$default"/>
-        </action>
-        <action id="streamline.plugin.toolwindow.EnableAllChildrenAction"
-                class="com.intellij.openapi.actionSystem.EmptyAction" text="Select All">
-            <keyboard-shortcut first-keystroke="shift SPACE" keymap="$default"/>
-        </action>
+        <group id="streamline.plugin.toolwindow.RefactoringToolWindow.toolbar" text="RefactorToolbarMenu">
+            <action id="streamline.plugin.toolwindow.RefactorAction" class="streamline.plugin.toolwindow.RefactorAction"
+                    text="Refactor" icon="/actions/execute.svg">
+                <keyboard-shortcut first-keystroke="ctrl ENTER" keymap="$default"/>
+            </action>
+            <action id="streamline.plugin.toolwindow.EnableAllChildrenAction"
+                    class="streamline.plugin.toolwindow.EnableAllChildrenAction"
+                    text="Select All" icon="/actions/selectall.svg">
+                <keyboard-shortcut first-keystroke="shift SPACE" keymap="$default"/>
+            </action>
+            <separator/>
+            <action id="streamline.plugin.toolwindow.NativeInlineAction"
+                    class="streamline.plugin.toolwindow.NativeInlineAction"
+                    text="Default" icon="/actions/run_anything.svg">
+            </action>
+        </group>
     </actions>
 
 </idea-plugin>

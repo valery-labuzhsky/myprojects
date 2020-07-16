@@ -1,6 +1,5 @@
 package streamline.plugin.toolwindow;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
@@ -16,10 +15,6 @@ import javax.swing.tree.TreePath;
  * @author unicorn
  */
 public class EnableAllChildrenAction extends RefactoringToolWindowAction {
-    public EnableAllChildrenAction() {
-        super("Select All", "Select all children", AllIcons.Actions.Selectall);
-    }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         RefactoringToolWindow toolWindow = getToolWindow(e);
