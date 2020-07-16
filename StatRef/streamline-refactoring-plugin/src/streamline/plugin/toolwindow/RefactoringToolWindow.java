@@ -1,4 +1,4 @@
-package streamline.plugin;
+package streamline.plugin.toolwindow;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
@@ -25,7 +25,7 @@ import java.util.EventObject;
 
 public class RefactoringToolWindow extends SimpleToolWindowPanel {
     private final AnActionEvent event;
-    private RefactoringNode node;
+    RefactoringNode root;
     private final Tree tree = new Tree();
 
     public RefactoringToolWindow(AnActionEvent event) {
@@ -35,26 +35,26 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         setupTree();
     }
 
-    public <N extends RefactoringNode> N setNode(N node) {
+    public <N extends RefactoringNode> N setRoot(N root) {
         TreePath[] paths = getTree().getSelectionPaths();
 
-        this.node = node;
+        this.root = root;
         DefaultTreeModel model = new DefaultTreeModel(null);
-        node.setTree(tree);
-        model.setRoot(node);
-        tree.setRootVisible(node.showRoot());
+        root.setTree(tree);
+        model.setRoot(root);
+        tree.setRootVisible(root.showRoot());
         tree.setModel(model);
-        node.afterTreeNodeCreated();
+        root.afterTreeNodeCreated();
 
         if (paths != null) {
             for (TreePath path : paths) {
-                SelfPresentingNode n = node.findNode(path);
+                SelfPresentingNode n = root.findNode(path);
                 if (n != null) {
                     n.select();
                 }
             }
         }
-        return node;
+        return root;
     }
 
     public Tree getTree() {
@@ -140,7 +140,18 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
     }
 
     private void setupToolbar() {
-        AnAction refactor = getRefactorAction();
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+
+        AnAction refactor = new RefactorAction();
+        actionGroup.add(refactor);
+        refactor.registerCustomShortcutSet(tree, null); // TODO for all action from toolbar
+
+        EnableAllChildrenAction enableAll = new EnableAllChildrenAction();
+        actionGroup.add(enableAll);
+        enableAll.registerCustomShortcutSet(tree, null);
+
+        actionGroup.addSeparator();
+
         AnAction defaultInline = new AnAction("Default", "IDEA native inline action", AllIcons.Actions.Run_anything) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
@@ -148,25 +159,15 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
                 ActionUtil.performActionDumbAware(nativeAction, event);
             }
         };
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        actionGroup.add(refactor);
-        actionGroup.addSeparator();
         actionGroup.add(defaultInline);
+
         final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actionGroup, true);
         actionToolbar.setTargetComponent(this);
-        refactor.registerCustomShortcutSet(tree, null); // TODO for all action from toolbar
         setToolbar(actionToolbar.getComponent());
     }
 
-    @NotNull
-    private AnAction getRefactorAction() {
-        RefactorAction action = new RefactorAction();
-        action.copyShortcutFrom(ActionManager.getInstance().getAction(RefactorAction.class.getName()));
-        return action;
-    }
-
     public Refactoring getRefactoring() {
-        return node.getRefactoring();
+        return root.getRefactoring();
     }
 
     private NodeComponent getComponent(Object value) {

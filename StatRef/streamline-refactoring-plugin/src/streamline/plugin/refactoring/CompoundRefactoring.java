@@ -42,4 +42,10 @@ public abstract class CompoundRefactoring extends Refactoring {
             }
         });
     }
+
+    @Override
+    public void enableAll() {
+        super.enableAll();
+        getRefactorings().forEachOrdered(r -> r.enableAll());
+    }
 }

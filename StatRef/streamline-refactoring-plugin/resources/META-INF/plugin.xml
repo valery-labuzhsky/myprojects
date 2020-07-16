@@ -27,7 +27,8 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Streamline" anchor="right" factoryClass="streamline.plugin.StreamlineToolWindowFactory"
+        <toolWindow id="Streamline" anchor="right"
+                    factoryClass="streamline.plugin.toolwindow.StreamlineToolWindowFactory"
                     canCloseContents="true"/>
         <!-- Add your extensions here -->
     </extensions>
@@ -66,8 +67,13 @@
                         class="com.intellij.refactoring.actions.ExtractModuleAction"/>
             </group>
         </group>
-        <action id="streamline.plugin.RefactorAction" class="com.intellij.openapi.actionSystem.EmptyAction" text="Refactor">
+        <action id="streamline.plugin.toolwindow.RefactorAction" class="com.intellij.openapi.actionSystem.EmptyAction"
+                text="Refactor">
             <keyboard-shortcut first-keystroke="ctrl ENTER" keymap="$default"/>
+        </action>
+        <action id="streamline.plugin.toolwindow.EnableAllChildrenAction"
+                class="com.intellij.openapi.actionSystem.EmptyAction" text="Select All">
+            <keyboard-shortcut first-keystroke="shift SPACE" keymap="$default"/>
         </action>
     </actions>
 

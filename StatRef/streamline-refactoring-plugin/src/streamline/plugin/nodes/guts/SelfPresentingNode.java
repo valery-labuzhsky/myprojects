@@ -64,7 +64,7 @@ public abstract class SelfPresentingNode extends AbstractTreeNode<SelfPresenting
     }
 
     public SelfPresentingNode findNode(TreePath path) {
-        if (path == null || path.getPathCount() == 0) {
+        if (path == null || path.getPathCount() == 0 || this.equals(path.getLastPathComponent())) {
             return this;
         } else {
             SelfPresentingNode node = findNode(path.getParentPath());

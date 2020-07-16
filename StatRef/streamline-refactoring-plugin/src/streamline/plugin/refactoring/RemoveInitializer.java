@@ -4,10 +4,10 @@ import statref.model.idea.IInitializer;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 
-public class RemoveElement extends Refactoring {
+public class RemoveInitializer extends Refactoring {
     private final IInitializer initializer;
 
-    public RemoveElement(RefactoringRegistry registry, IInitializer initializer) {
+    public RemoveInitializer(RefactoringRegistry registry, IInitializer initializer) {
         super(registry, initializer);
         this.initializer = initializer;
     }

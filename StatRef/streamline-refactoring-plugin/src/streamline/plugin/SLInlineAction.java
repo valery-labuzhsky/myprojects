@@ -20,6 +20,7 @@ import streamline.plugin.refactoring.InlineAssignment;
 import streamline.plugin.refactoring.InlineParameter;
 import streamline.plugin.refactoring.InlineUsage;
 import streamline.plugin.refactoring.InlineVariable;
+import streamline.plugin.toolwindow.RefactoringToolWindow;
 
 public class SLInlineAction extends AnAction {
     private static final Logger log = Logger.getInstance(IFactory.class);
@@ -41,7 +42,7 @@ public class SLInlineAction extends AnAction {
                 IVariableDeclaration declaration = new IVariableDeclaration((PsiLocalVariable) parent);
                 RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + declaration.getText());
                 InlineVariable refactoring = registry.getRefactorings().getRefactoring(new InlineVariable(declaration, registry.getRefactorings()));
-                toolWindow.setNode(registry.create(refactoring));
+                toolWindow.setRoot(registry.create(refactoring));
                 // TODO now I must improve a tree to make in comfortable to work with
                 // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
 //                InlineAssignment refactoring = registry.getRefactorings().getRefactoring(new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant());
@@ -54,11 +55,11 @@ public class SLInlineAction extends AnAction {
                 if (variable.isAssignment()) {
                     InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
                     InlineAssignment assignment = inlineVariable.enableOnly((IInitializer) variable.getParent());
-                    toolWindow.setNode(registry.create(inlineVariable)).select(assignment);
+                    toolWindow.setRoot(registry.create(inlineVariable)).select(assignment);
                 } else {
                     InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
                     InlineUsage usage = inlineVariable.enableOnly(variable);
-                    toolWindow.setNode(registry.create(inlineVariable)).select(usage);
+                    toolWindow.setRoot(registry.create(inlineVariable)).select(usage);
                 }
             } else if (parent instanceof PsiParameter) {
                 IParameter parameter = IFactory.getElement(parent);
@@ -66,7 +67,7 @@ public class SLInlineAction extends AnAction {
                 InlineParameter refactoring = new InlineParameter(registry, parameter);
 
                 RefactoringToolWindow tree = createTree(project, event, "Inline " + parameter.getName());
-                tree.setNode(registry.create(refactoring));
+                tree.setRoot(registry.create(refactoring));
             } else {
                 // TODO do not need to catch Exception from here
                 invokeNative(event);

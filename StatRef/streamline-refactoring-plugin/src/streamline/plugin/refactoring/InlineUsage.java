@@ -13,11 +13,10 @@ public class InlineUsage extends Refactoring {
 
     // TODO Make selecting inline assignment as well as inline variable comfortable
     //  0. I need adding those actions to toolbar right away
-    //  1. select all with Shift+Space
-    //  2. open nodes with conflicts
-    //  3. select parent nodes
-    //  4. change arrows behaviour on a tree - Shift+Left - to close a tree on exit - it's better to do it other way around
-    //  5. make inline work again
+    //  1. open nodes with conflicts
+    //  2. select parent nodes
+    //  3. change arrows behaviour on a tree - Shift+Left - to close a tree on exit - it's better to do it other way around
+    //  4. make inline work again
 
     private final IVariable usage;
     private final IInitializer value;
@@ -60,6 +59,11 @@ public class InlineUsage extends Refactoring {
 
     public IInitializer getValue() {
         return value;
+    }
+
+    @Override
+    public void enableAll() {
+        if (variants.isEmpty()) setEnabled(true);
     }
 
     @Override

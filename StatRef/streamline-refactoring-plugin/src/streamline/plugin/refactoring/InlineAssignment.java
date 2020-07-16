@@ -16,12 +16,19 @@ public class InlineAssignment extends CompoundRefactoring {
     private final IInitializer initializer;
 
     private final ArrayList<InlineUsage> usages = new ArrayList<>();
-    private final RemoveElement remove;
+    private final RemoveInitializer remove;
 
     public InlineAssignment(RefactoringRegistry registry, IInitializer initializer) {
         super(registry, initializer);
         this.initializer = initializer;
-        remove = new RemoveElement(registry, initializer);
+        remove = new RemoveInitializer(registry, initializer) {
+            @Override
+            public void enableAll() {
+                if (!areUsagesLeft()) {
+                    super.enableAll();
+                }
+            }
+        };
         VariableFlow flow = new VariableFlow(initializer.declaration());
         Collection<IVariable> usages = flow.getUsages(initializer);
         for (IVariable usage : usages) {
@@ -71,7 +78,7 @@ public class InlineAssignment extends CompoundRefactoring {
         return usages;
     }
 
-    public RemoveElement getRemove() {
+    public RemoveInitializer getRemove() {
         return remove;
     }
 
