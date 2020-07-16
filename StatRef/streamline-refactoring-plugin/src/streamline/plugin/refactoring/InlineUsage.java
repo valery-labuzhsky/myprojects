@@ -9,10 +9,15 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class InlineUsage extends Refactoring {
-    // TODO I can do immediate benefit of my plugin by assigning letters to idea refactoring menu
+    // TODO the greater plan is to go prod with inline as fast as possible
 
     // TODO Make selecting inline assignment as well as inline variable comfortable
-    //  1. select all with Alt+A
+    //  0. I need adding those actions to toolbar right away
+    //  1. select all with Shift+Space
+    //  2. open nodes with conflicts
+    //  3. select parent nodes
+    //  4. change arrows behaviour on a tree - Shift+Left - to close a tree on exit - it's better to do it other way around
+    //  5. make inline work again
 
     private final IVariable usage;
     private final IInitializer value;

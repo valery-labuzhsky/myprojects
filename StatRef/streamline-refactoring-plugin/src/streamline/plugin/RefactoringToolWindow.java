@@ -68,11 +68,11 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         tree.setEditable(true);
         tree.setCellEditor(new ProxyCellEditor());
         tree.setSelectionRow(0);
-        forwardMouseEvents(tree);
-        forwardKeyEvents(tree);
+        forwardMouseEvents();
+        forwardKeyEvents();
     }
 
-    private void forwardKeyEvents(Tree tree) {
+    private void forwardKeyEvents() {
         tree.addKeyListener((KeyEventDispatcher) e -> {
             TreePath[] paths = tree.getSelectionPaths();
             if (paths != null) {
@@ -87,7 +87,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         });
     }
 
-    private void forwardMouseEvents(Tree tree) {
+    private void forwardMouseEvents() {
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent event) {
@@ -154,7 +154,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         actionGroup.add(defaultInline);
         final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, actionGroup, true);
         actionToolbar.setTargetComponent(this);
-        actionGroup.registerCustomShortcutSet(tree, null);
+        refactor.registerCustomShortcutSet(tree, null); // TODO for all action from toolbar
         setToolbar(actionToolbar.getComponent());
     }
 

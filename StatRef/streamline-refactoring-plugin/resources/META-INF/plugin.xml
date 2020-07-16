@@ -35,7 +35,7 @@
     <actions>
         <group id="StreamlineRefactor" text="Stream_line Refactor">
             <add-to-group group-id="MainMenu" relative-to-action="RefactoringMenu" anchor="after"/>
-            <action id="streamline.plugin.SLInlineAction" class="streamline.plugin.SLInlineAction" text="_Inline"/>
+            <action id="streamline.plugin.SLInlineAction" class="streamline.plugin.SLInlineAction" text="I_nline"/>
             <group id="CopyIntroduceActionsGroup" popup="true" text="E_xtract">
                 <action id="CopyIntroduceVariable" text="_Variable..."
                         class="com.intellij.refactoring.actions.IntroduceVariableAction"/>
@@ -67,7 +67,7 @@
             </group>
         </group>
         <action id="streamline.plugin.RefactorAction" class="com.intellij.openapi.actionSystem.EmptyAction" text="Refactor">
-            <keyboard-shortcut first-keystroke="ENTER" keymap="$default"/>
+            <keyboard-shortcut first-keystroke="ctrl ENTER" keymap="$default"/>
         </action>
     </actions>
 
