@@ -22,79 +22,13 @@ public abstract class Piece implements Logged {
     public final PieceType type;
     public Square square;
 
-    public final HashSet<Waypoint> waypoints = new HashSet<>();
-
     public Piece(PieceType type, Board board, int color) {
         this.board = board;
         this.color = color;
         this.type = type;
     }
 
-    public boolean onBoard() {
-        return this.square.piece == this;
-    }
-
-    public Move move(Square to) {
-        if (square.piece == null) {
-            throw new IllegalStateException(this + ": " + square);
-        }
-        return new Move(this.square, to);
-    }
-
-    public boolean isInDanger() {
-        return this.square.captures(this);
-    }
-
-    public void makeMove(Square to) {
-        // TODO it may be en passant
-        square.piece = null;
-        marksOff();
-        put(to);
-    }
-
-    public void put(Square square) {
-        this.square = square;
-        this.square.piece = this;
-        trace(new Waypoint.Origin(this, this.square));
-    }
-
-    public void add(Square square) {
-        board.score += cost();
-        board.pieces.get(color).add(this);
-        put(square);
-    }
-
-    public void remove() {
-        this.square.piece = null;
-        board.pieces.get(color).remove(this);
-        marksOff();
-        board.score -= cost();
-    }
-
-    public abstract void trace(MovesTracer tracer);
-
-    private void marksOff() {
-        while (!waypoints.isEmpty()) {
-            waypoints.iterator().next().remove();
-        }
-    }
-
-    public Stream<Square> whereToMove() {
-        return Stream.concat(whereToGo(), whomToCapture().map(p -> p.square)); // TODO I can optimize it potentially - I'm iterating them twice
-    }
-
-    protected int border() {
-        return (7 - color * 7) / 2;
-    }
-
-    public boolean goes(Waypoint waypoint) {
-        return true;
-    }
-
-    public boolean attacks(Waypoint waypoint) {
-        return true;
-    }
-
+    //region Is From To
     public boolean isGo(Square from, Square to) {
         return isMove(from, to);
     }
@@ -103,46 +37,67 @@ public abstract class Piece implements Logged {
         return isMove(from, to);
     }
 
-    public boolean attacks(Square from, Square to) {
+    public abstract boolean isMove(Square from, Square to);
+    //endregion
+
+    //region Can From To
+    public boolean canAttack(Square from, Square to) {
         return isAttack(from, to) && getBlocks(from, to).isEmpty();
     }
 
-    public abstract boolean isMove(Square from, Square to);
-
-    public boolean moves(Square to) {
-        return moves(square, to);
+    private boolean canMove(Square to) {
+        return canMove(square, to);
     }
 
-    public boolean moves(Square from, Square to) {
+    public boolean canMove(Square from, Square to) {
         return (to.piece == null || to.piece.color != color) && isMove(from, to) && getBlocks(from, to).isEmpty();
     }
+    //endregion
 
-    public Collection<Piece> getBlocks(Square from) {
-        return getBlocks(from, this.square);
+    //region Plan Attacks
+    public abstract Stream<Square> planPotentialAttacks(Square to);
+
+    public Stream<Square> planAttackSquares(Square to) {
+        return planPotentialAttacks(to).
+                filter(this::canMove).
+                filter(s -> canAttack(s, to));
     }
 
-    // TODO get rid of blocks
-    public Collection<Piece> getBlocks(Square from, Square to) {
-        return new Blocks(() -> from.ray(to));
+    public Stream<Move> planAttacks(Square to) {
+        return planAttackSquares(to).map(this::move);
     }
 
-    public abstract Stream<Square> getPotentialAttacks(Square to);
-
-    public Stream<Square> getAttackSquares(Square to) {
-        return getPotentialAttacks(to).
-                filter(this::moves).
-                filter(s -> attacks(s, to));
+    Stream<Square> planPotentialAttacks(Square square, XY.Transform... transforms) {
+        XY from = new XY();
+        XY to = new XY();
+        return Stream.of(transforms).
+                flatMap(t -> {
+                    from.set(this.square.pair);
+                    to.set(square.pair);
+                    t.transform(from);
+                    t.transform(to);
+                    from.swap(to);
+                    if (t.back(from) && t.back(to)) {
+                        return Stream.of(board.getSquare(from.x, from.y), board.getSquare(to.x, to.y)).filter(Objects::nonNull);
+                    }
+                    return Stream.empty();
+                });
     }
+    //endregion
 
-    public Stream<Move> getAttacks(Square to) {
-        return getAttackSquares(to).map(this::move);
+    //region Where To
+    public Stream<Square> whereToMove() {
+        return Stream.concat(whereToGo(), whomToCapture().map(p -> p.square));
     }
 
     public abstract Stream<Square> whereToGo();
+    //endregion
 
+    //region Whom
+    // TODO implement it
     public abstract Stream<Piece> whomToAttack();
 
-    public Stream<Piece> whomToCapture() {
+    private Stream<Piece> whomToCapture() {
         return whomToAttack().filter(p -> p.color == -color);
     }
 
@@ -170,6 +125,39 @@ public abstract class Piece implements Logged {
         }
     }
 
+    public ArrayList<Piece> friends() {
+        return new ArrayList<>(board.pieces.get(color)); // TODO use concurrent set
+    }
+    //endregion
+
+    //region Old blocks
+    public Collection<Piece> getBlocks(Square from) {
+        return getBlocks(from, this.square);
+    }
+
+    // TODO get rid of blocks
+    public Collection<Piece> getBlocks(Square from, Square to) {
+        return new Blocks(() -> from.ray(to));
+    }
+    //endregion
+
+    //region Waypoints
+    public final HashSet<Waypoint> waypoints = new HashSet<>();
+
+    public boolean goes(Waypoint waypoint) {
+        return true;
+    }
+
+    public boolean attacks(Waypoint waypoint) {
+        return true;
+    }
+    //endregion
+
+    //region Status
+    public Exchange getExchange() {
+        return square.scores.getExchange(-color);
+    }
+
     private boolean isRookOrQueen() {
         return type == PieceType.Rook || type == PieceType.Queen;
     }
@@ -182,6 +170,63 @@ public abstract class Piece implements Logged {
         return type.score * color;
     }
 
+    int border() {
+        return (7 - color * 7) / 2;
+    }
+
+    public boolean onBoard() {
+        return this.square.piece == this;
+    }
+
+    public boolean isInDanger() {
+        return this.square.captures(this);
+    }
+    //endregion
+
+    //region Moving
+    public Move move(Square to) {
+        if (square.piece == null) {
+            throw new IllegalStateException(this + ": " + square);
+        }
+        return new Move(this.square, to);
+    }
+
+    public void makeMove(Square to) {
+        // TODO it may be en passant
+        square.piece = null;
+        marksOff();
+        put(to);
+    }
+
+    private void put(Square square) {
+        this.square = square;
+        this.square.piece = this;
+        trace(new Waypoint.Origin(this, this.square));
+    }
+
+    public void add(Square square) {
+        board.score += cost();
+        board.pieces.get(color).add(this);
+        put(square);
+    }
+
+    public void remove() {
+        this.square.piece = null;
+        board.pieces.get(color).remove(this);
+        marksOff();
+        board.score -= cost();
+    }
+
+    public abstract void trace(MovesTracer tracer);
+
+    private void marksOff() {
+        while (!waypoints.isEmpty()) {
+            waypoints.iterator().next().remove();
+        }
+    }
+    //endregion
+
+    //region Technical
     @Override
     public String toString() {
         return "" + type.getLetter() + square.pair;
@@ -191,29 +236,5 @@ public abstract class Piece implements Logged {
     public Logger getLogger() {
         return square.getLogger();
     }
-
-    protected Stream<Square> getPotentialAttacks(Square square, XY.Transform... transforms) {
-        XY from = new XY();
-        XY to = new XY();
-        return Stream.of(transforms).
-                flatMap(t -> {
-                    from.set(this.square.pair);
-                    to.set(square.pair);
-                    t.transform(from);
-                    t.transform(to);
-                    from.swap(to);
-                    if (t.back(from) && t.back(to)) {
-                        return Stream.of(board.getSquare(from.x, from.y), board.getSquare(to.x, to.y)).filter(Objects::nonNull);
-                    }
-                    return Stream.empty();
-                });
-    }
-
-    public Exchange getExchange() {
-        return square.scores.getExchange(-color);
-    }
-
-    public ArrayList<Piece> friends() {
-        return new ArrayList<>(board.pieces.get(color)); // TODO use concurrent set
-    }
+    //endregion
 }

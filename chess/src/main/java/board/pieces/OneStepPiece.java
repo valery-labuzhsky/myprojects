@@ -18,13 +18,13 @@ public abstract class OneStepPiece extends Piece {
 
     public abstract Stream<Square> moves();
 
+    public Stream<Square> attacks() {
+        return moves();
+    }
+
     @Override
     public Stream<Square> whereToGo() {
         return moves().filter(s -> s.piece == null);
-    }
-
-    public Stream<Square> attacks() {
-        return moves();
     }
 
     @Override

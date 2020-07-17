@@ -69,21 +69,21 @@ public class Pawn extends OneStepPiece {
     }
 
     @Override
-    public boolean moves(Square from, Square to) {
-        return attacks(from, to) || goes(from, to);
+    public boolean canMove(Square from, Square to) {
+        return canAttack(from, to) || canGo(from, to);
     }
 
-    public boolean goes(Square from, Square to) {
+    public boolean canGo(Square from, Square to) {
         return to.piece == null && isGo(from, to) && getBlocks(from, to).isEmpty();
     }
 
     @Override
-    public boolean attacks(Square from, Square to) {
+    public boolean canAttack(Square from, Square to) {
         return isAttack(from, to);
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square square) {
+    public Stream<Square> planPotentialAttacks(Square square) {
         Pair from = this.square.pair;
         Pair to = square.pair;
         if (Math.abs(from.file - to.file) != 1) {
@@ -110,7 +110,11 @@ public class Pawn extends OneStepPiece {
         return Stream.of(-1, 1).map(f -> square.go(f, color)).filter(Objects::nonNull);
     }
 
-    // TODO = whereToGo?
+    @Override
+    public Stream<Square> whereToGo() {
+        return goes().takeWhile(s -> s.piece == null);
+    }
+
     public Stream<Square> goes() {
         Stream<Square> go = Stream.of(square.go(0, color));
         if (border() + color == square.pair.rank) {

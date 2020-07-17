@@ -40,8 +40,8 @@ public class Rook extends RayPiece {
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square to) {
-        return getPotentialAttacks(to, XY.Transform.LINEAR);
+    public Stream<Square> planPotentialAttacks(Square to) {
+        return planPotentialAttacks(to, XY.Transform.LINEAR);
     }
 
     @Override

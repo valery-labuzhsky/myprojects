@@ -37,8 +37,8 @@ public class Queen extends RayPiece {
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square to) {
-        return getPotentialAttacks(to,
+    public Stream<Square> planPotentialAttacks(Square to) {
+        return planPotentialAttacks(to,
                 XY.Transform.LINEAR,
                 XY.Transform.DIAGONAL,
                 XY.Transform.ALMOND_X_PLUS,

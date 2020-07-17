@@ -15,7 +15,7 @@ public class AttackProblemSolver extends ProblemSolver {
 
         Piece attacked = problem.piece;
         for (Piece friend : attacked.board.pieces.get(attacked.color)) {
-            friend.getAttacks(problem.move.to).forEach(this::checkSolution);
+            friend.planAttacks(problem.move.to).forEach(this::checkSolution);
         }
     }
 

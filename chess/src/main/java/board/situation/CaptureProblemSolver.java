@@ -51,7 +51,7 @@ public class CaptureProblemSolver extends ProblemSolver {
         if (attackCost > piece.type.score) {
             for (Piece guard : piece.friends()) { // guard
                 if (guard != piece) {
-                    guard.getAttackSquares(piece.square).forEach(
+                    guard.planAttackSquares(piece.square).forEach(
                             s -> addSolution(guard.move(s)));
                 }
             }

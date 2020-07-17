@@ -134,7 +134,7 @@ public class King extends OneStepPiece {
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square square) {
+    public Stream<Square> planPotentialAttacks(Square square) {
         Stream.Builder<Square> builder = Stream.builder();
         Pair from = this.square.pair;
         Pair to = square.pair;

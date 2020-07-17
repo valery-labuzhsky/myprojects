@@ -74,7 +74,7 @@ public class Situations {
     }
 
     public int result() {
-        return this.score;
+        return this.score - 1000;
     }
 
     public boolean isCheckmate() {
@@ -155,6 +155,18 @@ public class Situations {
         oppositeScores = best(oppositeScores, a -> a.getScore(), board.color);
         oppositeScores.forEach(m -> moves.add(m.move));
 
+        // TODO I need to know:
+        //  how can he attack me so that I need to take actions
+        //  most important, how I can attack him so he need to take actions
+        //  next thing I need to know is how can I improve my score
+        //  I may have 8 different goals
+        //  sum x max x his/mine
+        //  but first I need to display them
+        //  opposite scores are not relevant, even harmful,
+        //  but I'll remove them once I'm done with this project
+
+        // TODO see all potential threats mine and his
+        // TODO display locked pieces
         System.out.println("Score: " + score + " " + this.moves);
     }
 

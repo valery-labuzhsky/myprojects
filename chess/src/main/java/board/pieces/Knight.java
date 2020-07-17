@@ -47,7 +47,7 @@ public class Knight extends OneStepPiece {
     }
 
     @Override
-    public Stream<Square> getPotentialAttacks(Square to) {
+    public Stream<Square> planPotentialAttacks(Square to) {
         XY file = split(to.pair.file - square.pair.file);
         XY rank = split(to.pair.rank - square.pair.rank);
 

@@ -22,7 +22,7 @@ public abstract class AttackTroubleMaker {
         ArrayList<AfterMoveScore> attacks = new ArrayList<>();
         ArrayList<Piece> enemies = new ArrayList<>(piece.board.pieces.get(-piece.color));
         for (Piece enemy : enemies) {
-            enemy.getAttacks(piece.square).forEach(m -> {
+            enemy.planAttacks(piece.square).forEach(m -> {
                 if (m.to.scores.getExchange(enemy.color).move(enemy).getScore() * enemy.color >= 0) {
                     AfterMoveScore attack = new AfterMoveScore(piece, m, diff());
                     if (attack.getScore() * m.piece.color > 0) {
