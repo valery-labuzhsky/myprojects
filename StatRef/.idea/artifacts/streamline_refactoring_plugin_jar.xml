@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact name="streamline-refactoring-plugin:jar">
-    <output-path>$PROJECT_DIR$/output/artifacts/streamline_refactoring_plugin_jar</output-path>
+    <output-path>$PROJECT_DIR$/output/artifacts</output-path>
     <root id="root">
       <element id="archive" name="streamline-refactoring-plugin.jar">
         <element id="module-output" name="streamline-refactoring-plugin" />
