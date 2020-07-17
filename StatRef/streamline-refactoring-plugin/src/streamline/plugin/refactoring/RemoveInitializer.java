@@ -20,4 +20,9 @@ public class RemoveInitializer extends Refactoring {
     protected void doRefactor() {
         initializer.getElement().delete();
     }
+
+    @Override
+    public String toString() {
+        return "Remove " + initializer.getText();
+    }
 }

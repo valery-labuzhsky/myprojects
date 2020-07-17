@@ -2,8 +2,13 @@ package streamline.plugin.toolwindow;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManager;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.KeyEventDispatcher;
 import streamline.plugin.nodes.guts.NodeComponent;
 import streamline.plugin.nodes.guts.RefactoringNode;
@@ -20,16 +25,17 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
-public class RefactoringToolWindow extends SimpleToolWindowPanel {
+public class RefactoringToolPanel extends SimpleToolWindowPanel {
     final AnActionEvent originalEvent;
     RefactoringNode root;
     private final Tree tree = new Tree();
 
-    public RefactoringToolWindow(AnActionEvent originalEvent) {
+    public RefactoringToolPanel(AnActionEvent originalEvent, String displayName) {
         super(true, true);
         this.originalEvent = originalEvent;
         setupToolbar();
         setupTree();
+        registerToolPanel(displayName);
     }
 
     public <N extends RefactoringNode> N setRoot(N root) {
@@ -137,7 +143,7 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
     }
 
     private void setupToolbar() {
-        DefaultActionGroup actionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction(RefactoringToolWindow.class.getName() + ".toolbar");
+        DefaultActionGroup actionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction(RefactoringToolPanel.class.getName() + ".toolbar");
 
         for (AnAction action : actionGroup.getChildren(originalEvent)) {
             action.registerCustomShortcutSet(tree, null);
@@ -161,6 +167,28 @@ public class RefactoringToolWindow extends SimpleToolWindowPanel {
         } else {
             throw new IllegalArgumentException(node + " is not supported");
         }
+    }
+
+    @NotNull
+    ToolWindow getToolWindow() {
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(originalEvent.getProject());
+        ToolWindow toolWindow = toolWindowManager.getToolWindow("Streamline");
+        toolWindow.show(null);
+        return toolWindow;
+    }
+
+    private void registerToolPanel(String displayName) {
+        ContentManager contentManager = getToolWindow().getContentManager();
+
+        Content tab = contentManager.getFactory().createContent(this, displayName, true);
+        contentManager.addContent(tab);
+        contentManager.setSelectedContent(tab);
+        getTree().requestFocusInWindow();
+    }
+
+    void close() {
+        ContentManager contentManager = getToolWindow().getContentManager();
+        contentManager.removeContent(contentManager.getContent(this), true);
     }
 
     private class ProxyNodeComponent implements TreeCellRenderer {

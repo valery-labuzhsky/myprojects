@@ -1,9 +1,13 @@
 package streamline.plugin.refactoring.guts;
 
+import com.intellij.openapi.diagnostic.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Listeners {
+    private static final Logger log = Logger.getInstance(Listeners.class);
+
     private final List<Runnable> listeners = new ArrayList<>();
     private Listeners newListeners;
 
@@ -23,7 +27,15 @@ public class Listeners {
             newListeners.invoke(listener);
         } else {
             listeners.add(listener);
+            run(listener);
+        }
+    }
+
+    private void run(Runnable listener) {
+        try {
             listener.run();
+        } catch (Exception e) {
+            log.warn("Listener thrown exception", e);
         }
     }
 
@@ -31,13 +43,13 @@ public class Listeners {
         if (newListeners == null) {
             newListeners = new Listeners();
             for (Runnable listener : listeners) {
-                listener.run();
+                run(listener);
             }
             listeners.addAll(newListeners.listeners);
             newListeners = null;
         } else {
             for (Runnable listener : listeners) {
-                listener.run();
+                run(listener);
             }
             newListeners.fire();
         }

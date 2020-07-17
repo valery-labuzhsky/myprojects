@@ -7,12 +7,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.*;
 import streamline.plugin.nodes.guts.NodesRegistry;
@@ -20,10 +16,10 @@ import streamline.plugin.refactoring.InlineAssignment;
 import streamline.plugin.refactoring.InlineParameter;
 import streamline.plugin.refactoring.InlineUsage;
 import streamline.plugin.refactoring.InlineVariable;
-import streamline.plugin.toolwindow.RefactoringToolWindow;
+import streamline.plugin.toolwindow.RefactoringToolPanel;
 
 public class SLInlineAction extends AnAction {
-    private static final Logger log = Logger.getInstance(IFactory.class);
+    private static final Logger log = Logger.getInstance(SLInlineAction.class);
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
@@ -40,7 +36,7 @@ public class SLInlineAction extends AnAction {
             NodesRegistry registry = new NodesRegistry(project);
             if (parent instanceof PsiLocalVariable) {
                 IVariableDeclaration declaration = new IVariableDeclaration((PsiLocalVariable) parent);
-                RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + declaration.getText());
+                RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + declaration.getText());
                 InlineVariable refactoring = registry.getRefactorings().getRefactoring(new InlineVariable(declaration, registry.getRefactorings()));
                 toolWindow.setRoot(registry.create(refactoring));
                 // TODO now I must improve a tree to make in comfortable to work with
@@ -50,7 +46,7 @@ public class SLInlineAction extends AnAction {
             } else if (parent instanceof PsiReferenceExpression) {
                 IVariable variable = new IVariable((PsiReferenceExpression) parent);
 
-                RefactoringToolWindow toolWindow = createTree(project, event, "Inline " + variable.getName());
+                RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + variable.getName());
 
                 if (variable.isAssignment()) {
                     InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
@@ -66,7 +62,7 @@ public class SLInlineAction extends AnAction {
 
                 InlineParameter refactoring = new InlineParameter(registry, parameter);
 
-                RefactoringToolWindow tree = createTree(project, event, "Inline " + parameter.getName());
+                RefactoringToolPanel tree = new RefactoringToolPanel(event, "Inline " + parameter.getName());
                 tree.setRoot(registry.create(refactoring));
             } else {
                 // TODO do not need to catch Exception from here
@@ -80,26 +76,6 @@ public class SLInlineAction extends AnAction {
 
     public void invokeNative(@NotNull AnActionEvent event) {
         ActionManager.getInstance().getAction("Inline").actionPerformed(event);
-    }
-
-    @NotNull
-    private RefactoringToolWindow createTree(Project project, AnActionEvent event, String displayName) {
-        ContentManager contentManager = getStreamlineToolWindow(project);
-
-        RefactoringToolWindow toolWindow = new RefactoringToolWindow(event);
-
-        Content tab = contentManager.getFactory().createContent(toolWindow, displayName, true);
-        contentManager.addContent(tab);
-        contentManager.setSelectedContent(tab);
-        toolWindow.getTree().requestFocusInWindow();
-        return toolWindow;
-    }
-
-    private ContentManager getStreamlineToolWindow(Project project) {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = toolWindowManager.getToolWindow("Streamline");
-        toolWindow.show(null);
-        return toolWindow.getContentManager();
     }
 
     private <P extends PsiElement> P getPsiElement(AnActionEvent event, Class<P> aClass) {

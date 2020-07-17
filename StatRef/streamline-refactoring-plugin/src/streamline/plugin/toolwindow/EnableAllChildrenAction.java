@@ -14,10 +14,10 @@ import javax.swing.tree.TreePath;
  *
  * @author unicorn
  */
-public class EnableAllChildrenAction extends RefactoringToolWindowAction {
+public class EnableAllChildrenAction extends RefactoringToolPanelAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        RefactoringToolWindow toolWindow = getToolWindow(e);
+        RefactoringToolPanel toolWindow = getToolPanel(e);
         Tree tree = toolWindow.getTree();
         TreePath path = tree.getSelectionPath();
         RefactoringNode root = toolWindow.root;

@@ -10,7 +10,8 @@ import java.util.Objects;
 
 public class SimplePresenter implements Presenter {
     private final ArrayList<Block> blocks = new ArrayList<>();
-    private SimpleTextAttributes attributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;;
+    private SimpleTextAttributes attributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
+    ;
     private ElementBlock lastElementBlock;
 
     public SimplePresenter inline(PsiElement element) {
@@ -104,14 +105,16 @@ public class SimplePresenter implements Presenter {
             int parentOffset = element.getTextRange().getStartOffset();
 
             for (SimplePresenter.ElementBlock child : children) {
-                int childOffset = child.element.getTextRange().getStartOffset() - parentOffset;
-                addText(presentation, text.substring(0, childOffset));
+                if (child.element.isValid()) {
+                    int childOffset = child.element.getTextRange().getStartOffset() - parentOffset;
+                    addText(presentation, text.substring(0, childOffset));
 
-                child.present(presentation);
-                childOffset += child.element.getTextLength();
+                    child.present(presentation);
+                    childOffset += child.element.getTextLength();
 
-                text = text.substring(childOffset);
-                parentOffset += childOffset;
+                    text = text.substring(childOffset);
+                    parentOffset += childOffset;
+                }
             }
 
             addText(presentation, text);

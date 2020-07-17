@@ -21,8 +21,6 @@ public class InlineUsageNode extends RefactoringNode<InlineUsage> {
     @Override
     public List<SelfPresentingNode> createChildren() {
         ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
-        // TODO your only use is when without parent
-//        nodes.add(new VariantElementNode(this, refactoring).lock());
 
         if (!refactoring.getVariants().isEmpty()) {
             ConflictManyValuesNode conflict = new ConflictManyValuesNode(getProject());

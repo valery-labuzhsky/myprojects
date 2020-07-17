@@ -22,6 +22,9 @@ public class VariantElementNode extends SelfPresentingNode {
             JRadioButton radioButton = new JRadioButton();
             controller.invoke(() -> radioButton.setSelected(variant.isEnabled()));
             radioButton.addActionListener(e -> {
+                // TODO enable all ancestors tree
+                //  if variants must reside in some tree
+                //  therefore I need parents in refactorings
                 variant.setEnabled(true);
                 controller.fire();
                 parent.getParent().getParent().select(variant);
@@ -29,11 +32,6 @@ public class VariantElementNode extends SelfPresentingNode {
             panel.add(radioButton);
             panel.dispatchKeyEvents(radioButton);
         }, textRenderer(createPresenter()));
-    }
-
-    public VariantElementNode lock() {
-        setNodePanelParts(textRenderer(createPresenter()));
-        return this;
     }
 
     private ElementPresenter createPresenter() {

@@ -53,15 +53,8 @@ public class InlineAssignment extends CompoundRefactoring {
         this.usages.add(inlineUsage);
     }
 
-    public boolean areUsagesLeft() {
-        boolean usagesLeft = false;
-        for (InlineUsage usage : usages) {
-            if (!usage.isEnabled()) {
-                usagesLeft = true;
-                break;
-            }
-        }
-        return usagesLeft;
+    private boolean areUsagesLeft() {
+        return usages.stream().anyMatch(u -> !u.isEnabled());
     }
 
     @Override
@@ -123,6 +116,6 @@ public class InlineAssignment extends CompoundRefactoring {
     }
 
     public String toString() {
-        return "" + initializer.getText();
+        return "Inline " + initializer.getText();
     }
 }

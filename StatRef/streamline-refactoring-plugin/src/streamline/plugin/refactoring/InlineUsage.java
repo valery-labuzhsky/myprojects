@@ -9,15 +9,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class InlineUsage extends Refactoring {
-    // TODO the greater plan is to go prod with inline as fast as possible
-
-    // TODO Make selecting inline assignment as well as inline variable comfortable
-    //  0. I need adding those actions to toolbar right away
-    //  1. open nodes with conflicts
-    //  2. select parent nodes
-    //  3. change arrows behaviour on a tree - Shift+Left - to close a tree on exit - it's better to do it other way around
-    //  4. make inline work again
-
     private final IVariable usage;
     private final IInitializer value;
     private final ArrayList<InlineUsage> variants = new ArrayList<>();

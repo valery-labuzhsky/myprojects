@@ -21,31 +21,11 @@ public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
     @Override
     @NotNull
     public List<SelfPresentingNode> createChildren() {
-        RemoveElementNode removeNode = new RemoveElementNode(this.refactoring.getRemove(), registry);
-        Runnable usageListeners = new Runnable() {
-            private boolean oldUsageLeft = false;
-
-            @Override
-            public void run() {
-                boolean usagesLeft = refactoring.areUsagesLeft();
-                if (oldUsageLeft != usagesLeft) {
-                    removeNode.setEnabled(!usagesLeft);
-
-                    if (!usagesLeft) {
-                        setEnabled(false);
-                    }
-
-                    oldUsageLeft = usagesLeft;
-                }
-            }
-        };
         ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
         for (InlineUsage usage : this.refactoring.getUsages()) {
-            InlineUsageNode usageNode = new InlineUsageNode(usage, registry);
-            usageNode.getListeners().invoke(usageListeners);
-            nodes.add(usageNode);
+            nodes.add(new InlineUsageNode(usage, registry));
         }
-        nodes.add(removeNode);
+        nodes.add(new RemoveElementNode(this.refactoring.getRemove(), registry));
         return nodes;
     }
 

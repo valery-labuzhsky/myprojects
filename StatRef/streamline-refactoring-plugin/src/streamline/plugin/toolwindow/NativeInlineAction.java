@@ -11,12 +11,12 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author unicorn
  */
-public class NativeInlineAction extends RefactoringToolWindowAction {
+public class NativeInlineAction extends RefactoringToolPanelAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         // TODO how do I know it's inline action I need?
         //  it depends on refactoring
         AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
-        ActionUtil.performActionDumbAware(nativeAction, getToolWindow(e).originalEvent);
+        ActionUtil.performActionDumbAware(nativeAction, getToolPanel(e).originalEvent);
     }
 }

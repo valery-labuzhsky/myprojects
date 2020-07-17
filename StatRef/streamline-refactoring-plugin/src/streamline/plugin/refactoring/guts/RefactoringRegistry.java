@@ -15,10 +15,11 @@ public class RefactoringRegistry {
     @SuppressWarnings("unchecked")
     @NotNull
     public <R extends Refactoring> R getRefactoring(R refactoring) {
-        return (R) registry.computeIfAbsent(refactoring, (k) -> {
+        registry.computeIfAbsent(refactoring, (k) -> {
             perElement.computeIfAbsent(refactoring.getElement(), e -> new ArrayList<>()).add(refactoring);
             return refactoring;
         });
+        return refactoring;
     }
 
     public List<Refactoring> getRefactorings(SElement element) {

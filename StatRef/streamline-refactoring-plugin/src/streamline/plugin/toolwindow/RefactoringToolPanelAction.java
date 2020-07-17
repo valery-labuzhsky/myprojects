@@ -12,12 +12,12 @@ import java.awt.*;
  *
  * @author unicorn
  */
-public abstract class RefactoringToolWindowAction extends AnAction {
-    protected RefactoringToolWindow getToolWindow(@NotNull AnActionEvent e) {
+public abstract class RefactoringToolPanelAction extends AnAction {
+    protected RefactoringToolPanel getToolPanel(@NotNull AnActionEvent e) {
         Component component = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
-        while (component != null && !(component instanceof RefactoringToolWindow)) {
+        while (component != null && !(component instanceof RefactoringToolPanel)) {
             component = component.getParent();
         }
-        return (RefactoringToolWindow) component;
+        return (RefactoringToolPanel) component;
     }
 }

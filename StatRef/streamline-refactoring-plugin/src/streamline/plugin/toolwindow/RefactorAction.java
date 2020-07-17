@@ -4,10 +4,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.WriteCommandAction;
 import org.jetbrains.annotations.NotNull;
 
-public class RefactorAction extends RefactoringToolWindowAction {
+public class RefactorAction extends RefactoringToolPanelAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        WriteCommandAction.runWriteCommandAction(e.getProject(), getToolWindow(e).getRefactoring()::refactor);
+        RefactoringToolPanel panel = getToolPanel(e);
+        WriteCommandAction.runWriteCommandAction(e.getProject(), panel.getRefactoring()::refactor);
+        panel.close();
     }
 
 }
