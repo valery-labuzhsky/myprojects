@@ -13,7 +13,7 @@ import java.util.*;
  */
 public class Board {
     private Square[][] squares;
-    public final HashMap<Integer, HashSet<Piece>> pieces = new HashMap<>();
+    public final HashMap<Integer, Set<Piece>> pieces = new HashMap<>();
     public int color;
     public Random random;
     public boolean force;
@@ -63,7 +63,7 @@ public class Board {
 
         color = -1;
 
-        for (HashSet<Piece> pieces : pieces.values()) {
+        for (Set<Piece> pieces : pieces.values()) {
             for (Piece piece : pieces) {
                 piece.trace(new Waypoint.Origin(piece, piece.square));
             }
@@ -254,5 +254,13 @@ public class Board {
 
     public void undo() {
         history.getLastMove().undo();
+    }
+
+    public Collection<Piece> friends() {
+        return new ArrayList<>(pieces.get(color));
+    }
+
+    public Collection<Piece> enemies() {
+        return new ArrayList<>(pieces.get(-color));
     }
 }

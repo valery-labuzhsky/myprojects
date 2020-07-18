@@ -71,6 +71,7 @@ public interface Logged {
         return string.toString().replace("\n", "\n\t");
     }
 
+    // TODO streams
     static String tabs(String name, Collection<?> list) {
         if (list.isEmpty()) {
             return "";

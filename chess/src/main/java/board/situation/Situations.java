@@ -14,6 +14,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static board.Logged.tabs;
+
 /**
  * Created on 16.04.2020.
  *
@@ -82,23 +84,32 @@ public class Situations {
     }
 
     private void analyse() {
+        // TODO what information I need next?
+        //  calculate removing score
+        //  I need remove blocks with 0 threat
+        //  I need show that e3 is pinned
+        //  sort roles to some priority
+        //  use roles to calculate removing scores
+        log().info(tabs("My roles", board.friends().stream().flatMap(p -> p.meaningfulRoles()).collect(Collectors.toList())));
+        log().info(tabs("His roles", board.enemies().stream().flatMap(p -> p.meaningfulRoles()).collect(Collectors.toList())));
+
         ArrayList<AfterMoveScore> myAttacks = new ArrayList<>();
         ArrayList<Solution> captures = new ArrayList<>();
 
-        for (Piece piece : new ArrayList<>(board.pieces.get(-board.color))) { // TODO because we are doing moves when analysing situation
+        for (Piece piece : board.enemies()) {
             captures.addAll(new CaptureTroubleMaker(piece).takeAdvantageOf().collect(Collectors.toList()));
 
             // TODO it is not necessary simple, it may be complex
             myAttacks.addAll(new SimpleAttackTroubleMaker(piece).attacks);
         }
 
-        log().info(Logged.tabs("My attacks", myAttacks));
+        log().info(tabs("My attacks", myAttacks));
 
-        log().info(Logged.tabs("My captures", captures.stream().map(s -> s.problem).collect(Collectors.toList())));
+        log().info(tabs("My captures", captures.stream().map(s -> s.problem).collect(Collectors.toList())));
 
         ArrayList<ProblemSolver> oppositeAttacks = new ArrayList<>();
 
-        for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
+        for (Piece piece : board.friends()) {
             oppositeAttacks.addAll(new CaptureTroubleMaker(piece).makeProblems().collect(Collectors.toList()));
             oppositeAttacks.addAll(new OppositeAttacksNoEscapeTroubleMaker(piece).makeProblems().collect(Collectors.toList()));
         }
@@ -108,7 +119,7 @@ public class Situations {
             attack.captures(captures);
         }
 
-        log().info(Logged.tabs("Problems", oppositeAttacks));
+        log().info(tabs("Problems", oppositeAttacks));
         score += oppositeAttacks.stream().mapToInt(a -> a.getScore()).sum();
 
         HashMap<Move, Tempo> tempos = new HashMap<>();
@@ -123,7 +134,7 @@ public class Situations {
         }
 
         ArrayList<Tempo> bestTempos = best(tempos.values(), t -> t.getScore(), board.color);
-        log().info(Logged.tabs("Solutions", bestTempos));
+        log().info(tabs("Solutions", bestTempos));
 
         HashSet<Problem> unsolvedProblems = oppositeAttacks.stream().map(a -> a.problem).
                 collect(Collectors.toCollection(() -> new HashSet<>()));
@@ -138,20 +149,20 @@ public class Situations {
         score += bestTempos.stream().map(t -> t.getScore()).findAny().orElse(0);
 
         if (solutions.isEmpty()) {
-            for (Piece piece : new ArrayList<>(board.pieces.get(board.color))) { // TODO because we are doing moves when analysing situation
+            for (Piece piece : board.friends()) {
                 piece.whereToMove().forEach(move -> solutions.add(new SamePiecesMoveScore(piece.move(move))));
             }
         }
 
         HashSet<SamePiecesMoveScore> bestMoves = best(solutions, new HashSet<>(), d -> d.getScore(), board.color);
-        log().info(Logged.tabs("Best moves", bestMoves));
+        log().info(tabs("Best moves", bestMoves));
 
         List<RetaliationScore> retaliationScores = bestMoves.stream().map(a -> new RetaliationScore(a.move)).collect(Collectors.toList());
-        log().info(Logged.tabs("Retaliation scores", retaliationScores));
+        log().info(tabs("Retaliation scores", retaliationScores));
         retaliationScores = best(retaliationScores, a -> a.getScore(), board.color);
 
         List<OppositePiecesDiffMoveScore> oppositeScores = retaliationScores.stream().map(a -> new OppositePiecesDiffMoveScore(a.myMove, ComplexExchange::diff)).collect(Collectors.toList());
-        log().info(Logged.tabs("Opposite scores", oppositeScores));
+        log().info(tabs("Opposite scores", oppositeScores));
         oppositeScores = best(oppositeScores, a -> a.getScore(), board.color);
         oppositeScores.forEach(m -> moves.add(m.move));
 
@@ -166,7 +177,7 @@ public class Situations {
         //  but I'll remove them once I'm done with this project
 
         // TODO see all potential threats mine and his
-        // TODO display locked pieces
+        // TODO display locked pieces - e3 is protecting f4 from d6
         System.out.println("Score: " + score + " " + this.moves);
     }
 

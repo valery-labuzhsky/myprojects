@@ -101,8 +101,7 @@ public class Square implements Logged {
         if (piece == null) {
             p = ".";
         } else {
-            p = piece.type.getLetter();
-            p = piece.color > 0 ? p : p.toLowerCase();
+            p = piece.getLetter();
         }
         return p;
     }

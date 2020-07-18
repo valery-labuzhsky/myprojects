@@ -2,6 +2,9 @@ package board.pieces;
 
 import board.*;
 import board.exchange.Exchange;
+import board.roles.Attack;
+import board.roles.Block;
+import board.roles.Role;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ public abstract class Piece implements Logged {
         this.board = board;
         this.color = color;
         this.type = type;
+        int c = 0;
     }
 
     //region Is From To
@@ -94,62 +98,56 @@ public abstract class Piece implements Logged {
     //endregion
 
     //region Whom
-    // TODO implement it
-    public abstract Stream<Piece> whomToAttack();
+    public abstract Stream<Piece> whomAttack();
 
     private Stream<Piece> whomToCapture() {
-        return whomToAttack().filter(p -> p.color == -color);
+        return whomAttack().filter(p -> p.color == -color);
     }
 
     public Stream<Piece> whomBlock() {
-        Stream.Builder<Piece> stream = Stream.builder();
+        return blockRoles().map(b -> b.attack.whom);
+    }
 
-        whomBlock(stream, Piece::isRookOrQueen, 1, 0);
-        whomBlock(stream, Piece::isRookOrQueen, 0, 1);
-        whomBlock(stream, Piece::isBishopOrQueen, 1, 1);
-        whomBlock(stream, Piece::isBishopOrQueen, -1, 1);
+    public Collection<Piece> friends() {
+        return new ArrayList<>(board.pieces.get(color)); // TODO what else? CopyOnWrite?
+    }
+    //endregion
+
+    //region Roles
+    public Stream<Role> roles() {
+        return Stream.concat(attackRoles(), blockRoles());
+    }
+
+    public Stream<Role> meaningfulRoles() {
+        return roles().filter(r -> r.isMeaningful());
+    }
+
+    public Stream<Attack> attackRoles() {
+        return whomAttack().map(p -> Attack.create(this, p));
+    }
+
+    public Stream<Block> blockRoles() {
+        Stream.Builder<Block> stream = Stream.builder();
+
+        blockRoles(stream, Piece::isRookOrQueen, 1, 0);
+        blockRoles(stream, Piece::isRookOrQueen, 0, 1);
+        blockRoles(stream, Piece::isBishopOrQueen, 1, 1);
+        blockRoles(stream, Piece::isBishopOrQueen, -1, 1);
 
         return stream.build();
     }
 
-    private void whomBlock(Stream.Builder<Piece> stream, Predicate<Piece> attack, int file, int rank) {
+    private void blockRoles(Stream.Builder<Block> stream, Predicate<Piece> attack, int file, int rank) {
         Piece p1 = square.findPieceOnRay(file, rank);
         Piece p2 = square.findPieceOnRay(-file, -rank);
         if (p1 != null && p2 != null) {
             if (attack.test(p1)) {
-                stream.add(p2);
+                stream.add(new Block(this, p2, p1));
             }
             if (attack.test(p2)) {
-                stream.add(p1);
+                stream.add(new Block(this, p1, p2));
             }
         }
-    }
-
-    public ArrayList<Piece> friends() {
-        return new ArrayList<>(board.pieces.get(color)); // TODO use concurrent set
-    }
-    //endregion
-
-    //region Old blocks
-    public Collection<Piece> getBlocks(Square from) {
-        return getBlocks(from, this.square);
-    }
-
-    // TODO get rid of blocks
-    public Collection<Piece> getBlocks(Square from, Square to) {
-        return new Blocks(() -> from.ray(to));
-    }
-    //endregion
-
-    //region Waypoints
-    public final HashSet<Waypoint> waypoints = new HashSet<>();
-
-    public boolean goes(Waypoint waypoint) {
-        return true;
-    }
-
-    public boolean attacks(Waypoint waypoint) {
-        return true;
     }
     //endregion
 
@@ -227,9 +225,13 @@ public abstract class Piece implements Logged {
     //endregion
 
     //region Technical
+    public String getLetter() {
+        return color > 0 ? type.getLetter() : type.getLetter().toLowerCase();
+    }
+
     @Override
     public String toString() {
-        return "" + type.getLetter() + square.pair;
+        return "" + getLetter() + square.pair;
     }
 
     @Override
@@ -237,4 +239,29 @@ public abstract class Piece implements Logged {
         return square.getLogger();
     }
     //endregion
+
+
+    //region Old blocks
+    public Collection<Piece> getBlocks(Square from) {
+        return getBlocks(from, this.square);
+    }
+
+    // TODO get rid of blocks
+    public Collection<Piece> getBlocks(Square from, Square to) {
+        return new Blocks(() -> from.ray(to));
+    }
+    //endregion
+
+    //region Waypoints
+    public final HashSet<Waypoint> waypoints = new HashSet<>();
+
+    public boolean goes(Waypoint waypoint) {
+        return true;
+    }
+
+    public boolean attacks(Waypoint waypoint) {
+        return true;
+    }
+    //endregion
+
 }

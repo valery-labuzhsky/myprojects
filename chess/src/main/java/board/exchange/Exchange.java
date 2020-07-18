@@ -96,6 +96,13 @@ public class Exchange implements Logged, Analytics {
         return result;
     }
 
+    // TODO add remove piece method
+    //  it almost the same but without a piece
+    //  I basically do another exchange
+    //  why not to just move a piece to find out?
+    //  I can just remove piece
+    //  which I do
+
     public Exchange move(Piece piece) {
         Exchange copy = new Exchange(this);
         copy.score -= copy.piece == null ? 0 : copy.piece.cost();
