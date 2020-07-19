@@ -1,6 +1,7 @@
 package statref.model.members;
 
-import statref.model.*;
+import statref.model.SElement;
+import statref.model.SModifiers;
 import statref.model.statements.SStatement;
 import statref.model.types.SType;
 
@@ -35,7 +36,7 @@ public interface SMethodDeclaration extends SModifiers, SClassMemeber, SElement 
         public Signature(SMethodDeclaration method) {
             name = method.getName();
             parameters = method.getParameters().stream().
-                    map(SBaseVariableDeclaration::getType).
+                    map(SVariableDeclaration::getType).
                     collect(Collectors.toList());
         }
 

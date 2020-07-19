@@ -1,7 +1,7 @@
 package statref.writer;
 
-import statref.model.SVariableDeclaration;
+import statref.model.SLocalVariableDeclaration;
 
-public class WVariableDeclaration extends WInitializedVariableDeclaration<SVariableDeclaration> {
+public class WVariableDeclaration extends WInitializedVariableDeclaration<SLocalVariableDeclaration> {
 
 }

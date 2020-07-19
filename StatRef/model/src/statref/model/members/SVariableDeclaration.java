@@ -9,7 +9,7 @@ import statref.model.types.SType;
  *
  * @author ptasha
  */
-public interface SBaseVariableDeclaration extends SModifiers, SElement {
+public interface SVariableDeclaration extends SModifiers, SElement {
     SType getType();
 
     String getName();

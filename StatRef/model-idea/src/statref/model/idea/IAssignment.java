@@ -13,7 +13,7 @@ public class IAssignment extends IExpression<PsiAssignmentExpression> implements
         return (IExpression) getElement(getElement().getRExpression());
     }
 
-    public IVariable getVariable() {
+    public ILocalVariable getVariable() {
         return getElement(getElement().getLExpression());
     }
 
@@ -24,7 +24,7 @@ public class IAssignment extends IExpression<PsiAssignmentExpression> implements
 
     @NotNull
     @Override
-    public IVariableDeclaration declaration() {
+    public ILocalVariableDeclaration declaration() {
         return getVariable().declaration();
     }
 }

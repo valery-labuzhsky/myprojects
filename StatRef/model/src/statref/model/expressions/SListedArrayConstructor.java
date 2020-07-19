@@ -7,5 +7,5 @@ import java.util.ArrayList;
 public interface SListedArrayConstructor extends SExpression {
     SType getItemType();
 
-    ArrayList<SVariable> getItems();
+    ArrayList<SLocalVariable> getItems();
 }

@@ -34,7 +34,7 @@ public class Cycler {
             return createIfCycler((IIfStatement) element);
         } else if (element instanceof ILoopStatement) {
             return createLoopCycler((ILoopStatement) element);
-        } else if (element instanceof IVariableDeclaration) {
+        } else if (element instanceof ILocalVariableDeclaration) {
             return createElementsCycler(element);
         } else if (element instanceof IDeclarationStatement) {
             return createElementsCycler(element);

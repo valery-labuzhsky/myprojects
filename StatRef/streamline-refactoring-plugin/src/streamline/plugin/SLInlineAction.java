@@ -31,7 +31,7 @@ public class SLInlineAction extends AnAction {
             Project project = getEventProject(event);
             NodesRegistry registry = new NodesRegistry(project);
             if (parent instanceof PsiLocalVariable) {
-                IVariableDeclaration declaration = new IVariableDeclaration((PsiLocalVariable) parent);
+                ILocalVariableDeclaration declaration = new ILocalVariableDeclaration((PsiLocalVariable) parent);
                 RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + declaration.getText());
                 InlineVariable refactoring = registry.getRefactorings().getRefactoring(new InlineVariable(declaration, registry.getRefactorings()));
                 toolWindow.setRoot(registry.create(refactoring));
@@ -49,7 +49,7 @@ public class SLInlineAction extends AnAction {
                 //  Local variable is a different beast
                 //  I will also have a variable of unknown nature
                 // TODO I must also use factory for everything
-                IVariable variable = new IVariable((PsiReferenceExpression) parent);
+                ILocalVariable variable = new ILocalVariable((PsiReferenceExpression) parent);
 
                 RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + variable.getName());
 

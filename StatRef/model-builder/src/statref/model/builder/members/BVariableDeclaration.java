@@ -1,23 +1,42 @@
 package statref.model.builder.members;
 
+import statref.model.builder.BElement;
+import statref.model.builder.BModifiers;
+import statref.model.builder.expressions.BLocalVariable;
+import statref.model.members.SVariableDeclaration;
 import statref.model.types.SType;
-import statref.model.SVariableDeclaration;
-import statref.model.expressions.SExpression;
 
-public class BVariableDeclaration extends BBaseVariableDeclaration<BVariableDeclaration> implements SVariableDeclaration {
-    private SExpression expression;
+import javax.lang.model.element.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+
+public abstract class BVariableDeclaration<B extends BVariableDeclaration> extends BElement implements SVariableDeclaration, BModifiers<B> {
+    private final SType type;
+    private final String name;
+    private ArrayList<Modifier> modifiers = new ArrayList<>();
 
     public BVariableDeclaration(SType type, String name) {
-        super(type, name);
+        this.type = type;
+        this.name = name;
     }
 
     @Override
-    public SExpression getInitializer() {
-        return expression;
+    public SType getType() {
+        return type;
     }
 
-    public BVariableDeclaration body(SExpression expression) {
-        this.expression = expression;
-        return this;
+    @Override
+    public String getName() {
+        return name;
     }
+
+    public BLocalVariable usage() {
+        return new BLocalVariable(name);
+    }
+
+    @Override
+    public Collection<Modifier> getModifiers() {
+        return modifiers;
+    }
+
 }

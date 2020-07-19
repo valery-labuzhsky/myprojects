@@ -2,15 +2,15 @@ package statref.model.idea;
 
 import com.intellij.psi.PsiLocalVariable;
 import org.jetbrains.annotations.NotNull;
+import statref.model.SLocalVariableDeclaration;
 import statref.model.types.SType;
-import statref.model.SVariableDeclaration;
 
 import javax.lang.model.element.Modifier;
 import java.util.Collection;
 
-public class IVariableDeclaration extends IElement<PsiLocalVariable> implements SVariableDeclaration, IInitializer {
+public class ILocalVariableDeclaration extends IElement<PsiLocalVariable> implements SLocalVariableDeclaration, IInitializer {
 
-    public IVariableDeclaration(PsiLocalVariable element) {
+    public ILocalVariableDeclaration(PsiLocalVariable element) {
         super(element);
     }
 
@@ -31,7 +31,7 @@ public class IVariableDeclaration extends IElement<PsiLocalVariable> implements 
 
     @NotNull
     @Override
-    public IVariableDeclaration declaration() {
+    public ILocalVariableDeclaration declaration() {
         return this;
     }
 

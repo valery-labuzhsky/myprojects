@@ -1,8 +1,8 @@
 package statref.writer;
 
-import statref.model.members.SBaseVariableDeclaration;
 import statref.model.SInitializer;
 import statref.model.expressions.SExpression;
+import statref.model.members.SVariableDeclaration;
 
 import java.io.IOException;
 
@@ -11,7 +11,7 @@ import java.io.IOException;
  *
  * @author ptasha
  */
-public abstract class WInitializedVariableDeclaration<S extends SBaseVariableDeclaration & SInitializer> extends WBaseVariableDeclaration<S> {
+public abstract class WInitializedVariableDeclaration<S extends SVariableDeclaration & SInitializer> extends WBaseVariableDeclaration<S> {
     public WInitializedVariableDeclaration() {
         super();
     }
@@ -20,7 +20,7 @@ public abstract class WInitializedVariableDeclaration<S extends SBaseVariableDec
     public void write(CodeWriter writer, S field) throws IOException {
         super.write(writer, field);
         SExpression expression = field.getInitializer();
-        if (expression!=null) {
+        if (expression != null) {
             writer.write(" = ");
             writeElement(expression, writer);
         }

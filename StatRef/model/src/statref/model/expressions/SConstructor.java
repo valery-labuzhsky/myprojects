@@ -7,5 +7,5 @@ import java.util.List;
 public interface SConstructor extends SExpression {
     SClass getSClass();
 
-    List<SVariable> getParameters();
+    List<SLocalVariable> getParameters();
 }

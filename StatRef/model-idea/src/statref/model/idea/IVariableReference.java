@@ -12,24 +12,24 @@ public interface IVariableReference {
     PsiElement getElement();
 
     @NotNull
-    IVariableDeclaration declaration();
+    ILocalVariableDeclaration declaration();
 
     String getName();
 
     @NotNull
-    default ArrayList<IVariable> mentions() {
-        ArrayList<IVariable> usages = new ArrayList<>();
+    default ArrayList<ILocalVariable> mentions() {
+        ArrayList<ILocalVariable> usages = new ArrayList<>();
         ReferencesSearch.search(declaration().getElement(), this.getElement().getUseScope()).forEach(psiReference -> {
-            usages.add(new IVariable((PsiReferenceExpression) psiReference));
+            usages.add(new ILocalVariable((PsiReferenceExpression) psiReference));
             return true;
         });
         return usages;
     }
 
     @NotNull
-    default ArrayList<IVariable> valueUsages() {
-        ArrayList<IVariable> valueUsages = new ArrayList<>();
-        for (IVariable mention : mentions()) {
+    default ArrayList<ILocalVariable> valueUsages() {
+        ArrayList<ILocalVariable> valueUsages = new ArrayList<>();
+        for (ILocalVariable mention : mentions()) {
             if (!mention.isAssignment()) {
                 valueUsages.add(mention);
             }

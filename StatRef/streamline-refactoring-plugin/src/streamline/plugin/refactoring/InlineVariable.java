@@ -1,22 +1,22 @@
 package streamline.plugin.refactoring;
 
 import statref.model.idea.IInitializer;
-import statref.model.idea.IVariable;
-import statref.model.idea.IVariableDeclaration;
+import statref.model.idea.ILocalVariable;
+import statref.model.idea.ILocalVariableDeclaration;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 import streamline.plugin.refactoring.guts.flow.VariableFlow;
 
 import java.util.Objects;
 
 public class InlineVariable extends SimpleCompoundRefactoring {
-    private final IVariableDeclaration declaration;
+    private final ILocalVariableDeclaration declaration;
 
-    public InlineVariable(IVariableDeclaration declaration, RefactoringRegistry registry) {
+    public InlineVariable(ILocalVariableDeclaration declaration, RefactoringRegistry registry) {
         super(registry, declaration);
         VariableFlow flow = new VariableFlow(declaration);
         this.declaration = flow.getDeclaration();
         add(registry.getRefactoring(new InlineAssignment(registry, this.declaration)));
-        for (IVariable assignment : flow.getAssignments()) {
+        for (ILocalVariable assignment : flow.getAssignments()) {
             add(registry.getRefactoring(new InlineAssignment(registry, (IInitializer) assignment.getParent())));
         }
         // TODO First step is to show full tree
@@ -24,11 +24,11 @@ public class InlineVariable extends SimpleCompoundRefactoring {
         // TODO Now I need create this node
     }
 
-    public IVariableDeclaration getDeclaration() {
+    public ILocalVariableDeclaration getDeclaration() {
         return declaration;
     }
 
-    public InlineUsage enableOnly(IVariable usage) {
+    public InlineUsage enableOnly(ILocalVariable usage) {
         disableAll();
 
         return getRefactorings().map(r -> (InlineAssignment) r).

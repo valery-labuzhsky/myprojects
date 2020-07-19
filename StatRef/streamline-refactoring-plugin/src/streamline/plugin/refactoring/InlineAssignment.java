@@ -2,7 +2,7 @@ package streamline.plugin.refactoring;
 
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
-import statref.model.idea.IVariable;
+import statref.model.idea.ILocalVariable;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 import streamline.plugin.refactoring.guts.flow.VariableFlow;
@@ -30,14 +30,14 @@ public class InlineAssignment extends CompoundRefactoring {
             }
         };
         VariableFlow flow = new VariableFlow(initializer.declaration());
-        Collection<IVariable> usages = flow.getUsages(initializer);
-        for (IVariable usage : usages) {
+        Collection<ILocalVariable> usages = flow.getUsages(initializer);
+        for (ILocalVariable usage : usages) {
             addUsage(usage);
         }
         remove.setEnabled(!areUsagesLeft());
     }
 
-    private void addUsage(IVariable usage) {
+    private void addUsage(ILocalVariable usage) {
         InlineUsage inlineUsage = registry.getRefactoring(new InlineUsage(registry, usage, initializer));
         inlineUsage.onUpdate.listen(() -> {
             if (isEnabled()) {
@@ -75,7 +75,7 @@ public class InlineAssignment extends CompoundRefactoring {
         return remove;
     }
 
-    public InlineUsage enableOnly(IVariable toEnable) {
+    public InlineUsage enableOnly(ILocalVariable toEnable) {
         disableAll();
 
         InlineUsage enabled = null;

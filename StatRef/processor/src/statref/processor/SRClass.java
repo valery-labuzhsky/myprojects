@@ -7,12 +7,12 @@ import statref.model.builder.classes.BClassDeclaration;
 import statref.model.builder.classes.BFile;
 import statref.model.builder.expressions.BExpression;
 import statref.model.builder.expressions.BListedArrayConstructor;
-import statref.model.builder.expressions.BVariable;
+import statref.model.builder.expressions.BLocalVariable;
 import statref.model.builder.members.BMethodDeclaration;
 import statref.model.classes.SClassDeclaration;
 import statref.model.classes.SPackage;
-import statref.model.members.SBaseVariableDeclaration;
 import statref.model.members.SMethodDeclaration;
+import statref.model.members.SVariableDeclaration;
 import statref.model.types.SClass;
 import statref.model.types.SGeneric;
 import statref.model.types.SType;
@@ -61,7 +61,7 @@ public class SRClass {
                 }
             } else if (name.startsWith("set")) {
                 if (method.getParameters().size() == 1) {
-                    SBaseVariableDeclaration parameter = method.getParameters().get(0);
+                    SVariableDeclaration parameter = method.getParameters().get(0);
                     String property = name.substring(3);
                     String type = parameter.getType().toString();
                     Map<String, SMethodDeclaration> settersMap = setters.computeIfAbsent(property, k -> new HashMap<>());
@@ -138,7 +138,7 @@ public class SRClass {
                                            public_();
                                            returnType(type.getGenericType());
 
-                                           BVariable object = parameter(genericClientClass, "object");
+                                           BLocalVariable object = parameter(genericClientClass, "object");
                                            return_(object.call(getter));
                                        }
                                    }
@@ -147,8 +147,8 @@ public class SRClass {
                                 @Override
                                 public void describe() {
                                     public_();
-                                    BVariable object = parameter(genericClientClass, "object");
-                                    BVariable value = parameter(type.getGenericType(), "value");
+                                    BLocalVariable object = parameter(genericClientClass, "object");
+                                    BLocalVariable value = parameter(type.getGenericType(), "value");
 
                                     code(object.call(setter, value));
                                 }

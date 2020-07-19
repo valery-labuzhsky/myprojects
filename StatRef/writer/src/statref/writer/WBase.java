@@ -1,6 +1,8 @@
 package statref.writer;
 
-import statref.model.*;
+import statref.model.SElement;
+import statref.model.SGenericDeclaration;
+import statref.model.SLocalVariableDeclaration;
 import statref.model.classes.SClassDeclaration;
 import statref.model.classes.SFile;
 import statref.model.expressions.*;
@@ -31,7 +33,7 @@ public abstract class WBase<S> {
     static {
         register(SClassDeclaration.class, new WClassDeclaration());
         register(SAnonClassDeclaration.class, new WAnonClassDeclaration());
-        register(SVariableDeclaration.class, new WVariableDeclaration());
+        register(SLocalVariableDeclaration.class, new WVariableDeclaration());
         register(SFieldDeclaration.class, new WFieldDeclaration());
         register(SParameter.class, new WParameter());
         register(SMethodDeclaration.class, new WMethodDeclaration());
@@ -39,7 +41,7 @@ public abstract class WBase<S> {
         register(SReturn.class, new WReturn());
         register(SBlock.class, new WBlock());
         register(SClass.class, new WClassUsage());
-        register(SVariable.class, new WVariable());
+        register(SLocalVariable.class, new WVariable());
         register(SMethod.class, new WMethodUsage());
         register(SMethodStatement.class, new WMethodInstruction());
         register(SConstructor.class, new WConstructor());

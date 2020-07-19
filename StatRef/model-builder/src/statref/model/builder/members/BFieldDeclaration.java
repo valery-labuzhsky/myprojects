@@ -1,10 +1,10 @@
 package statref.model.builder.members;
 
+import statref.model.expressions.SExpression;
 import statref.model.members.SFieldDeclaration;
 import statref.model.types.SType;
-import statref.model.expressions.SExpression;
 
-public class BFieldDeclaration extends BBaseVariableDeclaration<BFieldDeclaration> implements SFieldDeclaration {
+public class BFieldDeclaration extends BVariableDeclaration<BFieldDeclaration> implements SFieldDeclaration {
     private SExpression expression;
 
     public BFieldDeclaration(SType type, String name) {

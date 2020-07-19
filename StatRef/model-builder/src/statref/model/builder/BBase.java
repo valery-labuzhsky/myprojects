@@ -3,11 +3,11 @@ package statref.model.builder;
 import statref.model.builder.classes.BAnonClassDeclaration;
 import statref.model.builder.classes.BClassDeclaration;
 import statref.model.builder.expressions.BFieldUsage;
-import statref.model.builder.expressions.BVariable;
+import statref.model.builder.expressions.BLocalVariable;
 import statref.model.builder.members.BConstructor;
 import statref.model.builder.members.BFieldDeclaration;
+import statref.model.builder.members.BLocalVariableDeclaration;
 import statref.model.builder.members.BMethodDeclaration;
-import statref.model.builder.members.BVariableDeclaration;
 import statref.model.builder.statements.BReturn;
 import statref.model.expressions.SConstructor;
 import statref.model.expressions.SExpression;
@@ -36,8 +36,8 @@ public class BBase {
         return new SClass(clazz.getSimpleName(), generics);
     }
 
-    public static BVariableDeclaration declareVariable(SType clazz, String name) {
-        return new BVariableDeclaration(clazz, name);
+    public static BLocalVariableDeclaration declareVariable(SType clazz, String name) {
+        return new BLocalVariableDeclaration(clazz, name);
     }
 
     public static BAnonClassDeclaration declareAnonClass(SClass parent) {
@@ -76,11 +76,11 @@ public class BBase {
         return new BFieldDeclaration(type, name);
     }
 
-    public static BVariable variable(String s) {
-        return new BVariable(s);
+    public static BLocalVariable variable(String s) {
+        return new BLocalVariable(s);
     }
 
-    public static BVariable integer(int integer) {
-        return variable(""+ integer);
+    public static BLocalVariable integer(int integer) {
+        return variable("" + integer);
     }
 }

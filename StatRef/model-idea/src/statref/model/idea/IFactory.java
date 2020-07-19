@@ -16,7 +16,7 @@ public class IFactory {
 
     private static final FunctionRegistry<PsiElement, IElement> psi2model = new FunctionRegistry<PsiElement, IElement>() {
         {
-            register(PsiLocalVariable.class, IVariableDeclaration::new);
+            register(PsiLocalVariable.class, ILocalVariableDeclaration::new);
             register(PsiCodeBlock.class, IBlock::new);
             register(PsiMethod.class, IMethodDeclaration::new);
             register(PsiParameter.class, IParameter::new);
@@ -29,7 +29,7 @@ public class IFactory {
             register(PsiDoWhileStatement.class, IDoWhileStatement::new);
             register(PsiForStatement.class, IForStatement::new);
             register(PsiForeachStatement.class, IForEachStatement::new);
-            register(PsiReferenceExpression.class, IVariable::new);
+            register(PsiReferenceExpression.class, ILocalVariable::new);
             register(PsiAssignmentExpression.class, IAssignment::new);
             register(PsiLiteralExpression.class, ILiteral::new);
             register(PsiBinaryExpression.class, IBinaryExpression::new);

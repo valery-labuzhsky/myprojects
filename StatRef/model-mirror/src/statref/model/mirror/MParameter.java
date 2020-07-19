@@ -4,7 +4,7 @@ import statref.model.members.SParameter;
 
 import javax.lang.model.element.VariableElement;
 
-public class MParameter extends MBaseVariableDeclaration implements SParameter {
+public class MParameter extends MVariableDeclaration implements SParameter {
     public MParameter(VariableElement element) {
         super(element);
     }

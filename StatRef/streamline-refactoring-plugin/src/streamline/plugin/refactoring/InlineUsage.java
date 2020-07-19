@@ -1,7 +1,7 @@
 package streamline.plugin.refactoring;
 
 import statref.model.idea.IInitializer;
-import statref.model.idea.IVariable;
+import statref.model.idea.ILocalVariable;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 
@@ -25,11 +25,11 @@ public class InlineUsage extends Refactoring {
     //	at streamline.plugin.refactoring.guts.flow.VariableFlow.<init>(VariableFlow.java:27)
     //	at streamline.plugin.refactoring.InlineVariable.<init>(InlineVariable.java:16)
     //	at streamline.plugin.SLInlineAction.actionPerformed(SLInlineAction.java:40)
-    private final IVariable usage;
+    private final ILocalVariable usage;
     private final IInitializer value;
     private final ArrayList<InlineUsage> variants = new ArrayList<>();
 
-    public InlineUsage(RefactoringRegistry registry, IVariable usage, IInitializer value) {
+    public InlineUsage(RefactoringRegistry registry, ILocalVariable usage, IInitializer value) {
         super(registry, usage);
         this.usage = usage;
         this.value = value;
@@ -56,7 +56,7 @@ public class InlineUsage extends Refactoring {
         usage.replace(value.getInitializer());
     }
 
-    public IVariable getUsage() {
+    public ILocalVariable getUsage() {
         return usage;
     }
 

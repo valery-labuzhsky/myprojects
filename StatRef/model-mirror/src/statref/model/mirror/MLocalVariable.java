@@ -1,11 +1,11 @@
 package statref.model.mirror;
 
-import statref.model.expressions.SVariable;
+import statref.model.expressions.SLocalVariable;
 
 import javax.lang.model.element.VariableElement;
 
-public class MVariable extends MElement<VariableElement> implements SVariable {
-    public MVariable(VariableElement element) {
+public class MLocalVariable extends MElement<VariableElement> implements SLocalVariable {
+    public MLocalVariable(VariableElement element) {
         super(element);
     }
 

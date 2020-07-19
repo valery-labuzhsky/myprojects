@@ -1,6 +1,6 @@
 package statref.model.mirror;
 
-import statref.model.members.SBaseVariableDeclaration;
+import statref.model.members.SVariableDeclaration;
 import statref.model.types.SType;
 
 import javax.lang.model.element.Modifier;
@@ -12,9 +12,9 @@ import java.util.Collection;
  *
  * @author ptasha
  */
-public abstract class MBaseVariableDeclaration extends MElement<VariableElement> implements SBaseVariableDeclaration {
+public abstract class MVariableDeclaration extends MElement<VariableElement> implements SVariableDeclaration {
 
-    public MBaseVariableDeclaration(VariableElement element) {
+    public MVariableDeclaration(VariableElement element) {
         super(element);
     }
 

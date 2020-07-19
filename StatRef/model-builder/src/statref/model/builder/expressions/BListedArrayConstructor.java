@@ -2,20 +2,20 @@ package statref.model.builder.expressions;
 
 import statref.model.builder.BElement;
 import statref.model.expressions.SListedArrayConstructor;
+import statref.model.expressions.SLocalVariable;
 import statref.model.types.SType;
-import statref.model.expressions.SVariable;
 
 import java.util.ArrayList;
 
 public class BListedArrayConstructor extends BElement implements SListedArrayConstructor {
     private final SType type;
-    private ArrayList<SVariable> items = new ArrayList<>();
+    private ArrayList<SLocalVariable> items = new ArrayList<>();
 
     public BListedArrayConstructor(SType type) {
         this.type = type;
     }
 
-    public void addItem(SVariable item) {
+    public void addItem(SLocalVariable item) {
         items.add(item);
     }
 
@@ -25,7 +25,7 @@ public class BListedArrayConstructor extends BElement implements SListedArrayCon
     }
 
     @Override
-    public ArrayList<SVariable> getItems() {
+    public ArrayList<SLocalVariable> getItems() {
         return items;
     }
 }

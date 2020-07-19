@@ -3,7 +3,7 @@ package streamline.plugin.refactoring.guts.flow;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
-import statref.model.idea.IVariable;
+import statref.model.idea.ILocalVariable;
 
 import java.util.*;
 
@@ -11,7 +11,7 @@ public class Visitor {
     private final VariableFlow flow;
     private final LinkedHashSet<IInitializer> assignments = new LinkedHashSet<>();
     private HashMap<IElement, ArrayList<IInitializer>> values;
-    private HashMap<IInitializer, Collection<IVariable>> usages;
+    private HashMap<IInitializer, Collection<ILocalVariable>> usages;
 
     public Visitor(VariableFlow flow) {
         this.flow = flow;
@@ -79,7 +79,7 @@ public class Visitor {
         } else if (flow.getUsages().contains(element)) {
             values.put(element, new ArrayList<>(assignments));
             for (IInitializer assignment : assignments) {
-                usages.computeIfAbsent(assignment, a -> new LinkedHashSet<>()).add((IVariable) element);
+                usages.computeIfAbsent(assignment, a -> new LinkedHashSet<>()).add((ILocalVariable) element);
             }
             return false;
         }
@@ -98,7 +98,7 @@ public class Visitor {
         return values;
     }
 
-    public HashMap<IInitializer, Collection<IVariable>> getUsages() {
+    public HashMap<IInitializer, Collection<ILocalVariable>> getUsages() {
         return usages;
     }
 }

@@ -2,8 +2,8 @@ package statref.model.builder.members;
 
 import statref.model.builder.BBase;
 import statref.model.builder.BModifiers;
+import statref.model.builder.expressions.BLocalVariable;
 import statref.model.builder.expressions.BMethod;
-import statref.model.builder.expressions.BVariable;
 import statref.model.builder.statements.BMethodStatement;
 import statref.model.builder.statements.BReturn;
 import statref.model.expressions.SExpression;
@@ -116,7 +116,7 @@ public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMetho
         return new BMethodStatement(method);
     }
 
-    protected BVariable parameter(SType type, String name) {
+    protected BLocalVariable parameter(SType type, String name) {
         BParameter param = new BParameter(type, name);
         this.param(param);
         return param.usage();

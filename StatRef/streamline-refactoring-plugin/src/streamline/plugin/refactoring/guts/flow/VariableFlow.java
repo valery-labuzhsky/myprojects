@@ -2,28 +2,28 @@ package streamline.plugin.refactoring.guts.flow;
 
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
-import statref.model.idea.IVariable;
-import statref.model.idea.IVariableDeclaration;
+import statref.model.idea.ILocalVariable;
+import statref.model.idea.ILocalVariableDeclaration;
 
 import java.util.*;
 
 public class VariableFlow {
     private final IElement top;
     private final HashMap<IElement, List<IElement>> variables = new HashMap<>();
-    private final HashSet<IVariable> assignments = new HashSet<>();
-    private final HashSet<IVariable> usages = new HashSet<>();
+    private final HashSet<ILocalVariable> assignments = new HashSet<>();
+    private final HashSet<ILocalVariable> usages = new HashSet<>();
     private final Visitor visitor = new Visitor(this);
-    private IVariableDeclaration declaration;
+    private ILocalVariableDeclaration declaration;
 
-    public VariableFlow(IVariable variable) {
+    public VariableFlow(ILocalVariable variable) {
         this(variable.declaration());
     }
 
-    public VariableFlow(IVariableDeclaration declaration) {
+    public VariableFlow(ILocalVariableDeclaration declaration) {
         this.declaration = declaration;
         top = declaration.getParent().getParent(); // TODO may not work for every case
         add(declaration);
-        for (IVariable mention : declaration.mentions()) {
+        for (ILocalVariable mention : declaration.mentions()) {
             if (mention.isAssignment()) {
                 assignments.add(mention);
             } else {
@@ -59,15 +59,15 @@ public class VariableFlow {
         return variables;
     }
 
-    public IVariableDeclaration getDeclaration() {
+    public ILocalVariableDeclaration getDeclaration() {
         return declaration;
     }
 
-    public HashSet<IVariable> getAssignments() {
+    public HashSet<ILocalVariable> getAssignments() {
         return assignments;
     }
 
-    public HashSet<IVariable> getUsages() {
+    public HashSet<ILocalVariable> getUsages() {
         return usages;
     }
 
@@ -75,7 +75,7 @@ public class VariableFlow {
         return visitor.getValues().getOrDefault(usage, new ArrayList<>());
     }
 
-    public Collection<IVariable> getUsages(IInitializer initializer) {
+    public Collection<ILocalVariable> getUsages(IInitializer initializer) {
         return visitor.getUsages().getOrDefault(initializer, Collections.emptyList());
     }
 }

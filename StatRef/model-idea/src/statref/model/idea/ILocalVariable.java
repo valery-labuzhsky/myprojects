@@ -6,11 +6,11 @@ import com.intellij.psi.PsiReferenceExpression;
 import org.jetbrains.annotations.NotNull;
 import statref.model.SElement;
 import statref.model.expressions.SExpression;
-import statref.model.expressions.SVariable;
+import statref.model.expressions.SLocalVariable;
 
-public class IVariable extends IExpression<PsiReferenceExpression> implements SVariable, IVariableReference {
+public class ILocalVariable extends IExpression<PsiReferenceExpression> implements SLocalVariable, IVariableReference {
 
-    public IVariable(PsiReferenceExpression element) {
+    public ILocalVariable(PsiReferenceExpression element) {
         super(element);
     }
 
@@ -30,13 +30,13 @@ public class IVariable extends IExpression<PsiReferenceExpression> implements SV
 
     @Override
     @NotNull
-    public IVariableDeclaration declaration() {
+    public ILocalVariableDeclaration declaration() {
         // TODO check that element is resolved
         PsiElement declaration = this.getElement().resolve();
         // TODO check that it's local variable
         PsiLocalVariable localVariable = (PsiLocalVariable) declaration;
 
-        return new IVariableDeclaration(localVariable);
+        return new ILocalVariableDeclaration(localVariable);
     }
 
     @Override
