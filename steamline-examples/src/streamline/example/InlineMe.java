@@ -2,6 +2,12 @@ package streamline.example;
 
 public class InlineMe {
 
+    int field;
+
+    void testField() {
+        this.field = 10;
+    }
+
     public void simpleBefore() {
         int inline = 8;
 

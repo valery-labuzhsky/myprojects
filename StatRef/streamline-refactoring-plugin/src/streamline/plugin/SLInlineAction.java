@@ -23,14 +23,10 @@ public class SLInlineAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
+        boolean invokeNative = true;
         try {
-            // TODO should I write tests from the beginning? probably yes, but I need do it manually first to keep me interested
-
-            // TODO the tests are hard to run, and they don't work anyway
-            // TODO I may also try idea's tests
-            // TODO concept is constantly changing right know - I will need tests when it settles down
-
             PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
+            if (identifier == null) return;
             PsiElement parent = identifier.getParent();
             Project project = getEventProject(event);
             NodesRegistry registry = new NodesRegistry(project);
@@ -39,11 +35,20 @@ public class SLInlineAction extends AnAction {
                 RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + declaration.getText());
                 InlineVariable refactoring = registry.getRefactorings().getRefactoring(new InlineVariable(declaration, registry.getRefactorings()));
                 toolWindow.setRoot(registry.create(refactoring));
-                // TODO now I must improve a tree to make in comfortable to work with
-                // TODO I need to make things doable with controls emulating hotkeys just to show tooltips
-//                InlineAssignment refactoring = registry.getRefactorings().getRefactoring(new InlineAssignment(registry.getRefactorings(), declaration).selectDefaultVariant());
-//                createRefactoringTree(project, event, "Inline " + declaration.getText(), new InlineAssignmentNode(refactoring, registry));
+                invokeNative = false;
             } else if (parent instanceof PsiReferenceExpression) {
+                // TODO I cannot differentiate between fields and local variables
+                //  I need more elaborate things
+                //  sometimes I can other times I don't
+                //  so I need something to address it
+                //  I need some common class where I can pass my expression and have method to check it's true nature
+                //  I may need it not only with variables but with any element
+                //  variable are part of a language though independent of implementation
+
+                // TODO I need some refactoring of Variables: Field is a Variable
+                //  Local variable is a different beast
+                //  I will also have a variable of unknown nature
+                // TODO I must also use factory for everything
                 IVariable variable = new IVariable((PsiReferenceExpression) parent);
 
                 RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + variable.getName());
@@ -57,6 +62,7 @@ public class SLInlineAction extends AnAction {
                     InlineUsage usage = inlineVariable.enableOnly(variable);
                     toolWindow.setRoot(registry.create(inlineVariable)).select(usage);
                 }
+                invokeNative = false;
             } else if (parent instanceof PsiParameter) {
                 IParameter parameter = IFactory.getElement(parent);
 
@@ -64,13 +70,12 @@ public class SLInlineAction extends AnAction {
 
                 RefactoringToolPanel tree = new RefactoringToolPanel(event, "Inline " + parameter.getName());
                 tree.setRoot(registry.create(refactoring));
-            } else {
-                // TODO do not need to catch Exception from here
-                invokeNative(event);
+                invokeNative = false;
             }
         } catch (RuntimeException e) {
             log.error(e);
-            invokeNative(event);
+        } finally {
+            if (invokeNative) invokeNative(event);
         }
     }
 

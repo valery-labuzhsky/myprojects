@@ -20,4 +20,14 @@ public abstract class RefactoringToolPanelAction extends AnAction {
         }
         return (RefactoringToolPanel) component;
     }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        RefactoringToolPanel panel = getToolPanel(e);
+        if (panel == null) {
+            e.getPresentation().setEnabled(false);
+            return;
+        }
+        e.getPresentation().setEnabled(true);
+    }
 }
