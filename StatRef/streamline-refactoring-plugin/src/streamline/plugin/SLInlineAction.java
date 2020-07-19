@@ -7,7 +7,9 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.*;
@@ -27,16 +29,16 @@ public class SLInlineAction extends AnAction {
         try {
             PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
             if (identifier == null) return;
-            PsiElement parent = identifier.getParent();
+            IElement entity = IFactory.getElement(identifier.getParent());
             Project project = getEventProject(event);
             NodesRegistry registry = new NodesRegistry(project);
-            if (parent instanceof PsiLocalVariable) {
-                ILocalVariableDeclaration declaration = new ILocalVariableDeclaration((PsiLocalVariable) parent);
+            if (entity instanceof ILocalVariableDeclaration) {
+                ILocalVariableDeclaration declaration = (ILocalVariableDeclaration) entity;
                 RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + declaration.getText());
                 InlineVariable refactoring = registry.getRefactorings().getRefactoring(new InlineVariable(declaration, registry.getRefactorings()));
                 toolWindow.setRoot(registry.create(refactoring));
                 invokeNative = false;
-            } else if (parent instanceof PsiReferenceExpression) {
+            } else if (entity instanceof ILocalVariable) {
                 // TODO I cannot differentiate between fields and local variables
                 //  I need more elaborate things
                 //  sometimes I can other times I don't
@@ -49,7 +51,7 @@ public class SLInlineAction extends AnAction {
                 //  Local variable is a different beast
                 //  I will also have a variable of unknown nature
                 // TODO I must also use factory for everything
-                ILocalVariable variable = new ILocalVariable((PsiReferenceExpression) parent);
+                ILocalVariable variable = (ILocalVariable) entity;
 
                 RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + variable.getName());
 
@@ -63,8 +65,8 @@ public class SLInlineAction extends AnAction {
                     toolWindow.setRoot(registry.create(inlineVariable)).select(usage);
                 }
                 invokeNative = false;
-            } else if (parent instanceof PsiParameter) {
-                IParameter parameter = IFactory.getElement(parent);
+            } else if (entity instanceof IParameter) {
+                IParameter parameter = (IParameter) entity;
 
                 InlineParameter refactoring = new InlineParameter(registry, parameter);
 

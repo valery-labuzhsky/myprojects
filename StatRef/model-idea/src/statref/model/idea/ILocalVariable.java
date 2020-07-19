@@ -8,10 +8,15 @@ import statref.model.SElement;
 import statref.model.expressions.SExpression;
 import statref.model.expressions.SLocalVariable;
 
-public class ILocalVariable extends IExpression<PsiReferenceExpression> implements SLocalVariable, IVariableReference {
+public class ILocalVariable extends IExpression implements SLocalVariable, IVariableReference {
 
     public ILocalVariable(PsiReferenceExpression element) {
         super(element);
+    }
+
+    @Override
+    public PsiReferenceExpression getElement() {
+        return (PsiReferenceExpression) super.getElement();
     }
 
     public boolean isAssignment() {
@@ -25,7 +30,7 @@ public class ILocalVariable extends IExpression<PsiReferenceExpression> implemen
 
     public void replace(SExpression expression) {
         // TODO be more accurate with replace, it may require moving some dependencies too
-        this.getElement().replace(((IExpression<?>)expression).getElement());
+        this.getElement().replace(((IExpression) expression).getElement());
     }
 
     @Override

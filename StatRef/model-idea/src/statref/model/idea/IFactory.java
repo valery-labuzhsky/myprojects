@@ -29,7 +29,7 @@ public class IFactory {
             register(PsiDoWhileStatement.class, IDoWhileStatement::new);
             register(PsiForStatement.class, IForStatement::new);
             register(PsiForeachStatement.class, IForEachStatement::new);
-            register(PsiReferenceExpression.class, ILocalVariable::new);
+            register(PsiReferenceExpression.class, ILocalVariable::new); // TODO I need unknown origin variable here
             register(PsiAssignmentExpression.class, IAssignment::new);
             register(PsiLiteralExpression.class, ILiteral::new);
             register(PsiBinaryExpression.class, IBinaryExpression::new);

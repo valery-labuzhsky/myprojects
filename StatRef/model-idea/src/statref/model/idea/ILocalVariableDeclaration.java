@@ -8,10 +8,15 @@ import statref.model.types.SType;
 import javax.lang.model.element.Modifier;
 import java.util.Collection;
 
-public class ILocalVariableDeclaration extends IElement<PsiLocalVariable> implements SLocalVariableDeclaration, IInitializer {
+public class ILocalVariableDeclaration extends IElement implements SLocalVariableDeclaration, IInitializer {
 
     public ILocalVariableDeclaration(PsiLocalVariable element) {
         super(element);
+    }
+
+    @Override
+    public PsiLocalVariable getElement() {
+        return (PsiLocalVariable) super.getElement();
     }
 
     @Override

@@ -8,9 +8,14 @@ import statref.model.types.SType;
 import javax.lang.model.element.Modifier;
 import java.util.Collection;
 
-public class IParameter extends IElement<PsiParameter> implements SParameter {
+public class IParameter extends IElement implements SParameter {
     public IParameter(PsiParameter element) {
         super(element);
+    }
+
+    @Override
+    public PsiParameter getElement() {
+        return (PsiParameter) super.getElement();
     }
 
     @Override

@@ -6,14 +6,14 @@ import statref.model.SElement;
 
 import java.util.Objects;
 
-public abstract class IElement<PSI extends PsiElement> implements SElement {
-    private final PSI element;
+public abstract class IElement implements SElement {
+    private final PsiElement element;
 
-    public IElement(PSI element) {
+    public IElement(PsiElement element) {
         this.element = element;
     }
 
-    public PSI getElement() {
+    public PsiElement getElement() {
         return element;
     }
 
@@ -40,7 +40,7 @@ public abstract class IElement<PSI extends PsiElement> implements SElement {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IElement<?> iElement = (IElement<?>) o;
+        IElement iElement = (IElement) o;
         return Objects.equals(element, iElement.element);
     }
 

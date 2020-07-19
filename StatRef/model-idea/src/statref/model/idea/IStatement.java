@@ -2,8 +2,13 @@ package statref.model.idea;
 
 import com.intellij.psi.PsiStatement;
 
-public class IStatement<PSI extends PsiStatement> extends IElement<PSI> {
-    public IStatement(PSI element) {
+public class IStatement extends IElement {
+    public IStatement(PsiStatement element) {
         super(element);
+    }
+
+    @Override
+    public PsiStatement getElement() {
+        return (PsiStatement) super.getElement();
     }
 }

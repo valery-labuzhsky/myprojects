@@ -3,9 +3,14 @@ package statref.model.idea;
 import com.intellij.psi.PsiAssignmentExpression;
 import org.jetbrains.annotations.NotNull;
 
-public class IAssignment extends IExpression<PsiAssignmentExpression> implements IInitializer {
+public class IAssignment extends IExpression implements IInitializer {
     public IAssignment(PsiAssignmentExpression assignment) {
         super(assignment);
+    }
+
+    @Override
+    public PsiAssignmentExpression getElement() {
+        return (PsiAssignmentExpression) super.getElement();
     }
 
     @Override

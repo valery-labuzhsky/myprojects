@@ -7,9 +7,14 @@ import statref.model.members.SMethodDeclaration;
 
 import java.util.List;
 
-public class IMethod extends IExpression<PsiMethodCallExpression> implements SMethod {
+public class IMethod extends IExpression implements SMethod {
     public IMethod(PsiMethodCallExpression expression) {
         super(expression);
+    }
+
+    @Override
+    public PsiMethodCallExpression getElement() {
+        return (PsiMethodCallExpression) super.getElement();
     }
 
     @Override

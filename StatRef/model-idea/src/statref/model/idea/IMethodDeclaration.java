@@ -3,21 +3,26 @@ package statref.model.idea;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
-import statref.model.members.SMethodDeclaration;
-import statref.model.statements.SStatement;
-import statref.model.types.SType;
 import statref.model.expressions.SMethod;
 import statref.model.fragment.Fragment;
 import statref.model.fragment.Place;
+import statref.model.members.SMethodDeclaration;
+import statref.model.statements.SStatement;
+import statref.model.types.SType;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class IMethodDeclaration extends IElement<PsiMethod> implements SMethodDeclaration {
+public class IMethodDeclaration extends IElement implements SMethodDeclaration {
     public IMethodDeclaration(PsiMethod method) {
         super(method);
+    }
+
+    @Override
+    public PsiMethod getElement() {
+        return (PsiMethod) super.getElement();
     }
 
     @NotNull
