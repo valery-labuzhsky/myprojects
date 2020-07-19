@@ -9,7 +9,7 @@ public class RefactorAction extends RefactoringToolPanelAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         RefactoringToolPanel panel = getToolPanel(e);
         WriteCommandAction.runWriteCommandAction(e.getProject(), panel.getRefactoring()::refactor);
-        panel.close();
+        panel.close(e);
     }
 
 }

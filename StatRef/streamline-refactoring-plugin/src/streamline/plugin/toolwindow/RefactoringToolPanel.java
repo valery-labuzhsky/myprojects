@@ -170,15 +170,15 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
     }
 
     @NotNull
-    ToolWindow getToolWindow() {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(originalEvent.getProject());
+    ToolWindow getToolWindow(AnActionEvent event) {
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(event.getProject());
         ToolWindow toolWindow = toolWindowManager.getToolWindow("Streamline");
         toolWindow.show(null);
         return toolWindow;
     }
 
     private void registerToolPanel(String displayName) {
-        ContentManager contentManager = getToolWindow().getContentManager();
+        ContentManager contentManager = getToolWindow(originalEvent).getContentManager();
 
         Content tab = contentManager.getFactory().createContent(this, displayName, true);
         contentManager.addContent(tab);
@@ -186,8 +186,8 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
         getTree().requestFocusInWindow();
     }
 
-    void close() {
-        ContentManager contentManager = getToolWindow().getContentManager();
+    void close(AnActionEvent event) {
+        ContentManager contentManager = getToolWindow(event).getContentManager();
         contentManager.removeContent(contentManager.getContent(this), true);
     }
 
