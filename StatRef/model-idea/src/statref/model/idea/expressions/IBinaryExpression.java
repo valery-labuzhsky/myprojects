@@ -1,4 +1,4 @@
-package statref.model.idea;
+package statref.model.idea.expressions;
 
 import com.intellij.psi.PsiBinaryExpression;
 

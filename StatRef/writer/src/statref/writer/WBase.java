@@ -37,7 +37,7 @@ public abstract class WBase<S> {
         register(SFieldDeclaration.class, new WFieldDeclaration());
         register(SParameter.class, new WParameter());
         register(SMethodDeclaration.class, new WMethodDeclaration());
-        register(SFieldUsage.class, new WFieldUsage());
+        register(SField.class, new WFieldUsage());
         register(SReturn.class, new WReturn());
         register(SBlock.class, new WBlock());
         register(SClass.class, new WClassUsage());

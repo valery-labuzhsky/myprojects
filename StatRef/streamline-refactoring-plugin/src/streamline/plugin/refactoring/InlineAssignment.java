@@ -2,7 +2,7 @@ package streamline.plugin.refactoring;
 
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
-import statref.model.idea.ILocalVariable;
+import statref.model.idea.expressions.ILocalVariable;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 import streamline.plugin.refactoring.guts.flow.VariableFlow;

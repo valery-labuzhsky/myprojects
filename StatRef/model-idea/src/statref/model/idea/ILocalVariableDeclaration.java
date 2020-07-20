@@ -3,6 +3,7 @@ package statref.model.idea;
 import com.intellij.psi.PsiLocalVariable;
 import org.jetbrains.annotations.NotNull;
 import statref.model.SLocalVariableDeclaration;
+import statref.model.idea.expressions.IExpression;
 import statref.model.types.SType;
 
 import javax.lang.model.element.Modifier;

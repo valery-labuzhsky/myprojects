@@ -1,4 +1,4 @@
 package statref.model.expressions;
 
-public interface SLocalVariable extends SVariable {
+public interface SLocalVariable extends SReference {
 }

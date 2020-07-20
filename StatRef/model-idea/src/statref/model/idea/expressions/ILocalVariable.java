@@ -1,4 +1,4 @@
-package statref.model.idea;
+package statref.model.idea.expressions;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiLocalVariable;
@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import statref.model.SElement;
 import statref.model.expressions.SExpression;
 import statref.model.expressions.SLocalVariable;
+import statref.model.idea.ILocalVariableDeclaration;
+import statref.model.idea.IVariableReference;
 
 public class ILocalVariable extends IExpression implements SLocalVariable, IVariableReference {
 

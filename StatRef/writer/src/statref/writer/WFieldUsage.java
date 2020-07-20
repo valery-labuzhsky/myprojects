@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.expressions.SFieldUsage;
+import statref.model.expressions.SField;
 
 import java.io.IOException;
 
@@ -9,9 +9,9 @@ import java.io.IOException;
  *
  * @author ptasha
  */
-public class WFieldUsage extends WBase<SFieldUsage> {
+public class WFieldUsage extends WBase<SField> {
     @Override
-    public void write(CodeWriter cw, SFieldUsage fieldUsage) throws IOException {
+    public void write(CodeWriter cw, SField fieldUsage) throws IOException {
         writeElement(fieldUsage.getQualifier(), cw);
         cw.write("." + fieldUsage.getName());
     }

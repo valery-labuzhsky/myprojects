@@ -7,8 +7,6 @@ import statref.model.types.SType;
  *
  * @author ptasha
  */
-public interface SFieldUsage extends SExpression {
+public interface SField extends SReference {
     SType getQualifier();
-
-    String getName();
 }

@@ -3,6 +3,7 @@ package statref.model.idea;
 import com.intellij.psi.PsiMethodCallExpression;
 import statref.model.expressions.SExpression;
 import statref.model.expressions.SMethod;
+import statref.model.idea.expressions.IExpression;
 import statref.model.members.SMethodDeclaration;
 
 import java.util.List;

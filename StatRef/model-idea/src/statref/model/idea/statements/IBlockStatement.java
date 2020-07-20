@@ -1,4 +1,4 @@
-package statref.model.idea;
+package statref.model.idea.statements;
 
 import com.intellij.psi.PsiBlockStatement;
 

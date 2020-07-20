@@ -6,7 +6,8 @@ import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import statref.model.SElement;
 import statref.model.expressions.SExpression;
-import statref.model.idea.expression.ILiteral;
+import statref.model.idea.expressions.*;
+import statref.model.idea.statements.*;
 import statref.model.members.SMethodDeclaration;
 import statref.model.statements.SStatement;
 import statref.model.types.SType;
@@ -29,7 +30,13 @@ public class IFactory {
             register(PsiDoWhileStatement.class, IDoWhileStatement::new);
             register(PsiForStatement.class, IForStatement::new);
             register(PsiForeachStatement.class, IForEachStatement::new);
-            register(PsiReferenceExpression.class, ILocalVariable::new); // TODO I need unknown origin variable here
+
+            // TODO I need unknown origin variable here
+            //  it is reference to what?
+            //  I may have reference and make local variable from it
+            //  looks like a plan
+            register(PsiReferenceExpression.class, ILocalVariable::new);
+
             register(PsiAssignmentExpression.class, IAssignment::new);
             register(PsiLiteralExpression.class, ILiteral::new);
             register(PsiBinaryExpression.class, IBinaryExpression::new);

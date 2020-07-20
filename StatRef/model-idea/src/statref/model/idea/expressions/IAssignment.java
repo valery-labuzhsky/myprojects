@@ -1,7 +1,9 @@
-package statref.model.idea;
+package statref.model.idea.expressions;
 
 import com.intellij.psi.PsiAssignmentExpression;
 import org.jetbrains.annotations.NotNull;
+import statref.model.idea.IInitializer;
+import statref.model.idea.ILocalVariableDeclaration;
 
 public class IAssignment extends IExpression implements IInitializer {
     public IAssignment(PsiAssignmentExpression assignment) {

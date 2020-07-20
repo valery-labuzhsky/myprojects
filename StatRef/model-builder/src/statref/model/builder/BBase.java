@@ -2,7 +2,7 @@ package statref.model.builder;
 
 import statref.model.builder.classes.BAnonClassDeclaration;
 import statref.model.builder.classes.BClassDeclaration;
-import statref.model.builder.expressions.BFieldUsage;
+import statref.model.builder.expressions.BField;
 import statref.model.builder.expressions.BLocalVariable;
 import statref.model.builder.members.BConstructor;
 import statref.model.builder.members.BFieldDeclaration;
@@ -22,8 +22,8 @@ import statref.model.types.SWildcardType;
  * @author ptasha
  */
 public class BBase {
-    public static BFieldUsage field(SType type, String fieldName) {
-        return new BFieldUsage(type, fieldName);
+    public static BField field(SType type, String fieldName) {
+        return new BField(type, fieldName);
     }
 
 

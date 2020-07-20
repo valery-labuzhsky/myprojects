@@ -1,7 +1,7 @@
 package streamline.plugin.refactoring;
 
 import statref.model.idea.IInitializer;
-import statref.model.idea.ILocalVariable;
+import statref.model.idea.expressions.ILocalVariable;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
 

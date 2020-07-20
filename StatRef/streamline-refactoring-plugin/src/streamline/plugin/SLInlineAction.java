@@ -13,6 +13,7 @@ import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.*;
+import statref.model.idea.expressions.ILocalVariable;
 import streamline.plugin.nodes.guts.NodesRegistry;
 import streamline.plugin.refactoring.InlineAssignment;
 import streamline.plugin.refactoring.InlineParameter;

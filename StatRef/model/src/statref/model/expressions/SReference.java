@@ -5,6 +5,6 @@ package statref.model.expressions;
  *
  * @author unicorn
  */
-public interface SVariable extends SExpression {
+public interface SReference extends SExpression {
     String getName();
 }

@@ -2,8 +2,8 @@ package streamline.plugin.refactoring.guts.flow;
 
 import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
-import statref.model.idea.ILocalVariable;
 import statref.model.idea.ILocalVariableDeclaration;
+import statref.model.idea.expressions.ILocalVariable;
 
 import java.util.*;
 

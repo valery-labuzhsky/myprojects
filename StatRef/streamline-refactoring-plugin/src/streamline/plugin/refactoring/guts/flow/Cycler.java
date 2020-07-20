@@ -1,7 +1,11 @@
 package streamline.plugin.refactoring.guts.flow;
 
 import org.jetbrains.annotations.NotNull;
-import statref.model.idea.*;
+import statref.model.idea.IBlock;
+import statref.model.idea.IElement;
+import statref.model.idea.ILocalVariableDeclaration;
+import statref.model.idea.expressions.IAssignment;
+import statref.model.idea.statements.*;
 
 // TODO it's just an empty shell now
 public class Cycler {
