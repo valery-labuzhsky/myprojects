@@ -11,16 +11,6 @@ import java.util.Objects;
 public class InlineUsage extends Refactoring {
     // TODO PsiExpressionList is not supported
     // TODO PsiLambdaExpression: is not supported
-    // TODO java.lang.Throwable: PsiConditionalExpression:color > 0 ? p : p.toLowerCase(): is not supported
-    //	at com.intellij.openapi.diagnostic.Logger.error(Logger.java:146)
-    //	at statref.model.idea.IFactory.getUnknownElement(IFactory.java:98)
-    //	at statref.model.idea.IFactory.getElement(IFactory.java:91)
-    //	at statref.model.idea.IElement.getElement(IElement.java:67)
-    //	at statref.model.idea.IElement.getParent(IElement.java:36)
-    //	at statref.model.idea.IVariable.isAssignment(IVariable.java:19)
-    //	at streamline.plugin.refactoring.guts.flow.VariableFlow.<init>(VariableFlow.java:27)
-    //	at streamline.plugin.refactoring.InlineVariable.<init>(InlineVariable.java:16)
-    //	at streamline.plugin.SLInlineAction.actionPerformed(SLInlineAction.java:40)
     private final ILocalVariable usage;
     private final IInitializer value;
     private final ArrayList<InlineUsage> variants = new ArrayList<>();

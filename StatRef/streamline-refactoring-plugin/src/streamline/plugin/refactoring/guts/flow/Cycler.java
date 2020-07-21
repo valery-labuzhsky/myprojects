@@ -5,6 +5,8 @@ import statref.model.idea.IBlock;
 import statref.model.idea.IElement;
 import statref.model.idea.ILocalVariableDeclaration;
 import statref.model.idea.expressions.IAssignment;
+import statref.model.idea.expressions.IBinaryExpression;
+import statref.model.idea.expressions.IConditional;
 import statref.model.idea.statements.*;
 
 // TODO it's just an empty shell now
@@ -23,13 +25,24 @@ public class Cycler {
     }
 
     private static Cycler createIfCycler(IIfStatement statement) {
-        return new Cycler(new ParallelBlock().
-                add(statement.getThenBranch()).
-                add(statement.getElseBranch()));
+        return new Cycler(new SequenceBlock().
+                add(statement.getCondition()).
+                add(new ParallelBlock().
+                        add(statement.getThenBranch()).
+                        add(statement.getElseBranch())));
     }
 
     private static Cycler createElementsCycler(IElement context) {
         return new Cycler(new ElementsBlock(context));
+    }
+
+    @NotNull
+    private static Cycler createConditionalCycler(IConditional element) {
+        return new Cycler(new SequenceBlock().
+                add(element.getCondition()).
+                add(new ParallelBlock().
+                        add(element.getThen()).
+                        add(element.getElse())));
     }
 
     @NotNull
@@ -38,6 +51,8 @@ public class Cycler {
             return createIfCycler((IIfStatement) element);
         } else if (element instanceof ILoopStatement) {
             return createLoopCycler((ILoopStatement) element);
+        } else if (element instanceof IConditional) {
+            return createConditionalCycler((IConditional) element);
         } else if (element instanceof ILocalVariableDeclaration) {
             return createElementsCycler(element);
         } else if (element instanceof IDeclarationStatement) {
@@ -47,6 +62,8 @@ public class Cycler {
         } else if (element instanceof IBlockStatement) {
             return createElementsCycler(element);
         } else if (element instanceof IExpressionStatement) {
+            return createElementsCycler(element);
+        } else if (element instanceof IBinaryExpression) {
             return createElementsCycler(element);
         } else if (element instanceof IAssignment) { // TODO think about it
             return createElementsCycler(element);

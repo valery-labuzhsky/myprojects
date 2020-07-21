@@ -17,11 +17,13 @@ public class IFactory {
 
     private static final FunctionRegistry<PsiElement, IElement> psi2model = new FunctionRegistry<PsiElement, IElement>() {
         {
-            register(PsiLocalVariable.class, ILocalVariableDeclaration::new);
-            register(PsiCodeBlock.class, IBlock::new);
+            register(PsiClass.class, IClassDeclaration::new);
             register(PsiMethod.class, IMethodDeclaration::new);
             register(PsiParameter.class, IParameter::new);
-            register(PsiClass.class, IClassDeclaration::new);
+
+            register(PsiCodeBlock.class, IBlock::new);
+            register(PsiLocalVariable.class, ILocalVariableDeclaration::new);
+
             register(PsiDeclarationStatement.class, IDeclarationStatement::new);
             register(PsiExpressionStatement.class, IExpressionStatement::new);
             register(PsiIfStatement.class, IIfStatement::new);
@@ -30,13 +32,14 @@ public class IFactory {
             register(PsiDoWhileStatement.class, IDoWhileStatement::new);
             register(PsiForStatement.class, IForStatement::new);
             register(PsiForeachStatement.class, IForEachStatement::new);
+            register(PsiReturnStatement.class, IReturn::new);
+
             register(PsiReferenceExpression.class, IReference::create);
             register(PsiAssignmentExpression.class, IAssignment::new);
             register(PsiLiteralExpression.class, ILiteral::new);
             register(PsiBinaryExpression.class, IBinaryExpression::new);
             register(PsiMethodCallExpression.class, IMethod::new);
-            register(PsiClass.class, IClassDeclaration::new);
-            register(PsiReturnStatement.class, IReturn::new);
+            register(PsiConditionalExpression.class, IConditional::new);
             // TODO generate it!
         }
     };
