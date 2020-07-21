@@ -2,6 +2,7 @@ package streamline.plugin.refactoring;
 
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
+import statref.model.idea.ILocalVariableDeclaration;
 import statref.model.idea.expressions.ILocalVariable;
 import streamline.plugin.refactoring.guts.Refactoring;
 import streamline.plugin.refactoring.guts.RefactoringRegistry;
@@ -29,7 +30,7 @@ public class InlineAssignment extends CompoundRefactoring {
                 }
             }
         };
-        VariableFlow flow = new VariableFlow(initializer.declaration());
+        VariableFlow flow = new VariableFlow((ILocalVariableDeclaration) initializer.declaration());
         Collection<ILocalVariable> usages = flow.getUsages(initializer);
         for (ILocalVariable usage : usages) {
             addUsage(usage);

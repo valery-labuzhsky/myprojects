@@ -35,9 +35,8 @@ public class SLInlineAction extends AnAction {
             NodesRegistry registry = new NodesRegistry(project);
             if (entity instanceof ILocalVariableDeclaration) {
                 ILocalVariableDeclaration declaration = (ILocalVariableDeclaration) entity;
-                RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + declaration.getText());
                 InlineVariable refactoring = registry.getRefactorings().getRefactoring(new InlineVariable(declaration, registry.getRefactorings()));
-                toolWindow.setRoot(registry.create(refactoring));
+                createToolWindow(event, "Inline " + declaration.getText()).setRoot(registry.create(refactoring));
                 invokeNative = false;
             } else if (entity instanceof ILocalVariable) {
                 // TODO I cannot differentiate between fields and local variables
@@ -54,16 +53,14 @@ public class SLInlineAction extends AnAction {
                 // TODO I must also use factory for everything
                 ILocalVariable variable = (ILocalVariable) entity;
 
-                RefactoringToolPanel toolWindow = new RefactoringToolPanel(event, "Inline " + variable.getName());
-
                 if (variable.isAssignment()) {
                     InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
                     InlineAssignment assignment = inlineVariable.enableOnly((IInitializer) variable.getParent());
-                    toolWindow.setRoot(registry.create(inlineVariable)).select(assignment);
+                    createToolWindow(event, "Inline " + variable.getName()).setRoot(registry.create(inlineVariable)).select(assignment);
                 } else {
                     InlineVariable inlineVariable = registry.getRefactorings().getRefactoring(new InlineVariable(variable.declaration(), registry.getRefactorings()));
                     InlineUsage usage = inlineVariable.enableOnly(variable);
-                    toolWindow.setRoot(registry.create(inlineVariable)).select(usage);
+                    createToolWindow(event, "Inline " + variable.getName()).setRoot(registry.create(inlineVariable)).select(usage);
                 }
                 invokeNative = false;
             } else if (entity instanceof IParameter) {
@@ -71,7 +68,7 @@ public class SLInlineAction extends AnAction {
 
                 InlineParameter refactoring = new InlineParameter(registry, parameter);
 
-                RefactoringToolPanel tree = new RefactoringToolPanel(event, "Inline " + parameter.getName());
+                RefactoringToolPanel tree = createToolWindow(event, "Inline " + parameter.getName());
                 tree.setRoot(registry.create(refactoring));
                 invokeNative = false;
             }
@@ -82,7 +79,12 @@ public class SLInlineAction extends AnAction {
         }
     }
 
-    public void invokeNative(@NotNull AnActionEvent event) {
+    @NotNull
+    private RefactoringToolPanel createToolWindow(@NotNull AnActionEvent event, String name) {
+        return new RefactoringToolPanel(event, name);
+    }
+
+    private void invokeNative(@NotNull AnActionEvent event) {
         ActionManager.getInstance().getAction("Inline").actionPerformed(event);
     }
 

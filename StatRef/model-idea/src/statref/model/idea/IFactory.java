@@ -30,13 +30,7 @@ public class IFactory {
             register(PsiDoWhileStatement.class, IDoWhileStatement::new);
             register(PsiForStatement.class, IForStatement::new);
             register(PsiForeachStatement.class, IForEachStatement::new);
-
-            // TODO I need unknown origin variable here
-            //  it is reference to what?
-            //  I may have reference and make local variable from it
-            //  looks like a plan
-            register(PsiReferenceExpression.class, ILocalVariable::new);
-
+            register(PsiReferenceExpression.class, IReference::create);
             register(PsiAssignmentExpression.class, IAssignment::new);
             register(PsiLiteralExpression.class, ILiteral::new);
             register(PsiBinaryExpression.class, IBinaryExpression::new);
@@ -101,7 +95,7 @@ public class IFactory {
     }
 
     @NotNull
-    private static IElement getUnknownElement(PsiElement element) {
+    public static IElement getUnknownElement(PsiElement element) {
         log.error(element + ": is not supported");
         return new IUnknownElement(element);
     }

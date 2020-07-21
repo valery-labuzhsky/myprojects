@@ -13,7 +13,7 @@ public class VariableFlow {
     private final HashSet<ILocalVariable> assignments = new HashSet<>();
     private final HashSet<ILocalVariable> usages = new HashSet<>();
     private final Visitor visitor = new Visitor(this);
-    private ILocalVariableDeclaration declaration;
+    private final ILocalVariableDeclaration declaration;
 
     public VariableFlow(ILocalVariable variable) {
         this(variable.declaration());
@@ -23,7 +23,7 @@ public class VariableFlow {
         this.declaration = declaration;
         top = declaration.getParent().getParent(); // TODO may not work for every case
         add(declaration);
-        for (ILocalVariable mention : declaration.mentions()) {
+        for (ILocalVariable mention : declaration.find().mentions()) {
             if (mention.isAssignment()) {
                 assignments.add(mention);
             } else {

@@ -11,10 +11,6 @@ import java.util.Objects;
 public class InlineUsage extends Refactoring {
     // TODO PsiExpressionList is not supported
     // TODO PsiLambdaExpression: is not supported
-    // TODO java.lang.ClassCastException: class com.intellij.psi.impl.source.PsiFieldImpl cannot be cast to class com.intellij.psi.PsiLocalVariable (com.intellij.psi.impl.source.PsiFieldImpl and com.intellij.psi.PsiLocalVariable are in unnamed module of loader com.intellij.ide.plugins.cl.PluginClassLoader @205531ec)
-    //	at statref.model.idea.IVariable.declaration(IVariable.java:37)
-    //	at streamline.plugin.SLInlineAction.actionPerformed(SLInlineAction.java:52)
-    //	at com.intellij.openapi.actionSystem.ex.ActionUtil.performActionDumbAware(ActionUtil.java:280)
     // TODO java.lang.Throwable: PsiConditionalExpression:color > 0 ? p : p.toLowerCase(): is not supported
     //	at com.intellij.openapi.diagnostic.Logger.error(Logger.java:146)
     //	at statref.model.idea.IFactory.getUnknownElement(IFactory.java:98)
