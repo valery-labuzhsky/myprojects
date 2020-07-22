@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class InlineUsage extends Refactoring {
-    // TODO PsiExpressionList is not supported
-    // TODO PsiLambdaExpression: is not supported
-    // TODO IReturn cycler is not supported
     private final ILocalVariable usage;
     private final IInitializer value;
     private final ArrayList<InlineUsage> variants = new ArrayList<>();

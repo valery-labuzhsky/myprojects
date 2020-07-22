@@ -1,10 +1,13 @@
 package streamline.example;
 
+import java.util.function.Supplier;
+
 public class InlineMe {
 
-    void testPsiExpressionList() {
+    boolean testPsiExpressionList() {
         boolean c = false;
-        test(c);
+        Supplier<Boolean> sc = () -> c;
+        return sc.get();
     }
 
     public void simpleBefore() {

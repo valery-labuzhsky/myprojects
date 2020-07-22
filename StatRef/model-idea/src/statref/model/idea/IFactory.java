@@ -40,6 +40,7 @@ public class IFactory {
             register(PsiBinaryExpression.class, IBinaryExpression::new);
             register(PsiMethodCallExpression.class, IMethod::new);
             register(PsiConditionalExpression.class, IConditional::new);
+            register(PsiLambdaExpression.class, ILambdaExpression::new);
             // TODO generate it!
         }
     };
