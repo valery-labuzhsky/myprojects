@@ -2,6 +2,7 @@ package statref.model.idea;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiExpressionList;
 import statref.model.SElement;
 
 import java.util.Objects;
@@ -23,17 +24,21 @@ public abstract class IElement implements SElement {
 
     @Override
     public boolean after(SElement element) {
-        return getElement().getTextRange().getStartOffset() > ((IElement)element).getElement().getTextRange().getEndOffset();
+        return getElement().getTextRange().getStartOffset() > ((IElement) element).getElement().getTextRange().getEndOffset();
     }
 
     @Override
     public boolean before(SElement element) {
-        return getElement().getTextRange().getEndOffset() < ((IElement)element).getElement().getTextRange().getStartOffset();
+        return getElement().getTextRange().getEndOffset() < ((IElement) element).getElement().getTextRange().getStartOffset();
     }
 
     @Override
     public IElement getParent() {
-        return getElement(element.getParent());
+        PsiElement parent = element.getParent();
+        if (parent instanceof PsiExpressionList) {
+            parent = parent.getParent();
+        }
+        return getElement(parent);
     }
 
     @Override

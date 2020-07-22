@@ -1,16 +1,16 @@
 package streamline.plugin.refactoring.guts.flow;
 
-public class ParallelBlock extends ComplexBlock {
-    public ParallelBlock() {
+public class ParallelFlow extends ComplexFlow {
+    public ParallelFlow() {
     }
 
     @Override
-    public boolean harvest(Visitor visitor, Cycler cycler) {
+    public boolean harvest(Visitor visitor) {
         boolean override = true;
         Visitor combined = visitor.copy();
-        for (Block block : blocks) {
+        for (ExecutionFlow flow : flows) {
             Visitor blockVisitor = visitor.copy();
-            override &= block.harvest(blockVisitor, cycler);
+            override &= flow.harvest(blockVisitor);
             combined.getAssignments().addAll(blockVisitor.getAssignments());
         }
         if (override) {

@@ -2,10 +2,9 @@ package streamline.example;
 
 public class InlineMe {
 
-    int field;
-
-    void testField() {
-        this.field = 10;
+    void testPsiExpressionList() {
+        boolean c = false;
+        test(c);
     }
 
     public void simpleBefore() {

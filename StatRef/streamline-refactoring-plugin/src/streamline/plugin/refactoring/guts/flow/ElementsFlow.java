@@ -4,15 +4,15 @@ import statref.model.idea.IElement;
 
 import java.util.List;
 
-public class ElementsBlock extends Block {
+public class ElementsFlow extends ExecutionFlow {
     private final IElement context;
 
-    public ElementsBlock(IElement context) {
+    public ElementsFlow(IElement context) {
         this.context = context;
     }
 
     @Override
-    public boolean harvest(Visitor visitor, Cycler cycler) {
+    public boolean harvest(Visitor visitor) {
         List<IElement> elements = visitor.getElements(this.context);
         boolean override = false;
         for (IElement element : elements) {

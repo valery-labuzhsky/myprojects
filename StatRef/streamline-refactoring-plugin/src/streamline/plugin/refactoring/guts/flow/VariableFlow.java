@@ -32,7 +32,7 @@ public class VariableFlow {
             add(mention);
         }
 
-        Cycler.createCycler(top).harvest(visitor);
+        ExecutionFlowFactory.flow(top).harvest(visitor);
     }
 
     private void add(IElement element) {

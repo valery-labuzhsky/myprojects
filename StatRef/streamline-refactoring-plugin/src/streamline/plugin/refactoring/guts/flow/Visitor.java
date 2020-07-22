@@ -55,7 +55,7 @@ public class Visitor {
             //  I need something to return
             return true;
         } else if (worthVisiting(element)) {
-            return Cycler.createCycler(element).harvest(this);
+            return ExecutionFlowFactory.flow(element).harvest(this);
         } else {
             return false;
         }
