@@ -3,9 +3,9 @@ package streamline.plugin.refactoring;
 import org.jetbrains.annotations.NotNull;
 import statref.model.expressions.SMethod;
 import statref.model.fragment.ExpressionFragment;
-import statref.model.idea.IMethod;
 import statref.model.idea.IMethodDeclaration;
 import statref.model.idea.IParameter;
+import statref.model.idea.expressions.IMethod;
 import statref.model.members.SMethodDeclaration;
 import streamline.plugin.nodes.guts.NodesRegistry;
 

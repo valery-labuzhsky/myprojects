@@ -30,6 +30,9 @@ public class SLInlineAction extends AnAction {
         try {
             PsiIdentifier identifier = getPsiElement(event, PsiIdentifier.class);
             if (identifier == null) return;
+            // TODO problem with that is that element is not necessary maps to my model
+            //  how can I solve this problem?
+            //  It seems I must return closest making sense parent
             IElement entity = IFactory.getElement(identifier.getParent());
             Project project = getEventProject(event);
             NodesRegistry registry = new NodesRegistry(project);

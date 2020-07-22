@@ -1,9 +1,10 @@
-package statref.model.idea;
+package statref.model.idea.expressions;
 
 import com.intellij.psi.PsiMethodCallExpression;
 import statref.model.expressions.SExpression;
 import statref.model.expressions.SMethod;
-import statref.model.idea.expressions.IExpression;
+import statref.model.idea.IElementList;
+import statref.model.idea.IFactory;
 import statref.model.members.SMethodDeclaration;
 
 import java.util.List;

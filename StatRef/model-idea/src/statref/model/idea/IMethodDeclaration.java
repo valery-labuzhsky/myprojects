@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import statref.model.expressions.SMethod;
 import statref.model.fragment.Fragment;
 import statref.model.fragment.Place;
+import statref.model.idea.expressions.IMethod;
 import statref.model.members.SMethodDeclaration;
 import statref.model.statements.SStatement;
 import statref.model.types.SType;

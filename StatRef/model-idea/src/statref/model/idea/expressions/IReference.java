@@ -1,10 +1,7 @@
 package statref.model.idea.expressions;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiLocalVariable;
-import com.intellij.psi.PsiReferenceExpression;
+import com.intellij.psi.*;
 import statref.model.SElement;
 import statref.model.expressions.SExpression;
 import statref.model.expressions.SReference;
@@ -23,14 +20,16 @@ public abstract class IReference extends IExpression implements SReference, IVar
         super(expression);
     }
 
-    public static IReference create(PsiReferenceExpression expression) {
+    public static IExpression create(PsiReferenceExpression expression) {
         PsiElement declaration = expression.resolve();
         if (declaration instanceof PsiLocalVariable) {
             return new ILocalVariable(expression);
         } else if (declaration instanceof PsiField) {
             return new IField(expression);
+        } else if (declaration instanceof PsiMethod) {
+            return IFactory.getElement(expression.getParent());
         } else {
-            log.error(expression + ": is not supported");
+            log.error(declaration + ": is not supported");
             return new IReference(expression) {
             };
         }
