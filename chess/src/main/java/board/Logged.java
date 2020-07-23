@@ -65,15 +65,26 @@ public interface Logged {
         return () -> LogManager.getLogger(name);
     }
 
-    static String tabs(Collection<?> list) {
+    static <T> String tabs(Collection<T> list) {
+        return tabs(list.stream());
+    }
+
+    static <T> String tabs(String name, Collection<T> list) {
+        return tabs(name, list.stream());
+    }
+
+    static <T> String shortTabs(String name, Collection<T> list) {
+        return shortTabs(name, list.stream());
+    }
+
+    static String tabs(Stream<?> list) {
         StringBuilder string = new StringBuilder();
         list.forEach(i -> string.append("\n").append(i));
         return string.toString().replace("\n", "\n\t");
     }
 
-    // TODO streams
-    static String tabs(String name, Collection<?> list) {
-        if (list.isEmpty()) {
+    static String tabs(String name, Stream<?> list) {
+        if (list.findAny().isEmpty()) {
             return "";
         } else {
             StringBuilder string = new StringBuilder();
@@ -83,12 +94,12 @@ public interface Logged {
         }
     }
 
-    static String shortTabs(String name, Collection<?> list) {
-        if (list.isEmpty()) {
+    static String shortTabs(String name, Stream<?> list) {
+        if (list.findAny().isEmpty()) {
             return "";
         } else {
             StringBuilder string = new StringBuilder();
-            string.append("\n").append("=== ").append(name).append(" ===");
+            if (!name.isEmpty()) string.append("\n").append("=== ").append(name).append(" ===");
             list.forEach(i -> string.append("\n").append(i.toString().lines().findFirst().orElse("")));
             return string.toString().replace("\n", "\n\t");
         }

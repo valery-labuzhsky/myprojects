@@ -21,6 +21,11 @@ public class Block extends Role {
     }
 
     @Override
+    public Piece getWhom() {
+        return attack.getWhom();
+    }
+
+    @Override
     public String toString() {
         // TODO to be replaced with class hierarchy
         if (piece.color == attack.piece.color) {

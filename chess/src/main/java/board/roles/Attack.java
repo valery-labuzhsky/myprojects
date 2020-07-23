@@ -26,7 +26,7 @@ public abstract class Attack extends Role {
 
     @Override
     public int getScore() {
-        Exchange now = whom.getExchange();
+        Exchange now = new Exchange(whom.square, -whom.color);
         if (nonsense(now)) {
             return 0;
         }
@@ -41,9 +41,14 @@ public abstract class Attack extends Role {
     protected abstract boolean nonsense(Exchange now);
 
     @Override
-    public String toString() {
-        return piece + " " + verb() + " " + whom + " = " + getScore();
+    public Piece getWhom() {
+        return whom;
     }
 
     protected abstract String verb();
+
+    @Override
+    public String toString() {
+        return piece + " " + verb() + " " + whom + " = " + getScore();
+    }
 }

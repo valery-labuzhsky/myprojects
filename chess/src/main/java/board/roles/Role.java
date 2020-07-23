@@ -15,4 +15,6 @@ public abstract class Role {
     }
 
     public abstract int getScore();
+
+    public abstract Piece getWhom();
 }

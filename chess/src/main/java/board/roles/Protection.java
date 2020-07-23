@@ -15,7 +15,7 @@ public class Protection extends Attack {
 
     @Override
     protected boolean nonsense(Exchange now) {
-        return now.sides.get(-whom.color).pieces.isEmpty();
+        return now.sides.get(-whom.color).pieces.isEmpty() || now.getScore() == whom.cost();
     }
 
     @Override
