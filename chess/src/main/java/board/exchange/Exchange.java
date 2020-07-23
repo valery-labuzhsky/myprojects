@@ -66,11 +66,13 @@ public class Exchange implements Logged, Analytics {
         });
 
         int c = color;
-        while (!lines.get(c).isEmpty()) {
-            LinkedList<Piece> line = lines.get(c).pollFirst();
-            sides.get(c).pieces.add(line.poll());
-            if (!line.isEmpty()) {
-                lines.get(line.getFirst().color).add(line);
+        while (lines.values().stream().anyMatch(l -> !l.isEmpty())) {
+            if (!lines.get(c).isEmpty()) {
+                LinkedList<Piece> line = lines.get(c).pollFirst();
+                sides.get(c).pieces.add(line.poll());
+                if (!line.isEmpty()) {
+                    lines.get(line.getFirst().color).add(line);
+                }
             }
             c = -c;
         }
@@ -112,6 +114,18 @@ public class Exchange implements Logged, Analytics {
         return copy;
     }
 
+    public Exchange remove(Piece piece) {
+        Exchange copy = new Exchange(this);
+        copy.sides.get(piece.color).pieces.remove(piece);
+        return copy;
+    }
+
+    public Exchange add(Piece piece) {
+        Exchange copy = new Exchange(this);
+        copy.sides.get(piece.color).pieces.add(piece);
+        return copy;
+    }
+
     public static class Result {
         public int score;
         int lastPlayer;
@@ -148,6 +162,11 @@ public class Exchange implements Logged, Analytics {
 
         Side(Side side) {
             pieces.addAll(side.pieces);
+        }
+
+        @Override
+        public String toString() {
+            return "" + pieces;
         }
     }
 

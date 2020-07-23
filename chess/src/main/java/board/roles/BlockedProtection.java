@@ -4,12 +4,12 @@ import board.exchange.Exchange;
 import board.pieces.Piece;
 
 /**
- * Created on 18.07.2020.
+ * Created on 23.07.2020.
  *
  * @author unicorn
  */
-public class Threat extends Attack {
-    public Threat(Piece piece, Piece whom) {
+public class BlockedProtection extends BlockedAttack {
+    BlockedProtection(Piece piece, Piece whom) {
         super(piece, whom);
     }
 
@@ -20,6 +20,6 @@ public class Threat extends Attack {
 
     @Override
     protected String verb() {
-        return "threatens";
+        return "protecting";
     }
 }

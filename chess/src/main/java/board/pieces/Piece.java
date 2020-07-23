@@ -119,7 +119,7 @@ public abstract class Piece implements Logged {
     }
 
     public Stream<Role> meaningfulRoles() {
-        return roles().filter(r -> r.isMeaningful());
+        return roles().filter(r -> r.getScore() != 0);
     }
 
     public Stream<Attack> attackRoles() {

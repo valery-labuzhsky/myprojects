@@ -1,5 +1,6 @@
 package board.roles;
 
+import board.exchange.Exchange;
 import board.pieces.Piece;
 
 /**
@@ -13,17 +14,12 @@ public class Protection extends Attack {
     }
 
     @Override
-    public boolean isMeaningful() {
-        return !whom.getExchange().sides.get(-whom.color).pieces.isEmpty();
+    protected boolean nonsense(Exchange now) {
+        return now.sides.get(-whom.color).pieces.isEmpty();
     }
 
     @Override
-    public String toString() {
-        return piece + " protects " + whom;
-    }
-
-    @Override
-    public String toContinuous() {
-        return piece + " protecting " + whom;
+    protected String verb() {
+        return "protects";
     }
 }

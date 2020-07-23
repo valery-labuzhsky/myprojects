@@ -85,10 +85,7 @@ public class Situations {
 
     private void analyse() {
         // TODO what information I need next?
-        //  calculate removing score
-        //  I need remove blocks with 0 threat
-        //  I need show that e3 is pinned
-        //  sort roles to some priority
+        //  sort roles to some priority?
         //  use roles to calculate removing scores
         log().info(tabs("My roles", board.friends().stream().flatMap(p -> p.meaningfulRoles()).collect(Collectors.toList())));
         log().info(tabs("His roles", board.enemies().stream().flatMap(p -> p.meaningfulRoles()).collect(Collectors.toList())));

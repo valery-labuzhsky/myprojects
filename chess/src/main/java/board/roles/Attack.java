@@ -1,5 +1,6 @@
 package board.roles;
 
+import board.exchange.Exchange;
 import board.pieces.Piece;
 
 /**
@@ -23,5 +24,26 @@ public abstract class Attack extends Role {
         }
     }
 
-    public abstract String toContinuous();
+    @Override
+    public int getScore() {
+        Exchange now = whom.getExchange();
+        if (nonsense(now)) {
+            return 0;
+        }
+        Exchange then = then(now);
+        return then.getScore() - now.getScore();
+    }
+
+    protected Exchange then(Exchange now) {
+        return now.remove(piece);
+    }
+
+    protected abstract boolean nonsense(Exchange now);
+
+    @Override
+    public String toString() {
+        return piece + " " + verb() + " " + whom + " = " + getScore();
+    }
+
+    protected abstract String verb();
 }

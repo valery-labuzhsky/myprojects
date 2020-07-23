@@ -4,22 +4,22 @@ import board.exchange.Exchange;
 import board.pieces.Piece;
 
 /**
- * Created on 18.07.2020.
+ * Created on 23.07.2020.
  *
  * @author unicorn
  */
-public class Threat extends Attack {
-    public Threat(Piece piece, Piece whom) {
+public class BlockedThreat extends BlockedAttack {
+    BlockedThreat(Piece piece, Piece whom) {
         super(piece, whom);
     }
 
     @Override
     protected boolean nonsense(Exchange now) {
-        return now.getScore() == 0;
+        return now.getScore() == whom.cost();
     }
 
     @Override
     protected String verb() {
-        return "threatens";
+        return "threatening";
     }
 }

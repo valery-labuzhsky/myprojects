@@ -14,5 +14,5 @@ public abstract class Role {
         this.piece = piece;
     }
 
-    public abstract boolean isMeaningful();
+    public abstract int getScore();
 }
