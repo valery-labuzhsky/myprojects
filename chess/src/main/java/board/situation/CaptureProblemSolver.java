@@ -1,6 +1,5 @@
 package board.situation;
 
-import board.Move;
 import board.Waypoint;
 import board.exchange.Exchange;
 import board.pieces.Piece;
@@ -15,7 +14,6 @@ import static board.Logged.tabs;
  * @author ptasha
  */
 public class CaptureProblemSolver extends ProblemSolver {
-    final ArrayList<SamePiecesMoveScore> variants = new ArrayList<>();
 
     // TODO it's not fair
     @Deprecated
@@ -75,12 +73,7 @@ public class CaptureProblemSolver extends ProblemSolver {
         return problem.getScore();
     }
 
-    void addSolution(Move move) {
-        variants.add(new SamePiecesMoveScore(move));
-        getSolutions().add(new Solution(move, problem));
-    }
-
     public String toString() {
-        return "" + problem + tabs(getClass().getSimpleName(), variants);
+        return "" + problem + tabs(getClass().getSimpleName(), solutions);
     }
 }

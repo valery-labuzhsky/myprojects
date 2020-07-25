@@ -108,6 +108,10 @@ public abstract class Piece implements Logged {
         return blockRoles().map(b -> b.attack.whom);
     }
 
+    public ArrayList<Piece> enemies() {
+        return new ArrayList<>(board.pieces.get(-color));
+    }
+
     public Collection<Piece> friends() {
         return new ArrayList<>(board.pieces.get(color)); // TODO what else? CopyOnWrite?
     }

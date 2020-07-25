@@ -3,6 +3,8 @@ package board.situation;
 import board.exchange.Exchange;
 import board.pieces.Piece;
 
+import java.util.stream.Stream;
+
 /**
  * Created on 09.07.2020.
  *
@@ -16,12 +18,24 @@ public class CaptureProblem extends Problem {
         this.exchange = exchange;
     }
 
+    static Stream<CaptureProblem> findProblems(Piece piece) {
+        Exchange exchange = piece.getExchange();
+        if (exchange.getScore() * piece.color < 0) {
+            return exchange.sides.get(-piece.color).pieces.stream().
+                    map(enemy -> exchange.move(enemy)).
+                    filter(problem -> problem.getScore() * piece.color < 0).
+                    map(problem -> new CaptureProblem(piece, problem));
+        }
+        return Stream.empty();
+    }
+
+    @Override
     public CaptureProblemSolver solve() {
         return new CaptureProblemSolver(this);
     }
 
-    public Solution takeAdvantageOf() {
-        return new Solution("Capture", move, this);
+    Solution solves(Problem problem) {
+        return new Solution("Capture", move, problem);
     }
 
     @Override

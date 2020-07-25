@@ -23,10 +23,6 @@ public class Solution {
         this.name = name;
     }
 
-    Solution fitMeToo(Problem problem) {
-        return new Solution(name, move, problem);
-    }
-
     @Override
     public String toString() {
         return name + " " + move.toString();

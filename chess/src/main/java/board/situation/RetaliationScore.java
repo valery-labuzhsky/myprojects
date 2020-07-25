@@ -2,7 +2,10 @@ package board.situation;
 
 import board.Logged;
 import board.Move;
-import board.pieces.Piece;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created on 27.06.2020.
@@ -11,26 +14,25 @@ import board.pieces.Piece;
  */
 public class RetaliationScore {
     final Move myMove;
-    private final OppositeAttacksNoEscapeTroubleMaker score;
+    private final ArrayList<AttackProblem> worst;
 
     public RetaliationScore(Move myMove) {
         this.myMove = myMove;
+
         this.myMove.imagine();
-
-        Piece piece = myMove.piece;
-
-        score = new OppositeAttacksNoEscapeTroubleMaker(piece);
-
+        List<AttackProblem> problems = AfterEscapePieceScore.findProblems(myMove.piece).collect(Collectors.toList());
         this.myMove.undo();
+
+        worst = Situations.best(problems, p -> p.getScore(), -myMove.piece.color);
     }
 
     public int getScore() {
-        return score.getScore();
+        return worst.stream().map(a -> a.getScore()).findAny().orElse(0);
     }
 
     @Override
     public String toString() {
-        return "" + myMove + " " + Logged.tabs(score.attacks);
+        return "" + myMove + " " + Logged.tabs(worst);
     }
 
 }

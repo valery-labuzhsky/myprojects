@@ -16,15 +16,23 @@ public class Tempo {
     final HashSet<Problem> solves = new HashSet<>();
 
     Tempo(Solution solution) {
-        move = solution.move;
-        add(solution);
+        this(solution.problem);
+    }
+
+    Tempo(Problem problem) {
+        move = problem.move;
+        add(problem);
     }
 
     public Tempo add(Solution solution) {
-        if (move.equals(solution.problem.move)) {
-            achieves.add(solution.problem);
+        return add(solution.problem);
+    }
+
+    public Tempo add(Problem problem) {
+        if (move.equals(problem.move)) {
+            achieves.add(problem);
         } else {
-            solves.add(solution.problem);
+            solves.add(problem);
         }
         return this;
     }

@@ -19,6 +19,8 @@ public abstract class Problem {
         this.move = move;
     }
 
+    public abstract ProblemSolver solve();
+
     public abstract int getScore();
 
     @Override

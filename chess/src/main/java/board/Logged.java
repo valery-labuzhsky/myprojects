@@ -84,6 +84,7 @@ public interface Logged {
     }
 
     static String tabs(String name, Stream<?> list) {
+        // TODO streams must be used only once!
         if (list.findAny().isEmpty()) {
             return "";
         } else {

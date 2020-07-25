@@ -51,6 +51,19 @@ public class Situations {
         return best(input, colored(score, color));
     }
 
+    private static <S, C extends Comparable<C>, L extends Collection<S>> L best(Stream<S> input, L output, Function<S, C> score) {
+        best(input.iterator(), score, output::add, output::clear);
+        return output;
+    }
+
+    private static <S, C extends Comparable<C>> ArrayList<S> best(Stream<S> input, Function<S, C> score) {
+        return best(input, new ArrayList<>(), score);
+    }
+
+    static <C> ArrayList<C> best(Stream<C> input, Function<C, Integer> score, int color) {
+        return best(input, colored(score, color));
+    }
+
     private static <C> Function<C, Integer> colored(Function<C, Integer> simple, int color) {
         return c -> color * simple.apply(c);
     }
@@ -85,33 +98,39 @@ public class Situations {
     }
 
     private void analyse() {
-        // TODO what information I need next?
-        //  display his moves which I need react to
-        //  and mine too
-        // TODO let's reduce noise
+        // TODO moves to improve my attack score
+        //  what for?
+        //  just because
         log("My roles", board.friends().stream().flatMap(p -> p.meaningfulRoles()));
         log("His roles", board.enemies().stream().flatMap(p -> p.meaningfulRoles()));
 
-        ArrayList<AfterMoveScore> myAttacks = new ArrayList<>();
-        ArrayList<Solution> captures = new ArrayList<>();
+        ArrayList<AttackProblem> myAttacks = new ArrayList<>();
+        ArrayList<CaptureProblem> captures = new ArrayList<>();
 
         for (Piece piece : board.enemies()) {
             // TODO they are my threat roles
-            captures.addAll(new CaptureTroubleMaker(piece).takeAdvantageOf().collect(Collectors.toList()));
+            CaptureProblem.findProblems(piece).collect(Collectors.toCollection(() -> captures));
 
             // TODO it is not necessary simple, it may be complex
-            myAttacks.addAll(new SimpleAttackTroubleMaker(piece).attacks);
+            myAttacks.addAll(SimpleAttackTroubleMaker.findProblems(piece));
         }
 
         log("My attacks", myAttacks.stream());
-        log("My captures", captures.stream().map(s -> s.problem));
+        log("My captures", captures.stream());
 
         ArrayList<ProblemSolver> oppositeAttacks = new ArrayList<>();
 
+        ArrayList<AttackProblem> hisAttack = new ArrayList<>();
+
         for (Piece piece : board.friends()) {
-            oppositeAttacks.addAll(new CaptureTroubleMaker(piece).makeProblems().collect(Collectors.toList()));
-            oppositeAttacks.addAll(new OppositeAttacksNoEscapeTroubleMaker(piece).makeProblems().collect(Collectors.toList()));
+            CaptureProblem.findProblems(piece).map(p -> p.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
+
+            hisAttack.addAll(SimpleAttackTroubleMaker.findProblems(piece));
         }
+        AfterEscapePieceScore.evolve(hisAttack.stream()).map(a -> a.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
+
+        // TODO display solutions that void this problems
+        log("His attacks", hisAttack.stream());
 
         for (ProblemSolver attack : oppositeAttacks) {
             attack.counterAttacks(myAttacks);
@@ -123,14 +142,13 @@ public class Situations {
 
         HashMap<Move, Tempo> tempos = new HashMap<>();
         for (ProblemSolver attack : oppositeAttacks) {
-            for (Solution solution : attack.getSolutions()) {
+            for (Solution solution : attack.solutions) {
                 tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
             }
         }
-        for (Solution solution : captures) {
-            // TODO duplicate
-            tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
-        }
+
+        // TODO duplicate
+        captures.forEach(p -> tempos.compute(p.move, (m, t) -> t == null ? new Tempo(p) : t.add(p)));
 
         ArrayList<Tempo> bestTempos = best(tempos.values(), t -> t.getScore(), board.color);
         log("Solutions", bestTempos.stream());
@@ -165,18 +183,6 @@ public class Situations {
         oppositeScores = best(oppositeScores, a -> a.getScore(), board.color);
         oppositeScores.forEach(m -> moves.add(m.move));
 
-        // TODO I need to know:
-        //  how can he attack me so that I need to take actions
-        //  most important, how I can attack him so he need to take actions
-        //  next thing I need to know is how can I improve my score
-        //  I may have 8 different goals
-        //  sum x max x his/mine
-        //  but first I need to display them
-        //  opposite scores are not relevant, even harmful,
-        //  but I'll remove them once I'm done with this project
-
-        // TODO see all potential threats mine and his
-        // TODO display locked pieces - e3 is protecting f4 from d6
         System.out.println("Score: " + score + " " + this.moves);
     }
 

@@ -10,8 +10,8 @@ import board.pieces.Piece;
  * @author unicorn
  */
 public class AttackProblemSolver extends ProblemSolver {
-    AttackProblemSolver(AfterMoveScore attack) {
-        super(new AttackProblem(attack));
+    AttackProblemSolver(AttackProblem attack) {
+        super(attack);
 
         Piece attacked = problem.piece;
         for (Piece friend : attacked.board.pieces.get(attacked.color)) {
@@ -23,7 +23,7 @@ public class AttackProblemSolver extends ProblemSolver {
         int color = problem.piece.color;
         int score = new Exchange(move.to, -color).move(move.piece).getScore() * color;
         if (score >= 0) {
-            getSolutions().add(new Solution(move, problem));
+            addSolution(move);
         }
     }
 

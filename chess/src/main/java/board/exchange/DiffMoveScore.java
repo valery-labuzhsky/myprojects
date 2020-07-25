@@ -5,7 +5,6 @@ import board.pieces.Piece;
 import board.situation.ListScoreWatcher;
 import board.situation.MoveScore;
 import board.situation.ScoreDiff;
-import board.situation.ScoreWatcher;
 
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -16,11 +15,11 @@ import java.util.stream.Stream;
  * @author unicorn
  */
 public abstract class DiffMoveScore<A extends Action> extends MoveScore<A> {
-    protected final ListScoreWatcher score;
-    protected final Function<Piece, ScoreWatcher> diff;
+    public final ListScoreWatcher score;
+    protected final Function<Piece, ScoreDiff> diff;
     private boolean calculated;
 
-    public DiffMoveScore(A move, Function<Piece, ScoreWatcher> diff) {
+    public DiffMoveScore(A move, Function<Piece, ScoreDiff> diff) {
         super(move);
         score = new ListScoreWatcher();
         this.diff = diff;

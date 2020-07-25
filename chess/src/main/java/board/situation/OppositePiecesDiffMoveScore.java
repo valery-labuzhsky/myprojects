@@ -14,7 +14,7 @@ import java.util.function.Function;
  */
 public class OppositePiecesDiffMoveScore extends DiffMoveScore<Move> {
 
-    public OppositePiecesDiffMoveScore(Move move, Function<Piece, ScoreWatcher> diff) {
+    public OppositePiecesDiffMoveScore(Move move, Function<Piece, ScoreDiff> diff) {
         super(move, diff);
     }
 

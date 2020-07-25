@@ -1,7 +1,8 @@
 package board.situation;
 
+import board.Move;
+
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created on 05.07.2020.
@@ -10,35 +11,34 @@ import java.util.List;
  */
 public abstract class ProblemSolver {
     final Problem problem;
-    private final ArrayList<Solution> solutions = new ArrayList<>();
+    final ArrayList<Solution> solutions = new ArrayList<>();
 
     ProblemSolver(Problem problem) {
         this.problem = problem;
     }
 
-    void counterAttacks(List<AfterMoveScore> attacks) {
+    void counterAttacks(ArrayList<AttackProblem> attacks) {
         int myColor = problem.piece.color;
-        for (AfterMoveScore attack : attacks) {
+        for (AttackProblem attack : attacks) {
             if (problem.move.piece != attack.piece) {
                 if (attack.getScore() * myColor >= -getScore() * myColor) {
-                    getSolutions().add(new Solution("Counterattack", attack.move, problem));
+                    solutions.add(new Solution("Counterattack", attack.move, problem));
                 }
             }
         }
     }
 
-    void captures(ArrayList<Solution> captures) {
-        for (Solution capture : captures) {
-            if (capture.problem.piece == problem.move.piece) {
-                getSolutions().add(capture.fitMeToo(problem));
+    void captures(ArrayList<CaptureProblem> captures) {
+        for (CaptureProblem capture : captures) {
+            if (capture.piece == problem.move.piece) {
+                solutions.add(capture.solves(problem));
             }
         }
     }
 
     public abstract int getScore();
 
-    ArrayList<Solution> getSolutions() {
-        return solutions;
+    protected void addSolution(Move move) {
+        solutions.add(new Solution(move, problem));
     }
-
 }
