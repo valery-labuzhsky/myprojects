@@ -26,6 +26,26 @@ import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 public class RefactoringToolPanel extends SimpleToolWindowPanel {
+    // TODO java.lang.UnsupportedOperationException: statref.model.idea.expressions.ILocalVariable
+    //  see statref.model.idea.expressions.ILocalVariable.getExpressions
+    // TODO java.lang.Throwable: PsiJavaCodeReferenceElement:AttackTroubleMaker: is not supported
+    //	at com.intellij.openapi.diagnostic.Logger.error(Logger.java:146)
+    //	at statref.model.idea.IFactory.getUnknownElement(IFactory.java:113)
+    //	at statref.model.idea.IFactory.getElement(IFactory.java:100)
+    //	at streamline.plugin.SLInlineAction.actionPerformed(SLInlineAction.java:36)
+    //	at com.intellij.openapi.actionSystem.ex.ActionUtil.performActionDumbAware(ActionUtil.java:280)
+    // TODO java.lang.ClassCastException: class statref.model.idea.expressions.IField cannot be cast to class statref.model.idea.expressions.ILocalVariable (statref.model.idea.expressions.IField and statref.model.idea.expressions.ILocalVariable are in unnamed module of loader com.intellij.ide.plugins.cl.PluginClassLoader @1bf109d5)
+    //	at statref.model.idea.expressions.IAssignment.getVariable(IAssignment.java:24)
+    //	at statref.model.idea.expressions.IReference.isAssignment(IReference.java:53)
+    //	at streamline.plugin.refactoring.guts.flow.VariableFlow.<init>(VariableFlow.java:27)
+    //	at streamline.plugin.refactoring.InlineVariable.<init>(InlineVariable.java:16)
+    //	at streamline.plugin.SLInlineAction.actionPerformed(SLInlineAction.java:41)
+
+    // TODO         ArrayList<Piece> enemies = piece.enemies();
+    //        for (Piece enemy : enemies) {
+
+    // TODO close refactoring after default action
+
     final AnActionEvent originalEvent;
     RefactoringNode root;
     private final Tree tree = new Tree();
@@ -33,6 +53,7 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
     public RefactoringToolPanel(AnActionEvent originalEvent, String displayName) {
         super(true, true);
         this.originalEvent = originalEvent;
+
         setupToolbar();
         setupTree();
         registerToolPanel(displayName);
@@ -243,7 +264,7 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
                 node = tree.getLastSelectedPathComponent();
             }
             NodeComponent component = getComponent(node);
-            return component.isEditable(e);
+            return component == null ? false : component.isEditable(e);
         }
     }
 

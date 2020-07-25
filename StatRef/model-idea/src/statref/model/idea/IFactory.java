@@ -41,6 +41,7 @@ public class IFactory {
             register(PsiMethodCallExpression.class, IMethod::new);
             register(PsiConditionalExpression.class, IConditional::new);
             register(PsiLambdaExpression.class, ILambdaExpression::new);
+            register(PsiNewExpression.class, INewExpression::new);
             // TODO generate it!
         }
     };
@@ -65,7 +66,7 @@ public class IFactory {
         return idea;
     }
 
-    public static IExpression convertExpression(SExpression expression, Project project) {
+    private static IExpression convertExpression(SExpression expression, Project project) {
         return getElement(JavaPsiFacade.getElementFactory(project).createExpressionFromText(expression.getText(), null));
     }
 
@@ -83,7 +84,7 @@ public class IFactory {
     }
 
     @NotNull
-    public static IStatement convertStatement(SStatement prototype, Project project) {
+    private static IStatement convertStatement(SStatement prototype, Project project) {
         return getElement(JavaPsiFacade.getElementFactory(project).createStatementFromText(prototype.getText(), null));
     }
 
@@ -93,13 +94,22 @@ public class IFactory {
         }
         T e = (T) psi2model.convert(element);
         if (e == null) {
+            if (element instanceof PsiExpression) {
+                return (T) getUnknownExpression((PsiExpression) element);
+            }
             return (T) getUnknownElement(element);
         }
         return e;
     }
 
     @NotNull
-    public static IElement getUnknownElement(PsiElement element) {
+    private static IExpression getUnknownExpression(PsiExpression element) {
+        log.error(element + ": is not supported");
+        return new IUnknownExpression(element);
+    }
+
+    @NotNull
+    private static IElement getUnknownElement(PsiElement element) {
         log.error(element + ": is not supported");
         return new IUnknownElement(element);
     }

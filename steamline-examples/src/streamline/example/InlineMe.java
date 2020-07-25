@@ -4,12 +4,6 @@ import java.util.function.Supplier;
 
 public class InlineMe {
 
-    boolean testPsiExpressionList() {
-        boolean c = false;
-        Supplier<Boolean> sc = () -> c;
-        return sc.get();
-    }
-
     public void simpleBefore() {
         int inline = 8;
 
@@ -97,7 +91,8 @@ public class InlineMe {
     }
 
     public void testUsage() {
-        test(true);
+        boolean c = true;
+        test(c);
         test(true);
         test(false);
     }
