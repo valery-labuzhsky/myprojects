@@ -5,7 +5,7 @@ package board.situation;
  *
  * @author unicorn
  */
-public interface ScoreDiff {
+public interface ScoreDiff extends Analytics {
     void before();
 
     void after();
@@ -14,6 +14,7 @@ public interface ScoreDiff {
 
     int getAfter();
 
+    @Override
     default int getScore() {
         return getAfter() - getBefore();
     }

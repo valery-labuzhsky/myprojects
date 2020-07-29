@@ -84,15 +84,12 @@ public interface Logged {
     }
 
     static String tabs(String name, Stream<?> list) {
-        // TODO streams must be used only once!
-        if (list.findAny().isEmpty()) {
+        StringBuilder string = new StringBuilder();
+        list.forEach(i -> string.append("\n").append(i));
+        if (string.length() == 0) {
             return "";
-        } else {
-            StringBuilder string = new StringBuilder();
-            string.append("\n").append("=== ").append(name).append(" ===");
-            list.forEach(i -> string.append("\n").append(i));
-            return string.toString().replace("\n", "\n\t");
         }
+        return "\n\t=== " + name + " ===" + string.toString().replace("\n", "\n\t");
     }
 
     static String shortTabs(String name, Stream<?> list) {

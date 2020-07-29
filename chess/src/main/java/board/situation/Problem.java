@@ -23,6 +23,10 @@ public abstract class Problem {
 
     public abstract int getScore();
 
+    boolean worthIt() {
+        return getScore() * piece.color > 0;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

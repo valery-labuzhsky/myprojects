@@ -112,7 +112,7 @@ public class Situations {
             CaptureProblem.findProblems(piece).collect(Collectors.toCollection(() -> captures));
 
             // TODO it is not necessary simple, it may be complex
-            myAttacks.addAll(SimpleAttackTroubleMaker.findProblems(piece));
+            myAttacks.addAll(SimpleAttackProblem.findProblems(piece));
         }
 
         log("My attacks", myAttacks.stream());
@@ -125,11 +125,12 @@ public class Situations {
         for (Piece piece : board.friends()) {
             CaptureProblem.findProblems(piece).map(p -> p.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
 
-            hisAttack.addAll(SimpleAttackTroubleMaker.findProblems(piece));
+            AfterEscapePieceScore.evolve(SimpleAttackProblem.findProblems(piece).stream()).collect(Collectors.toCollection(() -> hisAttack));
         }
-        AfterEscapePieceScore.evolve(hisAttack.stream()).map(a -> a.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
 
-        // TODO display solutions that void this problems
+        hisAttack.stream().filter(p -> p.worthIt()).map(a -> a.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
+
+        // TODO display solutions that void this problems proper way
         log("His attacks", hisAttack.stream());
 
         for (ProblemSolver attack : oppositeAttacks) {
@@ -146,7 +147,6 @@ public class Situations {
                 tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
             }
         }
-
         // TODO duplicate
         captures.forEach(p -> tempos.compute(p.move, (m, t) -> t == null ? new Tempo(p) : t.add(p)));
 

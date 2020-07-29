@@ -8,18 +8,16 @@ import java.util.stream.Stream;
 import static board.Logged.tabs;
 
 /**
- * Created on 09.07.2020.
+ * Created on 29.07.2020.
  *
  * @author unicorn
  */
-public class AttackProblem extends Problem {
-    private final ScoreDiff diff;
+public abstract class AttackProblem extends Problem {
+    protected final Analytics analytics;
 
-    public AttackProblem(Piece piece, Move move, ScoreDiff diff) {
+    public AttackProblem(Piece piece, Move move, Analytics analytics) {
         super(piece, move);
-        // TODO overkill
-        new AfterMoveScore(piece, move, diff).calculate();
-        this.diff = diff;
+        this.analytics = analytics;
     }
 
     @Override
@@ -29,11 +27,12 @@ public class AttackProblem extends Problem {
 
     @Override
     public int getScore() {
-        return diff.getScore();
+        return analytics.getScore();
     }
 
     @Override
     public String toString() {
-        return "Attack " + move + " on " + piece + " = " + getScore() + tabs(Stream.of(diff));
+        return "Attack " + move + " on " + piece + " = " + getScore() + tabs(Stream.of(analytics));
     }
+
 }

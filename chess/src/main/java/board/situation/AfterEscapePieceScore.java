@@ -1,8 +1,8 @@
 package board.situation;
 
+import board.exchange.Exchange;
 import board.pieces.Piece;
 
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -14,22 +14,8 @@ public class AfterEscapePieceScore implements Analytics {
     private final CaptureProblemSolver situation;
     private final int score;
 
-    public static ScoreDiff diff(Piece piece) {
-        return PieceScore.diff(piece, AfterEscapePieceScore::new);
-    }
-
-    // TODO I need splitting it
-    //  I need to pass problem here
-    //  diff before must be 0 only after must be counter
-    private AfterEscapePieceScore(Piece piece) {
-        // TODO I need to implement part of Solutions here
-        //  I need get all solutions including attacks
-        //  combine them to tempos and choose the best move
-        //  and take worst left
-
-        // TODO it's very interesting recursive problem, but I need workaround for a while
-        //  I need sort out other changes first
-        CaptureProblem problem = CaptureProblemSolver.createProblem(piece.getExchange());
+    private AfterEscapePieceScore(Exchange exchange) {
+        CaptureProblem problem = CaptureProblem.findProblem(exchange);
         if (problem != null) {
             this.situation = problem.solve();
             if (situation.solutions.isEmpty()) {
@@ -54,17 +40,21 @@ public class AfterEscapePieceScore implements Analytics {
     }
 
     public static Stream<AttackProblem> findProblems(Piece piece) {
-        return evolve(SimpleAttackTroubleMaker.findProblems(piece).stream());
+        return evolve(SimpleAttackProblem.findProblems(piece).stream());
     }
 
-    public static Stream<AttackProblem> evolve(Stream<AttackProblem> problems) {
-        return evolve(problems, p -> diff(p));
-    }
-
-    public static Stream<AttackProblem> evolve(Stream<AttackProblem> problems, Function<Piece, ScoreDiff> diff) {
+    public static Stream<AttackProblem> evolve(Stream<SimpleAttackProblem> problems) {
         return problems.
-                map(p -> new AttackProblem(p.piece, p.move, diff.apply(p.piece))).
-                filter(p -> p.getScore() * p.piece.color > 0);
+                map(p -> evolve(p));
     }
 
+    public static AttackProblem evolve(SimpleAttackProblem p) {
+        return new AfterEscapeAttackProblem(p);
+    }
+
+    private static class AfterEscapeAttackProblem extends AttackProblem {
+        public AfterEscapeAttackProblem(SimpleAttackProblem attack) {
+            super(attack.piece, attack.move, new AfterEscapePieceScore(attack.then()));
+        }
+    }
 }

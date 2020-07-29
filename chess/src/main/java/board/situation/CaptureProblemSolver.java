@@ -1,7 +1,6 @@
 package board.situation;
 
 import board.Waypoint;
-import board.exchange.Exchange;
 import board.pieces.Piece;
 
 import java.util.ArrayList;
@@ -14,20 +13,6 @@ import static board.Logged.tabs;
  * @author ptasha
  */
 public class CaptureProblemSolver extends ProblemSolver {
-
-    // TODO it's not fair
-    @Deprecated
-    static CaptureProblem createProblem(Exchange exchange) {
-        ArrayList<Piece> enemies = exchange.sides.get(-exchange.piece.color).pieces;
-        if (enemies.isEmpty()) return null;
-        Piece enemy = enemies.get(0);
-        Exchange move = exchange.move(enemy);
-        if (move.getScore() * exchange.piece.color < 0) {
-            return new CaptureProblem(exchange.piece, move);
-        } else {
-            return null;
-        }
-    }
 
     CaptureProblemSolver(CaptureProblem problem) {
         super(problem);
