@@ -13,6 +13,6 @@ public class FunctionRegistry<K, V> extends ClassRegistry<K, Function<K, V>> {
         if (function != null) {
             return (T) function.apply(o);
         }
-        return null;
+        throw new RuntimeException("Conversion is not registered for " + o.getClass().getName());
     }
 }

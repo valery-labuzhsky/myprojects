@@ -3,14 +3,22 @@ package streamline.plugin.refactoring.guts.flow;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IElement;
 import statref.model.idea.expressions.IConditional;
+import statref.model.idea.statements.IForEachStatement;
 import statref.model.idea.statements.IIfStatement;
 import statref.model.idea.statements.ILoopStatement;
 
 public class ExecutionFlowFactory {
     private static ExecutionFlow loop(ILoopStatement statement) {
         return new LoopFlow(
-                new EmptyFlow(),
+                new EmptyFlow(), // TODO there may be different conditions (pre/post)
                 new ElementFlow(statement.getBody()));
+    }
+
+    @NotNull
+    private static ExecutionFlow forEach(IForEachStatement element) {
+        return new SequenceFlow().
+                add(element.getIteratedValue()).
+                add(loop(element));
     }
 
     private static ExecutionFlow ifFlow(IIfStatement statement) {
@@ -38,6 +46,8 @@ public class ExecutionFlowFactory {
     public static ExecutionFlow flow(IElement element) {
         if (element instanceof IIfStatement) {
             return ifFlow((IIfStatement) element);
+        } else if (element instanceof IForEachStatement) {
+            return forEach((IForEachStatement) element);
         } else if (element instanceof ILoopStatement) {
             return loop((ILoopStatement) element);
         } else if (element instanceof IConditional) {

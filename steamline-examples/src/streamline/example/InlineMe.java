@@ -1,19 +1,19 @@
 package streamline.example;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class InlineMe {
+    public void simpleAfter() {
+        ArrayList<String> enemies = new ArrayList<>();
+        for (String enemy: enemies) {
 
-    public void simpleBefore() {
+        }
+
         int inline = 8;
 
         int target = inline;
-    }
-
-    public void simpleAfter() {
-        int inline = 8;
-
-        int target = 8;
     }
 
     public void setBefore() {

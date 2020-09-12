@@ -43,6 +43,8 @@ public class IFactory {
             register(PsiLambdaExpression.class, ILambdaExpression::new);
             register(PsiNewExpression.class, INewExpression::new);
             // TODO generate it!
+
+            register(PsiJavaCodeReferenceElement.class, IClassReference::new); // it's parent class for references
         }
     };
 

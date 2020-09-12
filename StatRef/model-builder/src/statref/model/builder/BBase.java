@@ -15,6 +15,12 @@ import statref.model.types.SArray;
 import statref.model.types.SClass;
 import statref.model.types.SType;
 import statref.model.types.SWildcardType;
+import statref.writer.CodeWriter;
+import statref.writer.WBase;
+import statref.writer.WElement;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
  * Created on 04/02/18.
@@ -82,5 +88,20 @@ public class BBase {
 
     public static BLocalVariable integer(int integer) {
         return variable("" + integer);
+    }
+
+    public static <S> String write(S element) {
+        // TODO I can use default implementations here! and move it to interfaces, writers concept is dumb
+        StringWriter text = new StringWriter();
+        try {
+            WBase<S> writer = WBase.getWriter(element);
+            if (writer instanceof WElement) {
+                throw new RuntimeException("No writer is registered for " + element.getClass().getName());
+            }
+            writer.write(new CodeWriter(text), element);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return text.toString();
     }
 }

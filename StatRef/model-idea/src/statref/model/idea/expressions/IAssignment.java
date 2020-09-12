@@ -3,7 +3,7 @@ package statref.model.idea.expressions;
 import com.intellij.psi.PsiAssignmentExpression;
 import org.jetbrains.annotations.NotNull;
 import statref.model.idea.IInitializer;
-import statref.model.idea.ILocalVariableDeclaration;
+import statref.model.idea.IVariableDeclaration;
 
 public class IAssignment extends IExpression implements IInitializer {
     public IAssignment(PsiAssignmentExpression assignment) {
@@ -20,7 +20,7 @@ public class IAssignment extends IExpression implements IInitializer {
         return (IExpression) getElement(getElement().getRExpression());
     }
 
-    public ILocalVariable getVariable() {
+    public IReference getVariable() {
         return getElement(getElement().getLExpression());
     }
 
@@ -31,7 +31,7 @@ public class IAssignment extends IExpression implements IInitializer {
 
     @NotNull
     @Override
-    public ILocalVariableDeclaration declaration() {
+    public IVariableDeclaration declaration() {
         return getVariable().declaration();
     }
 }

@@ -2,8 +2,8 @@ package statref.model.idea.statements;
 
 import com.intellij.psi.PsiLoopStatement;
 
-public abstract class ILoopStatement<L extends PsiLoopStatement> extends IStatement {
-    public ILoopStatement(L element) {
+public abstract class ILoopStatement extends IStatement {
+    public ILoopStatement(PsiLoopStatement element) {
         super(element);
     }
 

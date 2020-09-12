@@ -56,19 +56,21 @@ public abstract class IReference extends IExpression implements SReference, IVar
     }
 
     public void replace(SExpression expression) {
-        // TODO be more accurate with replace, it may require moving some dependencies too
-        this.getElement().replace(((IExpression) expression).getElement());
-    }
+        // TODO it's not necessary IExpression, it may be builder for example
+        IExpression ex = (IExpression) expression;
 
-    // TODO it may have different types of declaration
-    //  it may still return one but it will be different in many aspects
-    //  so I can just throw an old one away
-    //  why not?
-    //  I may use smarter approach in the future if I like to
-    //  I'm trying to answer question, what implementation of LocalVariable would be
-    //  let's just create a child class
-    //  I need declaration method, which I'll use to create a reference of required class
-    //  will this method be appropriate? why not? I just need to override it
+        PsiElement replacedPsiElement = this.getElement().replace(ex.getElement());
+
+        // TODO now I need moving this if to INewExpression
+        //  but I need check if it works first
+        if (expression instanceof INewExpression) {
+            INewExpression newExpression = (INewExpression) expression;
+            if (newExpression.getClassReference().isDiamond()) {
+                INewExpression replacedElement = IFactory.getElement(replacedPsiElement);
+                replacedElement.getClassReference().setParameters(newExpression.getClassReference().resolveParameters());
+            }
+        }
+    }
 
     @Override
     public String getName() {

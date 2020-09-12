@@ -2,6 +2,7 @@ package statref.model.idea;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -10,8 +11,10 @@ import statref.model.types.SClass;
 import statref.model.types.SPrimitive;
 import statref.model.types.SType;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ITypes {
     private static final Logger log = Logger.getInstance(ITypes.class);
@@ -19,6 +22,7 @@ public class ITypes {
     private static final FunctionRegistry<PsiType, SType> psitypes = new FunctionRegistry<PsiType, SType>() {
         {
             register(PsiPrimitiveType.class, ITypes::convert);
+            register(PsiClassType.class, ITypes::convert);
             // TODO generate it!
         }
     };
@@ -46,6 +50,11 @@ public class ITypes {
 
     public static SPrimitive convert(PsiPrimitiveType psiType) {
         return new SPrimitive(psiToJava.get(psiType));
+    }
+
+    public static SClass convert(PsiClassType psiType) {
+        // TODO wrapper
+        return new SClass(psiType.getName(), Arrays.stream(psiType.getParameters()).map(psi -> ITypes.getType(psi)).collect(Collectors.toList()));
     }
 
     @Nullable
