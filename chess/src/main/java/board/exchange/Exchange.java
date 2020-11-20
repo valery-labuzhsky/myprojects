@@ -82,8 +82,12 @@ public class Exchange implements Logged, Analytics {
     }
 
     public String toString() {
-        // TODO I need cost as well
-        return "" + piece + ": " + sides.get(1).pieces + " vs " + sides.get(-1).pieces + " = " + getResult();
+        // TODO I need costs of participants as well
+        //  it's not necessary loss! I need a deeper analysis
+        //  it's time to join exchange with calculator with result!
+        return piece + " loss = " + getResult();
+        // TODO use log levels
+        //  + ": " + sides.get(1).pieces + " vs " + sides.get(-1).pieces + " = " + getResult();
     }
 
     @Override

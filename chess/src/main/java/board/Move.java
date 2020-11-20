@@ -2,9 +2,11 @@ package board;
 
 import board.pieces.Piece;
 import board.pieces.PieceType;
+import board.situation.Analytics;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Created on 10.04.2020.
@@ -110,6 +112,17 @@ public class Move extends Action {
         return piece.color;
     }
 
+    public Stream<Analytics> trap() {
+        Stream<Analytics> stream;
+        if (to.piece == null) {
+            stream = Stream.of(to.scores.getExchange(piece.color).move(piece));
+        } else {
+            // TODO what then?
+            stream = Stream.empty();
+        }
+        return stream;
+    }
+
     @Override
     public String toString() {
         return "" + from.pair + to.pair + (promotion == null ? "" : promotion);
@@ -138,5 +151,4 @@ public class Move extends Action {
     public int hashCode() {
         return Objects.hash(from, to, promotion);
     }
-
 }
