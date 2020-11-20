@@ -21,7 +21,31 @@ public class CaptureProblemSolver extends ProblemSolver {
 
     private void solve() {
         Piece piece = problem.piece;
-        piece.whereToMove().forEach(s -> addSolution(piece.move(s)));
+
+        // TODO now I need checking squares I step into
+        //  let's try to summarize algorithm here
+        //  I can add if here, but I won't see it
+        //  I need combine all the factors which relevant to the solution
+        //  so I can print it out and use this information for ifs
+        //  basically I need to have in memory logics so I can display it
+        //  I may need some language to display it - good
+        //  that's how simple problem becomes interesting solution :-)
+        //  so everything boils down to some language and its processor
+
+        // TODO
+        //  Piece attacks Piece through square
+        //   Piece flees to Square
+        //    Trap for Piece on Square
+
+        // TODO what if I don't want to change my code? how can I analyze my structures?
+        //  an interesting thought
+        //  I can get trace and store all the ifs which leads here
+        //  but it's definitely another story
+
+        // TODO so I need adding into account
+        //  info on safety of a square to go to
+        //  and role info
+        piece.whereToMove().forEach(s -> addSolution("flees", piece.move(s)));
 
         ArrayList<Waypoint> dangers = new ArrayList<>(); // gather all the villains
         for (Waypoint waypoint : piece.square.waypoints) {

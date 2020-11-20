@@ -24,7 +24,7 @@ public abstract class Problem {
     public abstract int getScore();
 
     boolean worthIt() {
-        return getScore() * piece.color > 0;
+        return getScore() * piece.color < 0;
     }
 
     @Override

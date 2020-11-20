@@ -131,6 +131,11 @@ public class Situations {
         hisAttack.stream().filter(p -> p.worthIt()).map(a -> a.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
 
         // TODO display solutions that void this problems proper way
+        //  why not e3e4?
+        //  I will loose it!
+        //  I need my algorithm to figure it out
+        //  one more problem is with this pawn current role
+        //  let's gather all this information in one place
         log("His attacks", hisAttack.stream());
 
         for (ProblemSolver attack : oppositeAttacks) {

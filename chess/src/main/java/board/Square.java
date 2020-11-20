@@ -71,11 +71,11 @@ public class Square implements Logged {
 
     @Override
     public String toString() {
-        return toString(this.piece) + pair;
+        return (piece == null ? "" : piece.getLetter()) + pair;
     }
 
     String toBoard() {
-        return toString(this.piece) + lastMove();
+        return (piece == null ? "." : piece.getLetter()) + lastMove();
     }
 
     private char lastMove() {
@@ -94,16 +94,6 @@ public class Square implements Logged {
             s = ' ';
         }
         return s;
-    }
-
-    private String toString(Piece piece) {
-        String p;
-        if (piece == null) {
-            p = ".";
-        } else {
-            p = piece.getLetter();
-        }
-        return p;
     }
 
     @Override

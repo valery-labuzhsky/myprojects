@@ -3,6 +3,7 @@ package board.situation;
 import board.exchange.Exchange;
 import board.pieces.Piece;
 
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 /**
@@ -16,12 +17,21 @@ public class AfterEscapePieceScore implements Analytics {
 
     private AfterEscapePieceScore(Exchange exchange) {
         CaptureProblem problem = CaptureProblem.findProblem(exchange);
+        // TODO here I calculate my score, I must take new info into account
+        //  but firstly I need to print it out
         if (problem != null) {
             this.situation = problem.solve();
-            if (situation.solutions.isEmpty()) {
+            // TODO here it goes
+            //  it must be lessened
+            //  not every solution is complete one
+            //  I must do it here
+            //  now it must go to tempos
+            // TODO I thought how can I represent these new troubles
+            Solution best = situation.solutions.stream().max(Comparator.comparingInt(s -> s.whyNots() * s.move.piece.color)).orElse(null);
+            if (best == null) {
                 score = situation.getScore();
             } else {
-                score = 0;
+                score = best.whyNots();
             }
         } else {
             situation = null;

@@ -93,14 +93,15 @@ public interface Logged {
     }
 
     static String shortTabs(String name, Stream<?> list) {
-        if (list.findAny().isEmpty()) {
+        StringBuilder string = new StringBuilder();
+        list.forEach(i -> string.append("\n").append(i.toString().lines().findFirst().orElse("")));
+        if (string.length() == 0) {
             return "";
-        } else {
-            StringBuilder string = new StringBuilder();
-            if (!name.isEmpty()) string.append("\n").append("=== ").append(name).append(" ===");
-            list.forEach(i -> string.append("\n").append(i.toString().lines().findFirst().orElse("")));
-            return string.toString().replace("\n", "\n\t");
         }
+        if (!name.isEmpty()) {
+            string.insert(0, "\n=== " + name + " ===");
+        }
+        return string.toString().replace("\n", "\n\t");
     }
 }
 

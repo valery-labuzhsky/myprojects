@@ -38,7 +38,12 @@ public abstract class ProblemSolver {
 
     public abstract int getScore();
 
+    @Deprecated
     protected void addSolution(Move move) {
         solutions.add(new Solution(move, problem));
+    }
+
+    protected void addSolution(String name, Move move) {
+        solutions.add(new Solution(name, move, problem));
     }
 }
