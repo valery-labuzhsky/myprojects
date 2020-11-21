@@ -1,5 +1,6 @@
 package statref.model.idea.expressions;
 
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNewExpression;
 import statref.model.idea.IClassReference;
 import statref.model.idea.IFactory;
@@ -21,5 +22,14 @@ public class INewExpression extends IExpression {
 
     public IClassReference getClassReference() {
         return IFactory.getElement(getElement().getClassReference());
+    }
+
+    @Override
+    public void replaceIt(IReference reference) {
+        PsiElement replacedPsiElement = reference.getElement().replace(getElement());
+        if (getClassReference().isDiamond()) {
+            INewExpression replacedElement = IFactory.getElement(replacedPsiElement);
+            replacedElement.getClassReference().setParameters(getClassReference().resolveParameters());
+        }
     }
 }

@@ -42,7 +42,13 @@ public class IFactory {
             register(PsiConditionalExpression.class, IConditional::new);
             register(PsiLambdaExpression.class, ILambdaExpression::new);
             register(PsiNewExpression.class, INewExpression::new);
+            register(PsiTypeCastExpression.class, ITypeCastExpression::new);
             // TODO generate it!
+            //  how can I do it?
+            //   1. annotation processor: is not ideal as it requires annotations and what to do with partial compilation?
+            //   2. I need to search through all the classes, all I need is a list
+            //   3. BEST! I can use my plugin to generate a code for itself
+            //   4. https://stackoverflow.com/questions/435890/find-java-classes-implementing-an-interface/435930
 
             register(PsiJavaCodeReferenceElement.class, IClassReference::new); // it's parent class for references
         }

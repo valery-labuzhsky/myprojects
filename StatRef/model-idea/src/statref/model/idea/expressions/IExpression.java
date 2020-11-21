@@ -13,4 +13,8 @@ public abstract class IExpression extends IElement implements SExpression {
     public PsiExpression getElement() {
         return (PsiExpression) super.getElement();
     }
+
+    public void replaceIt(IReference reference) {
+        reference.getElement().replace(getElement());
+    }
 }

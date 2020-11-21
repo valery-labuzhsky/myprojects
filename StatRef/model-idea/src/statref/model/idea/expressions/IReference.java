@@ -57,19 +57,7 @@ public abstract class IReference extends IExpression implements SReference, IVar
 
     public void replace(SExpression expression) {
         // TODO it's not necessary IExpression, it may be builder for example
-        IExpression ex = (IExpression) expression;
-
-        PsiElement replacedPsiElement = this.getElement().replace(ex.getElement());
-
-        // TODO now I need moving this if to INewExpression
-        //  but I need check if it works first
-        if (expression instanceof INewExpression) {
-            INewExpression newExpression = (INewExpression) expression;
-            if (newExpression.getClassReference().isDiamond()) {
-                INewExpression replacedElement = IFactory.getElement(replacedPsiElement);
-                replacedElement.getClassReference().setParameters(newExpression.getClassReference().resolveParameters());
-            }
-        }
+        ((IExpression) expression).replaceIt(this);
     }
 
     @Override

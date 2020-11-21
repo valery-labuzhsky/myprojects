@@ -23,7 +23,7 @@ public abstract class IVariableDeclaration extends IElement {
     }
 
     public IExpression getInitializer() {
-        return (IExpression) getElement(getElement().getInitializer());
+        return getElement(getElement().getInitializer());
     }
 
     public String getName() {

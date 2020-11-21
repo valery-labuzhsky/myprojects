@@ -26,23 +26,11 @@ import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 public class RefactoringToolPanel extends SimpleToolWindowPanel {
-    // TODO java.lang.UnsupportedOperationException: statref.model.idea.expressions.ILocalVariable
-    //  see statref.model.idea.expressions.ILocalVariable.getExpressions
-    //  I need to return this there
-    //  and check for such cases in refactoring
+    // TODO inline variable
+    //  boolean c = true;
+    //  test(c);
 
     // TODO inline generic
-
-    // TODO ClassCastException IField cannot be cast to ILocalVariable
-    //  getVariable(IAssignment:24)
-
-    // TODO java.lang.Throwable: PsiTypeCastExpression:(PsiNewExpression) ex.getElement(): is not supported
-    //    at com.intellij.openapi.diagnostic.Logger.error(Logger.java:143)
-    //    at statref.model.idea.IFactory.getUnknownExpression(IFactory.java:109)
-    //    at statref.model.idea.IFactory.getElement(IFactory.java:100)
-    //    at statref.model.idea.IElement.getElement(IElement.java:72)
-    //    at statref.model.idea.IVariableDeclaration.getInitializer(IVariableDeclaration.java:26)
-    //    at streamline.plugin.nodes.InlineAssignmentNode.<init>(InlineAssignmentNode.java:18)
     final AnActionEvent originalEvent;
     RefactoringNode root;
     private final Tree tree = new Tree();

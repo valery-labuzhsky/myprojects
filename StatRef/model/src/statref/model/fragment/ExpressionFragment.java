@@ -74,22 +74,26 @@ public class ExpressionFragment implements SExpression {
 
         @Override
         public String _getName(ExpressionFragment fragment) {
-            return place.getName(placement.get(fragment));
+            return place.getName(getPlacement(fragment));
+        }
+
+        public SExpression getPlacement(ExpressionFragment fragment) {
+            return placement.get(fragment.base);
         }
 
         @Override
         public SType _getType(ExpressionFragment fragment) {
-            return place.getType(placement.get(fragment));
+            return place.getType(getPlacement(fragment));
         }
 
         @Override
         public SExpression _get(ExpressionFragment fragment) {
-            return place.get(placement.get(fragment));
+            return place.get(getPlacement(fragment));
         }
 
         @Override
         public void _set(ExpressionFragment fragment, SExpression value) {
-            place.set(placement.get(fragment), value);
+            place.set(getPlacement(fragment), value);
         }
 
         @Override

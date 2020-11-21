@@ -22,7 +22,7 @@ public class ILocalVariable extends IReference implements SLocalVariable {
 
     @Override
     public List<Place<SExpression>> getExpressions() {
-        return Collections.emptyList(); // TODO it must return itself
+        return Collections.emptyList();
     }
 
     @Override

@@ -6,11 +6,6 @@ import java.util.function.Supplier;
 
 public class InlineMe {
     public void simpleAfter() {
-        ArrayList<String> enemies = new ArrayList<>();
-        for (String enemy: enemies) {
-
-        }
-
         int inline = 8;
 
         int target = inline;
