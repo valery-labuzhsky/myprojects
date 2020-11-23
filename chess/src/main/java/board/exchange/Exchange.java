@@ -96,4 +96,8 @@ public class Exchange extends ExchangeState {
         return copy;
     }
 
+    public String toString() {
+        return getResult().toString();
+    }
+
 }

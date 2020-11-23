@@ -43,17 +43,12 @@ public abstract class ExchangeState implements Logged, Analytics {
         return new Side(color);
     }
 
-    protected Side newSide(Side side) {
-        return new Side(side);
+    protected Side getSide(int color) {
+        return this.sides.get(color);
     }
 
-    public String toString() {
-        // TODO I need costs of participants as well
-        //  it's not necessary loss! I need a deeper analysis
-        //  it's time to join exchange with calculator with result!
-        return piece + " loss = " + getScore();
-        // TODO use log levels
-        //  + ": " + sides.get(1).pieces + " vs " + sides.get(-1).pieces + " = " + getResult();
+    protected Side newSide(Side side) {
+        return new Side(side);
     }
 
     @Override

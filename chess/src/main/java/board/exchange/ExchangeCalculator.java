@@ -7,20 +7,21 @@ import board.pieces.Piece;
  *
  * @author unicorn
  */
-public class ExchangeCalculator extends ExchangeState {
+public class ExchangeCalculator extends ExchangeResult {
 
     ExchangeCalculator(Exchange exchange) {
         super(exchange);
-        score = exchange.getScore();
-    }
-
-    private Side getSide(int color) {
-        return (Side) this.sides.get(color);
+        score = exchange.score;
     }
 
     @Override
-    protected Exchange.Side newSide(Exchange.Side side) {
+    protected Side newSide(Exchange.Side side) {
         return new Side(side);
+    }
+
+    @Override
+    protected Side getSide(int color) {
+        return (Side) super.getSide(color);
     }
 
     private int getScore(int color) {
@@ -31,7 +32,7 @@ public class ExchangeCalculator extends ExchangeState {
         return getSide(color).play();
     }
 
-    protected class Side extends Exchange.Side {
+    protected class Side extends ExchangeResult.Side {
         ExchangeResult bestResult;
 
         Side(Exchange.Side side) {
@@ -67,6 +68,7 @@ public class ExchangeCalculator extends ExchangeState {
 
                 // TODO use move function
                 score = getScore() + costs.cost(piece) - ExchangeCalculator.this.piece.cost();
+                getSide(-color).lost.add(ExchangeCalculator.this.piece);
                 ExchangeCalculator.this.piece = piece;
 
                 log().debug("Moving " + piece + ": " + getScore() + " best " + bestScore + ": " + bestResult);
