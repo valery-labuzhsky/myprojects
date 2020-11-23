@@ -37,7 +37,7 @@ public class Scores {
         HashMap<Integer, Exchange> scores = new HashMap<>();
 
         public Exchange getExchange(int color) {
-            return scores.computeIfAbsent(color, c -> new ComplexExchange(square, color));
+            return scores.computeIfAbsent(color, c -> ComplexExchange.create(square, color));
         }
     }
 }

@@ -3,7 +3,7 @@ package board.situation;
 import board.exchange.Exchange;
 import board.pieces.Piece;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.stream.Stream;
 
 /**
@@ -35,11 +35,11 @@ public class CaptureProblem extends Problem {
     // TODO it's not fair
     //  but getting all the problems is overkill
     static CaptureProblem findProblem(Exchange exchange) {
-        ArrayList<Piece> enemies = exchange.sides.get(-exchange.piece.color).pieces;
+        LinkedList<Piece> enemies = exchange.sides.get(-exchange.piece.color).pieces;
         if (enemies.isEmpty()) return null;
         Piece enemy = enemies.get(0);
         Exchange move = exchange.move(enemy);
-        if (move.getScore() * exchange.piece.color < 0) {
+        if (move.getScore(exchange.piece) < 0) {
             return new CaptureProblem(exchange.piece, move);
         } else {
             return null;

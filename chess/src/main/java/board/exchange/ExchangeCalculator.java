@@ -2,87 +2,79 @@ package board.exchange;
 
 import board.pieces.Piece;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
 /**
  * Created on 18.06.2020.
  *
  * @author unicorn
  */
-public class ExchangeCalculator {
-    private final Exchange exchange;
+public class ExchangeCalculator extends ExchangeState {
 
-    private final HashMap<Integer, Side> sides = new HashMap<>();
-    private int score;
-    private Piece onSquare;
+    ExchangeCalculator(Exchange exchange) {
+        super(exchange);
+        score = exchange.getScore();
+    }
 
-    public ExchangeCalculator(Exchange exchange) {
-        this.onSquare = exchange.piece;
-        exchange.sides.forEach((c, s) -> this.sides.put(c, new Side(c, s)));
-        this.exchange = exchange;
+    private Side getSide(int color) {
+        return (Side) this.sides.get(color);
+    }
+
+    @Override
+    protected Exchange.Side newSide(Exchange.Side side) {
+        return new Side(side);
     }
 
     private int getScore(int color) {
-        return this.score * color;
+        return this.getScore() * color;
     }
 
-    public Exchange.Result calculate() {
-        return this.sides.get(exchange.color).play();
+    ExchangeResult calculate() {
+        return getSide(color).play();
     }
 
-    protected class Side {
-        final int color;
+    protected class Side extends Exchange.Side {
+        ExchangeResult bestResult;
 
-        private final LinkedList<Piece> pieces;
-
-        Exchange.Result bestResult;
-
-        public Side(int color, Exchange.Side side) {
-            this.color = color;
-            this.pieces = new LinkedList<>(side.pieces);
+        Side(Exchange.Side side) {
+            super(side);
         }
 
-        private Exchange.Result getResult() {
-            Exchange.Result result = new Exchange.Result(score + exchange.score, color);
-            storeResults(result);
-            sides.get(-color).storeResults(result);
+        private ExchangeResult getResult() {
+            ExchangeResult result = new ExchangeResult(ExchangeCalculator.this);
+            result.score = getScore();
             return result;
         }
 
-        private void storeResults(Exchange.Result result) {
-            result.sides.put(color, new Exchange.Result.Side(pieces.size()));
-        }
-
-        private Exchange.Result play() {
-            int lastScore = getScore(color);
+        private ExchangeResult play() {
+            int lastScore = getScore(this.color);
 
             int bestScore;
             if (bestResult == null) {
                 bestScore = lastScore;
                 bestResult = getResult();
             } else {
-                bestScore = bestResult.score * color;
+                bestScore = bestResult.getScore() * this.color;
                 if (bestScore < lastScore) {
                     bestResult = getResult();
                 }
             }
 
-            Exchange.Result result;
+            ExchangeResult result;
 
-            if (pieces.isEmpty()) {
+            if (this.pieces.isEmpty()) {
                 result = bestResult;
             } else {
-                Piece piece = pieces.pollFirst();
-                score = score + exchange.cost(piece) - onSquare.cost();
-                onSquare = piece;
+                Piece piece = this.pieces.pollFirst();
 
-                exchange.log().debug("Moving " + piece + ": " + score);
+                // TODO use move function
+                score = getScore() + costs.cost(piece) - ExchangeCalculator.this.piece.cost();
+                ExchangeCalculator.this.piece = piece;
 
-                if (getScore(color) <= bestScore) {
+                log().debug("Moving " + piece + ": " + getScore() + " best " + bestScore + ": " + bestResult);
+
+                if (getScore(this.color) <= bestScore) {
                     result = bestResult;
                 } else {
-                    result = sides.get(-color).play();
+                    result = getSide(-this.color).play();
                 }
             }
 

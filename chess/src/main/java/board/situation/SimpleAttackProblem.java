@@ -24,7 +24,7 @@ public class SimpleAttackProblem extends AttackProblem {
         ArrayList<SimpleAttackProblem> problems = new ArrayList<>();
         for (Piece enemy : piece.enemies()) {
             enemy.planAttacks(piece.square).forEach(m -> {
-                if (m.to.scores.getExchange(enemy.color).move(enemy).getScore() * enemy.color >= 0) {
+                if (m.to.scores.getExchange(enemy.color).move(enemy).getScore(enemy) >= 0) {
                     Exchange now = piece.getExchange();
                     if (now.getScore(enemy) < piece.cost()) {
                         Exchange then = now.add(enemy);

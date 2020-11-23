@@ -10,17 +10,25 @@ import board.situation.ScoreWatcher;
  *
  * @author unicorn
  */
-public class ComplexExchange extends Exchange {
-    public ComplexExchange(Square square, int color) {
-        super(square, color);
-    }
-
+public class ComplexExchange {
     public static ScoreWatcher diff(Piece piece) {
-        return PieceScore.diff(piece, p -> new ComplexExchange(p.square, -p.color));
+        return PieceScore.diff(piece, p -> create(p.square, -p.color));
     }
 
-    @Override
-    protected void calculateCost(Piece piece) {
-        costs.put(piece, piece.meaningfulRoles().filter(r -> r.getWhom() != this.piece).mapToInt(r -> r.getScore()).sum());
+    public static Exchange create(Square square, int color) {
+        return new Exchange(square, color, new RolesPieceCosts(square));
+    }
+
+    private static class RolesPieceCosts extends CachedPieceCosts {
+        private final Square square;
+
+        public RolesPieceCosts(Square square) {
+            this.square = square;
+        }
+
+        @Override
+        protected Integer calculate(Piece piece) {
+            return piece.meaningfulRoles().filter(r -> r.getWhom() != square.piece).mapToInt(r -> r.getScore()).sum();
+        }
     }
 }

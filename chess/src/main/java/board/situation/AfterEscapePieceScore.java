@@ -27,7 +27,7 @@ public class AfterEscapePieceScore implements Analytics {
             //  I must do it here
             //  now it must go to tempos
             // TODO I thought how can I represent these new troubles
-            Solution best = situation.solutions.stream().max(Comparator.comparingInt(s -> s.whyNot().getScore() * s.move.piece.color)).orElse(null);
+            Solution best = situation.solutions.stream().max(Comparator.comparingInt(s -> s.whyNot().getScore(s.move.piece))).orElse(null);
             if (best == null) {
                 score = situation.getScore();
             } else {
