@@ -41,7 +41,7 @@ public class IFactory {
             register(PsiMethodCallExpression.class, IMethod::new);
             register(PsiConditionalExpression.class, IConditional::new);
             register(PsiLambdaExpression.class, ILambdaExpression::new);
-            register(PsiNewExpression.class, INewExpression::new);
+            register(PsiNewExpression.class, INew::new);
             register(PsiTypeCastExpression.class, ITypeCastExpression::new);
             // TODO generate it!
             //  how can I do it?

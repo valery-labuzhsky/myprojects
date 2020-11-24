@@ -4,7 +4,11 @@ import statref.model.expressions.SExpression;
 import statref.model.statements.SStatement;
 import statref.model.types.SType;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public class ExpressionFragment implements SExpression {
     private final SExpression base;
@@ -33,29 +37,19 @@ public class ExpressionFragment implements SExpression {
     }
 
     @Override
-    public boolean isStatement() {
-        return base.isStatement();
-    }
-
-    @Override
     public SStatement toStatement() {
         return base.toStatement();
     }
 
     @Override
-    public List<Place<SExpression>> getExpressions() {
-        ArrayList<Place<SExpression>> places = new ArrayList<>();
-        for (Place<SExpression> place : base.getExpressions()) {
+    public Stream<Place<SExpression>> getExpressions() {
+        return base.getExpressions().flatMap(place -> {
             if (parts.contains(place)) {
-                List<Place<SExpression>> expressions = place.get(base).getExpressions();
-                for (Place<SExpression> secondLevel : expressions) {
-                    places.add(new PlacementPlace(secondLevel, place));
-                }
+                return place.get(base).getExpressions().map(s -> new PlacementPlace(s, place));
             } else {
-                places.add(new BasePlace(place));
+                return Stream.of(new BasePlace(place));
             }
-        }
-        return places;
+        });
     }
 
     @Override

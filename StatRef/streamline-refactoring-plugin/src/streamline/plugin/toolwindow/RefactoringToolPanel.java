@@ -31,6 +31,21 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
     //  test(c);
 
     // TODO inline generic
+
+//    Inline paramater of constructor
+//    java.lang.ClassCastException: class statref.model.idea.expressions.INewExpression cannot be cast to class statref.model.idea.expressions.IMethod (statref.model.idea.expressions.INewExpression and statref.model.idea.expressions.IMethod are in unnamed module of loader com.intellij.ide.plugins.cl.PluginClassLoader @219c41c8)
+//    at streamline.plugin.refactoring.InlineParameter.<init>(InlineParameter.java:34)
+//    at streamline.plugin.SLInlineAction.actionPerformed(SLInlineAction.java:72)
+
+//    java.lang.RuntimeException: Conversion is not registered for com.intellij.psi.impl.source.tree.java.PsiPolyadicExpressionImpl
+//    at statref.model.idea.FunctionRegistry.convert(FunctionRegistry.java:16)
+//    at statref.model.idea.IFactory.getElement(IFactory.java:103)
+//    at statref.model.idea.IElement.getElement(IElement.java:72)
+//    at statref.model.idea.IVariableDeclaration.getInitializer(IVariableDeclaration.java:26)
+//    at streamline.plugin.nodes.InlineAssignmentNode.<init>(InlineAssignmentNode.java:18)
+//    at statref.model.idea.BiFunctionRegistry.convert(BiFunctionRegistry.java:14)
+//    at streamline.plugin.nodes.guts.NodesRegistry.create(NodesRegistry.java:37)
+
     final AnActionEvent originalEvent;
     RefactoringNode root;
     private final Tree tree = new Tree();

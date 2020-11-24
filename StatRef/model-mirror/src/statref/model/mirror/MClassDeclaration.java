@@ -1,11 +1,10 @@
 package statref.model.mirror;
 
-import statref.model.*;
+import statref.model.SGenericDeclaration;
 import statref.model.classes.SClassDeclaration;
 import statref.model.classes.SPackage;
 import statref.model.members.SClassMemeber;
 import statref.model.types.SClass;
-import statref.model.types.SType;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
@@ -45,11 +44,6 @@ public class MClassDeclaration extends MBase<DeclaredType> implements SClassDecl
     @Override
     public SClass usage() {
         return (SClass) MBase.get(getTypeMirror());
-    }
-
-    @Override
-    public SClass usage(List<SType> generics) {
-        return new SClass(getTypeMirror().toString(), generics);
     }
 
     @Override

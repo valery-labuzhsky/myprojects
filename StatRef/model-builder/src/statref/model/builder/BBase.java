@@ -11,10 +11,7 @@ import statref.model.builder.members.BMethodDeclaration;
 import statref.model.builder.statements.BReturn;
 import statref.model.expressions.SConstructor;
 import statref.model.expressions.SExpression;
-import statref.model.types.SArray;
-import statref.model.types.SClass;
-import statref.model.types.SType;
-import statref.model.types.SWildcardType;
+import statref.model.types.*;
 import statref.writer.CodeWriter;
 import statref.writer.WBase;
 import statref.writer.WElement;
@@ -38,8 +35,12 @@ public class BBase {
     }
 
     public static SClass ofClass(Class<?> clazz, SType... generics) {
-        // TODO kind of primitive, do I need another class for primitives?
-        return new SClass(clazz.getSimpleName(), generics);
+        if (clazz.isPrimitive()) {
+            return new SPrimitive(clazz);
+        } else {
+            // TODO kind of primitive, do I need another class for primitives?
+            return new SClass(clazz.getSimpleName(), generics);
+        }
     }
 
     public static BLocalVariableDeclaration declareVariable(SType clazz, String name) {

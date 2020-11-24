@@ -2,8 +2,8 @@ package statref.model.classes;
 
 import statref.model.SGenericDeclaration;
 import statref.model.SModifiers;
-import statref.model.types.SType;
 import statref.model.types.SClass;
+import statref.model.types.SType;
 
 import java.util.List;
 
@@ -13,13 +13,28 @@ import java.util.List;
  * @author ptasha
  */
 public interface SClassDeclaration extends SModifiers, SBaseClassDeclaration {
-    SPackage getPackage();
+    default SPackage getPackage() {
+        throw new UnsupportedOperationException(this.getClass().getName());
+    }
 
-    String getSimpleName();
+    default String getSimpleName() {
+        throw new UnsupportedOperationException(this.getClass().getName());
+    }
 
-    SClass getExtends();
+    default SClass getExtends() {
+        throw new UnsupportedOperationException(this.getClass().getName());
+    }
 
-    List<SGenericDeclaration> getGenerics();
+    default List<SGenericDeclaration> getGenerics() {
+        throw new UnsupportedOperationException(this.getClass().getName());
+    }
 
-    SClass usage(List<SType> generics);
+    @Override
+    default SClass usage() {
+        return new SClass(this.getSimpleName());
+    }
+
+    default SClass usage(List<SType> generics) {
+        return new SClass(getSimpleName(), generics);
+    }
 }

@@ -2,8 +2,7 @@ package statref.model.expressions;
 
 import statref.model.fragment.Place;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Stream;
 
 public interface SLiteral extends SExpression {
     Object getValue();
@@ -14,8 +13,8 @@ public interface SLiteral extends SExpression {
     }
 
     @Override
-    default List<Place<SExpression>> getExpressions() {
-        return Collections.emptyList();
+    default Stream<Place<SExpression>> getExpressions() {
+        return Stream.empty();
     }
 
     @Override

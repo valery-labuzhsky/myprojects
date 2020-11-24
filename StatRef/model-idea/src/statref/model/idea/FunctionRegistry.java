@@ -9,6 +9,7 @@ public class FunctionRegistry<K, V> extends ClassRegistry<K, Function<K, V>> {
     }
 
     public <T> T convert(Object o) {
+        if (o == null) return null;
         Function function = get((Class<K>) o.getClass());
         if (function != null) {
             return (T) function.apply(o);

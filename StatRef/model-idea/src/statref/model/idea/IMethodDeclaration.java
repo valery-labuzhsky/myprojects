@@ -3,10 +3,12 @@ package statref.model.idea;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import statref.model.expressions.SCall;
 import statref.model.expressions.SMethod;
 import statref.model.fragment.Fragment;
 import statref.model.fragment.Place;
-import statref.model.idea.expressions.IMethod;
+import statref.model.idea.expressions.ICall;
 import statref.model.members.SMethodDeclaration;
 import statref.model.statements.SStatement;
 import statref.model.types.SType;
@@ -27,8 +29,8 @@ public class IMethodDeclaration extends IElement implements SMethodDeclaration {
     }
 
     @NotNull
-    public ArrayList<IMethod> getCalls() {
-        ArrayList<IMethod> calls = new ArrayList<>();
+    public ArrayList<ICall> getCalls() {
+        ArrayList<ICall> calls = new ArrayList<>();
         ReferencesSearch.search(getElement(), getElement().getUseScope()).forEach(psiReference -> {
             calls.add(getElement(psiReference.getElement().getParent()));
             return true;
@@ -52,7 +54,15 @@ public class IMethodDeclaration extends IElement implements SMethodDeclaration {
 
     @Override
     public SType getReturnType() {
+        if (isConstructor()) {
+            return getContainingClass().usage();
+        }
         return ITypes.getType(getElement().getReturnType());
+    }
+
+    @Nullable
+    public IClassDeclaration getContainingClass() {
+        return IFactory.getElement(getElement().getContainingClass());
     }
 
     @Override
@@ -67,6 +77,10 @@ public class IMethodDeclaration extends IElement implements SMethodDeclaration {
 
     public ParameterPlace getPlace(IParameter parameter) {
         return new ParameterPlace(getParameterIndex(parameter));
+    }
+
+    public boolean isConstructor() {
+        return getElement().getReturnType() == null;
     }
 
     public static class ParameterPlace implements Place<IParameter> {
@@ -98,7 +112,7 @@ public class IMethodDeclaration extends IElement implements SMethodDeclaration {
         }
 
         public SMethod.Parameter getMethodPlace() {
-            return SMethod.getParameterPlace(index);
+            return SCall.getParameterPlace(index);
         }
 
     }

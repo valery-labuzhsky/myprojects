@@ -6,8 +6,7 @@ import statref.model.expressions.SLocalVariable;
 import statref.model.fragment.Place;
 import statref.model.idea.ILocalVariableDeclaration;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Stream;
 
 public class ILocalVariable extends IReference implements SLocalVariable {
 
@@ -21,8 +20,8 @@ public class ILocalVariable extends IReference implements SLocalVariable {
     }
 
     @Override
-    public List<Place<SExpression>> getExpressions() {
-        return Collections.emptyList();
+    public Stream<Place<SExpression>> getExpressions() {
+        return Stream.empty();
     }
 
     @Override

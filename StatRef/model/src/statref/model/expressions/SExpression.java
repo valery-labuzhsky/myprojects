@@ -14,10 +14,6 @@ public interface SExpression extends SElement {
         return null;
     }
 
-    default boolean isStatement() {
-        return false;
-    }
-
     default SStatement toStatement() {
         throw new UnsupportedOperationException(getClass().getName());
     }

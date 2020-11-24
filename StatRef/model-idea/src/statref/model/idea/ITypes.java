@@ -74,4 +74,5 @@ public class ITypes {
     public static SType getType(PsiType type) {
         return psitypes.convert(type);
     }
+
 }

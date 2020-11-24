@@ -5,7 +5,17 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class InlineMe {
+
+    public InlineMe(String a) {
+
+    }
+
     public void simpleAfter() {
+        new InlineMe("");
+
+        String s = toString() + "" + new ArrayList<>();
+        System.out.println(s);
+
         int inline = 8;
 
         int target = inline;

@@ -3,6 +3,7 @@ package statref.model.idea;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import statref.model.builder.BBase;
+import statref.model.classes.SClassReference;
 import statref.model.types.SClass;
 import statref.model.types.SType;
 
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
  * @author unicorn
  */
 // TODO It should implement SClass when it becomes an interface
-public class IClassReference extends IElement {
+public class IClassReference extends IElement implements SClassReference {
     public IClassReference(PsiJavaCodeReferenceElement element) {
         super(element);
     }
@@ -27,6 +28,7 @@ public class IClassReference extends IElement {
         return (PsiJavaCodeReferenceElement) super.getElement();
     }
 
+    @Override
     public boolean isDiamond() {
         PsiReferenceParameterList parameters = getElement().getParameterList();
         if (parameters == null) return false;
@@ -34,11 +36,13 @@ public class IClassReference extends IElement {
         return elements.length == 1 && elements[0].getType() instanceof PsiDiamondType;
     }
 
+    @Override
     public List<SType> resolveParameters() {
         PsiReferenceParameterList list = getElement().getParameterList();
         return Stream.of(list.getTypeArguments()).map(psi -> ITypes.getType(psi)).collect(Collectors.toList());
     }
 
+    @Override
     @NotNull
     public List<SType> getParameters() {
         PsiReferenceParameterList list = getElement().getParameterList();
@@ -48,6 +52,7 @@ public class IClassReference extends IElement {
         return Stream.of(list.getTypeParameterElements()).map(psi -> ITypes.getType(psi.getType())).collect(Collectors.toList());
     }
 
+    @Override
     public void setParameters(List<SType> parameters) {
         // TODO should I make SClass - builder now?
         //  let's do it next time?
@@ -62,4 +67,8 @@ public class IClassReference extends IElement {
 
     }
 
+    @Override
+    public String getSimpleName() {
+        return getElement().getReferenceName();
+    }
 }

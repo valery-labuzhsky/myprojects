@@ -1,11 +1,10 @@
 package statref.model.builder.classes;
 
-import statref.model.*;
+import statref.model.SGenericDeclaration;
 import statref.model.builder.BModifiers;
 import statref.model.classes.SClassDeclaration;
 import statref.model.classes.SPackage;
 import statref.model.types.SClass;
-import statref.model.types.SType;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
@@ -21,16 +20,6 @@ public class BClassDeclaration extends BBaseClassDeclaration<BClassDeclaration> 
 
     public BClassDeclaration(String name) {
         this.name = name;
-    }
-
-    @Override
-    public SClass usage() {
-        return new SClass(this.getSimpleName());
-    }
-
-    @Override
-    public SClass usage(List<SType> generics) {
-        return new SClass(this.getSimpleName(), generics);
     }
 
     @Override

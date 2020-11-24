@@ -18,5 +18,7 @@ public interface SModifiers { // TODO common modifiers for all is dumb,
         return getModifiers().contains(Modifier.STATIC);
     }
 
-    Collection<Modifier> getModifiers();
+    default Collection<Modifier> getModifiers() {
+        throw new UnsupportedOperationException(this.getClass().getName());
+    }
 }
