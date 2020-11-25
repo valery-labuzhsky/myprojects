@@ -1,22 +1,19 @@
 package board.situation;
 
-import board.Move;
 import board.pieces.Piece;
 
 import java.util.Objects;
 
 /**
- * Created on 09.07.2020.
+ * Created on 25.11.2020.
  *
  * @author unicorn
  */
 public abstract class Problem {
     final Piece piece;
-    final Move move;
 
-    public Problem(Piece piece, Move move) {
+    public Problem(Piece piece) {
         this.piece = piece;
-        this.move = move;
     }
 
     public abstract ProblemSolver solve();
@@ -32,12 +29,11 @@ public abstract class Problem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Problem problem = (Problem) o;
-        return piece.equals(problem.piece) &&
-                move.equals(problem.move);
+        return piece.equals(problem.piece);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(piece, move);
+        return Objects.hash(piece);
     }
 }

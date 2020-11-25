@@ -14,39 +14,25 @@ import static board.Logged.tabs;
  */
 public class CaptureProblemSolver extends ProblemSolver {
 
+    CaptureProblemSolver(CaptureVariantProblem problem) {
+        this(problem.before);
+    }
+
     CaptureProblemSolver(CaptureProblem problem) {
         super(problem);
         solve();
     }
 
+    public CaptureProblem getProblem() {
+        return (CaptureProblem) problem;
+    }
+
     private void solve() {
         Piece piece = problem.piece;
 
-        // TODO now I need checking squares I step into
-        //  let's try to summarize algorithm here
-        //  I can add if here, but I won't see it
-        //  I need combine all the factors which relevant to the solution
-        //  so I can print it out and use this information for ifs
-        //  basically I need to have in memory logics so I can display it
-        //  I may need some language to display it - good
-        //  that's how simple problem becomes interesting solution :-)
-        //  so everything boils down to some language and its processor
-
-        // TODO
-        //  Piece attacks Piece through square
-        //   Piece flees to Square
-        //    Trap for Piece on Square
-
-        // TODO what if I don't want to change my code? how can I analyze my structures?
-        //  an interesting thought
-        //  I can get trace and store all the ifs which leads here
-        //  but it's definitely another story
-
-        // TODO so I need adding into account
-        //  info on safety of a square to go to
-        //  and role info
         piece.whereToMove().forEach(s -> addSolution("flees", piece.move(s)));
 
+        // TODO I have fully fledged exchange out here with all information available
         ArrayList<Waypoint> dangers = new ArrayList<>(); // gather all the villains
         for (Waypoint waypoint : piece.square.waypoints) {
             if (waypoint.captures()) {
@@ -54,6 +40,8 @@ public class CaptureProblemSolver extends ProblemSolver {
             }
         }
 
+        // TODO here we go, let's take exchange and add pieces there to see if it helps
+        //  but I need that exchange first
         int attackCost = dangers.stream().map(w -> w.piece.type.score).min(Integer::compareTo).orElse(0);
         if (attackCost > piece.type.score) {
             for (Piece guard : piece.friends()) { // guard
@@ -80,6 +68,11 @@ public class CaptureProblemSolver extends ProblemSolver {
     @Override
     public int getScore() {
         return problem.getScore();
+    }
+
+    @Override
+    void captures(ArrayList<CaptureVariantProblem> captures) {
+        // TODO implement
     }
 
     public String toString() {

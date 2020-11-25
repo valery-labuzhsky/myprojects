@@ -9,13 +9,13 @@ import board.pieces.Piece;
  *
  * @author unicorn
  */
-public class AttackProblemSolver extends ProblemSolver {
+public class AttackProblemSolver extends MoveProblemSolver {
     AttackProblemSolver(AttackProblem attack) {
         super(attack);
 
         Piece attacked = problem.piece;
         for (Piece friend : attacked.board.pieces.get(attacked.color)) {
-            friend.planAttacks(problem.move.to).forEach(this::checkSolution);
+            friend.planAttacks(getProblem().move.to).forEach(this::checkSolution);
         }
     }
 

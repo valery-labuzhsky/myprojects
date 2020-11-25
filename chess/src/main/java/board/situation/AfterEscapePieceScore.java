@@ -6,6 +6,8 @@ import board.pieces.Piece;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+import static board.Logged.tabs;
+
 /**
  * Created on 27.06.2020.
  *
@@ -16,17 +18,9 @@ public class AfterEscapePieceScore implements Analytics {
     private final int score;
 
     private AfterEscapePieceScore(Exchange exchange) {
-        CaptureProblem problem = CaptureProblem.findProblem(exchange);
-        // TODO here I calculate my score, I must take new info into account
-        //  but firstly I need to print it out
+        CaptureVariantProblem problem = CaptureVariantProblem.findProblem(exchange);
         if (problem != null) {
             this.situation = problem.solve();
-            // TODO here it goes
-            //  it must be lessened
-            //  not every solution is complete one
-            //  I must do it here
-            //  now it must go to tempos
-            // TODO I thought how can I represent these new troubles
             Solution best = situation.solutions.stream().max(Comparator.comparingInt(s -> s.whyNot().getScore(s.move.piece))).orElse(null);
             if (best == null) {
                 score = situation.getScore();
@@ -46,7 +40,9 @@ public class AfterEscapePieceScore implements Analytics {
 
     @Override
     public String toString() {
-        return "After escape: " + (situation == null ? "No problem" : situation.toString());
+        return situation != null ?
+                tabs("Then", situation.solutions) :
+                tabs("Then what?", Stream.empty());
     }
 
     public static Stream<AttackProblem> findProblems(Piece piece) {

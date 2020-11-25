@@ -105,11 +105,11 @@ public class Situations {
         log("His roles", board.enemies().stream().flatMap(p -> p.meaningfulRoles()));
 
         ArrayList<AttackProblem> myAttacks = new ArrayList<>();
-        ArrayList<CaptureProblem> captures = new ArrayList<>();
+        ArrayList<CaptureVariantProblem> captures = new ArrayList<>();
 
         for (Piece piece : board.enemies()) {
             // TODO they are my threat roles
-            CaptureProblem.findProblems(piece).collect(Collectors.toCollection(() -> captures));
+            CaptureVariantProblem.findProblems(piece).collect(Collectors.toCollection(() -> captures));
 
             // TODO it is not necessary simple, it may be complex
             myAttacks.addAll(SimpleAttackProblem.findProblems(piece));
@@ -123,7 +123,7 @@ public class Situations {
         ArrayList<AttackProblem> hisAttack = new ArrayList<>();
 
         for (Piece piece : board.friends()) {
-            CaptureProblem.findProblems(piece).map(p -> p.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
+            CaptureVariantProblem.findProblems(piece).map(p -> p.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
 
             AfterEscapePieceScore.evolve(SimpleAttackProblem.findProblems(piece).stream()).collect(Collectors.toCollection(() -> hisAttack));
         }
@@ -147,13 +147,12 @@ public class Situations {
         score += oppositeAttacks.stream().mapToInt(a -> a.getScore()).sum();
 
         HashMap<Move, Tempo> tempos = new HashMap<>();
+        captures.forEach(p -> Tempo.achieves(tempos, p));
         for (ProblemSolver attack : oppositeAttacks) {
             for (Solution solution : attack.solutions) {
-                tempos.compute(solution.move, (m, t) -> t == null ? new Tempo(solution) : t.add(solution));
+                Tempo.solves(tempos, solution);
             }
         }
-        // TODO duplicate
-        captures.forEach(p -> tempos.compute(p.move, (m, t) -> t == null ? new Tempo(p) : t.add(p)));
 
         ArrayList<Tempo> bestTempos = best(tempos.values(), t -> t.getScore(), board.color);
         log("Solutions", bestTempos.stream());

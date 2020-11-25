@@ -3,16 +3,12 @@ package board.situation;
 import board.Move;
 import board.pieces.Piece;
 
-import java.util.stream.Stream;
-
-import static board.Logged.tabs;
-
 /**
  * Created on 29.07.2020.
  *
  * @author unicorn
  */
-public abstract class AttackProblem extends Problem {
+public abstract class AttackProblem extends MoveProblem {
     protected final Analytics analytics;
 
     public AttackProblem(Piece piece, Move move, Analytics analytics) {
@@ -32,7 +28,7 @@ public abstract class AttackProblem extends Problem {
 
     @Override
     public String toString() {
-        return "Attack " + move + " on " + piece + " = " + getScore() + tabs(Stream.of(analytics));
+        return move.piece + " attacks " + piece + " through " + move.to + " = " + getScore() + analytics;
     }
 
 }

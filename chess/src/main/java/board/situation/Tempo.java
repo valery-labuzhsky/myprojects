@@ -3,6 +3,7 @@ package board.situation;
 import board.Logged;
 import board.Move;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -12,28 +13,31 @@ import java.util.HashSet;
  */
 public class Tempo {
     final Move move;
-    private final HashSet<Problem> achieves = new HashSet<>();
+    private final HashSet<MoveProblem> achieves = new HashSet<>();
     final HashSet<Problem> solves = new HashSet<>();
 
-    Tempo(Solution solution) {
-        this(solution.problem);
+    private Tempo(Move move) {
+        this.move = move;
     }
 
-    Tempo(Problem problem) {
-        move = problem.move;
-        add(problem);
+    static void achieves(HashMap<Move, Tempo> tempos, CaptureVariantProblem p) {
+        compute(tempos, p.move).achieves(p);
     }
 
-    public Tempo add(Solution solution) {
-        return add(solution.problem);
+    static void solves(HashMap<Move, Tempo> tempos, Solution solution) {
+        compute(tempos, solution.move).solves(solution.problem);
     }
 
-    public Tempo add(Problem problem) {
-        if (move.equals(problem.move)) {
-            achieves.add(problem);
-        } else {
-            solves.add(problem);
-        }
+    private static Tempo compute(HashMap<Move, Tempo> tempos, Move move) {
+        return tempos.compute(move, (m, t) -> t == null ? new Tempo(move) : t);
+    }
+
+    private void achieves(MoveProblem problem) {
+        achieves.add(problem);
+    }
+
+    public Tempo solves(Problem problem) {
+        solves.add(problem);
         return this;
     }
 

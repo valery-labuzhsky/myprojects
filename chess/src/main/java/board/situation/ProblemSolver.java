@@ -5,7 +5,7 @@ import board.Move;
 import java.util.ArrayList;
 
 /**
- * Created on 05.07.2020.
+ * Created on 25.11.2020.
  *
  * @author unicorn
  */
@@ -13,25 +13,15 @@ public abstract class ProblemSolver {
     final Problem problem;
     final ArrayList<Solution> solutions = new ArrayList<>();
 
-    ProblemSolver(Problem problem) {
+    public ProblemSolver(Problem problem) {
         this.problem = problem;
     }
 
     void counterAttacks(ArrayList<AttackProblem> attacks) {
         int myColor = problem.piece.color;
         for (AttackProblem attack : attacks) {
-            if (problem.move.piece != attack.piece) {
-                if (attack.getScore() * myColor >= -getScore() * myColor) {
-                    solutions.add(new Solution("Counterattack", attack.move, problem));
-                }
-            }
-        }
-    }
-
-    void captures(ArrayList<CaptureProblem> captures) {
-        for (CaptureProblem capture : captures) {
-            if (capture.piece == problem.move.piece) {
-                solutions.add(capture.solves(problem));
+            if (attack.getScore() * myColor >= -getScore() * myColor) {
+                solutions.add(new Solution("Counterattack", attack.move, problem));
             }
         }
     }
@@ -46,4 +36,6 @@ public abstract class ProblemSolver {
     protected void addSolution(String name, Move move) {
         solutions.add(new Solution(name, move, problem));
     }
+
+    abstract void captures(ArrayList<CaptureVariantProblem> captures);
 }
