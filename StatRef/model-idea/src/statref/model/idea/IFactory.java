@@ -42,6 +42,7 @@ public class IFactory {
             register(PsiLambdaExpression.class, ILambdaExpression::new);
             register(PsiNewExpression.class, INew::new);
             register(PsiTypeCastExpression.class, ITypeCastExpression::new);
+            register(PsiPolyadicExpression.class, IPolyadicExpressionExpression::new);
             // TODO generate it!
             //  how can I do it?
             //   1. annotation processor: is not ideal as it requires annotations and what to do with partial compilation?

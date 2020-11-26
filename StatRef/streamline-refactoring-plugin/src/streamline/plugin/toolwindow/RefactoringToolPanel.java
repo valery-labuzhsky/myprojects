@@ -32,15 +32,6 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
 
     // TODO inline generic
 
-//    java.lang.RuntimeException: Conversion is not registered for com.intellij.psi.impl.source.tree.java.PsiPolyadicExpressionImpl
-//    at statref.model.idea.FunctionRegistry.convert(FunctionRegistry.java:16)
-//    at statref.model.idea.IFactory.getElement(IFactory.java:103)
-//    at statref.model.idea.IElement.getElement(IElement.java:72)
-//    at statref.model.idea.IVariableDeclaration.getInitializer(IVariableDeclaration.java:26)
-//    at streamline.plugin.nodes.InlineAssignmentNode.<init>(InlineAssignmentNode.java:18)
-//    at statref.model.idea.BiFunctionRegistry.convert(BiFunctionRegistry.java:14)
-//    at streamline.plugin.nodes.guts.NodesRegistry.create(NodesRegistry.java:37)
-
     final AnActionEvent originalEvent;
     RefactoringNode root;
     private final Tree tree = new Tree();
