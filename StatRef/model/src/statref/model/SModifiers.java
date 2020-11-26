@@ -2,6 +2,7 @@ package statref.model;
 
 import javax.lang.model.element.Modifier;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Created on 28/01/18.
@@ -20,5 +21,9 @@ public interface SModifiers { // TODO common modifiers for all is dumb,
 
     default Collection<Modifier> getModifiers() {
         throw new UnsupportedOperationException(this.getClass().getName());
+    }
+
+    default String getModifiersText() {
+        return getModifiers().stream().map(m -> m.toString()).collect(Collectors.joining(" "));
     }
 }

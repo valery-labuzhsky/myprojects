@@ -9,6 +9,7 @@ import statref.model.types.SType;
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 public abstract class BVariableDeclaration<B extends BVariableDeclaration> extends BElement implements SVariableDeclaration, BModifiers<B> {
     private final SType type;
@@ -16,7 +17,7 @@ public abstract class BVariableDeclaration<B extends BVariableDeclaration> exten
     private ArrayList<Modifier> modifiers = new ArrayList<>();
 
     public BVariableDeclaration(SType type, String name) {
-        this.type = type;
+        this.type = Objects.requireNonNull(type);
         this.name = name;
     }
 

@@ -6,13 +6,7 @@ import java.util.function.Supplier;
 
 public class InlineMe {
 
-    public InlineMe(String a) {
-
-    }
-
     public void simpleAfter() {
-        new InlineMe("");
-
         String s = toString() + "" + new ArrayList<>();
         System.out.println(s);
 

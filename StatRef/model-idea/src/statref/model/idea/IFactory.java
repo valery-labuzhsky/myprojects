@@ -10,7 +10,6 @@ import statref.model.idea.expressions.*;
 import statref.model.idea.statements.*;
 import statref.model.members.SMethodDeclaration;
 import statref.model.statements.SStatement;
-import statref.model.types.SType;
 
 public class IFactory {
     private static final Logger log = Logger.getInstance(IFactory.class);
@@ -81,13 +80,13 @@ public class IFactory {
     @NotNull
     public static IMethodDeclaration convertMethodDeclaration(SMethodDeclaration prototype, Project project) {
         // TODO generate it from text?
-        SType type = prototype.getReturnType();
-        PsiType psiType = ITypes.toPsiType(project, type);
-        PsiMethod newMethod = JavaPsiFacade.getElementFactory(project).createMethod(prototype.getName(), psiType);
+//        SType type = prototype.getReturnType();
+//        PsiType psiType = ITypes.toPsiType(project, type);
+        PsiMethod newMethod = JavaPsiFacade.getElementFactory(project).createMethodFromText(prototype.getText(), null);
 
-        for (SStatement instruction : prototype.getInstructions()) {
-            newMethod.getBody().add(convert(project, instruction).getElement());
-        }
+//        for (SStatement instruction : prototype.getInstructions()) {
+//            newMethod.getBody().add(convert(project, instruction).getElement());
+//        }
         return getElement(newMethod);
     }
 

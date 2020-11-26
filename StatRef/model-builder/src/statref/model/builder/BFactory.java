@@ -18,7 +18,7 @@ public class BFactory {
         }
         HashSet<Class> ss = new HashSet<>();
         Class<?> clazz = element.getClass();
-        while (clazz!=null) {
+        while (clazz != null) {
             for (Class<?> intf : clazz.getInterfaces()) {
                 if (SElement.class.isAssignableFrom(intf)) {
                     ss.add(intf);
@@ -43,16 +43,18 @@ public class BFactory {
             }
         }
         if (max.isEmpty()) {
-            throw new RuntimeException("No model interface is found for "+element.getClass().getName());
-        } else if (max.size()>1) {
-            throw new RuntimeException("Many interfaces are found for "+element.getClass().getName()+": "+max);
+            throw new RuntimeException("No model interface is found for " + element.getClass().getName());
+        } else if (max.size() > 1) {
+            throw new RuntimeException("Many interfaces are found for " + element.getClass().getName() + ": " + max);
         }
         Class model = max.iterator().next();
         String bname = model.getName().replaceFirst("statref.model.(.*).S", "statref.model.builder.$1.B");
         try {
             Class<?> bclass = Class.forName(bname);
             Constructor<?> constructor = bclass.getConstructor(model);
-            return (E) constructor.newInstance(element);
+            E builder = (E) constructor.newInstance(element);
+            builder.getExpressions().forEach(p -> p.set(builder, builder(p.get(builder))));
+            return builder;
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -62,7 +64,7 @@ public class BFactory {
         ExpressionFragment builder = new ExpressionFragment(builder(fragment.getBase()));
         for (Place<SExpression> part : fragment.getParts()) {
             builder.part(part);
-       }
+        }
         return builder;
     }
 

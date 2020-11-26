@@ -21,7 +21,7 @@ public interface SCall extends SExpression {
     }
 
     default SMethodDeclaration findDeclaration() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getClass().getName());
     }
 
     @Override

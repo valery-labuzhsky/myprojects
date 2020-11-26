@@ -10,7 +10,7 @@ public interface SMethod extends SCall {
     SExpression getQualifier();
 
     default void setQualifier(SExpression value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getClass().getName());
     }
 
     String getName();

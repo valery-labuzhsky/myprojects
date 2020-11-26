@@ -1,6 +1,7 @@
 package statref.model.builder.members;
 
 import statref.model.builder.BBase;
+import statref.model.builder.BElement;
 import statref.model.builder.BModifiers;
 import statref.model.builder.expressions.BLocalVariable;
 import statref.model.builder.expressions.BMethod;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class BMethodDeclaration implements SMethodDeclaration, BModifiers<BMethodDeclaration> {
+public class BMethodDeclaration extends BElement implements SMethodDeclaration, BModifiers<BMethodDeclaration> {
     private String name;
     private final List<SParameter> parameters = new ArrayList<>();
     private SType returnType = BBase.ofClass(void.class);
