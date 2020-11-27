@@ -1,7 +1,6 @@
 package board.pieces;
 
 import board.Board;
-import board.MovesTracer;
 import board.Square;
 import board.XY;
 
@@ -13,20 +12,17 @@ import java.util.stream.Stream;
  * @author ptasha
  */
 public class Queen extends RayPiece {
+
+    private static final XY.Transform[] TRANSFORMS = {
+            XY.Transform.LINEAR,
+            XY.Transform.DIAGONAL,
+            XY.Transform.ALMOND_X_PLUS,
+            XY.Transform.ALMOND_X_MINUS,
+            XY.Transform.ALMOND_Y_PLUS,
+            XY.Transform.ALMOND_Y_MINUS};
+
     public Queen(Board board, int color) {
         super(PieceType.Queen, board, color);
-    }
-
-    @Override
-    public void trace(MovesTracer tracer) {
-        tracer.markLine(0, 1);
-        tracer.markLine(1, 1);
-        tracer.markLine(1, 0);
-        tracer.markLine(1, -1);
-        tracer.markLine(0, -1);
-        tracer.markLine(-1, -1);
-        tracer.markLine(-1, 0);
-        tracer.markLine(-1, 1);
     }
 
     @Override
@@ -37,14 +33,8 @@ public class Queen extends RayPiece {
     }
 
     @Override
-    public Stream<Square> planPotentialAttacks(Square to) {
-        return planPotentialAttacks(to,
-                XY.Transform.LINEAR,
-                XY.Transform.DIAGONAL,
-                XY.Transform.ALMOND_X_PLUS,
-                XY.Transform.ALMOND_X_MINUS,
-                XY.Transform.ALMOND_Y_PLUS,
-                XY.Transform.ALMOND_Y_MINUS);
+    protected XY.Transform[] getTransforms() {
+        return TRANSFORMS;
     }
 
     public static Stream<Stream<Square>> getRays(Square square) {

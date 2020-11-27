@@ -1,6 +1,8 @@
 package board.pieces;
 
-import board.*;
+import board.Board;
+import board.Pair;
+import board.Square;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -13,34 +15,6 @@ import java.util.stream.Stream;
 public class Pawn extends OneStepPiece {
     public Pawn(Board board, int color) {
         super(PieceType.Pawn, board, color);
-    }
-
-    @Override
-    public void trace(MovesTracer tracer) {
-        tracer.start();
-        tracer.step(0, color);
-        // enpassant
-        int border = border();
-        int secondRow = border + color;
-        if (square.pair.rank == secondRow) {
-            tracer.step(0, color);
-        }
-        tracer.end();
-
-        tracer.go(-1, color);
-        tracer.go(1, color);
-    }
-
-    @Override
-    public boolean goes(Waypoint waypoint) {
-        Square square = waypoint.getOriginalSquare();
-        return waypoint.square.pair.file == square.pair.file;
-    }
-
-    @Override
-    public boolean attacks(Waypoint waypoint) {
-        Square from = waypoint.getOriginalSquare();
-        return waypoint.square.pair.file != from.pair.file;
     }
 
     @Override

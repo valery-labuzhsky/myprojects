@@ -9,10 +9,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import static java.lang.Math.abs;
 
 /**
  * Created on 09.04.2020.
@@ -70,23 +70,18 @@ public abstract class Piece implements Logged {
     public Stream<Move> planAttacks(Square to) {
         return planAttackSquares(to).map(this::move);
     }
+    //endregion
 
-    Stream<Square> planPotentialAttacks(Square square, XY.Transform... transforms) {
-        XY from = new XY();
-        XY to = new XY();
-        return Stream.of(transforms).
-                flatMap(t -> {
-                    from.set(this.square.pair);
-                    to.set(square.pair);
-                    t.transform(from);
-                    t.transform(to);
-                    from.swap(to);
-                    if (t.back(from) && t.back(to)) {
-                        return Stream.of(board.getSquare(from.x, from.y), board.getSquare(to.x, to.y)).filter(Objects::nonNull);
-                    }
-                    return Stream.empty();
-                });
+    //region Block
+    public Stream<Move> block(Piece piece, Piece enemy) {
+        Square from = piece.square;
+        Square to = enemy.square;
+        if (abs(from.pair.file - to.pair.file) < 2) return Stream.empty();
+        if (abs(from.pair.rank - to.pair.rank) < 2) return Stream.empty();
+        return planPotentialBlock(from, to).filter(this::canMove).map(this::move);
     }
+
+    protected abstract Stream<Square> planPotentialBlock(Square friend, Square enemy);
     //endregion
 
     //region Where To
@@ -112,8 +107,8 @@ public abstract class Piece implements Logged {
         return new ArrayList<>(board.pieces.get(-color));
     }
 
-    public Collection<Piece> friends() {
-        return new ArrayList<>(board.pieces.get(color)); // TODO what else? CopyOnWrite?
+    public Stream<Piece> friends() {
+        return board.pieces.get(color).stream().filter(p -> p != this); // TODO what else? CopyOnWrite?
     }
     //endregion
 
@@ -196,14 +191,12 @@ public abstract class Piece implements Logged {
     public void makeMove(Square to) {
         // TODO it may be en passant
         square.piece = null;
-        marksOff();
         put(to);
     }
 
     private void put(Square square) {
         this.square = square;
         this.square.piece = this;
-        trace(new Waypoint.Origin(this, this.square));
     }
 
     public void add(Square square) {
@@ -215,16 +208,7 @@ public abstract class Piece implements Logged {
     public void remove() {
         this.square.piece = null;
         board.pieces.get(color).remove(this);
-        marksOff();
         board.score -= cost();
-    }
-
-    public abstract void trace(MovesTracer tracer);
-
-    private void marksOff() {
-        while (!waypoints.isEmpty()) {
-            waypoints.iterator().next().remove();
-        }
     }
     //endregion
 
@@ -246,26 +230,9 @@ public abstract class Piece implements Logged {
 
 
     //region Old blocks
-    public Collection<Piece> getBlocks(Square from) {
-        return getBlocks(from, this.square);
-    }
-
     // TODO get rid of blocks
     public Collection<Piece> getBlocks(Square from, Square to) {
         return new Blocks(() -> from.ray(to));
     }
     //endregion
-
-    //region Waypoints
-    public final HashSet<Waypoint> waypoints = new HashSet<>();
-
-    public boolean goes(Waypoint waypoint) {
-        return true;
-    }
-
-    public boolean attacks(Waypoint waypoint) {
-        return true;
-    }
-    //endregion
-
 }

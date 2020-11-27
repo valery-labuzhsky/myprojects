@@ -61,6 +61,10 @@ public abstract class ExchangeState implements Logged, Analytics {
         return score;
     }
 
+    public LinkedList<Piece> enemies(Piece piece) {
+        return sides.get(-piece.color).pieces;
+    }
+
     public static class Side {
         public final int color;
         public final LinkedList<Piece> pieces = new LinkedList<>();

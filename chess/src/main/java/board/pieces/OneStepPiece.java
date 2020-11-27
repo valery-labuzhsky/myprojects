@@ -2,6 +2,7 @@ package board.pieces;
 
 import board.Board;
 import board.Square;
+import board.XY;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -31,4 +32,20 @@ public abstract class OneStepPiece extends Piece {
     public Stream<Piece> whomAttack() {
         return attacks().map(s -> s.piece).filter(Objects::nonNull);
     }
+
+    @Override
+    protected Stream<Square> planPotentialBlock(Square friend, Square enemy) {
+        XY from = new XY();
+        XY to = new XY();
+        XY.Transform t0 = XY.Transform.normal(from, friend, enemy);
+        return moves().filter(s -> {
+            to.set(s.pair);
+            t0.transform(to);
+            if (to.y != 0) return false;
+            if (to.x <= 0) return false;
+            if (to.x >= from.x) return false;
+            return true;
+        });
+    }
+
 }

@@ -63,12 +63,6 @@ public class Board {
 
         color = -1;
 
-        for (Set<Piece> pieces : pieces.values()) {
-            for (Piece piece : pieces) {
-                piece.trace(new Waypoint.Origin(piece, piece.square));
-            }
-        }
-
         long seed = System.currentTimeMillis();
         System.out.println("Seed is " + seed);
         random = new Random(seed);

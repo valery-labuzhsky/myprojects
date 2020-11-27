@@ -1,9 +1,12 @@
 package board.situation;
 
-import board.Waypoint;
+import board.Move;
+import board.exchange.Exchange;
 import board.pieces.Piece;
+import board.pieces.RayPiece;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import static board.Logged.tabs;
 
@@ -32,37 +35,33 @@ public class CaptureProblemSolver extends ProblemSolver {
 
         piece.whereToMove().forEach(s -> addSolution("flees", piece.move(s)));
 
-        // TODO I have fully fledged exchange out here with all information available
-        ArrayList<Waypoint> dangers = new ArrayList<>(); // gather all the villains
-        for (Waypoint waypoint : piece.square.waypoints) {
-            if (waypoint.captures()) {
-                dangers.add(waypoint);
-            }
-        }
-
-        // TODO here we go, let's take exchange and add pieces there to see if it helps
-        //  but I need that exchange first
-        int attackCost = dangers.stream().map(w -> w.piece.type.score).min(Integer::compareTo).orElse(0);
-        if (attackCost > piece.type.score) {
-            for (Piece guard : piece.friends()) { // guard
-                if (guard != piece) {
-                    guard.planAttackSquares(piece.square).forEach(
-                            s -> addSolution(guard.move(s)));
-                }
-            }
-        }
-
-        if (dangers.size() == 1) {
-            Waypoint danger = dangers.get(0);
-            while (danger.prev != null) { // block
-                danger = danger.prev;
-                for (Waypoint block : danger.square.getWaypoints()) {
-                    if (block.piece != piece && block.piece.color == piece.color && block.moves()) {
-                        addSolution(block.move());
+        piece.friends().forEach(
+                guard -> {
+                    Exchange exchange = getProblem().exchange;
+                    Iterator<Move> iterator = guard.planAttacks(piece.square).iterator();
+                    if (iterator.hasNext()) {
+                        // TODO check if a guard is already guarding my piece already
+                        //  mot only there, this check must probably go in why not section
+                        int before = exchange.getScore(piece);
+                        int after = exchange.add(guard).getScore(piece);
+                        if (before < after) {
+                            do {
+                                Move move = iterator.next();
+                                addSolution("guards", move);
+                            } while (iterator.hasNext());
+                        }
                     }
                 }
+        );
+
+        for (Piece enemy : getProblem().exchange.enemies(piece)) {
+            if (enemy instanceof RayPiece) {
+                piece.friends().forEach(friend -> {
+                    friend.block(piece, enemy).forEach(m -> addSolution("blocks", m));
+                });
             }
         }
+
     }
 
     @Override

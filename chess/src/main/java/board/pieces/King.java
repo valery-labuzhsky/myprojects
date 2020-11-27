@@ -1,6 +1,8 @@
 package board.pieces;
 
-import board.*;
+import board.Board;
+import board.Pair;
+import board.Square;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -57,45 +59,6 @@ public class King extends OneStepPiece {
     }
 
     @Override
-    public void trace(MovesTracer tracer) {
-        tracer.go(0, 1);
-        tracer.go(1, 1);
-        tracer.go(1, 0);
-        tracer.go(1, -1);
-        tracer.go(0, -1);
-        tracer.go(-1, -1);
-        tracer.go(-1, 0);
-        tracer.go(-1, 1);
-
-        Pair pair = tracer.start.pair;
-        if (!moved && pair.rank == border() && pair.file == 4) {
-            {
-                Piece rook = board.getSquare(pair.go(3, 0)).piece;
-                if (rook instanceof Rook && !((Rook) rook).moved) {
-                    tracer.go(2, 0);
-                }
-            }
-            {
-                Piece rook = board.getSquare(pair.go(-4, 0)).piece;
-                if (rook instanceof Rook && !((Rook) rook).moved) {
-                    tracer.go(-2, 0);
-                }
-            }
-        }
-    }
-
-    @Override
-    public boolean attacks(Waypoint waypoint) {
-        if (!super.attacks(waypoint)) {
-            return false;
-        }
-        if (!moved) {
-            return waypoint.square.pair.file != 2 && waypoint.square.pair.file != 6;
-        }
-        return true;
-    }
-
-    @Override
     public boolean isMove(Square from, Square to) {
         return isAttack(from, to) || (isCastling(from, to) && isCastlingAllowed(from, to));
     }
@@ -105,19 +68,6 @@ public class King extends OneStepPiece {
         int file = Math.abs(from.pair.file - to.pair.file);
         int rank = Math.abs(from.pair.rank - to.pair.rank);
         return file <= 1 && rank <= 1;
-    }
-
-    @Override
-    public boolean goes(Waypoint waypoint) {
-        if (!super.goes(waypoint)) {
-            return false;
-        }
-        Square from = this.square;
-        Square to = waypoint.square;
-        if (isCastling(from, to)) {
-            return isCastlingAllowed(from, to);
-        }
-        return true;
     }
 
     private boolean isCastlingAllowed(Square from, Square to) {

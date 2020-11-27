@@ -1,7 +1,6 @@
 package board.pieces;
 
 import board.Board;
-import board.MovesTracer;
 import board.Square;
 import board.XY;
 
@@ -18,18 +17,6 @@ import java.util.stream.Stream;
 public class Knight extends OneStepPiece {
     public Knight(Board board, int color) {
         super(PieceType.Knight, board, color);
-    }
-
-    @Override
-    public void trace(MovesTracer tracer) {
-        tracer.go(1, 2);
-        tracer.go(-1, 2);
-        tracer.go(2, 1);
-        tracer.go(2, -1);
-        tracer.go(1, -2);
-        tracer.go(-1, -2);
-        tracer.go(-2, 1);
-        tracer.go(-2, -1);
     }
 
     @Override

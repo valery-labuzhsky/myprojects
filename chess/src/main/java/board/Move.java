@@ -67,10 +67,7 @@ public class Move extends Action {
             throw new IllegalMoveException("no piece on " + this.from);
         }
 
-        Waypoint waypoint = this.to.waypoints.stream().
-                filter(w -> w.piece == piece).
-                findFirst().orElse(null);
-        if (waypoint == null || !waypoint.moves()) {
+        if (piece.canMove(from, to)) {
             throw new IllegalMoveException();
         }
     }

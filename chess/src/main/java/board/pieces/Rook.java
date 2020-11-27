@@ -1,7 +1,6 @@
 package board.pieces;
 
 import board.Board;
-import board.MovesTracer;
 import board.Square;
 import board.XY;
 
@@ -13,6 +12,7 @@ import java.util.stream.Stream;
  * @author ptasha
  */
 public class Rook extends RayPiece {
+    public static final XY.Transform[] TRANSFORMS = {XY.Transform.LINEAR};
     public boolean moved = false;
 
     public Rook(Board board, int color) {
@@ -26,22 +26,14 @@ public class Rook extends RayPiece {
     }
 
     @Override
-    public void trace(MovesTracer tracer) {
-        tracer.markLine(0, 1);
-        tracer.markLine(1, 0);
-        tracer.markLine(0, -1);
-        tracer.markLine(-1, 0);
-    }
-
-    @Override
     public boolean isMove(Square from, Square to) {
         return from.pair.rank == to.pair.rank ||
                 from.pair.file == to.pair.file;
     }
 
     @Override
-    public Stream<Square> planPotentialAttacks(Square to) {
-        return planPotentialAttacks(to, XY.Transform.LINEAR);
+    protected XY.Transform[] getTransforms() {
+        return TRANSFORMS;
     }
 
     @Override

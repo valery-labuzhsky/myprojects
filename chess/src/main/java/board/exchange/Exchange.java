@@ -91,6 +91,7 @@ public class Exchange extends ExchangeState {
     }
 
     public Exchange add(Piece piece) {
+        // TODO I need add it in accordance with cost
         Exchange copy = new Exchange(this);
         copy.sides.get(piece.color).pieces.add(piece);
         return copy;

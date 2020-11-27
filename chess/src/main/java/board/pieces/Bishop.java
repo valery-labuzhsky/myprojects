@@ -1,7 +1,6 @@
 package board.pieces;
 
 import board.Board;
-import board.MovesTracer;
 import board.Square;
 import board.XY;
 
@@ -13,16 +12,11 @@ import java.util.stream.Stream;
  * @author ptasha
  */
 public class Bishop extends RayPiece {
+
+    private static final XY.Transform[] TRANSFORMS = {XY.Transform.DIAGONAL};
+
     public Bishop(Board board, int color) {
         super(PieceType.Bishop, board, color);
-    }
-
-    @Override
-    public void trace(MovesTracer tracer) {
-        tracer.markLine(1, 1);
-        tracer.markLine(1, -1);
-        tracer.markLine(-1, -1);
-        tracer.markLine(-1, 1);
     }
 
     @Override
@@ -31,9 +25,8 @@ public class Bishop extends RayPiece {
     }
 
     @Override
-    public Stream<Square> planPotentialAttacks(Square to) {
-        return planPotentialAttacks(to,
-                XY.Transform.DIAGONAL);
+    protected XY.Transform[] getTransforms() {
+        return TRANSFORMS;
     }
 
     @Override

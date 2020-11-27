@@ -5,7 +5,6 @@ import board.pieces.Piece;
 import board.pieces.Queen;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -21,15 +20,9 @@ public class Square implements Logged {
 
     public final Scores scores = new Scores(this);
 
-    public final HashSet<Waypoint> waypoints = new HashSet<>();
-
     public Square(Board board, Pair pair) {
         this.board = board;
         this.pair = pair;
-    }
-
-    public HashSet<Waypoint> getWaypoints() { // TODO because I move
-        return new HashSet<>(this.waypoints);
     }
 
     public Piece findPieceOnRay(int file, int rank) {
@@ -114,8 +107,8 @@ public class Square implements Logged {
     }
 
     public boolean captures(Piece piece) {
-        for (Waypoint waypoint : waypoints) {
-            if (waypoint.captures(piece)) {
+        for (Piece enemy : piece.enemies()) {
+            if (enemy.canAttack(enemy.square, this)) {
                 return true;
             }
         }
