@@ -2,7 +2,7 @@ package board.pieces;
 
 import board.Board;
 import board.Square;
-import board.XY;
+import board.math.XY;
 
 import java.util.stream.Stream;
 

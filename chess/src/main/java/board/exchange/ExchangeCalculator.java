@@ -1,7 +1,5 @@
 package board.exchange;
 
-import board.pieces.Piece;
-
 /**
  * Created on 18.06.2020.
  *
@@ -64,14 +62,14 @@ public class ExchangeCalculator extends ExchangeResult {
             if (this.pieces.isEmpty()) {
                 result = bestResult;
             } else {
-                Piece piece = this.pieces.pollFirst();
+                EPiece next = pieces.pollFirst();
 
                 // TODO use move function
-                score = getScore() + costs.cost(piece) - ExchangeCalculator.this.piece.cost();
-                getSide(-color).lost.add(ExchangeCalculator.this.piece);
-                ExchangeCalculator.this.piece = piece;
+                score = getScore() + next.cost - piece.cost();
+                getSide(-color).lost.add(piece);
+                piece = next.piece;
 
-                log().debug("Moving " + piece + ": " + getScore() + " best " + bestScore + ": " + bestResult);
+                log().debug("Moving " + next.piece + ": " + getScore() + " best " + bestScore + ": " + bestResult);
 
                 if (getScore(this.color) <= bestScore) {
                     result = bestResult;

@@ -1,4 +1,6 @@
-package board;
+package board.math;
+
+import board.Square;
 
 import java.util.function.Predicate;
 

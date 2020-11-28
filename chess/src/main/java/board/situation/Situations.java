@@ -130,12 +130,15 @@ public class Situations {
 
         hisAttack.stream().filter(p -> p.worthIt()).map(a -> a.solve()).collect(Collectors.toCollection(() -> oppositeAttacks));
 
-        // TODO display solutions that void this problems proper way
-        //  why not e3e4?
-        //  I will loose it!
-        //  I need my algorithm to figure it out
-        //  one more problem is with this pawn current role
-        //  let's gather all this information in one place
+        // TODO any plan?
+        //  should I plan any further?
+        //  I need second level exchanges
+        //  escalate exchange
+        //  let's do following exercise:
+        //  what piece I can add to exchange so that I cause problems?
+        //  how can I do it?
+        //  add pawn to exchange and see if it changes exchange score to my advantage
+
         log("His attacks", hisAttack.stream());
 
         for (ProblemSolver attack : oppositeAttacks) {

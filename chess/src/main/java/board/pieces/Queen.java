@@ -2,7 +2,8 @@ package board.pieces;
 
 import board.Board;
 import board.Square;
-import board.XY;
+import board.math.Ray;
+import board.math.XY;
 
 import java.util.stream.Stream;
 
@@ -37,15 +38,8 @@ public class Queen extends RayPiece {
         return TRANSFORMS;
     }
 
-    public static Stream<Stream<Square>> getRays(Square square) {
-        return Stream.of(1, 0, -1).
-                flatMap(f -> Stream.of(1, 0, -1).
-                        filter(r -> f != 0 || r != 0).
-                        map(r -> square.ray(f, r)));
-    }
-
     @Override
     public Stream<Stream<Square>> rays() {
-        return getRays(square);
+        return Ray.rays(square);
     }
 }

@@ -1,5 +1,6 @@
-package board;
+package board.math;
 
+import board.Logged;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

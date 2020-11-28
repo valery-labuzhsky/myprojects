@@ -1,5 +1,6 @@
 package board;
 
+import board.math.Pair;
 import board.pieces.Piece;
 import board.pieces.PieceType;
 import board.situation.Situations;

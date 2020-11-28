@@ -1,8 +1,9 @@
 package board;
 
+import board.math.Pair;
+import board.math.Ray;
 import board.pieces.Knight;
 import board.pieces.Piece;
-import board.pieces.Queen;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
@@ -36,30 +37,6 @@ public class Square implements Logged {
     public Stream<Square> ray(Square to) {
         Pair step = this.pair.step(to.pair);
         return Stream.iterate(this, s -> s != null && s != to, s -> s.step(step)).skip(1);
-    }
-
-    public Stream<Square> line(Square to) {
-        if (pair.file == to.pair.file) {
-            return Stream.iterate(0, r -> r < 8, r -> ++r).map(r -> board.getSquare(pair.file, r));
-        } else {
-            int df = to.pair.file - pair.file;
-            int dr = to.pair.rank - pair.rank;
-            if (dr % df == 0) {
-                dr /= df;
-                df = 1;
-
-                int fdr = dr;
-                return Stream.concat(
-                        Stream.iterate(this,
-                                Objects::nonNull,
-                                s -> board.getSquare(s.pair.file + 1, s.pair.rank + fdr)),
-                        Stream.iterate(this,
-                                Objects::nonNull,
-                                s -> board.getSquare(s.pair.file - 1, s.pair.rank - fdr)).skip(1)
-                );
-            }
-        }
-        return Stream.empty();
     }
 
     @Override
@@ -130,7 +107,7 @@ public class Square implements Logged {
 
     public Stream<Stream<Piece>> attackLines() {
         return Stream.concat(
-                Queen.getRays(this), Knight.getMoves(this).map(Stream::of)).
+                Ray.rays(this), Knight.getMoves(this).map(Stream::of)).
                 map(r -> r.map(s -> s.piece).filter(Objects::nonNull).takeWhile(p -> p.isAttack(p.square, this)));
     }
 

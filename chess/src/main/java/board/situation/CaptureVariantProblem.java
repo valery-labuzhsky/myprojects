@@ -3,7 +3,6 @@ package board.situation;
 import board.exchange.Exchange;
 import board.pieces.Piece;
 
-import java.util.LinkedList;
 import java.util.stream.Stream;
 
 /**
@@ -22,28 +21,17 @@ public class CaptureVariantProblem extends MoveProblem {
     }
 
     static Stream<CaptureVariantProblem> findProblems(Piece piece) {
-        Exchange exchange = piece.getExchange();
-        if (exchange.getScore(piece) < 0) {
-            CaptureProblem capture = new CaptureProblem(piece, exchange);
-            return capture.getVariants();
-        }
-        return Stream.empty();
+        return CaptureProblem.findProblem(piece.getExchange()).
+                map(p -> p.getVariants()).
+                orElse(Stream.empty());
     }
 
     // TODO it's not fair
     //  but getting all the problems is overkill
     static CaptureVariantProblem findProblem(Exchange exchange) {
-        Piece piece = exchange.piece;
-        CaptureProblem before = new CaptureProblem(piece, exchange);
-        LinkedList<Piece> enemies = exchange.sides.get(-piece.color).pieces;
-        if (enemies.isEmpty()) return null;
-        Piece enemy = enemies.get(0);
-        Exchange move = exchange.move(enemy);
-        if (move.getScore(piece) < 0) {
-            return new CaptureVariantProblem(piece, before, move);
-        } else {
-            return null;
-        }
+        return CaptureProblem.findProblem(exchange).
+                map(e -> e.getVariants().findAny().orElse(null)).
+                orElse(null);
     }
 
     @Override

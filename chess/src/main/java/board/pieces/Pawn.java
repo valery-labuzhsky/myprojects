@@ -1,8 +1,8 @@
 package board.pieces;
 
 import board.Board;
-import board.Pair;
 import board.Square;
+import board.math.Pair;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -48,7 +48,7 @@ public class Pawn extends OneStepPiece {
     }
 
     public boolean canGo(Square from, Square to) {
-        return to.piece == null && isGo(from, to) && getBlocks(from, to).isEmpty();
+        return to.piece == null && isGo(from, to) && hasBlocks(from, to);
     }
 
     @Override

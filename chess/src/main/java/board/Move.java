@@ -67,7 +67,7 @@ public class Move extends Action {
             throw new IllegalMoveException("no piece on " + this.from);
         }
 
-        if (piece.canMove(from, to)) {
+        if (!piece.canMove(from, to)) {
             throw new IllegalMoveException();
         }
     }
@@ -112,7 +112,7 @@ public class Move extends Action {
     public Stream<Analytics> trap() {
         Stream<Analytics> stream;
         if (to.piece == null) {
-            stream = Stream.of(to.scores.getExchange(piece.color).move(piece));
+            stream = Stream.<Analytics>of(to.scores.getExchange(piece.color).move(piece)).filter(e -> e.getScore(piece) < 0);
         } else {
             // TODO what then?
             stream = Stream.empty();

@@ -1,13 +1,12 @@
 package board.exchange;
 
 import board.Square;
+import board.math.Ray;
+import board.pieces.Knight;
 import board.pieces.Piece;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.TreeSet;
-import java.util.stream.Stream;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Created on 15.04.2020.
@@ -18,10 +17,10 @@ public class Exchange extends ExchangeState {
     private ExchangeResult result;
 
     public Exchange(Square square, int color) {
-        this(square, color, new PieceCosts());
+        this(square, color, p -> 0);
     }
 
-    public Exchange(Square square, int color, PieceCosts costs) {
+    public Exchange(Square square, int color, Function<Piece, Integer> costs) {
         super(square, color, costs);
 
         // TODO setScene is where cost calculation takes place
@@ -35,32 +34,18 @@ public class Exchange extends ExchangeState {
     }
 
     private void setScene() {
-        HashMap<Integer, TreeSet<LinkedList<Piece>>> lines = new HashMap<>();
-        Stream.of(-1, 1).forEach(c -> lines.put(c, new TreeSet<>(
-                Comparator.comparing(l -> l.getFirst(), Comparator.<Piece>comparingInt(p -> (costs.cost(p) + p.cost()) * color).thenComparingInt(Object::hashCode))
-        )));
-        square.attackLines().forEach(s -> {
-            LinkedList<Piece> line = new LinkedList<>();
-            s.forEach(p -> {
-                costs.init(p);
-                line.add(p);
-            });
-            if (!line.isEmpty()) {
-                lines.get(line.getFirst().color).add(line);
-            }
-        });
-
-        int c = color;
-        while (lines.values().stream().anyMatch(l -> !l.isEmpty())) {
-            if (!lines.get(c).isEmpty()) {
-                LinkedList<Piece> line = lines.get(c).pollFirst();
-                sides.get(c).pieces.add(line.poll());
-                if (!line.isEmpty()) {
-                    lines.get(line.getFirst().color).add(line);
-                }
-            }
-            c = -c;
-        }
+        Ray.stream().forEach(ray ->
+                ray.ray(square).
+                        map(s -> s.piece).filter(Objects::nonNull).
+                        takeWhile(p -> p.isAttack(p.square, square)).
+                        map(p -> new EPiece(p, costs.apply(p), ray, ray.distance(square, p.square))).
+                        forEach(piece -> sides.get(piece.piece.color).pieces.add(piece))
+        );
+        Knight.getMoves(square).
+                map(s -> s.piece).filter(Objects::nonNull).
+                filter(p -> p.isAttack(p.square, square)).
+                map(p -> new EPiece(p, costs.apply(p))).
+                forEach(piece -> sides.get(piece.piece.color).pieces.add(piece));
     }
 
     @Override
@@ -76,29 +61,36 @@ public class Exchange extends ExchangeState {
     }
 
     public Exchange move(Piece piece) {
-        Exchange copy = new Exchange(this);
-        copy.score -= copy.piece == null ? 0 : copy.piece.cost();
-        copy.sides.get(piece.color).pieces.remove(piece);
-        copy.piece = piece;
-        copy.color = -color;
-        return copy;
+        return new Exchange(this).moveMe(piece);
     }
 
     public Exchange remove(Piece piece) {
-        Exchange copy = new Exchange(this);
-        copy.sides.get(piece.color).pieces.remove(piece);
-        return copy;
+        return new Exchange(this).removeMe(piece);
     }
 
     public Exchange add(Piece piece) {
-        // TODO I need add it in accordance with cost
-        Exchange copy = new Exchange(this);
-        copy.sides.get(piece.color).pieces.add(piece);
-        return copy;
+        return new Exchange(this).addMe(piece);
+    }
+
+    private Exchange moveMe(Piece piece) {
+        score -= this.piece == null ? 0 : this.piece.cost();
+        removeMe(piece);
+        this.piece = piece;
+        color = -color;
+        return this;
+    }
+
+    private Exchange removeMe(Piece piece) {
+        sides.get(piece.color).pieces.removeIf(p -> p.piece == piece);
+        return this;
+    }
+
+    private Exchange addMe(Piece piece) {
+        sides.get(piece.color).pieces.add(new EPiece(piece));
+        return this;
     }
 
     public String toString() {
         return getResult().toString();
     }
-
 }

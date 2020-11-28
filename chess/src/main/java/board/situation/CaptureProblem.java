@@ -1,8 +1,8 @@
 package board.situation;
 
 import board.exchange.Exchange;
-import board.pieces.Piece;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -13,13 +13,17 @@ import java.util.stream.Stream;
 public class CaptureProblem extends Problem {
     Exchange exchange;
 
-    public CaptureProblem(Piece piece, Exchange exchange) {
-        super(piece);
+    public CaptureProblem(Exchange exchange) {
+        super(exchange.piece);
         this.exchange = exchange;
     }
 
+    public static Optional<CaptureProblem> findProblem(Exchange exchange) {
+        return Optional.of(exchange).filter(e -> e.getScore(e.piece) < 0).map(e -> new CaptureProblem(e));
+    }
+
     Stream<CaptureVariantProblem> getVariants() {
-        return exchange.sides.get(-piece.color).pieces.stream().
+        return exchange.enemies(piece).
                 map(enemy -> exchange.move(enemy)).
                 filter(problem -> problem.getScore(piece) < 0).
                 map(after -> new CaptureVariantProblem(piece, this, after));

@@ -54,13 +54,11 @@ public class CaptureProblemSolver extends ProblemSolver {
                 }
         );
 
-        for (Piece enemy : getProblem().exchange.enemies(piece)) {
+        getProblem().exchange.enemies(piece).forEach(enemy -> {
             if (enemy instanceof RayPiece) {
-                piece.friends().forEach(friend -> {
-                    friend.block(piece, enemy).forEach(m -> addSolution("blocks", m));
-                });
+                piece.friends().forEach(friend -> friend.block(piece, enemy).forEach(m -> addSolution("blocks", m)));
             }
-        }
+        });
 
     }
 

@@ -1,6 +1,9 @@
 package board.pieces;
 
-import board.*;
+import board.Board;
+import board.Logged;
+import board.Move;
+import board.Square;
 import board.exchange.Exchange;
 import board.roles.Attack;
 import board.roles.Block;
@@ -8,7 +11,7 @@ import board.roles.Role;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -46,7 +49,7 @@ public abstract class Piece implements Logged {
 
     //region Can From To
     public boolean canAttack(Square from, Square to) {
-        return isAttack(from, to) && getBlocks(from, to).isEmpty();
+        return isAttack(from, to) && hasBlocks(from, to);
     }
 
     private boolean canMove(Square to) {
@@ -54,7 +57,7 @@ public abstract class Piece implements Logged {
     }
 
     public boolean canMove(Square from, Square to) {
-        return (to.piece == null || to.piece.color != color) && isMove(from, to) && getBlocks(from, to).isEmpty();
+        return (to.piece == null || to.piece.color != color) && isMove(from, to) && hasBlocks(from, to);
     }
     //endregion
 
@@ -231,8 +234,12 @@ public abstract class Piece implements Logged {
 
     //region Old blocks
     // TODO get rid of blocks
-    public Collection<Piece> getBlocks(Square from, Square to) {
-        return new Blocks(() -> from.ray(to));
+    public Stream<Piece> getBlocks(Square from, Square to) {
+        return from.ray(to).map(s -> s.piece).filter(Objects::nonNull);
+    }
+
+    public boolean hasBlocks(Square from, Square to) {
+        return getBlocks(from, to).findAny().isEmpty();
     }
     //endregion
 }

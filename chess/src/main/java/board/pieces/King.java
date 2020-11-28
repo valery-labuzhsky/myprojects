@@ -1,11 +1,9 @@
 package board.pieces;
 
 import board.Board;
-import board.Pair;
 import board.Square;
+import board.math.Pair;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -79,8 +77,8 @@ public class King extends OneStepPiece {
     }
 
     @Override
-    public Collection<Piece> getBlocks(Square from, Square to) {
-        return Collections.emptyList();
+    public Stream<Piece> getBlocks(Square from, Square to) {
+        return Stream.empty();
     }
 
     @Override

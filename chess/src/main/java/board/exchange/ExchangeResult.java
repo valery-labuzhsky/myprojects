@@ -24,7 +24,7 @@ public class ExchangeResult extends ExchangeState {
         return (Side) super.getSide(color);
     }
 
-    protected static class Side extends ExchangeState.Side {
+    protected class Side extends ExchangeState.Side {
         ArrayList<Piece> lost = new ArrayList<>();
 
         public Side(ExchangeState.Side side) {

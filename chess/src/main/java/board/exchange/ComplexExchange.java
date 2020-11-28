@@ -16,19 +16,7 @@ public class ComplexExchange {
     }
 
     public static Exchange create(Square square, int color) {
-        return new Exchange(square, color, new RolesPieceCosts(square));
+        return new Exchange(square, color, piece -> piece.meaningfulRoles().filter(r -> r.getWhom() != square.piece).mapToInt(r -> r.getScore()).sum());
     }
 
-    private static class RolesPieceCosts extends CachedPieceCosts {
-        private final Square square;
-
-        public RolesPieceCosts(Square square) {
-            this.square = square;
-        }
-
-        @Override
-        protected Integer calculate(Piece piece) {
-            return piece.meaningfulRoles().filter(r -> r.getWhom() != square.piece).mapToInt(r -> r.getScore()).sum();
-        }
-    }
 }

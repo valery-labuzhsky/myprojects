@@ -2,10 +2,8 @@ package board.pieces;
 
 import board.Board;
 import board.Square;
-import board.XY;
+import board.math.XY;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -20,8 +18,8 @@ public class Knight extends OneStepPiece {
     }
 
     @Override
-    public Collection<Piece> getBlocks(Square from, Square to) {
-        return Collections.emptyList();
+    public Stream<Piece> getBlocks(Square from, Square to) {
+        return Stream.empty();
     }
 
     @Override
