@@ -39,11 +39,11 @@ public class IMethodDeclaration extends IElement implements SMethodDeclaration {
     }
 
     @Override
-    public List<IParameter> getParameters() {
+    public List<IParameterDeclaration> getParameters() {
         return new IElementList<>(getElement().getParameterList().getParameters());
     }
 
-    public int getParameterIndex(IParameter parameter) {
+    public int getParameterIndex(IParameterDeclaration parameter) {
         return getElement().getParameterList().getParameterIndex(parameter.getElement());
     }
 
@@ -75,7 +75,7 @@ public class IMethodDeclaration extends IElement implements SMethodDeclaration {
         return null;
     }
 
-    public ParameterPlace getPlace(IParameter parameter) {
+    public ParameterPlace getPlace(IParameterDeclaration parameter) {
         return new ParameterPlace(getParameterIndex(parameter));
     }
 
@@ -83,7 +83,7 @@ public class IMethodDeclaration extends IElement implements SMethodDeclaration {
         return getElement().getReturnType() == null;
     }
 
-    public static class ParameterPlace implements Place<IParameter> {
+    public static class ParameterPlace implements Place<IParameterDeclaration> {
         private final int index;
 
         // TODO implement everything
@@ -102,12 +102,12 @@ public class IMethodDeclaration extends IElement implements SMethodDeclaration {
         }
 
         @Override
-        public IParameter get(Fragment fragment) {
+        public IParameterDeclaration get(Fragment fragment) {
             return null;
         }
 
         @Override
-        public void set(Fragment fragment, IParameter value) {
+        public void set(Fragment fragment, IParameterDeclaration value) {
 
         }
 

@@ -8,7 +8,7 @@ import statref.model.classes.SFile;
 import statref.model.expressions.*;
 import statref.model.members.SFieldDeclaration;
 import statref.model.members.SMethodDeclaration;
-import statref.model.members.SParameter;
+import statref.model.members.SParameterDeclaration;
 import statref.model.statements.SBlock;
 import statref.model.statements.SMethodStatement;
 import statref.model.statements.SReturn;
@@ -35,7 +35,7 @@ public abstract class WBase<S> {
         register(SAnonClassDeclaration.class, new WAnonClassDeclaration());
         register(SLocalVariableDeclaration.class, new WVariableDeclaration());
         register(SFieldDeclaration.class, new WFieldDeclaration());
-        register(SParameter.class, new WParameter());
+        register(SParameterDeclaration.class, new WParameter());
         register(SMethodDeclaration.class, new WMethodDeclaration());
         register(SField.class, new WFieldUsage());
         register(SReturn.class, new WReturn());

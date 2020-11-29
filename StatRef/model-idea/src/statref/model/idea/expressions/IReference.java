@@ -24,6 +24,8 @@ public abstract class IReference extends IExpression implements SReference, IVar
         PsiElement declaration = expression.resolve();
         if (declaration instanceof PsiLocalVariable) {
             return new ILocalVariable(expression);
+        } else if (declaration instanceof PsiParameter) {
+            return new IParameter(expression);
         } else if (declaration instanceof PsiField) {
             return new IField(expression);
         } else if (declaration instanceof PsiMethod) {
@@ -68,4 +70,5 @@ public abstract class IReference extends IExpression implements SReference, IVar
     public String toString() {
         return "" + getElement();
     }
+
 }

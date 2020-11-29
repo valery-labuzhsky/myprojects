@@ -66,8 +66,8 @@ public class SLInlineAction extends AnAction {
                     createToolWindow(event, "Inline " + variable.getName()).setRoot(registry.create(inlineVariable)).select(usage);
                 }
                 invokeNative = false;
-            } else if (entity instanceof IParameter) {
-                IParameter parameter = (IParameter) entity;
+            } else if (entity instanceof IParameterDeclaration) {
+                IParameterDeclaration parameter = (IParameterDeclaration) entity;
 
                 InlineParameter refactoring = new InlineParameter(registry, parameter);
 

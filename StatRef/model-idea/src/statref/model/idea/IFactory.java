@@ -18,7 +18,7 @@ public class IFactory {
         {
             register(PsiClass.class, IClassDeclaration::new);
             register(PsiMethod.class, IMethodDeclaration::new);
-            register(PsiParameter.class, IParameter::new);
+            register(PsiParameter.class, IParameterDeclaration::new);
 
             register(PsiCodeBlock.class, IBlock::new);
             register(PsiLocalVariable.class, ILocalVariableDeclaration::new);

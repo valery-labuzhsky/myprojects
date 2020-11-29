@@ -2,14 +2,14 @@ package statref.model.idea;
 
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
-import statref.model.members.SParameter;
+import statref.model.members.SParameterDeclaration;
 import statref.model.types.SType;
 
 import javax.lang.model.element.Modifier;
 import java.util.Collection;
 
-public class IParameter extends IElement implements SParameter {
-    public IParameter(PsiParameter element) {
+public class IParameterDeclaration extends IVariableDeclaration implements SParameterDeclaration {
+    public IParameterDeclaration(PsiParameter element) {
         super(element);
     }
 
@@ -32,11 +32,6 @@ public class IParameter extends IElement implements SParameter {
     @Override
     public SType getType() {
         return ITypes.getType(getElement().getType());
-    }
-
-    @Override
-    public String getName() {
-        return getElement().getName();
     }
 
     @Override

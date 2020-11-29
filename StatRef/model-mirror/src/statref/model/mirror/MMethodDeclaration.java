@@ -1,7 +1,7 @@
 package statref.model.mirror;
 
 import statref.model.members.SMethodDeclaration;
-import statref.model.members.SParameter;
+import statref.model.members.SParameterDeclaration;
 import statref.model.statements.SStatement;
 import statref.model.types.SType;
 
@@ -26,10 +26,10 @@ public class MMethodDeclaration implements SMethodDeclaration {
     }
 
     @Override
-    public List<SParameter> getParameters() {
-        ArrayList<SParameter> parameters = new ArrayList<>();
+    public List<SParameterDeclaration> getParameters() {
+        ArrayList<SParameterDeclaration> parameters = new ArrayList<>();
         for (VariableElement element : this.element.getParameters()) {
-            parameters.add(new MParameter(element));
+            parameters.add(new MParameterDeclaration(element));
         }
         return parameters;
     }

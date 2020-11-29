@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public interface SMethodDeclaration extends SModifiers, SClassMemeber, SElement {
 
-    List<? extends SParameter> getParameters();
+    List<? extends SParameterDeclaration> getParameters();
 
     String getName();
 

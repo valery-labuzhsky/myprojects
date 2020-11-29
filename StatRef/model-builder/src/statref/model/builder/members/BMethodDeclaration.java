@@ -10,7 +10,7 @@ import statref.model.builder.statements.BReturn;
 import statref.model.expressions.SExpression;
 import statref.model.expressions.SMethod;
 import statref.model.members.SMethodDeclaration;
-import statref.model.members.SParameter;
+import statref.model.members.SParameterDeclaration;
 import statref.model.statements.SStatement;
 import statref.model.types.SType;
 
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class BMethodDeclaration extends BElement implements SMethodDeclaration, BModifiers<BMethodDeclaration> {
     private String name;
-    private final List<SParameter> parameters = new ArrayList<>();
+    private final List<SParameterDeclaration> parameters = new ArrayList<>();
     private SType returnType = BBase.ofClass(void.class);
 
     private final ArrayList<SStatement> instructions = new ArrayList<>();
@@ -33,11 +33,11 @@ public class BMethodDeclaration extends BElement implements SMethodDeclaration, 
     }
 
     @Override
-    public List<SParameter> getParameters() {
+    public List<SParameterDeclaration> getParameters() {
         return parameters;
     }
 
-    public BMethodDeclaration param(SParameter param) {
+    public BMethodDeclaration param(SParameterDeclaration param) {
         parameters.add(param);
         return this;
     }
@@ -118,7 +118,7 @@ public class BMethodDeclaration extends BElement implements SMethodDeclaration, 
     }
 
     protected BLocalVariable parameter(SType type, String name) {
-        BParameter param = new BParameter(type, name);
+        BParameterDeclaration param = new BParameterDeclaration(type, name);
         this.param(param);
         return param.usage();
     }

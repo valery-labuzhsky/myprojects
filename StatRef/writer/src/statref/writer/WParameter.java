@@ -1,6 +1,6 @@
 package statref.writer;
 
-import statref.model.members.SParameter;
+import statref.model.members.SParameterDeclaration;
 
-public class WParameter extends WBaseVariableDeclaration<SParameter> {
+public class WParameter extends WBaseVariableDeclaration<SParameterDeclaration> {
 }

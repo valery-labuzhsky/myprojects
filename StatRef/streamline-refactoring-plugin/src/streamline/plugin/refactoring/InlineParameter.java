@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import statref.model.expressions.SMethod;
 import statref.model.fragment.ExpressionFragment;
 import statref.model.idea.IMethodDeclaration;
-import statref.model.idea.IParameter;
+import statref.model.idea.IParameterDeclaration;
 import statref.model.idea.expressions.ICall;
 import statref.model.members.SMethodDeclaration;
 import streamline.plugin.nodes.guts.NodesRegistry;
@@ -14,9 +14,9 @@ import java.util.HashSet;
 
 public class InlineParameter extends SimpleCompoundRefactoring {
     @org.jetbrains.annotations.NotNull
-    private final IParameter parameter;
+    private final IParameterDeclaration parameter;
 
-    public InlineParameter(NodesRegistry registry, @NotNull IParameter parameter) {
+    public InlineParameter(NodesRegistry registry, @NotNull IParameterDeclaration parameter) {
         super(registry.getRefactorings(), parameter);
         this.parameter = parameter;
 
@@ -43,7 +43,7 @@ public class InlineParameter extends SimpleCompoundRefactoring {
     }
 
     @NotNull
-    public IParameter getParameter() {
+    public IParameterDeclaration getParameter() {
         return parameter;
     }
 

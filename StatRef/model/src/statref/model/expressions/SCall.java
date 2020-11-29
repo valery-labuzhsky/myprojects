@@ -3,7 +3,7 @@ package statref.model.expressions;
 import statref.model.fragment.Place;
 import statref.model.fragment.PlaceAdapter;
 import statref.model.members.SMethodDeclaration;
-import statref.model.members.SParameter;
+import statref.model.members.SParameterDeclaration;
 import statref.model.types.SType;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public interface SCall extends SExpression {
         throw new UnsupportedOperationException(getClass().getName());
     }
 
-    default Parameter getPlace(SParameter parameter) {
+    default Parameter getPlace(SParameterDeclaration parameter) {
         return new Internal.ParameterInternal(parameter.getIndex());
     }
 

@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 public class BFactory {
     public static <E extends SElement> E builder(E element) {
+        if (element == null) return null;
         if (element instanceof ExpressionFragment) {
             ExpressionFragment fragment = (ExpressionFragment) element;
             return (E) builder(fragment);

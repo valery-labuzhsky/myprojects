@@ -90,6 +90,7 @@ public class InlineMe {
     }
 
     public void testUsage() {
+//    public void testUsage(boolean c) {
         boolean c = true;
         test(c);
         test(true);
