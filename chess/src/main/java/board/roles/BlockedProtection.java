@@ -8,7 +8,7 @@ import board.pieces.Piece;
  *
  * @author unicorn
  */
-public class BlockedProtection extends BlockedAttack {
+public class BlockedProtection extends BlockedTarget {
     BlockedProtection(Piece piece, Piece whom) {
         super(piece, whom);
     }

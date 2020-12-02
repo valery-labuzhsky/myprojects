@@ -29,7 +29,7 @@ public abstract class OneStepPiece extends Piece {
     }
 
     @Override
-    public Stream<Piece> whomAttack() {
+    public Stream<Piece> whomTarget() {
         return attacks().map(s -> s.piece).filter(Objects::nonNull);
     }
 

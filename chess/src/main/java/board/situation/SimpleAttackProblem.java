@@ -22,7 +22,7 @@ public class SimpleAttackProblem extends AttackProblem {
 
     static ArrayList<SimpleAttackProblem> findProblems(Piece piece) {
         ArrayList<SimpleAttackProblem> problems = new ArrayList<>();
-        for (Piece enemy : piece.enemies()) {
+        for (Piece enemy : piece.enemiesList()) {
             enemy.planAttacks(piece.square).forEach(m -> {
                 if (m.to.scores.getExchange(enemy.color).move(enemy).getScore(enemy) >= 0) {
                     Exchange now = piece.getExchange();

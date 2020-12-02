@@ -8,11 +8,11 @@ import board.pieces.Piece;
  * @author unicorn
  */
 public class Block extends Role {
-    public final BlockedAttack attack;
+    public final BlockedTarget attack;
 
     public Block(Piece piece, Piece whom, Piece from) {
         super(piece);
-        this.attack = BlockedAttack.create(from, whom);
+        this.attack = BlockedTarget.create(from, whom);
     }
 
     @Override

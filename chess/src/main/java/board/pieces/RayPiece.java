@@ -78,7 +78,7 @@ public abstract class RayPiece extends Piece {
     }
 
     @Override
-    public Stream<Piece> whomAttack() {
+    public Stream<Piece> whomTarget() {
         return rays().map(r -> r.map(s -> s.piece).filter(Objects::nonNull).findFirst().orElse(null)).filter(Objects::nonNull);
     }
 }

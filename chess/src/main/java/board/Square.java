@@ -84,7 +84,7 @@ public class Square implements Logged {
     }
 
     public boolean captures(Piece piece) {
-        for (Piece enemy : piece.enemies()) {
+        for (Piece enemy : piece.enemiesList()) {
             if (enemy.canAttack(enemy.square, this)) {
                 return true;
             }

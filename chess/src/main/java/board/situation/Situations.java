@@ -138,6 +138,15 @@ public class Situations {
         //  what piece I can add to exchange so that I cause problems?
         //  how can I do it?
         //  add pawn to exchange and see if it changes exchange score to my advantage
+        //  I need to check will attack roles first
+        //  I need targets after all, combine them in escalate exchange and see if there are any
+        //  so there are some logical statements I can use to draw some conclusions
+        //  I'm already can use CanRole - King can guard pawn
+        //  I can use normal roles to calculate ComplexExchanges
+        //  let's write first analytics using roles and the I'll rewrite all the code
+        //  it will duplicate AttackAfterEscape but be more precise
+        //  it's quite a lot of change there, maybe I'll do it later?
+        log("All roles", board.pieces.values().stream().flatMap(s -> s.stream()).flatMap(p -> p.whoCanTarget()));
 
         log("His attacks", hisAttack.stream());
 

@@ -8,22 +8,18 @@ import board.pieces.Piece;
  *
  * @author unicorn
  */
-public abstract class BlockedAttack extends Attack {
+public class BlockedAttack extends BlockedTarget {
     BlockedAttack(Piece piece, Piece whom) {
         super(piece, whom);
     }
 
-    public static BlockedAttack create(Piece piece, Piece whom) {
-        if (piece.color == whom.color) {
-            return new BlockedProtection(piece, whom);
-        } else {
-            return new BlockedThreat(piece, whom);
-        }
+    @Override
+    protected boolean nonsense(Exchange now) {
+        return now.getScore() == whom.cost();
     }
 
     @Override
-    protected Exchange then(Exchange now) {
-        return now.add(piece);
+    protected String verb() {
+        return "attacking";
     }
-
 }

@@ -5,14 +5,13 @@ import board.Logged;
 import board.Move;
 import board.Square;
 import board.exchange.Exchange;
-import board.roles.Attack;
-import board.roles.Block;
-import board.roles.Role;
+import board.roles.*;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.Math.abs;
@@ -89,43 +88,59 @@ public abstract class Piece implements Logged {
 
     //region Where To
     public Stream<Square> whereToMove() {
-        return Stream.concat(whereToGo(), whomToCapture().map(p -> p.square));
+        return Stream.concat(whereToGo(), whomToAttack().map(p -> p.square));
     }
 
     public abstract Stream<Square> whereToGo();
     //endregion
 
     //region Whom
-    public abstract Stream<Piece> whomAttack();
+    public List<Piece> enemiesList() {
+        return enemies().collect(Collectors.toList());
+    }
 
-    private Stream<Piece> whomToCapture() {
-        return whomAttack().filter(p -> p.color == -color);
+    public Stream<Piece> enemies() {
+        return board.pieces.get(-color).stream();
+    }
+
+    public Stream<Piece> friends() {
+        return board.pieces.get(color).stream().filter(p -> p != this);
+    }
+
+    public abstract Stream<Piece> whomTarget();
+
+    private Stream<Piece> whomToAttack() {
+        return whomTarget().filter(p -> p.color == -color);
     }
 
     public Stream<Piece> whomBlock() {
         return blockRoles().map(b -> b.attack.whom);
     }
 
-    public ArrayList<Piece> enemies() {
-        return new ArrayList<>(board.pieces.get(-color));
+    public Stream<CanTarget> whoCanTarget() {
+        return Stream.concat(whoCanAttack(), whoCanProtect());
     }
 
-    public Stream<Piece> friends() {
-        return board.pieces.get(color).stream().filter(p -> p != this); // TODO what else? CopyOnWrite?
+    public Stream<CanAttack> whoCanAttack() {
+        return enemies().flatMap(p -> p.planAttackSquares(square).map(s -> new CanAttack(p, this, s)));
+    }
+
+    public Stream<CanProtect> whoCanProtect() {
+        return friends().flatMap(p -> p.planAttackSquares(square).map(s -> new CanProtect(p, this, s)));
     }
     //endregion
 
     //region Roles
     public Stream<Role> roles() {
-        return Stream.concat(attackRoles(), blockRoles());
+        return Stream.concat(targetRoles(), blockRoles());
     }
 
     public Stream<Role> meaningfulRoles() {
         return roles().filter(r -> r.getScore() != 0);
     }
 
-    public Stream<Attack> attackRoles() {
-        return whomAttack().map(p -> Attack.create(this, p));
+    public Stream<Target> targetRoles() {
+        return whomTarget().map(p -> Target.create(this, p));
     }
 
     public Stream<Block> blockRoles() {
