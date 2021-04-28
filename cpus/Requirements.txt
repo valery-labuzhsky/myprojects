@@ -149,3 +149,8 @@ P/t -> min
 (Pn + Pi(Ri))*Vr/Ri -> min
 
 dPi = P/Ri
+
+Intel Core i7 - 9700F BOX 132 922
+AMD Ryzen 5 1600 AF BOX 104 641
+
+
