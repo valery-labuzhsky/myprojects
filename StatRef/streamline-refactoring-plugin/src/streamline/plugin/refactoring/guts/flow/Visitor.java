@@ -10,8 +10,8 @@ import java.util.*;
 public class Visitor {
     private final VariableFlow flow;
     private final LinkedHashSet<IInitializer> assignments = new LinkedHashSet<>();
-    private HashMap<IElement, ArrayList<IInitializer>> values;
-    private HashMap<IInitializer, Collection<ILocalVariable>> usages;
+    private final HashMap<IElement, ArrayList<IInitializer>> values;
+    private final HashMap<IInitializer, Collection<ILocalVariable>> usages;
 
     public Visitor(VariableFlow flow) {
         this.flow = flow;
@@ -40,19 +40,8 @@ public class Visitor {
         return new Visitor(this);
     }
 
-    public enum Reaction {
-        JUMP_OFF,
-        SKIP,
-        EXPLORE
-    }
-
-    // climb: jump off, skip, continue
     public boolean visit(IElement element) {
-        Reaction reaction = null;
         if (harvest(element)) {
-            // TODO it means override, it doesn't necessary mean I should jump off
-            //  but how would I model it
-            //  I need something to return
             return true;
         } else if (worthVisiting(element)) {
             return ExecutionFlowFactory.flow(element).harvest(this);
@@ -65,15 +54,17 @@ public class Visitor {
         return getFlow().getVariables().getOrDefault(context, Collections.emptyList());
     }
 
-    public boolean worthVisiting(IElement element) {
+    private boolean worthVisiting(IElement element) {
         return getFlow().getVariables().containsKey(element);
     }
 
-    public boolean harvest(IElement element) {
+    private boolean harvest(IElement element) {
         if (flow.getDeclaration().equals(element)) {
+            assignments.clear();
             assignments.add((IInitializer) element);
             return true;
         } else if (flow.getAssignments().contains(element)) {
+            assignments.clear();
             assignments.add((IInitializer) element.getParent());
             return true;
         } else if (flow.getUsages().contains(element)) {

@@ -15,13 +15,18 @@ public class InlineVariable extends SimpleCompoundRefactoring {
         super(registry, declaration);
         VariableFlow flow = new VariableFlow(declaration);
         this.declaration = flow.getDeclaration();
-        add(registry.getRefactoring(new InlineAssignment(registry, this.declaration)));
+        if (this.declaration.getInitializer() != null) {
+            add(registry.getRefactoring(new InlineAssignment(registry, this.declaration)));
+        }
         for (ILocalVariable assignment : flow.getAssignments()) {
             add(registry.getRefactoring(new InlineAssignment(registry, (IInitializer) assignment.getParent())));
         }
-        // TODO First step is to show full tree
-        // TODO Second step - simplify tree
-        // TODO Now I need create this node
+        if (this.declaration.getInitializer() == null) {
+            // TODO I also should check if no usages are left
+            //  I should remove it when either no assignment or all assignments are removing themselves
+            //  so I depend on other properties, how should I resolve them?
+            add(registry.getRefactoring(new RemoveElement(registry, this.declaration)));
+        }
     }
 
     public ILocalVariableDeclaration getDeclaration() {

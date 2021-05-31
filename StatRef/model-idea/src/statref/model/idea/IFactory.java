@@ -32,6 +32,7 @@ public class IFactory {
             register(PsiForStatement.class, IForStatement::new);
             register(PsiForeachStatement.class, IForEachStatement::new);
             register(PsiReturnStatement.class, IReturn::new);
+            register(PsiTryStatement.class, ITryStatement::new);
 
             register(PsiReferenceExpression.class, IReference::create);
             register(PsiAssignmentExpression.class, IAssignment::new);

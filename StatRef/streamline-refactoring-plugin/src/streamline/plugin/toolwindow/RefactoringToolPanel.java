@@ -24,6 +24,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
+import java.util.function.Consumer;
 
 public class RefactoringToolPanel extends SimpleToolWindowPanel {
     // TODO inline variable
@@ -32,6 +33,23 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
 
     // TODO inline generic
 
+    // TODO NPE INew.replaceIt 32
+    //  inlined anon class
+
+    // TODO inline variable without initializer
+    //  remove variable itself
+
+    // TODO
+    //  IReference.create:32 null: is not supported
+    //  IReference.isAssignment:51
+    //  InlineVariable:16
+
+    // TODO probable !!create
+    //  Conversion is not registered
+    //  FunctionRegistry:17
+    //  IFactory.getElement:103
+    //  IFactory.getElement:72
+    //  IReference.isAssignment:51
     final AnActionEvent originalEvent;
     RefactoringNode root;
     private final Tree tree = new Tree();
@@ -176,26 +194,33 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
         }
     }
 
-    @NotNull
-    ToolWindow getToolWindow(AnActionEvent event) {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(event.getProject());
-        ToolWindow toolWindow = toolWindowManager.getToolWindow("Streamline");
-        toolWindow.show(null);
-        return toolWindow;
+    private ToolWindow getToolWindow(AnActionEvent event) {
+        return ToolWindowManager.getInstance(event.getProject()).getToolWindow("Streamline");
     }
 
     private void registerToolPanel(String displayName) {
-        ContentManager contentManager = getToolWindow(originalEvent).getContentManager();
+        ToolWindow toolWindow = getToolWindow(originalEvent);
+        ContentManager contentManager = toolWindow.getContentManager();
 
         Content tab = contentManager.getFactory().createContent(this, displayName, true);
         contentManager.addContent(tab);
         contentManager.setSelectedContent(tab);
-        getTree().requestFocusInWindow();
     }
 
     void close(AnActionEvent event) {
         ContentManager contentManager = getToolWindow(event).getContentManager();
         contentManager.removeContent(contentManager.getContent(this), true);
+    }
+
+    public void setup(Consumer<RefactoringToolPanel> after) {
+        try {
+            after.accept(this);
+            getToolWindow(originalEvent).show();
+            getTree().requestFocusInWindow();
+        } catch (Exception e) {
+            close(originalEvent);
+            throw e;
+        }
     }
 
     private class ProxyNodeComponent implements TreeCellRenderer {

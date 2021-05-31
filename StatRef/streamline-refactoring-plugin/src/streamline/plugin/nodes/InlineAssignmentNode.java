@@ -7,26 +7,16 @@ import streamline.plugin.nodes.guts.SelfPresentingNode;
 import streamline.plugin.nodes.inlineUsage.InlineUsageNode;
 import streamline.plugin.refactoring.InlineAssignment;
 import streamline.plugin.refactoring.InlineUsage;
+import streamline.plugin.refactoring.guts.Refactoring;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InlineAssignmentNode extends RefactoringNode<InlineAssignment> {
+public class InlineAssignmentNode extends CompoundNode {
 
     public InlineAssignmentNode(InlineAssignment inlineAssignment, NodesRegistry registry) {
         super(inlineAssignment, registry);
-        setNodePanelParts(new RefactoringPresenter("Inline ", refactoring.getInitializer().getInitializer().getElement()));
-    }
-
-    @Override
-    @NotNull
-    public List<SelfPresentingNode> createChildren() {
-        ArrayList<SelfPresentingNode> nodes = new ArrayList<>();
-        for (InlineUsage usage : this.refactoring.getUsages()) {
-            nodes.add(new InlineUsageNode(usage, registry));
-        }
-        nodes.add(new RemoveElementNode(this.refactoring.getRemove(), registry));
-        return nodes;
+        setNodePanelParts(new RefactoringPresenter("Inline ", inlineAssignment.getInitializer().getInitializer().getElement()));
     }
 
     @Override

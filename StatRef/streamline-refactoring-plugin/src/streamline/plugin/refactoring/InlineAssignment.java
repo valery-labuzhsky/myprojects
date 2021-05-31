@@ -1,6 +1,7 @@
 package streamline.plugin.refactoring;
 
 import org.jetbrains.annotations.NotNull;
+import statref.model.idea.IElement;
 import statref.model.idea.IInitializer;
 import statref.model.idea.ILocalVariableDeclaration;
 import statref.model.idea.expressions.ILocalVariable;
@@ -17,25 +18,35 @@ public class InlineAssignment extends CompoundRefactoring {
     private final IInitializer initializer;
 
     private final ArrayList<InlineUsage> usages = new ArrayList<>();
-    private final RemoveInitializer remove;
+    private final RemoveElement remove;
 
     public InlineAssignment(RefactoringRegistry registry, IInitializer initializer) {
         super(registry, initializer);
         this.initializer = initializer;
-        remove = new RemoveInitializer(registry, initializer) {
-            @Override
-            public void enableAll() {
-                if (!areUsagesLeft()) {
-                    super.enableAll();
-                }
-            }
-        };
         VariableFlow flow = new VariableFlow((ILocalVariableDeclaration) initializer.declaration());
         Collection<ILocalVariable> usages = flow.getUsages(initializer);
         for (ILocalVariable usage : usages) {
             addUsage(usage);
         }
-        remove.setEnabled(!areUsagesLeft());
+
+        remove = new RemoveElement(registry, (IElement) initializer) {
+            @Override
+            public void enableAll() {
+            }
+        };
+
+        for (InlineUsage usage : this.usages) {
+            usage.onUpdate.listen(() -> {
+                if (usage.isEnabled()) {
+                    if (!remove.isEnabled()) {
+                        remove.setEnabled(!areUsagesLeft());
+                    }
+                } else {
+                    if (remove.isEnabled()) remove.setEnabled(false);
+                }
+            });
+        }
+        remove.setEnabled(usages.isEmpty());
     }
 
     private void addUsage(ILocalVariable usage) {
@@ -72,7 +83,7 @@ public class InlineAssignment extends CompoundRefactoring {
         return usages;
     }
 
-    public RemoveInitializer getRemove() {
+    public RemoveElement getRemove() {
         return remove;
     }
 
@@ -88,7 +99,6 @@ public class InlineAssignment extends CompoundRefactoring {
                 usage.setEnabled(false);
             }
         }
-        remove.setEnabled(!areUsagesLeft());
         return enabled;
     }
 

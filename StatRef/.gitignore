@@ -2,4 +2,5 @@
 /output
 /out
 /example/output
+/example/gen
 *.jar

@@ -4,18 +4,24 @@ import streamline.plugin.nodes.guts.NodesRegistry;
 import streamline.plugin.nodes.guts.Presenter;
 import streamline.plugin.nodes.guts.SimplePresenter;
 import streamline.plugin.refactoring.InlineParameter;
+import streamline.plugin.refactoring.SimpleCompoundRefactoring;
 
-public class InlineParameterNode extends CompoundNode<InlineParameter> {
+public class InlineParameterNode extends CompoundNode {
     public InlineParameterNode(InlineParameter refactoring, NodesRegistry registry) {
         super(refactoring, registry);
+    }
+
+    @Override
+    public InlineParameter getRefactoring() {
+        return (InlineParameter) super.getRefactoring();
     }
 
     @Override
     protected Presenter createPresenter() {
         return new SimplePresenter().
                 italic().add("Inline parameter ").
-                bold().add(refactoring.getParameter().getName()).
+                bold().add(getRefactoring().getParameter().getName()).
                 italic().add(" of method ").
-                add(refactoring.getParameter().getParent().getName());
+                add(getRefactoring().getParameter().getParent().getName());
     }
 }

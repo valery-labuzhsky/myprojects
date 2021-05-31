@@ -21,6 +21,7 @@ public class NodesRegistry {
         register(CreateMethod.class, CreateMethodNode::new);
         register(ReplaceElement.class, ReplaceElementNode::new);
         register(DelegateMethod.class, DelegateNode::new);
+        register(RemoveElement.class, RemoveElementNode::new);
         // TODO do I need auto resolution for this?
     }};
 

@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public abstract class RefactoringNode<R extends Refactoring> extends SelfPresentingNode {
-    protected final R refactoring;
+public abstract class RefactoringNode extends SelfPresentingNode {
+    private final Refactoring refactoring;
     protected final NodesRegistry registry;
     private final Listeners listeners;
     private List<SelfPresentingNode> children;
 
-    public RefactoringNode(R refactoring, NodesRegistry registry) {
+    public RefactoringNode(Refactoring refactoring, NodesRegistry registry) {
         super(registry.getProject());
         this.refactoring = refactoring;
         this.registry = registry;
@@ -63,7 +63,7 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         return children;
     }
 
-    public R getRefactoring() {
+    public Refactoring getRefactoring() {
         return refactoring;
     }
 
@@ -131,7 +131,7 @@ public abstract class RefactoringNode<R extends Refactoring> extends SelfPresent
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        RefactoringNode<?> that = (RefactoringNode<?>) o;
+        RefactoringNode that = (RefactoringNode) o;
         return refactoring.equals(that.refactoring);
     }
 
