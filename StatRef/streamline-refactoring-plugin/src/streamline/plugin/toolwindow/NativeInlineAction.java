@@ -19,6 +19,6 @@ public class NativeInlineAction extends RefactoringToolPanelAction {
         AnAction nativeAction = ActionManager.getInstance().getAction("Inline");
         RefactoringToolPanel panel = getToolPanel(e);
         panel.close(e);
-        ActionUtil.performActionDumbAware(nativeAction, panel.originalEvent);
+        ActionUtil.performActionDumbAwareWithCallbacks(nativeAction, panel.originalEvent);
     }
 }

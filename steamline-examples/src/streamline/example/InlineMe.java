@@ -7,7 +7,12 @@ import java.util.function.Supplier;
 public class InlineMe {
 
     public void simpleAfter() {
-        String s = toString() + "" + new ArrayList<>();
+        String s;
+        try {
+            s = toString() + "" + new ArrayList<>();
+        } finally {
+
+        }
         System.out.println(s);
 
         int inline = 8;
@@ -15,12 +20,15 @@ public class InlineMe {
         int target = inline;
     }
 
+    
     public void setBefore() {
         int inline = 8;
 
         inline = 7;
 
         int target = inline;
+
+        System.out.println(inline);
 
         inline = 9;
     }

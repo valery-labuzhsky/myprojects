@@ -7,7 +7,7 @@
         <sourceOutputDir name="gen" />
         <outputRelativeToContentRoot value="true" />
       </profile>
-      <profile name="Excluded">
+      <profile name="Excluded" enabled="true">
         <module name="processor" />
       </profile>
     </annotationProcessing>
