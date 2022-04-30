@@ -1,0 +1,24 @@
+extern void object::SwitchCell1()
+{
+	//object item = radar(Titanium);
+	//goto(item.position);
+	//grab();
+	
+	//turn(-90);
+	
+	//move(8);
+	
+	//drop();
+	//move(-8);
+	
+	//build ( ResearchCenter );
+	
+	object korobochka;
+	//item=radar(PowerCell);
+	//goto(item.position);
+	//grab();
+	goto(korobochka.position);
+	//korobochka=
+	 
+	
+}

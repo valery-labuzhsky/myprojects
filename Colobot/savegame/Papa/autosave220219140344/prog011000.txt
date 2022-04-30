@@ -1,0 +1,14 @@
+extern void object::Mission3()
+{
+	justBuildOneBot(TrackedGrabber , "Mission3_track");
+	
+	goto(radar(SpaceShip).position);
+}
+
+public void object::Mission3_track()
+{
+	object ss = radar(SpaceShip);
+	justGrab(BlackBox);
+	goto(ss.position);
+	ss.takeoff();
+}

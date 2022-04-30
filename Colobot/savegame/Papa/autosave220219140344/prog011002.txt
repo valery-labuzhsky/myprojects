@@ -1,0 +1,19 @@
+extern void object::justGoToLib() {
+	justGoTo(radar(PowerCell));
+}
+
+public void object::justGoTo(object t) {
+	// TODO check that nothing stands between us
+	float dir = direction(t.position);
+	object[] pos = radarall(Any, dir, 180, 0, distance(position, t.position));
+	int i;
+	for (i=0;i<sizeof(pos);i++) {
+		object po = pos[i];
+		if (po==t) continue;
+		float podist = distance(position, po.position);
+		float r = sin(direction(po.position) - dir) * podist;
+		if (abs(r) < 5) message(po.category+": "+podist+", "+r);
+	}
+	
+	//turn(direction(t.position));
+}

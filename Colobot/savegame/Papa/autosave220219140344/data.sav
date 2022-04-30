@@ -1,0 +1,80 @@
+Title text="[AUTOSAVE] 22.02.19 14:03"
+Version maj=0 min=1
+Created date=1645268624
+Mission base="missions" chap=1 gametime=300.006012 rank=3
+Map zoom=4
+DoneResearch bits=0
+CreateObject aBusy=0 aProgressTime=0 aProgressTotal=1 aTime=301.644165 aType=SpaceShip angle=0;0 camera=4 energy=1 id=0 lifetime=301.644165 option=0 pos=0;15.75;0 range=30 run=3 trainer=0 type=SpaceShip zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=1 lifetime=301.644165 option=0 pos=3.75;23.25;-2.5 range=30 shield=0 type=Titanium zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=2 lifetime=301.644165 option=0 pos=2.5;23.25;-2.5 range=30 shield=0 type=Titanium zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=3 lifetime=301.644165 option=0 pos=3.75;23.25;-3.75 range=30 shield=0 type=Titanium zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=4 lifetime=301.644165 option=0 pos=2.5;23.25;-3.75 range=30 shield=0 type=Titanium zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=5 lifetime=301.644165 option=0 pos=2.5;23.25;2.5 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=6 lifetime=301.644165 option=0 pos=3.75;23.25;2.5 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=7 lifetime=301.644165 option=0 pos=2.5;23.25;3.75 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=8 lifetime=301.644165 option=0 pos=3.75;23.25;3.75 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject aBusy=0 aProgressTime=0 aProgressTotal=1 aTime=301.644165 aType=Portico angle=0;90;0 camera=4 energy=1 id=9 lifetime=301.644165 option=0 pos=0;15.75;35.9000015 range=30 type=Portico zoom=1;1;1
+CreateObject angle=0;18;0 bVirusActive=0 camera=4 energy=1 id=10 land=1 lifetime=301.644165 motor=0;0 option=1 pos=-31;16.375;15 programStorageIndex=989 range=30 reactorRange=1 trainer=0 type=Me zoom=1;1;1
+CreatePower angle=0;0 camera=4 energy=0.993484914 id=12 lifetime=301.644165 option=0 pos=-0.800000012;0.75;0 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=-0.0540130734;87.7964478;0 bVirusActive=0 camera=4 energy=1 id=11 lifetime=301.644165 motor=0;-1;0 option=0 pos=-29;15.75;20 programStorageIndex=11 range=30 scriptReadOnly1=0 scriptReadOnly2=0 scriptReadOnly3=0 scriptRunnable1=1 scriptRunnable2=1 scriptRunnable3=1 select=1 trainer=0 type=WheeledGrabber zoom=1;1;1
+CreateObject angle=0;180;0 camera=4 energy=1 id=13 lifetime=301.644165 option=0 pos=-26;15.75;-14 range=30 trainer=0 type=BotFactory zoom=1;1;1
+CreateObject angle=0;180;0 camera=4 energy=1 id=14 lifetime=301.644165 option=0 pos=-26;15.5500002;5 range=30 trainer=0 type=ResearchCenter zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=15 lifetime=301.644165 option=0 pos=-28;15.75;-8 range=30 shield=0 type=Titanium zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=16 lifetime=301.644165 option=0 pos=-26;15.75;-8 range=30 shield=0 type=Titanium zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=17 lifetime=301.644165 option=0 pos=-28;15.75;-6 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=18 lifetime=301.644165 option=0 pos=-26;15.75;-6 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=19 lifetime=301.644165 option=0 pos=-28;15.75;-4 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=20 lifetime=301.644165 option=0 pos=-26;15.75;-4 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject aBusy=0 aProgressTime=0 aProgressTotal=1 aTime=301.644165 aType=Houston angle=0;0 camera=4 energy=1 id=21 lifetime=301.644165 option=0 pos=-47;15.75;20 range=30 trainer=0 type=Houston zoom=1;1;1
+CreateObject aBusy=0 aProgressTime=0 aProgressTotal=1 aTime=301.644165 aType=RadarStation angle=0;0 camera=4 energy=1 id=22 lifetime=301.644165 option=0 pos=-18;18;-30 range=30 trainer=0 type=RadarStation zoom=1;1;1
+CreatePower angle=0;0 camera=4 energy=0.855198026 id=24 lifetime=301.644165 option=0 pos=-0.800000012;0.75;0 range=30 shield=0 type=NuclearCell zoom=1;1;1
+CreateObject angle=-0.0457622595;-810.916382;-2.86205292 bVirusActive=0 camera=FIX cmdline=3;-37;47;-37;-47;37;-47 energy=1 id=23 lifetime=301.644165 motor=0.999998987;-1.43051147e-06 option=0 pos=37.1949692;15.7594175;34.811657 programStorageIndex=975 range=30 run=1 script1="strain1.txt" scriptReadOnly1=1 scriptRunnable1=1 selectable=0 trainer=1 type=PracticeBot zoom=1;1;1
+CreatePower angle=0;0 camera=4 energy=0.855039716 id=26 lifetime=301.644165 option=0 pos=-0.800000012;0.75;0 range=30 shield=0 type=NuclearCell zoom=1;1;1
+CreateObject angle=0.128078848;-1081.18677;-0.187390402 bVirusActive=0 camera=FIX cmdline=3;37;47;-37;47;-37;-47 energy=1 id=25 lifetime=301.644165 motor=0.999996305;-5.24520874e-06 option=0 pos=-1.3164283;15.75;-47.7939148 programStorageIndex=973 range=30 run=1 script1="strain1.txt" scriptReadOnly1=1 scriptRunnable1=1 selectable=0 trainer=1 type=WheeledSniffer zoom=1;1;1
+CreatePower angle=0;0 camera=4 energy=0.86062634 id=28 lifetime=301.644165 option=0 pos=-0.800000012;0.75;0 range=30 shield=0 type=NuclearCell zoom=1;1;1
+CreateObject angle=4.20834255;-1349.28271;1.40582287 bVirusActive=0 camera=ONBOARD cmdline=5;33;-47;33;-43;-33;-43;-33;43;-37;43 energy=1 id=27 lifetime=301.644165 motor=0.999996901;4.41074371e-06 option=0 pos=-36.5789032;15.5789452;-13.3796587 programStorageIndex=971 range=30 run=1 script1="strain1.txt" scriptReadOnly1=1 scriptRunnable1=1 selectable=0 trainer=1 type=WheeledShooter zoom=1;1;1
+CreateObject angle=0;270;0 bVirusActive=0 camera=4 clip=0 energy=1 id=29 land=1 lifetime=301.644165 motor=0;0 option=2 pos=-45;16.625;31 programStorageIndex=970 range=30 reactorRange=1 type=Tech zoom=1;1;1
+CreateObject angle=0;5849.99902;0 bVirusActive=0 camera=4 clip=0 energy=1 id=30 land=1 lifetime=301.644165 motor=0;0 option=2 pos=-45;16.625;23.9999847 programStorageIndex=969 range=30 reactorRange=1 run=1 script1="human02.txt" scriptReadOnly1=1 scriptRunnable1=1 type=Tech zoom=1;1;1
+CreateObject angle=0;44.3831139;0 bVirusActive=0 camera=4 clip=0 energy=1 id=31 land=1 lifetime=301.644165 motor=0;-1 option=2 pos=-43;16.625;28 programStorageIndex=968 range=30 reactorRange=1 run=1 script1="human01.txt" scriptReadOnly1=1 scriptRunnable1=1 type=Tech zoom=1;1;1
+CreateObject angle=0;180;0 bVirusActive=0 camera=4 clip=0 energy=1 id=32 land=1 lifetime=301.644165 motor=0;0 option=2 pos=-46;16.625;11.9783392 programStorageIndex=967 range=30 reactorRange=1 run=1 script1="human03.txt" scriptReadOnly1=1 scriptRunnable1=1 type=Tech zoom=1;1;1
+CreateObject angle=0;216.000015;0 bVirusActive=0 camera=4 clip=0 energy=1 id=33 land=1 lifetime=301.644165 motor=0;0 option=2 pos=-44;16.5750008;9 programStorageIndex=966 range=30 reactorRange=1 type=Tech zoom=1;1;1
+CreateObject angle=0;18;0 bVirusActive=0 camera=4 clip=0 energy=1 id=34 land=1 lifetime=301.644165 motor=0;0 option=2 pos=-45;16.625;10 programStorageIndex=965 range=30 reactorRange=1 type=Tech zoom=1;1;1
+CreateObject angle=0;0 camera=4 energy=1 id=35 lifetime=301.644165 option=0 pos=-100;33.75;-45 range=30 type=GoalArea zoom=1;1;1
+CreateObject angle=0;0 camera=4 energy=1 id=36 lifetime=301.644165 option=0 pos=-104;33.75;-45 range=30 selectable=0 trainer=0 type=ExchangePost zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=37 lifetime=301.644165 option=0 pos=-100;34;-45 range=30 type=BlackBox zoom=1;1;1
+CreateObject angle=8.45788765;90;2.82848716 camera=4 energy=1 id=38 lifetime=301.644165 option=0 pos=-109;34.2199974;-42.4000015 range=30 type=Barrier1 zoom=1;1;1
+CreateObject angle=16.0776424;90;8.12080383 camera=4 energy=1 id=39 lifetime=301.644165 option=0 pos=-109;34.5900002;-47.5999985 range=30 type=Barrier1 zoom=1;1;1
+CreateObject angle=-5.66386271;90;5.66386175 camera=4 energy=1 id=40 lifetime=301.644165 option=0 pos=48;17.2900009;-42.4000015 range=30 type=Barrier1 zoom=1;1;1
+CreateObject angle=-8.42733765;90;5.62958431 camera=4 energy=1 id=41 lifetime=301.644165 option=0 pos=48;17.7099991;-47.5999985 range=30 type=Barrier1 zoom=1;1;1
+CreateObject angle=0;8.46814537 camera=4 energy=1 id=42 lifetime=301.644165 option=0 pos=-32.4000015;16.6399994;-58 range=30 type=Barrier1 zoom=1;1;1
+CreateObject angle=-2.86002564;-0 camera=4 energy=1 id=43 lifetime=301.644165 option=0 pos=-37.5999985;16.3500004;-58 range=30 type=Barrier1 zoom=1;1;1
+CreateObject angle=0;0 camera=4 energy=1 id=44 lifetime=301.644165 option=0 pos=-27.7999992;15.6099997;-37.2999992 range=30 type=Tree0 zoom=1;1;1
+CreateObject angle=0;36;0 camera=4 energy=1 id=45 lifetime=301.644165 option=0 pos=-44;17.0849991;-51.2999992 range=30 type=Tree1 zoom=1;1;1
+CreateObject angle=0;306.000031;0 camera=4 energy=1 id=46 lifetime=301.644165 option=0 pos=-41.5;16.8250008;-26.7000008 range=30 type=Tree2 zoom=1;1;1
+CreateObject angle=0;90;0 camera=4 energy=1 id=47 lifetime=301.644165 option=0 pos=-47.5;15.7449999;-7.4000001 range=30 type=Tree3 zoom=1;1;1
+CreateObject angle=0;90;0 camera=4 energy=1 id=48 lifetime=301.644165 option=0 pos=-44.7000008;15.5;-3.5 range=30 type=Tree1 zoom=1;1;1
+CreateObject angle=0;198.000015;0 camera=4 energy=1 id=49 lifetime=301.644165 option=0 pos=9.60000038;15.8099995;-36.2000008 range=30 type=Tree2 zoom=1;1;1
+CreateObject angle=0;0 camera=4 energy=1 id=50 lifetime=301.644165 option=0 pos=28.7000008;15.875;-12.5 range=30 type=Tree3 zoom=1;1;1
+CreateObject angle=0;252;0 camera=4 energy=1 id=51 lifetime=301.644165 option=0 pos=28.2999992;15.75;-7 range=30 type=Tree1 zoom=1;1;1
+CreateObject angle=0;270;0 camera=4 energy=1 id=52 lifetime=301.644165 option=0 pos=41.5999985;16;12.1000004 range=30 type=Tree0 zoom=1;1;1
+CreateObject angle=0;198.000015;0 camera=4 energy=1 id=53 lifetime=301.644165 option=0 pos=46.9000015;15.8400002;56.7999992 range=30 type=Tree1 zoom=1;1;1
+CreateObject angle=0;54.0000038;0 camera=4 energy=1 id=54 lifetime=301.644165 option=0 pos=-113.5;35.6049995;-42.7000008 range=30 type=Tree2 zoom=1;1;1
+CreateObject angle=0;198.000015;0 camera=4 energy=1 id=55 lifetime=301.644165 option=0 pos=-16.2999992;17.3899994;-77.6999969 range=30 type=Tree3 zoom=1;1;1
+CreateObject angle=0;0 camera=4 energy=1 id=56 lifetime=301.644165 option=0 pos=-41.9000015;15.6849995;-109.400002 range=30 type=Tree0 zoom=1;1;1
+CreateObject angle=0;108.000008;0 camera=4 energy=1 id=57 lifetime=301.644165 option=0 pos=-56;15.75;38.2999992 range=30 type=Tree1 zoom=1;1;1
+CreateObject angle=0;54.0000038;0 camera=4 energy=1 id=58 lifetime=301.644165 option=0 pos=-47;16.4200001;-21.2000008 range=30 type=Greenery0 zoom=1;1;1
+CreateObject angle=0;342;0 camera=4 energy=1 id=59 lifetime=301.644165 option=0 pos=-47.5999985;15.9099998;-17.6000004 range=30 type=Greenery1 zoom=1;1;1
+CreateObject angle=0;126;0 camera=4 energy=1 id=60 lifetime=301.644165 option=0 pos=-40.9000015;16.1149998;-22.2999992 range=30 type=Greenery4 zoom=1;1;1
+CreateObject angle=0;90;0 camera=4 energy=1 id=61 lifetime=301.644165 option=0 pos=-16.8999996;15.25;-19.6000004 range=30 type=Greenery2 zoom=1;1;1
+CreateObject angle=0;18;0 camera=4 energy=1 id=62 lifetime=301.644165 option=0 pos=-24.5;15.2000008;0.5 range=30 type=Greenery3 zoom=1;1;1
+CreateObject angle=0;144;0 camera=4 energy=1 id=63 lifetime=301.644165 option=0 pos=-24;15.1099997;37.2000008 range=30 type=Greenery2 zoom=1;1;1
+CreateObject angle=0;216.000015;0 camera=4 energy=1 id=64 lifetime=301.644165 option=0 pos=-18.3999996;15.2399998;38.2000008 range=30 type=Greenery1 zoom=1;1;1
+CreateObject angle=0;36;0 camera=4 energy=1 id=65 lifetime=301.644165 option=0 pos=42.7000008;15.8950005;-35.2000008 range=30 type=Greenery2 zoom=1;1;1
+CreateObject angle=0;288;0 camera=4 energy=1 id=66 lifetime=301.644165 option=0 pos=8.5;18.2900009;-57.7000008 range=30 type=Greenery4 zoom=1;1;1
+CreateObject angle=0;18;0 camera=4 energy=1 id=67 lifetime=301.644165 option=0 pos=-47.4000015;15.25;-70.5 range=30 type=Greenery3 zoom=1;1;1
+CreateObject angle=0;90;0 camera=4 energy=1 id=68 lifetime=301.644165 option=0 pos=-87.0999985;33.3050003;-39 range=30 type=Greenery0 zoom=1;1;1
+CreateObject angle=0;0 camera=4 energy=1 id=69 lifetime=301.644165 option=0 pos=-97.6999969;33.3300018;-50.2000008 range=30 type=Greenery1 zoom=1;1;1
+CreateObject angle=0;252;0 camera=4 energy=1 id=70 lifetime=301.644165 option=0 pos=-104.300003;33.5699997;-39.2000008 range=30 type=Greenery3 zoom=1;1;1
+CreateObject angle=0;54.0000038;0 camera=4 energy=1 id=71 lifetime=301.644165 option=0 pos=-21.2999992;15.25;22.2999992 range=30 type=Greenery2 zoom=1;1;1
+CreateObject angle=0;162;0 camera=4 energy=1 id=72 lifetime=301.644165 option=0 pos=-58.9000015;15.25;39.9000015 range=30 type=Greenery0 zoom=1;1;1
+CreateObject angle=0;72;0 camera=4 energy=1 id=73 lifetime=301.644165 option=0 pos=-60;15.3299999;34.2000008 range=30 type=Greenery2 zoom=1;1;1

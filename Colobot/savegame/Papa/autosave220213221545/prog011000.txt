@@ -1,0 +1,33 @@
+extern void object::Mission3()
+{
+	goto(radar(PowerCell).position);
+	grab();
+	goto(radar(ResearchCenter).position);
+	drop();
+	radar(ResearchCenter).research(ResearchTracked);
+	goto(radar(Titanium).position);
+	grab();
+	goto(radar(BotFactory).position);
+	drop();
+	move(-2.5);
+	radar(BotFactory).factory(TrackedGrabber, "Mission3_track");
+	
+	goto(radar(PowerCell).position);
+	grab();
+	goto(radar(BotFactory).position);
+	while (radar(BotFactory).busy()) {wait(1);}
+	
+	goto(radar(TrackedGrabber).position);
+	drop();
+	goto(radar(SpaceShip).position);
+}
+
+public void Mission3_track()
+{
+	errmode(0);
+	while (goto(radar(BlackBox).position)!=0) {wait(1);}
+	errmode(1);
+	grab();
+	goto(radar(SpaceShip).position);
+	radar(SpaceShip).takeoff();
+}

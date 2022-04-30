@@ -1,0 +1,65 @@
+extern void object::justDoIt() {
+}
+
+public void object::justBuildOneBot(int cat, string program = "") {
+	object f = radar(BotFactory);
+	while (f.busy()) wait(1);
+	object b = radar(cat);
+	if (b==null) justBuildBot(cat, program);
+	else justCharge(b);
+}
+
+public void object::justBuildBot(int cat, string program = "")
+{
+	object f = radar(BotFactory);
+	justResearch(cat);
+	justBring(Titanium, f.position);
+	float d = distance(position, f.position);
+	if (d < 5) move(5 - d);
+	while (radar(ResearchCenter).busy() and not researched(cat)) wait(1);
+	
+	f.factory(cat, program);
+	
+	justGrab(PowerCell);
+	goto(radar(BotFactory).position);
+	while (radar(BotFactory).busy()) wait(1);
+	justCharge(radar(cat));
+}
+
+public void object::justCharge(object o) {
+	if (o.energyCell!=null) return;
+	
+	justGrab(PowerCell);
+	goto(o.position);
+	drop();
+}
+
+public void object::justResearch(int cat)
+{
+	if (researched(cat)) return;
+	
+	object r = radar(ResearchCenter);
+	justBring(PowerCell, r.position);
+	
+	r.research(cat);
+}
+
+public void object::justBring(int what, point where) {
+	if (search(what, where, 0, 2)==null) {
+		justGrab(what);
+		goto(where);
+		drop();
+	}
+}
+
+public void object::justGrab(int what) {
+	if (load!=null) {
+		if (load.category==what) return;
+		drop();
+	}
+	
+	errmode(0);
+	while (goto(radar(what).position)!=0) {wait(1);}
+	errmode(1);
+	grab();
+}

@@ -1,0 +1,32 @@
+Title text="22.02.21 09:42 - Луна 1"
+Version maj=0 min=1
+Created date=1645425751
+Mission base="missions" chap=2 gametime=2081.85229 rank=1
+Map zoom=2
+DoneResearch bits=3
+CreateObject aBusy=0 aProgressTime=0 aProgressTotal=1 aTime=2087.74561 aType=SpaceShip angle=0;0 camera=4 energy=1 id=0 lifetime=2087.74561 option=0 pos=12.5;26.5;-75 range=30 run=3 trainer=0 type=SpaceShip zoom=1;1;1
+CreateObject angle=0;270;0 bVirusActive=0 camera=4 energy=1 id=1 land=1 lifetime=2087.74561 motor=0;0 option=0 pos=12.5;34.875;-78.25 programStorageIndex=998 range=30 reactorRange=1 trainer=0 type=Me zoom=1;1;1
+CreatePower angle=0;0 camera=4 energy=0.429671526 id=3 lifetime=2087.73291 option=0 pos=-0.800000012;0.75;0 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=-0.977900386;297.252228;1.59489954 bVirusActive=0 camera=4 energy=1 id=2 lifetime=2087.73291 motor=0;0 option=0 pos=41.2710304;26.5112534;-59.7749519 programStorageIndex=2 range=30 script2="exchg1.txt" scriptReadOnly1=0 scriptReadOnly2=1 scriptRunnable1=1 scriptRunnable2=1 select=1 trainer=0 type=WheeledGrabber zoom=1;1;1
+CreateObject angle=0;-0 camera=4 energy=1 id=4 lifetime=2087.73291 option=0 pos=8.75;34;-72.5 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;198.000015;0 camera=4 energy=1 id=6 lifetime=2087.73291 option=0 pos=8.75;34;-71.25 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;90;0 camera=4 energy=1 id=10 lifetime=2087.73291 option=0 pos=15;34;-71.25 range=30 shield=0 type=Titanium zoom=1;1;1
+CreateObject angle=1.2549758;36;7.89899874 camera=4 energy=1 id=12 lifetime=2087.73291 option=0 pos=-136.399994;26.0400009;-59.2999992 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=0.948088348;162;-6.28253984 camera=4 energy=1 id=13 lifetime=2087.73291 option=0 pos=-137.5;25.5149994;-54.7000008 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=5.45466518;270;-16.1662426 camera=4 energy=1 id=14 lifetime=2087.73291 option=0 pos=-137.199997;26.0900002;-60.2000008 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=10.9586391;10.9586391 camera=4 energy=1 id=15 lifetime=2087.73291 option=0 pos=-135;22.3700008;31.8999996 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=-5.68473196;-2.84587884 camera=4 energy=1 id=16 lifetime=2087.73291 option=0 pos=-18.3999996;25.5500011;71.3000031 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=-6.28254032;288;0.948087871 camera=4 energy=1 id=17 lifetime=2087.73291 option=0 pos=-15.3999996;25.3099995;70.4000015 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=-0.948088765;18;-6.28254032 camera=4 energy=1 id=18 lifetime=2087.73291 option=0 pos=-16.2000008;25.4400005;71.4000015 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=-4.53088903;162;4.46275473 camera=4 energy=1 id=19 lifetime=2087.73291 option=0 pos=-15.5;25.6350002;66.4000015 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=7.2593174;36;-5.19729996 camera=4 energy=1 id=20 lifetime=2087.73291 option=0 pos=67;26.8250008;82.5 range=30 shield=0 type=TitaniumOre zoom=1;1;1
+CreateObject angle=0;216.000015;0 camera=4 energy=1 id=21 lifetime=2087.73291 option=0 pos=-99;29;42 range=30 type=ApolloLEM zoom=1.20000005;1.20000005;1.20000005
+CreateObject angle=-6.83858109;90;-0.954561651 bVirusActive=0 camera=4 energy=1 id=22 lifetime=2087.73291 motor=0;0 option=0 pos=-61;27.3999996;24 programStorageIndex=21 proxyActivate=1 proxyDistance=20 range=30 trainer=0 type=ApolloJeep zoom=1;1;1
+CreateObject angle=0;90;0 camera=4 energy=1 id=23 lifetime=2087.73291 option=0 pos=-94;29;29 range=30 type=ApolloFlag zoom=1;1;1
+CreateObject angle=0;90;0 camera=4 energy=1 id=24 lifetime=2087.73291 option=0 pos=-84;29.5499992;44 range=30 type=ApolloAntenna zoom=1;1;1
+CreateObject angle=0;90;-0 camera=4 energy=1 id=25 lifetime=2087.73291 option=0 pos=-87;29.5;49 range=30 type=ApolloModule zoom=1;1;1
+CreatePower angle=0;0 camera=4 energy=0.00144124031 id=5 lifetime=2087.73291 option=0 pos=1.875;0.75;0 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=0;535.156067;0 camera=4 energy=1 id=26 lifetime=1897.38318 option=0 pos=40.8799248;26.5067101;-71.8575745 range=30 trainer=0 type=ResearchCenter zoom=1;1;1
+CreateObject angle=0;842.438354;0 camera=4 energy=1 id=27 lifetime=693.618164 option=0 pos=43.1117439;26.6512775;-56.9886475 range=30 trainer=0 type=BotFactory zoom=1;1;1
+CreatePower angle=0;0 camera=4 energy=1 id=7 lifetime=2087.73291 option=0 pos=-0.800000012;0.75;0 range=30 shield=0 type=PowerCell zoom=1;1;1
+CreateObject angle=-1.53493774;1022.43835;2.41635489 bVirusActive=0 camera=4 energy=1 id=28 land=1 lifetime=481.64975 motor=0;0 option=0 pos=42.5887337;26.6094227;-57.8115578 programStorageIndex=974 range=30 reactorRange=1 script1="exchg1.txt" scriptReadOnly1=1 scriptRunnable1=1 trainer=0 type=WingedGrabber zoom=1;1;1

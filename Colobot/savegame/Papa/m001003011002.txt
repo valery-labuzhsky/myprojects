@@ -1,0 +1,115 @@
+extern void object::justGoToLib() {
+	justGoTo(radar(PowerCell));
+}
+
+public void object::justBump(object t) {
+	turn(direction(t.position));
+	motor(1, 1);
+	wait(0.001);
+	while (not bumped());
+	object o = radar(Any, 0, 180, 0, 20);
+	message(o.category+", "+distance(position, o.position));
+}
+
+public bool object::bumped() {
+	return len(velocity) > 0 and abs(direction(plus(position, velocity)))>1;
+}
+
+public point object::whereToGo(point t) {
+	float dir = direction(t);
+	
+	object[] pos = radarall(Any, dir, 180, 0, distance(position, t));
+	
+	object ob = null;
+	
+	for (int i=0;i<sizeof(pos);i++) {
+		object po = pos[i];
+		point r = norm(position, t, po.position);
+		if (len(r) < radius(po)) {
+			if (ob==null or distance(position, ob.position) < distance(position, po.position)) ob = po;
+		}
+	}
+	
+	if (ob!=null) {
+		point n = norm(position, t, ob.position);
+		message(ob.category+": "+distance(position, ob.position)+", "+len(n));
+		point tn = minus(ob.position, mult(norm(n), radius(ob)));
+		tn = whereToGo(tn);
+		float l = distance(position, tn) + distance(t, tn);
+		return plus(mult(norm(minus(tn, position)), l), position);
+	}
+	
+	return t;
+}
+
+public void object::justGoTo(object t) {
+	turn(direction(whereToGo(t.position)));
+}
+
+public void object::justTurnTo(float d) {
+	d -= orientation;
+	float ot = 0.1; // TODO measure it
+	float t = d / ot;
+	if (t < 0) motor(-t, 1);
+	else motor(1, t);
+}
+
+public point norm(point from, point to, point p) {
+	to = minus(to, from);
+	p = minus(p, from);
+	return project(p, norm(vector(to, up())));
+}
+
+public point project(point v, point n) {
+	return mult(n, scalar(n, v));
+}
+
+public point norm(point v) {
+	float l = len(v);
+	point n(v.x/l, v.y/l, v.z/l);
+	return n;
+}
+
+public float scalar(point v1, point v2) {
+	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+}
+
+public point vector(point v1, point v2) {
+	point v(v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x);
+	return v;
+}
+
+public float len(point v) {
+	return sqrt(v.x*v.x +v.y*v.y + v.z*v.z);
+}
+
+public point minus(point p1, point p2) {
+	point s(p1.x-p2.x, p1.y-p2.y, p1.z-p2.z);
+	return s;
+}
+
+public point plus(point p1, point p2) {
+	point s(p1.x+p2.x, p1.y+p2.y, p1.z+p2.z);
+	return s;
+}
+
+public point mult(point v, float l) {
+	point m(v.x*l, v.y*l, v.z*l);
+	return m;
+}
+
+public point zero() {
+	point z(0, 0, 0);
+	return z;
+}
+
+public point up() {
+	point z(0, 0, 1);
+	return z;
+}
+public float radius(object o){
+	switch (o.category) {
+		case ResearchCenter: return 3.4;
+	}
+	return 0;
+}

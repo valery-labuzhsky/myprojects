@@ -1,0 +1,77 @@
+extern void object::Mission3()
+{
+	justBuildBot(TrackedGrabber , "Mission3_track");
+	
+	goto(radar(PowerCell).position);
+	grab();
+	goto(radar(ResearchCenter).position);
+	drop();
+	radar(ResearchCenter).research(ResearchTracked);
+	goto(radar(Titanium).position);
+	grab();
+	goto(radar(BotFactory).position);
+	drop();
+	move(-2.5);
+	radar(BotFactory).factory(TrackedGrabber, "Mission3_track");
+	
+	goto(radar(PowerCell).position);
+	grab();
+	goto(radar(BotFactory).position);
+	while (radar(BotFactory).busy()) {wait(1);}
+	
+	goto(radar(TrackedGrabber).position);
+	drop();
+	goto(radar(SpaceShip).position);
+}
+
+public void object::justBuildBot(int cat, string program = "")
+{
+	errmode(0);
+	int problem = radar(BotFactory).factory(cat, program);
+	errmode(1);
+	switch (problem) {
+		case 133: justResearch(cat); justBuildBot(cat, program); break;
+		default: message("Unknown factory problem: "+problem); radar(BotFactory).factory(cat, program);
+	}
+	
+	// TODO check every step
+	goto(radar(PowerCell).position);
+	grab();
+	goto(radar(BotFactory).position);
+	while (radar(BotFactory).busy()) {wait(1);}
+}
+
+public void object::justResearch(int cat)
+{
+	errmode(0);
+	int problem = radar(ResearchCenter).research(cat);
+	errmode(1);
+	switch (problem) {
+		case 320: justBring(PowerCell, radar(ResearchCenter).position); justResearch(cat); break;
+		default: message("Unknown research problem: "+problem); radar(ResearchCenter).research(cat);
+	}
+}
+
+public void object::justBring(int what, point where) {
+	justGrab(what);
+	goto(where);
+	drop();
+}
+
+public void object::justGrab(int what) {
+	if (load==null) {
+		goto(radar(what).position);
+		grab();
+	}
+}
+
+
+public void Mission3_track()
+{
+	errmode(0);
+	while (goto(radar(BlackBox).position)!=0) {wait(1);}
+	errmode(1);
+	grab();
+	goto(radar(SpaceShip).position);
+	radar(SpaceShip).takeoff();
+}

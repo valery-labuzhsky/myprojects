@@ -1,0 +1,8 @@
+extern void object::Mission1()
+{
+	goto(radar(Titanium).position);
+	build(ResearchCenter);
+	
+	goto(radar(Titanium).position);
+	build(BotFactory);
+}

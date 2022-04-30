@@ -1,0 +1,66 @@
+extern void object::Mission3()
+{
+	justBuildBot(TrackedGrabber , "Mission3_track");
+	
+	goto(radar(SpaceShip).position);
+}
+
+public void object::justBuildBot(int cat, string program = "")
+{
+	errmode(0);
+	object f = radar(BotFactory);
+	int problem = f.factory(cat, program);
+	errmode(1);
+	switch (problem) {
+		case 0: break;
+		case 133: justResearch(cat); justBuildBot(cat, program); return;
+		case 370: justBring(Titanium, f.position); justBuildBot(cat, program); return;
+		case 371: move(-2.5); justBuildBot(cat, program); return;
+		default: message("Unknown factory problem: "+problem); f.factory(cat, program);
+	}
+	
+	justGrab(PowerCell);
+	goto(radar(BotFactory).position);
+	while (radar(BotFactory).busy()) {wait(1);}
+	goto(radar(cat).position);
+	drop();
+}
+
+public void object::justResearch(int cat)
+{
+	errmode(0);
+	object r = radar(ResearchCenter);
+	int problem = r.research(cat);
+	errmode(1);
+	switch (problem) {
+		case 0: break;
+		case 5: while(r.busy()) wait(1); justResearch(cat); break;
+		case 320: justBring(PowerCell, r.position); justResearch(cat); break;
+		case 323: break;
+		default: message("Unknown research problem: "+problem); r.research(cat);
+	}
+}
+
+public void object::justBring(int what, point where) {
+	justGrab(what);
+	goto(where);
+	drop();
+}
+
+public void object::justGrab(int what) {
+	if (load==null) {
+		errmode(0);
+		while (goto(radar(what).position)!=0) {wait(1);}
+		errmode(1);
+		grab();
+	}
+}
+
+
+public void object::Mission3_track()
+{
+	object ss = radar(SpaceShip);
+	justGrab(BlackBox);
+	goto(ss.position);
+	ss.takeoff();
+}

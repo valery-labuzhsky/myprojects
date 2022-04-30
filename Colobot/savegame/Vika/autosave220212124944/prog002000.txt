@@ -1,0 +1,45 @@
+extern void object::SwitchCell1()
+{
+	//object a;
+	//a=radar(WingedGrabber);
+	//goto(a.position);
+	
+	//grab();
+	
+	//object a;
+	//a=radar(BotFactory);
+	//goto(a.position);
+	
+	//drop();
+	
+	//move(-10);
+	//object a;
+	//a=radar(BotFactory);
+	//a.factory( WingedGrabber);
+	
+	
+	//object a;
+	//a=radar(PowerCell);
+	//goto(a.position);
+	
+	//drop();
+	
+	radar(SpaceShip);
+	
+	  
+	
+	
+	
+	
+	
+	
+	 
+	
+	
+	
+	
+	   
+	
+	
+	
+}
