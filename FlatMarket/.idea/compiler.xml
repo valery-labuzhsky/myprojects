@@ -19,5 +19,8 @@
         <module name="FlatMarket" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="FlatMarket" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>

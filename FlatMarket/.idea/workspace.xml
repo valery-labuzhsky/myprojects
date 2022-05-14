@@ -1,13 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="66c30c9b-f3b1-4b22-8cce-7503135e683b" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../StatRef/model-idea/src/statref/model/idea/statements/ITryStatement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../StatRef/model-idea/model-idea.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/model-idea/model-idea.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../KSP/Script/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../KSP/Script/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/example/example.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/example/example.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/model-idea/src/statref/model/idea/IFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/model-idea/src/statref/model/idea/IFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/SLInlineAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/SLInlineAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/CompoundNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/CompoundNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/CreateMethodNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/CreateMethodNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/DelegateNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/DelegateNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/InlineAssignmentNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/InlineAssignmentNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/InlineParameterNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/InlineParameterNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/InlineVariableNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/InlineVariableNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/RemoveElementNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/RemoveElementNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/ReplaceElementNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/ReplaceElementNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/guts/NodesRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/guts/NodesRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/guts/RefactoringNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/guts/RefactoringNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/inlineUsage/InlineUsageNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/nodes/inlineUsage/InlineUsageNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/refactoring/InlineAssignment.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/refactoring/InlineAssignment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/refactoring/InlineVariable.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/refactoring/InlineVariable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/refactoring/RemoveInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/refactoring/RemoveElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/refactoring/guts/flow/Visitor.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/refactoring/guts/flow/Visitor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/toolwindow/RefactoringToolPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/src/streamline/plugin/toolwindow/RefactoringToolPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/streamline-refactoring-plugin.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../StatRef/streamline-refactoring-plugin/streamline-refactoring-plugin.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../steamline-examples/src/streamline/example/InlineMe.java" beforeDir="false" afterPath="$PROJECT_DIR$/../steamline-examples/src/streamline/example/InlineMe.java" afterDir="false" />
     </list>
-    <ignored path="$PROJECT_DIR$/target/" />
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,106 +45,6 @@
   </component>
   <component name="FavoritesManager">
     <favorites_list name="FlatMarket" />
-  </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/flatmarket/FlatMarket.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="231" column="30" selection-start-line="231" selection-start-column="30" selection-end-line="231" selection-end-column="30" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/4.1.0/poi-ooxml-4.1.0.jar!/org/apache/poi/xssf/usermodel/XSSFWorkbook.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1110">
-              <caret line="174" column="19" selection-start-line="174" selection-start-column="19" selection-end-line="174" selection-end-column="19" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/4.1.0/poi-ooxml-4.1.0.jar!/org/apache/poi/ooxml/POIXMLDocument.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="49" column="40" selection-start-line="49" selection-start-column="19" selection-end-line="49" selection-end-column="40" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/4.1.0/poi-ooxml-4.1.0.jar!/org/apache/poi/openxml4j/opc/OPCPackage.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1035">
-              <caret line="110" selection-start-line="110" selection-end-line="110" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/4.1.0/poi-ooxml-4.1.0.jar!/org/apache/poi/openxml4j/opc/ZipPackage.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1545">
-              <caret line="140" selection-start-line="140" selection-end-line="140" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/4.1.0/poi-ooxml-4.1.0.jar!/org/apache/poi/openxml4j/util/ZipInputStreamZipEntrySource.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="23" selection-start-line="23" selection-end-line="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/4.1.0/poi-ooxml-4.1.0.jar!/org/apache/poi/openxml4j/util/ZipArchiveThresholdInputStream.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1140">
-              <caret line="91" column="42" selection-start-line="91" selection-start-column="42" selection-end-line="91" selection-end-column="42" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/4.1.0/poi-ooxml-4.1.0.jar!/org/apache/poi/openxml4j/exceptions/NotOfficeXmlFileException.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="9" column="62" selection-start-line="9" selection-start-column="62" selection-end-line="9" selection-end-column="62" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/poi/poi/4.1.0/poi-4.1.0.jar!/org/apache/poi/UnsupportedFileFormatException.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="7" column="22" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/flatmarket/CopyOffers.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="23" column="17" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="17" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -152,6 +79,7 @@
     <option name="width" value="902" />
     <option name="height" value="489" />
   </component>
+  <component name="ProjectId" id="1owdlEP5gskiUVulpkXy4z1wZLs" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -204,6 +132,9 @@
       <pane id="Scope" />
     </panes>
   </component>
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
@@ -232,28 +163,16 @@
       <recent name="flatmarket" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
   <component name="RunManager" selected="Application.FlatMarket">
-    <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
-      <Host>localhost</Host>
-      <Port>5050</Port>
-    </configuration>
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
+      <Host>localhost</Host>
+      <Port>5050</Port>
     </configuration>
     <configuration name="CopyOffers" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="flatmarket.CopyOffers" />
@@ -327,6 +246,7 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="StructuralSearchPlugin">
     <replaceConfiguration name="user defined" created="1558674375083" text="node.setBackground(new Background(new BackgroundFill($Color_GRAY$, fill.getRadii(), fill.getInsets())));" recursive="false" caseInsensitive="true" type="JAVA" scope_type="PROJECT" scope_descriptor="" reformatAccordingToStyle="false" shortenFQN="false" replacement="color = $Color_GRAY$;" history="1">
       <constraint name="__context__" within="" contains="" />
@@ -422,22 +342,7 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="RECENTLY_FILTERED_USER_GROUPS">
-                <collection />
-              </option>
-              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
-                <collection />
-              </option>
-              <option name="COLUMN_ORDER">
-                <list>
-                  <option value="0" />
-                  <option value="1" />
-                  <option value="2" />
-                  <option value="3" />
-                </list>
-              </option>
-            </State>
+            <State />
           </value>
         </entry>
       </map>
@@ -456,6 +361,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="FlatMarket project" />
