@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="BUILD_PROCESS_ADDITIONAL_VM_OPTIONS" value="-Djps.track.ap.dependencies=false" />
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true">
-        <sourceOutputDir name="gen" />
+      <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
-      </profile>
-      <profile name="Excluded" enabled="true">
-        <module name="processor" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/processor/build/libs/processor-1.0-SNAPSHOT.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.26/8f8cf0372abf564913e9796623aac4c8ea44025a/lombok-1.18.26.jar" />
+          <entry name="$PROJECT_DIR$/client/build/libs/client-1.0-SNAPSHOT.jar" />
+          <entry name="$PROJECT_DIR$/model-builder/build/libs/model-builder-1.0-SNAPSHOT.jar" />
+          <entry name="$PROJECT_DIR$/writer/build/libs/writer-1.0-SNAPSHOT.jar" />
+          <entry name="$PROJECT_DIR$/model-mirror/build/libs/model-mirror-1.0-SNAPSHOT.jar" />
+          <entry name="$PROJECT_DIR$/model/build/libs/model-1.0-SNAPSHOT.jar" />
+        </processorPath>
+        <module name="StatRef.example.main" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel target="17" />
   </component>
 </project>
