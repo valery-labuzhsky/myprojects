@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("org.jetbrains.intellij") version "1.10.1"
 }
 
 group = "labuzhskiy.valery.statref"
@@ -9,11 +10,16 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+// Configure Gradle IntelliJ Plugin
+// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
+intellij {
+    version.set("2022.1.4")
+    type.set("IC") // Target IDE Platform
+
+    plugins.set(listOf("com.intellij.java"))
 }
 
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+dependencies {
+    implementation(project(":model"))
+    implementation(project(":model-builder"))
 }

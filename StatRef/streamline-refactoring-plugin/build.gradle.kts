@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.intellij") version "1.10.1"
 }
 
-group = "com.example"
+group = "labuzhskiy.valery.statref"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -16,14 +16,20 @@ intellij {
     version.set("2022.1.4")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf(/* Plugin Dependencies */))
+    plugins.set(listOf("com.intellij.java"))
+}
+
+dependencies {
+    implementation(project(":model"))
+    implementation(project(":model-idea"))
+    implementation(project(":model-builder"))
 }
 
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
 
     patchPluginXml {

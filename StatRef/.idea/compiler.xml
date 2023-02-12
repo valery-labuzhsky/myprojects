@@ -5,8 +5,8 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$PROJECT_DIR$/processor/build/libs/processor-1.0-SNAPSHOT.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.26/8f8cf0372abf564913e9796623aac4c8ea44025a/lombok-1.18.26.jar" />
+          <entry name="$PROJECT_DIR$/processor/build/libs/processor-1.0-SNAPSHOT.jar" />
           <entry name="$PROJECT_DIR$/client/build/libs/client-1.0-SNAPSHOT.jar" />
           <entry name="$PROJECT_DIR$/model-builder/build/libs/model-builder-1.0-SNAPSHOT.jar" />
           <entry name="$PROJECT_DIR$/writer/build/libs/writer-1.0-SNAPSHOT.jar" />
