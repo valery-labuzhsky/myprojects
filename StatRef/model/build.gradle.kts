@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "labuzhskiy.valery.statref"
-version = "1.0-SNAPSHOT"
+version = "0.1.4"
 
 repositories {
     mavenCentral()

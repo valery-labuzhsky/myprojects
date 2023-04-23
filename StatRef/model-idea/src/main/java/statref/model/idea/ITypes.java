@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiType;
+import com.intellij.psi.PsiTypes;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.Nullable;
 import statref.model.types.SClass;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 public class ITypes {
     private static final Logger log = Logger.getInstance(ITypes.class);
 
-    private static final FunctionRegistry<PsiType, SType> psitypes = new FunctionRegistry<PsiType, SType>() {
+    private static final FunctionRegistry<PsiType, SType> psitypes = new FunctionRegistry<>() {
         {
             register(PsiPrimitiveType.class, ITypes::convert);
             register(PsiClassType.class, ITypes::convert);
@@ -27,20 +28,20 @@ public class ITypes {
         }
     };
 
-    private static final Map<PsiPrimitiveType, Class> psiToJava = new HashMap<PsiPrimitiveType, Class>() {
+    private static final Map<PsiPrimitiveType, Class> psiToJava = new HashMap<>() {
         {
-            put(PsiPrimitiveType.VOID, void.class);
-            put(PsiPrimitiveType.BOOLEAN, boolean.class);
-            put(PsiPrimitiveType.CHAR, char.class);
-            put(PsiPrimitiveType.BYTE, byte.class);
-            put(PsiPrimitiveType.SHORT, short.class);
-            put(PsiPrimitiveType.INT, int.class);
-            put(PsiPrimitiveType.LONG, long.class);
-            put(PsiPrimitiveType.FLOAT, float.class);
-            put(PsiPrimitiveType.DOUBLE, double.class);
+            put(PsiTypes.voidType(), void.class);
+            put(PsiTypes.booleanType(), boolean.class);
+            put(PsiTypes.charType(), char.class);
+            put(PsiTypes.byteType(), byte.class);
+            put(PsiTypes.shortType(), short.class);
+            put(PsiTypes.intType(), int.class);
+            put(PsiTypes.longType(), long.class);
+            put(PsiTypes.floatType(), float.class);
+            put(PsiTypes.doubleType(), double.class);
         }
     };
-    private static final Map<Class, PsiPrimitiveType> javaToPsi = new HashMap<Class, PsiPrimitiveType>() {
+    private static final Map<Class, PsiPrimitiveType> javaToPsi = new HashMap<>() {
         {
             for (Entry<PsiPrimitiveType, Class> entry : psiToJava.entrySet()) {
                 put(entry.getValue(), entry.getKey());

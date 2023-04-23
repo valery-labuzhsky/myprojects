@@ -1,10 +1,10 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.10.1"
+    id("org.jetbrains.intellij") version "1.13.0"
 }
 
 group = "labuzhskiy.valery.statref"
-version = "1.0-SNAPSHOT"
+version = "0.1.5"
 
 repositories {
     mavenCentral()
@@ -13,16 +13,23 @@ repositories {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2022.1.4")
+    version.set("2023.1")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf("com.intellij.java"))
+    updateSinceUntilBuild.set(false)
 }
 
 dependencies {
     implementation(project(":model"))
     implementation(project(":model-idea"))
     implementation(project(":model-builder"))
+}
+
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.0")
+    }
 }
 
 tasks {
@@ -33,8 +40,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("221")
-        untilBuild.set("231.*")
+        sinceBuild.set("231.8109.175")
     }
 
     signPlugin {

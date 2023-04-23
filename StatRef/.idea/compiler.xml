@@ -15,6 +15,19 @@
         </processorPath>
         <module name="StatRef.example.main" />
       </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.26/8f8cf0372abf564913e9796623aac4c8ea44025a/lombok-1.18.26.jar" />
+          <entry name="$PROJECT_DIR$/processor/build/libs/processor-0.1.4.jar" />
+          <entry name="$PROJECT_DIR$/client/build/libs/client-0.1.4.jar" />
+          <entry name="$PROJECT_DIR$/model-builder/build/libs/model-builder-0.1.4.jar" />
+          <entry name="$PROJECT_DIR$/writer/build/libs/writer-0.1.4.jar" />
+          <entry name="$PROJECT_DIR$/model-mirror/build/libs/model-mirror-0.1.4.jar" />
+          <entry name="$PROJECT_DIR$/model/build/libs/model-0.1.4.jar" />
+        </processorPath>
+        <module name="labuzhskiy.valery.statref.StatRef.example.main" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="17" />
   </component>
