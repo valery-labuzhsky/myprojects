@@ -1,0 +1,542 @@
+package uncaptcha;
+
+import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Scene;
+import javafx.scene.image.*;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+
+import javax.imageio.ImageIO;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.util.*;
+
+public class Uncaptcha extends Application {
+    @Override
+    public void start(Stage stage) throws Exception {
+        stage.setWidth(500);
+        stage.setHeight(500);
+
+        BorderPane root = new BorderPane();
+        Image image = new Image("file:./images/386917.png");
+//        Image image = new Image("file:./images/diag.png");
+        image = new Contrast().apply(image);
+        image = new RemoveHoles().apply(image);
+        Image orig = image;
+        image = new Count().apply(image);
+        Frame frame = new Frame();
+        image = frame.apply(image);
+        image = frame.rotation().apply(orig);
+        image = new Cut().apply(image);
+
+        WritableImage writableImage = new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());
+        RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+        ImageIO.write(renderedImage, "png", new File("out/386917.png"));
+
+        ImageView view = new ImageView(image);
+        view.setSmooth(true);
+        view.setFitHeight(400/3);
+        view.setFitWidth(400);
+        root.setCenter(view);
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static class Window extends Filter {
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            for (int i = 0; i < out.length / 3; i++) {
+                out[i] = rgb(255);
+            }
+            for (int i = out.length / 3; i < out.length * 2 / 3; i++) {
+                out[i] = in[i];
+            }
+            for (int i = out.length * 2 / 3; i < out.length; i++) {
+                out[i] = rgb(255);
+            }
+        }
+    }
+
+    public static class Cut extends Filter {
+        @Override
+        protected int scaleHeight(int height) {
+            return height / 3;
+        }
+
+        @Override
+        protected int scaleWidth(int width) {
+            return width;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            for (int i = 0; i < out.length; i++) {
+                out[i] = in[i + width * scaleHeight(width)];
+            }
+        }
+    }
+
+    public static class Rotate extends Filter {
+
+        private double x0;
+        private double y0;
+        private double ang;
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int cx = width / 2;
+            int cy = in.length / width / 2;
+
+            double horz = -Math.tan(ang / 2);
+            double vert = Math.sin(ang);
+            for (int i = 0; i < out.length; i++) {
+                int x = i % width - cx;
+                int y = i / width - cy;
+
+                x -= x0;
+                y -= y0;
+
+                x += horz * y;
+                y += vert * x;
+                x += horz * y;
+
+                x += x0;
+                y += y0;
+
+                y += cy;
+                x += cx;
+
+                if (x >= 0 && x < width && y >= 0 && y < out.length / width) {
+                    out[i] = in[y * width + x];
+                } else {
+                    out[i] = rgb(255);
+                }
+            }
+        }
+    }
+
+    public static class Frame extends Rotate {
+
+        private double x0;
+        private double y0;
+        private double ang;
+
+        double rang(double ang) {
+            if (ang > Math.PI / 2) return ang - Math.PI;
+            if (ang < -Math.PI / 2) return ang + Math.PI;
+            return ang;
+        }
+
+        public Rotate rotation() {
+            Rotate rotate = new Rotate();
+            rotate.x0 = x0;
+            rotate.y0 = y0;
+            rotate.ang = ang;
+            return rotate;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            measure(in, width);
+            super.process(in, out, width);
+        }
+
+        private void measure(int[] in, int width) {
+            int cx = width / 2;
+            int cy = in.length / width / 2;
+
+            ArrayList<Integer> xs = new ArrayList<>();
+            ArrayList<Integer> ys = new ArrayList<>();
+
+            for (int i = 0; i < in.length; i++) {
+                int x = i % width - cx;
+                int y = i / width - cy;
+
+                if (bool(in[i]) == 0) {
+                    xs.add(x);
+                    ys.add(y);
+                }
+            }
+
+            Collections.sort(xs);
+            Collections.sort(ys);
+
+            x0 = xs.get(xs.size() / 2);
+            y0 = ys.get(ys.size() / 2);
+
+            ArrayList<Double> angs = new ArrayList<>();
+            for (int i = 0; i < in.length; i++) {
+                int x = i % width - cx;
+                int y = i / width - cy;
+
+                x -= x0;
+                y -= y0;
+
+                if (bool(in[i]) == 0 && Math.sqrt(x * x + y * y) > 40) {
+                    angs.add(rang(Math.atan2(y, x)));
+                }
+            }
+
+            Collections.sort(angs);
+            ang = angs.get(angs.size() / 2);
+        }
+    }
+
+    public static class Count extends Filter {
+        final static float SQR = (float) Math.sqrt(2);
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            float[] lvls = new float[in.length];
+
+            TreeMap<Float, HashSet<Integer>> next = new TreeMap<>();
+
+            for (int i = 0; i < in.length; i++) {
+                if (bool(in[i]) > 0) {
+                    lvls[i] = 0;
+                    next.computeIfAbsent(0f, l -> new HashSet<>()).add(i);
+                } else {
+                    lvls[i] = Float.MAX_VALUE;
+                }
+            }
+
+            while (!next.isEmpty()) {
+                Map.Entry<Float, HashSet<Integer>> entry = next.entrySet().iterator().next();
+                float d = entry.getKey();
+                HashSet<Integer> ix = entry.getValue();
+                int i = ix.iterator().next();
+                ix.remove(i);
+                if (ix.isEmpty()) {
+                    next.remove(d);
+                }
+
+                int y = i / width;
+                int x = i % width;
+
+                check(lvls, next, d, width, x + 1, y, 1f);
+                check(lvls, next, d, width, x - 1, y, 1f);
+                check(lvls, next, d, width, x, y + 1, 1f);
+                check(lvls, next, d, width, x, y - 1, 1f);
+
+                check(lvls, next, d, width, x + 1, y + 1, SQR);
+                check(lvls, next, d, width, x - 1, y + 1, SQR);
+                check(lvls, next, d, width, x + 1, y + 1, SQR);
+                check(lvls, next, d, width, x + 1, y - 1, SQR);
+            }
+
+            for (int x = 1; x < width - 1; x++) {
+                for (int y = 1; y < in.length / width - 1; y++) {
+                    int i = y * width + x;
+                    float lvl = lvls[i];
+                    if (lvl > 1 && lvl < 5) {
+                        boolean max = true;
+                        ret:
+                        for (int dx = -1; dx <= 1; dx++) {
+                            for (int dy = -width; dy <= width; dy += width) {
+                                float l = lvls[i + dy + dx];
+                                if (l > lvl) {
+                                    max = false;
+                                    break ret;
+                                }
+                            }
+                        }
+                        if (max) {
+                            out[i] = rgb(0);
+                        } else {
+                            out[i] = rgb(255);
+                        }
+                    } else {
+                        out[i] = rgb(255);
+                    }
+                }
+            }
+
+            for (int x = 0; x < width; x++) {
+                out[x] = rgb(255);
+                out[(width - 1) * width + x] = rgb(255);
+                out[x * width] = rgb(255);
+                out[x * width + width - 1] = rgb(255);
+            }
+//            for (int i = 0; i < lvls.length; i++) {
+//                float lvl = lvls[i];
+//                if (lvl > 1 && lvl < 5) {
+//                    out[i] = rgb(0);
+//                } else {
+//                    out[i] = rgb(255);
+//                }
+//            }
+        }
+
+        private static void check(float[] lvls, TreeMap<Float, HashSet<Integer>> next, float d, int width, int x, int y, float dd) {
+            if (x < 0) return;
+            if (y < 0) return;
+            if (x >= width) return;
+            if (y >= lvls.length / width) return;
+            check(lvls, next, d, y * width + x, dd);
+        }
+
+        private static void check(float[] lvls, TreeMap<Float, HashSet<Integer>> next, float d, int j, float dd) {
+            float lvl = lvls[j];
+            float lvl2 = d + dd;
+            if (lvl > lvl2) {
+                lvls[j] = lvl2;
+                next.computeIfAbsent(lvl2, l -> new HashSet<>()).add(j);
+            }
+        }
+
+    }
+
+    public static class Smooth extends Filter {
+        @Override
+        public int scale(int x) {
+            return x / 2;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int ws = scale(width);
+            for (int x = 0; x < width / 2; x++) {
+                for (int y = 0; y < in.length / width / 2; y++) {
+                    int ul = in[y * 2 * width + x * 2] & 0xff;
+                    int ur = in[(y * 2 + 1) * width + x * 2] & 0xff;
+                    int dl = in[y * 2 * width + x * 2 + 1] & 0xff;
+                    int dr = in[(y * 2 + 1) * width + x * 2 + 1] & 0xff;
+
+                    int sum = (ul + ur + dl + dr) / 4;
+                    out[y * ws + x] = rgb(sum);
+                }
+            }
+        }
+
+    }
+
+    public static class UnSmooth extends Filter {
+        int scale;
+
+        public UnSmooth(int scale) {
+            this.scale = scale;
+        }
+
+        @Override
+        public int scale(int x) {
+            return x * scale;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int ws = scale(width);
+            for (int i = 0; i < in.length; i++) {
+                int c = in[i];
+                int x = i % width;
+                int y = i / width;
+                for (int dx = 0; dx < scale; dx++) {
+                    for (int dy = 0; dy < scale; dy++) {
+                        out[y * ws * scale + x * scale + dy * ws + dx] = c;
+                    }
+                }
+            }
+        }
+
+    }
+
+    public static class Level extends Filter {
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int m = Arrays.stream(in).map(x -> x & 0xff).min().orElse(0);
+            int k = 255 / (255 - m);
+            for (int i = 0; i < in.length; i++) {
+                int c = 255 - in[i] & 0xff;
+                c = c * k;
+                out[i] = rgb(255 - c);
+            }
+        }
+
+    }
+
+
+    public static class RemoveHoles extends Filter {
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            System.arraycopy(in, 0, out, 0, in.length);
+
+            for (int x = 1; x < width - 1; x++) {
+                for (int y = 1; y < in.length / width - 1; y++) {
+                    int c = bool(in, width, x, y);
+                    int uc = bool(in, width, x, y + 1);
+                    int cr = bool(in, width, x + 1, y);
+                    int dc = bool(in, width, x, y - 1);
+                    int cl = bool(in, width, x - 1, y);
+                    if (c > 0) {
+                        if ((uc == 0 && dc == 0) &&
+                                (cr == 0 && cl == 0)) {
+                            out[y * width + x] = rgb(0);
+                        }
+                    }
+                }
+            }
+
+            for (int x = 1; x < width - 1; x++) {
+                for (int y = 1; y < in.length / width - 1; y++) {
+                    int c = bool(out, width, x, y);
+                    int uc = bool(out, width, x, y + 1);
+                    int cr = bool(out, width, x + 1, y);
+                    int dc = bool(out, width, x, y - 1);
+                    int cl = bool(out, width, x - 1, y);
+                    if (c == 0) {
+                        if ((uc > 0 && dc > 0) ||
+                                (cr > 0 && cl > 0)) {
+                            out[y * width + x] = rgb(255);
+                        }
+                    }
+                }
+            }
+
+            for (int x = 1; x < width - 1; x++) {
+                for (int y = 1; y < in.length / width - 1; y++) {
+                    int c = bool(out, width, x, y);
+                    int uc = bool(out, width, x, y + 1);
+                    int dc = bool(out, width, x, y - 1);
+                    int cr = bool(out, width, x + 1, y);
+                    int cl = bool(out, width, x - 1, y);
+                    if (c > 0) {
+                        if ((uc == 0 && dc == 0) ||
+                                (cr == 0 && cl == 0)) {
+                            out[y * width + x] = rgb(0);
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    public static class RemoveThin extends Filter {
+        @Override
+        public int scale(int x) {
+            return x / 2;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int ws = scale(width);
+            for (int x = 0; x < width / 2; x++) {
+                for (int y = 0; y < in.length / width / 2; y++) {
+                    int ul = bool(in, width, x * 2, y * 2);
+                    int ur = bool(in, width, x * 2 + 1, y * 2);
+                    int dl = bool(in, width, x * 2, y * 2 + 1);
+                    int dr = bool(in, width, x * 2 + 1, y * 2 + 1);
+
+                    int sum = ul + ur + dl + dr;
+                    if (sum > 1) {
+                        out[y * ws + x] = rgb(255);
+                    } else {
+                        out[y * ws + x] = rgb(0);
+                    }
+                }
+            }
+        }
+
+    }
+
+    public static class RemoveSmall extends Filter {
+        @Override
+        public int scale(int x) {
+            return x / 2;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int ws = scale(width);
+            for (int x = 0; x < width / 2; x++) {
+                for (int y = 0; y < in.length / width / 2; y++) {
+                    int ul = bool(in, width, x * 2, y * 2);
+                    int ur = bool(in, width, x * 2 + 1, y * 2);
+                    int dl = bool(in, width, x * 2, y * 2 + 1);
+                    int dr = bool(in, width, x * 2 + 1, y * 2 + 1);
+
+                    int sum = ul + ur + dl + dr;
+                    if (sum < 2) {
+                        out[y * ws + x] = rgb(0);
+                    } else if (sum >= 3) {
+                        out[y * ws + x] = rgb(255);
+                    } else {
+                        int diag = ul + dr;
+                        if (diag == 0 || diag == 2) {
+                            out[y * ws + x] = rgb(0);
+                        } else {
+                            out[y * ws + x] = rgb(255);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    public static class Contrast extends Filter {
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            for (int i = 0; i < in.length; i++) {
+                int pixel = in[i];
+                int blue = (pixel & 0xff);
+
+                int gray = blue > 50 ? 255 : 0;
+                out[i] = rgb(gray);
+            }
+        }
+
+    }
+
+    public static abstract class Filter {
+        public int scale(int x) {
+            return x;
+        }
+
+        public Image apply(Image image) {
+            PixelReader pixelReader = image.getPixelReader();
+            int height = (int) image.getHeight();
+            int width = (int) image.getWidth();
+
+            int[] in = new int[width * height];
+            pixelReader.getPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), in, 0, width);
+
+            int scaleWidth = scaleWidth(width);
+            int scaleHeight = scaleHeight(height);
+
+            int[] out = new int[scaleWidth * scaleHeight];
+            process(in, out, width);
+
+            WritableImage filteredImage = new WritableImage(scaleWidth, scaleHeight);
+            PixelWriter pixelWriter = filteredImage.getPixelWriter();
+            pixelWriter.setPixels(0, 0, scaleWidth, scaleHeight, PixelFormat.getIntArgbInstance(), out, 0, scaleWidth);
+            return filteredImage;
+        }
+
+        protected int scaleHeight(int height) {
+            return scale(height);
+        }
+
+        protected int scaleWidth(int width) {
+            return scale(width);
+        }
+
+        protected abstract void process(int[] in, int[] out, int width);
+
+        protected int rgb(int gray) {
+            return (255 << 24) + (gray << 16) + (gray << 8) + gray;
+        }
+
+        protected int bool(int[] in, int width, int x, int y) {
+            return bool(in[y * width + x]);
+        }
+
+        int bool(int i) {
+            return (i & 0xff) > 0 ? 1 : 0;
+        }
+    }
+}
