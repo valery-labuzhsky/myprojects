@@ -45,21 +45,6 @@ public class Uncaptcha extends Application {
         stage.show();
     }
 
-    public static class Window extends Filter {
-        @Override
-        protected void process(int[] in, int[] out, int width) {
-            for (int i = 0; i < out.length / 3; i++) {
-                out[i] = rgb(255);
-            }
-            for (int i = out.length / 3; i < out.length * 2 / 3; i++) {
-                out[i] = in[i];
-            }
-            for (int i = out.length * 2 / 3; i < out.length; i++) {
-                out[i] = rgb(255);
-            }
-        }
-    }
-
     public static class Cut extends Filter {
         @Override
         protected int scaleHeight(int height) {
@@ -289,73 +274,6 @@ public class Uncaptcha extends Application {
 
     }
 
-    public static class Smooth extends Filter {
-        @Override
-        public int scale(int x) {
-            return x / 2;
-        }
-
-        @Override
-        protected void process(int[] in, int[] out, int width) {
-            int ws = scale(width);
-            for (int x = 0; x < width / 2; x++) {
-                for (int y = 0; y < in.length / width / 2; y++) {
-                    int ul = in[y * 2 * width + x * 2] & 0xff;
-                    int ur = in[(y * 2 + 1) * width + x * 2] & 0xff;
-                    int dl = in[y * 2 * width + x * 2 + 1] & 0xff;
-                    int dr = in[(y * 2 + 1) * width + x * 2 + 1] & 0xff;
-
-                    int sum = (ul + ur + dl + dr) / 4;
-                    out[y * ws + x] = rgb(sum);
-                }
-            }
-        }
-
-    }
-
-    public static class UnSmooth extends Filter {
-        int scale;
-
-        public UnSmooth(int scale) {
-            this.scale = scale;
-        }
-
-        @Override
-        public int scale(int x) {
-            return x * scale;
-        }
-
-        @Override
-        protected void process(int[] in, int[] out, int width) {
-            int ws = scale(width);
-            for (int i = 0; i < in.length; i++) {
-                int c = in[i];
-                int x = i % width;
-                int y = i / width;
-                for (int dx = 0; dx < scale; dx++) {
-                    for (int dy = 0; dy < scale; dy++) {
-                        out[y * ws * scale + x * scale + dy * ws + dx] = c;
-                    }
-                }
-            }
-        }
-
-    }
-
-    public static class Level extends Filter {
-        @Override
-        protected void process(int[] in, int[] out, int width) {
-            int m = Arrays.stream(in).map(x -> x & 0xff).min().orElse(0);
-            int k = 255 / (255 - m);
-            for (int i = 0; i < in.length; i++) {
-                int c = 255 - in[i] & 0xff;
-                c = c * k;
-                out[i] = rgb(255 - c);
-            }
-        }
-
-    }
-
 
     public static class RemoveHoles extends Filter {
         @Override
@@ -410,69 +328,6 @@ public class Uncaptcha extends Application {
                 }
             }
 
-        }
-
-    }
-
-    public static class RemoveThin extends Filter {
-        @Override
-        public int scale(int x) {
-            return x / 2;
-        }
-
-        @Override
-        protected void process(int[] in, int[] out, int width) {
-            int ws = scale(width);
-            for (int x = 0; x < width / 2; x++) {
-                for (int y = 0; y < in.length / width / 2; y++) {
-                    int ul = bool(in, width, x * 2, y * 2);
-                    int ur = bool(in, width, x * 2 + 1, y * 2);
-                    int dl = bool(in, width, x * 2, y * 2 + 1);
-                    int dr = bool(in, width, x * 2 + 1, y * 2 + 1);
-
-                    int sum = ul + ur + dl + dr;
-                    if (sum > 1) {
-                        out[y * ws + x] = rgb(255);
-                    } else {
-                        out[y * ws + x] = rgb(0);
-                    }
-                }
-            }
-        }
-
-    }
-
-    public static class RemoveSmall extends Filter {
-        @Override
-        public int scale(int x) {
-            return x / 2;
-        }
-
-        @Override
-        protected void process(int[] in, int[] out, int width) {
-            int ws = scale(width);
-            for (int x = 0; x < width / 2; x++) {
-                for (int y = 0; y < in.length / width / 2; y++) {
-                    int ul = bool(in, width, x * 2, y * 2);
-                    int ur = bool(in, width, x * 2 + 1, y * 2);
-                    int dl = bool(in, width, x * 2, y * 2 + 1);
-                    int dr = bool(in, width, x * 2 + 1, y * 2 + 1);
-
-                    int sum = ul + ur + dl + dr;
-                    if (sum < 2) {
-                        out[y * ws + x] = rgb(0);
-                    } else if (sum >= 3) {
-                        out[y * ws + x] = rgb(255);
-                    } else {
-                        int diag = ul + dr;
-                        if (diag == 0 || diag == 2) {
-                            out[y * ws + x] = rgb(0);
-                        } else {
-                            out[y * ws + x] = rgb(255);
-                        }
-                    }
-                }
-            }
         }
 
     }
