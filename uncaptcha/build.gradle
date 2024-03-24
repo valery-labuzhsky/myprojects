@@ -27,7 +27,13 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'uncaptcha.Uncaptcha'
+    mainClass = 'uncaptcha.GUI'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'uncaptcha.Uncaptcha'
+    }
 }
 
 run {

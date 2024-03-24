@@ -3,46 +3,34 @@ package uncaptcha;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
-import javafx.scene.image.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
-import java.awt.image.RenderedImage;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
-public class Uncaptcha extends Application {
-    @Override
-    public void start(Stage stage) throws Exception {
-        stage.setWidth(500);
-        stage.setHeight(500);
+public class Uncaptcha {
+    public static void main(String[] args) throws IOException {
+        BufferedImage image = ImageIO.read(new File(args[0]));
+        image = transform(image);
+        ImageIO.write(image, "png", new File(args[1]));
+    }
 
-        BorderPane root = new BorderPane();
-        Image image = new Image("file:./images/386917.png");
-//        Image image = new Image("file:./images/diag.png");
+    public static BufferedImage transform(BufferedImage image) {
         image = new Contrast().apply(image);
         image = new RemoveHoles().apply(image);
-        Image orig = image;
+        BufferedImage orig = image;
         image = new Count().apply(image);
         Frame frame = new Frame();
         image = frame.apply(image);
         image = frame.rotation().apply(orig);
         image = new Cut().apply(image);
-
-        WritableImage writableImage = new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());
-        RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
-        ImageIO.write(renderedImage, "png", new File("out/386917.png"));
-
-        ImageView view = new ImageView(image);
-        view.setSmooth(true);
-        view.setFitHeight(400/3);
-        view.setFitWidth(400);
-        root.setCenter(view);
-
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+        return image;
     }
 
     public static class Cut extends Filter {
@@ -354,13 +342,12 @@ public class Uncaptcha extends Application {
             return x;
         }
 
-        public Image apply(Image image) {
-            PixelReader pixelReader = image.getPixelReader();
-            int height = (int) image.getHeight();
-            int width = (int) image.getWidth();
+        public BufferedImage apply(BufferedImage image) {
+            int height = image.getHeight();
+            int width = image.getWidth();
 
             int[] in = new int[width * height];
-            pixelReader.getPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), in, 0, width);
+            image.getRGB(0, 0, width, height, in, 0, width);
 
             int scaleWidth = scaleWidth(width);
             int scaleHeight = scaleHeight(height);
@@ -368,10 +355,9 @@ public class Uncaptcha extends Application {
             int[] out = new int[scaleWidth * scaleHeight];
             process(in, out, width);
 
-            WritableImage filteredImage = new WritableImage(scaleWidth, scaleHeight);
-            PixelWriter pixelWriter = filteredImage.getPixelWriter();
-            pixelWriter.setPixels(0, 0, scaleWidth, scaleHeight, PixelFormat.getIntArgbInstance(), out, 0, scaleWidth);
-            return filteredImage;
+            BufferedImage outImage = new BufferedImage(scaleWidth, scaleHeight, BufferedImage.TYPE_4BYTE_ABGR);
+            outImage.setRGB(0, 0, scaleWidth, scaleHeight, out, 0, scaleWidth);
+            return outImage;
         }
 
         protected int scaleHeight(int height) {
