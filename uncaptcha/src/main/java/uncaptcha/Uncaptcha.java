@@ -91,6 +91,8 @@ public class Uncaptcha extends Application {
                 x += x0;
                 y += y0;
 
+                y -= y0;
+
                 y += cy;
                 x += cx;
 
