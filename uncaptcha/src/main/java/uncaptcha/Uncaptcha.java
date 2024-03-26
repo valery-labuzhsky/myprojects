@@ -1,13 +1,5 @@
 package uncaptcha;
 
-import javafx.application.Application;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -15,6 +7,10 @@ import java.io.IOException;
 import java.util.*;
 
 public class Uncaptcha {
+
+    public static final int WHITE = rgb(0xff);
+    public static final int BLACK = rgb(0);
+
     public static void main(String[] args) throws IOException {
         BufferedImage image = ImageIO.read(new File(args[0]));
         image = transform(image);
@@ -28,9 +24,114 @@ public class Uncaptcha {
         image = new Count().apply(image);
         Frame frame = new Frame();
         image = frame.apply(image);
-        image = frame.rotation().apply(orig);
         image = new Cut().apply(image);
-        return image;
+        FineFrame fineFrame = new FineFrame();
+        image = fineFrame.apply(image);
+
+        orig = frame.rotation().combine(fineFrame).apply(orig);
+        orig = new Cut().apply(orig);
+        orig = new Window().apply(orig);
+        return orig;
+    }
+
+    public static class Window extends Filter {
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int l = 46;
+            int height = in.length / width;
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < (height - l) / 2; y++) {
+                    out[y * width + x] = WHITE;
+                    out[(height - y - 1) * width + x] = WHITE;
+                }
+                for (int y = (height - l) / 2; y <  height - (height - l) / 2; y++) {
+                    out[y * width + x] = in[y * width + x];
+                }
+            }
+        }
+    }
+
+    public static class FineFrame extends Rotate {
+
+        double rang(double ang) {
+            if (ang > Math.PI / 2) return ang - Math.PI;
+            if (ang < -Math.PI / 2) return ang + Math.PI;
+            return ang;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            measure(in, width);
+            super.process(in, out, width);
+        }
+
+        private void measure(int[] in, int width) {
+            ArrayList<Integer> xs = new ArrayList<>();
+            ArrayList<Integer> ys = new ArrayList<>();
+
+            int high = 17;
+            int height = in.length / width;
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height - high; y++) {
+                    int i = y * width + x;
+                    if (in[i] == BLACK) {
+                        xs.add(x);
+                        ys.add(y + high);
+                        break;
+                    }
+                }
+                for (int y = height - 1; y >= high; y--) {
+                    int i = y * width + x;
+                    if (in[i] == BLACK) {
+                        xs.add(x);
+                        ys.add(y - high);
+                        break;
+                    }
+                }
+            }
+
+            Collections.sort(xs);
+            Collections.sort(ys);
+
+            x0 = xs.get(xs.size() / 2);
+            y0 = ys.get(ys.size() / 2);
+
+            ArrayList<Double> angs = new ArrayList<>();
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height - high; y++) {
+                    int i = y * width + x;
+                    if (in[i] == BLACK) {
+                        int x1 = (int) (x - x0);
+                        y -= y0;
+                        y += high;
+                        if (Math.sqrt(x1 * x1 + y * y) > 40) {
+                            angs.add(rang(Math.atan2(y, x1)));
+                        }
+                        break;
+                    }
+                }
+                for (int y = height - 1; y >= high; y--) {
+                    int i = y * width + x;
+                    if (in[i] == BLACK) {
+                        int x1 = (int) (x - x0);
+                        y -= y0;
+                        y -= high;
+                        if (Math.sqrt(x1 * x1 + y * y) > 40) {
+                            angs.add(rang(Math.atan2(y, x1)));
+                        }
+                        break;
+                    }
+                }
+            }
+
+            Collections.sort(angs);
+            ang = angs.get(angs.size() / 2);
+
+            int cx = width / 2;
+            int cy = in.length / width / 2;
+            x0 -= cx;
+            y0 -= cy;
+        }
     }
 
     public static class Cut extends Filter {
@@ -54,9 +155,17 @@ public class Uncaptcha {
 
     public static class Rotate extends Filter {
 
-        private double x0;
-        private double y0;
-        private double ang;
+        protected double x0;
+        protected double y0;
+        protected double ang;
+
+        public Rotate rotation() {
+            Rotate rotate = new Rotate();
+            rotate.x0 = x0;
+            rotate.y0 = y0;
+            rotate.ang = ang;
+            return rotate;
+        }
 
         @Override
         protected void process(int[] in, int[] out, int width) {
@@ -79,7 +188,7 @@ public class Uncaptcha {
                 x += x0;
                 y += y0;
 
-                y -= y0;
+                y += y0;
 
                 y += cy;
                 x += cx;
@@ -87,30 +196,26 @@ public class Uncaptcha {
                 if (x >= 0 && x < width && y >= 0 && y < out.length / width) {
                     out[i] = in[y * width + x];
                 } else {
-                    out[i] = rgb(255);
+                    out[i] = WHITE;
                 }
             }
+        }
+
+        public Rotate combine(Rotate rotate) {
+            Rotate combine = rotation();
+            combine.x0 += rotate.x0;
+            combine.y0 += rotate.y0;
+            combine.ang += rotate.ang;
+            return combine;
         }
     }
 
     public static class Frame extends Rotate {
 
-        private double x0;
-        private double y0;
-        private double ang;
-
         double rang(double ang) {
             if (ang > Math.PI / 2) return ang - Math.PI;
             if (ang < -Math.PI / 2) return ang + Math.PI;
             return ang;
-        }
-
-        public Rotate rotation() {
-            Rotate rotate = new Rotate();
-            rotate.x0 = x0;
-            rotate.y0 = y0;
-            rotate.ang = ang;
-            return rotate;
         }
 
         @Override
@@ -219,21 +324,21 @@ public class Uncaptcha {
                             }
                         }
                         if (max) {
-                            out[i] = rgb(0);
+                            out[i] = BLACK;
                         } else {
-                            out[i] = rgb(255);
+                            out[i] = WHITE;
                         }
                     } else {
-                        out[i] = rgb(255);
+                        out[i] = WHITE;
                     }
                 }
             }
 
             for (int x = 0; x < width; x++) {
-                out[x] = rgb(255);
-                out[(width - 1) * width + x] = rgb(255);
-                out[x * width] = rgb(255);
-                out[x * width + width - 1] = rgb(255);
+                out[x] = WHITE;
+                out[(width - 1) * width + x] = WHITE;
+                out[x * width] = WHITE;
+                out[x * width + width - 1] = WHITE;
             }
 //            for (int i = 0; i < lvls.length; i++) {
 //                float lvl = lvls[i];
@@ -280,7 +385,7 @@ public class Uncaptcha {
                     if (c > 0) {
                         if ((uc == 0 && dc == 0) &&
                                 (cr == 0 && cl == 0)) {
-                            out[y * width + x] = rgb(0);
+                            out[y * width + x] = BLACK;
                         }
                     }
                 }
@@ -296,7 +401,7 @@ public class Uncaptcha {
                     if (c == 0) {
                         if ((uc > 0 && dc > 0) ||
                                 (cr > 0 && cl > 0)) {
-                            out[y * width + x] = rgb(255);
+                            out[y * width + x] = WHITE;
                         }
                     }
                 }
@@ -312,7 +417,7 @@ public class Uncaptcha {
                     if (c > 0) {
                         if ((uc == 0 && dc == 0) ||
                                 (cr == 0 && cl == 0)) {
-                            out[y * width + x] = rgb(0);
+                            out[y * width + x] = BLACK;
                         }
                     }
                 }
@@ -370,10 +475,6 @@ public class Uncaptcha {
 
         protected abstract void process(int[] in, int[] out, int width);
 
-        protected int rgb(int gray) {
-            return (255 << 24) + (gray << 16) + (gray << 8) + gray;
-        }
-
         protected int bool(int[] in, int width, int x, int y) {
             return bool(in[y * width + x]);
         }
@@ -382,4 +483,9 @@ public class Uncaptcha {
             return (i & 0xff) > 0 ? 1 : 0;
         }
     }
+
+    protected static int rgb(int gray) {
+        return (255 << 24) + (gray << 16) + (gray << 8) + gray;
+    }
+
 }

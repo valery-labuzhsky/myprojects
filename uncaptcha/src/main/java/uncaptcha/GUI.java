@@ -28,8 +28,9 @@ public class GUI extends Application {
         ImageView view = new ImageView(SwingFXUtils.toFXImage(image, writableImage));
 
         view.setSmooth(true);
-        view.setFitHeight(400/3);
-        view.setFitWidth(400);
+        double scale = 400d / image.getWidth();
+        view.setFitWidth(image.getWidth() * scale);
+        view.setFitHeight(image.getHeight() * scale);
         root.setCenter(view);
 
         Scene scene = new Scene(root);
