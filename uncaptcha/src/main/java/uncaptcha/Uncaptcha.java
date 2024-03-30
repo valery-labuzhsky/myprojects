@@ -14,11 +14,11 @@ public class Uncaptcha {
 
     public static void main(String[] args) throws IOException {
         BufferedImage image = ImageIO.read(new File(args[0]));
-        image = transformOld(image);
+        image = transformOld(image, Integer.parseInt(args[2]),  Double.parseDouble(args[3]));
         ImageIO.write(image, "png", new File(args[1]));
     }
 
-    public static BufferedImage transformOld(BufferedImage image) {
+    public static BufferedImage transformOld(BufferedImage image, int x0, double c) {
         BufferedImage orig = image;
         image = new Contrast().apply(image);
         image = new RemoveHoles().apply(image);
@@ -31,6 +31,7 @@ public class Uncaptcha {
 
         orig = frame.rotation().combine(fineFrame).apply(orig);
         orig = new Cut().apply(orig);
+        orig = new Stretch(x0, c).apply(orig);
         return orig;
     }
 
@@ -53,6 +54,33 @@ public class Uncaptcha {
         orig = new Shrink2().apply(orig);
         new Compact().apply(orig);
         return orig;
+    }
+
+    public static class Stretch extends Filter {
+        int x0;
+        double c;
+
+        public Stretch(int x0, double c) {
+            this.x0 = x0;
+            this.c = c;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int x02 = (int) (x0 * c);
+            double c2 = (width - x0 * c) / (width - x0);
+            for (int x = x02; x < width; x++) {
+                for (int y = 0; y < out.length / width; y++) {
+                    out[y * width + x] = in[(int) (y * width + x0 + (x - x02) / c2)];
+                }
+            }
+
+            for (int x = 0; x < x02; x++) {
+                for (int y = 0; y < out.length / width; y++) {
+                    out[y * width + x] = in[(int) (y * width + x / c)];
+                }
+            }
+        }
     }
 
     public static class Compact extends Filter {
@@ -111,7 +139,7 @@ public class Uncaptcha {
                 }
             }
 
-            System.out.println(sx+"x"+sy+" - "+ex+"x"+ey);
+            System.out.println(sx + "x" + sy + " - " + ex + "x" + ey);
         }
     }
 
