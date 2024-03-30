@@ -31,7 +31,6 @@ public class Uncaptcha {
 
         orig = frame.rotation().combine(fineFrame).apply(orig);
         orig = new Cut().apply(orig);
-        orig = new Window().apply(orig);
         return orig;
     }
 
