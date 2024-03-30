@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Uncaptcha {
 
@@ -13,8 +14,25 @@ public class Uncaptcha {
 
     public static void main(String[] args) throws IOException {
         BufferedImage image = ImageIO.read(new File(args[0]));
-        image = transform(image);
+        image = transformOld(image);
         ImageIO.write(image, "png", new File(args[1]));
+    }
+
+    public static BufferedImage transformOld(BufferedImage image) {
+        BufferedImage orig = image;
+        image = new Contrast().apply(image);
+        image = new RemoveHoles().apply(image);
+        image = new Count().apply(image);
+        Frame frame = new Frame();
+        image = frame.apply(image);
+        image = new Cut().apply(image);
+        FineFrame fineFrame = new FineFrame();
+        image = fineFrame.apply(image);
+
+        orig = frame.rotation().combine(fineFrame).apply(orig);
+        orig = new Cut().apply(orig);
+        orig = new Window().apply(orig);
+        return orig;
     }
 
     public static BufferedImage transform(BufferedImage image) {
@@ -31,20 +49,246 @@ public class Uncaptcha {
         orig = frame.rotation().combine(fineFrame).apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
+        orig = new Split().apply(orig);
+        orig = new Shrink1().apply(orig);
+        orig = new Shrink2().apply(orig);
+        new Compact().apply(orig);
         return orig;
+    }
+
+    public static class Compact extends Filter {
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int sx = 0;
+            int sy = 0;
+            int ex = 0;
+            int ey = 0;
+
+            found:
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < in.length / width; y++) {
+                    if (bool(in, width, x, y) == 0) {
+                        sx = x;
+                        sy = y;
+                        break found;
+                    }
+                }
+            }
+
+            ex = sx;
+            ey = sy;
+
+            boolean found = true;
+            while (found) {
+                found = false;
+                for (int x = sx; x <= ex + 1; x++) {
+                    if (bool(in, width, x, sy - 1) == 0) {
+                        found = true;
+                        sy--;
+                        break;
+                    }
+                }
+                for (int x = sx; x <= ex + 1; x++) {
+                    if (bool(in, width, x, ey + 1) == 0) {
+                        found = true;
+                        ey++;
+                        break;
+                    }
+                }
+                for (int y = sy; y <= ey + 1; y++) {
+                    if (bool(in, width, sx - 1, y) == 0) {
+                        found = true;
+                        sx--;
+                        break;
+                    }
+                }
+                for (int y = sy; y <= ey + 1; y++) {
+                    if (bool(in, width, ex + 1, y) == 0) {
+                        found = true;
+                        ex++;
+                        break;
+                    }
+                }
+            }
+
+            System.out.println(sx+"x"+sy+" - "+ex+"x"+ey);
+        }
+    }
+
+    public static class Shrink2 extends Filter {
+        @Override
+        public int scale(int x) {
+            return x / 2;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int sw = scale(width);
+            int sh = scale(in.length / width);
+
+            int[] square = new int[4];
+            for (int x = 0; x < sw; x++) {
+                for (int y = 0; y < sh; y++) {
+                    for (int dx = 0; dx < 2; dx++) {
+                        for (int dy = 0; dy < 2; dy++) {
+                            square[dy * 2 + dx] = bool(in[(y * 2 + dy) * width + x * 2 + dx]);
+                        }
+                    }
+                    if (Arrays.stream(square).sum() <= 1) {
+                        out[y * sw + x] = BLACK;
+                    } else if (square[0] + square[3] == 0 || square[1] + square[2] == 0) {
+                        out[y * sw + x] = BLACK;
+                    } else {
+                        out[y * sw + x] = WHITE;
+                    }
+                }
+            }
+
+            for (int x = 0; x < sw - 1; x++) {
+                for (int y = 1; y < sh - 1; y++) {
+                    for (int dx = 0; dx < 2; dx++) {
+                        for (int dy = 0; dy < 2; dy++) {
+                            square[dy * 2 + dx] = bool(in[(y * 2 + dy) * width + x * 2 + dx + 1]);
+                        }
+                    }
+                    if (Arrays.stream(square).sum() == 0) {
+                        if (out[y * sw + x] == WHITE && out[y * sw + x + 1] == WHITE) {
+                            int left = bool(out, sw, x, y - 1) + bool(out, sw, x, y + 1);
+                            int right = bool(out, sw, x + 1, y - 1) + bool(out, sw, x + 1, y + 1);
+                            if (left <= right) {
+                                out[y * sw + x] = BLACK;
+                            } else {
+                                out[y * sw + x + 1] = BLACK;
+                            }
+                        }
+                    } else if (square[0] + square[2] == 0) {
+                        out[y * sw + x] = BLACK;
+                    } else if (square[1] + square[3] == 0) {
+                        out[y * sw + x + 1] = BLACK;
+                    }
+                }
+            }
+
+            for (int y = 0; y < sh - 1; y++) {
+                for (int x = 1; x < sw - 1; x++) {
+                    for (int dx = 0; dx < 2; dx++) {
+                        for (int dy = 0; dy < 2; dy++) {
+                            square[dy * 2 + dx] = bool(in[(y * 2 + dy + 1) * width + x * 2 + dx]);
+                        }
+                    }
+                    if (Arrays.stream(square).sum() == 0) {
+                        if (out[y * sw + x] == WHITE && out[(y + 1) * sw + x] == WHITE) {
+                            int left = bool(out, sw, x - 1, y) + bool(out, sw, x + 1, y);
+                            int right = bool(out, sw, x - 1, y + 1) + bool(out, sw, x + 1, y + 1);
+                            if (left <= right) {
+                                out[y * sw + x] = BLACK;
+                            } else {
+                                out[(y + 1) * sw + x] = BLACK;
+                            }
+                        }
+                    } else if (square[0] + square[1] == 0) {
+                        out[y * sw + x] = BLACK;
+                    } else if (square[2] + square[3] == 0) {
+                        out[(y + 1) * sw + x] = BLACK;
+                    }
+                }
+            }
+        }
+    }
+
+    public static class Shrink1 extends Filter {
+        @Override
+        public int scale(int x) {
+            return x / 2;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int sw = scale(width);
+            int sh = scale(in.length / width);
+
+            int[] square = new int[4];
+            for (int x = 0; x < sw; x++) {
+                for (int y = 0; y < sh; y++) {
+                    for (int dx = 0; dx < 2; dx++) {
+                        for (int dy = 0; dy < 2; dy++) {
+                            square[dy * 2 + dx] = bool(in[(y * 2 + dy) * width + x * 2 + dx]);
+                        }
+                    }
+                    if (Arrays.stream(square).sum() <= 1) {
+                        out[y * sw + x] = BLACK;
+                    } else {
+                        out[y * sw + x] = WHITE;
+                    }
+                }
+            }
+        }
+    }
+
+    public static class Split extends Filter {
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            int[] dxs = new int[]{6, 24, 45, 72, 105, 136, 172};
+            int height = in.length / width;
+            int bestX = 0;
+            int bestY = 0;
+            for (int x = -10; x < 10; x++) {
+                ArrayList<Integer> ys = new ArrayList<>();
+                for (int i = 1; i < dxs.length - 1; i++) {
+                    int dx = dxs[i];
+                    int fx = x;
+                    ys.add(IntStream.range(10, 30)
+                            .filter(y -> bool(in, width, fx + dx, y) == 0)
+                            .findFirst().orElse(30));
+                    ys.add(IntStream.range(10, 30)
+                            .filter(y -> bool(in, width, fx + dx, height - y - 1) == 0)
+                            .findFirst().orElse(30));
+                }
+                Collections.sort(ys);
+                int y = ys.get(ys.size() / 2);
+                if (y > bestY) {
+                    bestY = y;
+                    bestX = x;
+                }
+            }
+            Arrays.fill(out, WHITE);
+            double[] ks = new double[]{2, 1.5, 1, 0.8, 0.8, 0.8};
+            for (int n = 0; n < 6; n++) {
+                int sx = (dxs[n + 1] + dxs[n]) / 2 + bestX;
+                int lw = 33;
+                int tx = 1 + n * lw + lw / 2;
+                double k = ks[n];
+
+                if (lw > (dxs[n + 1] - dxs[n]) * k) lw = (int) ((dxs[n + 1] - dxs[n]) * k);
+                for (int x = -lw / 2 + 1; x < lw / 2 + 1; x++) {
+                    for (int y = 0; y < height; y++) {
+                        int xx = (int) (x / k + sx);
+                        if (xx >= 0 && xx < width) {
+                            out[y * width + x + tx] = in[y * width + xx];
+                        }
+                    }
+                }
+
+//                for (int y = 0; y < height; y++) {
+//                    out[y * width + 1 + n * 33] = BLACK;
+//                }
+            }
+        }
     }
 
     public static class Window extends Filter {
         @Override
         protected void process(int[] in, int[] out, int width) {
-            int l = 46;
+            int l = 48;
             int height = in.length / width;
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < (height - l) / 2; y++) {
                     out[y * width + x] = WHITE;
                     out[(height - y - 1) * width + x] = WHITE;
                 }
-                for (int y = (height - l) / 2; y <  height - (height - l) / 2; y++) {
+                for (int y = (height - l) / 2; y < height - (height - l) / 2; y++) {
                     out[y * width + x] = in[y * width + x];
                 }
             }
