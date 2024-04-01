@@ -1,5 +1,10 @@
 package uncaptcha;
 
+import uncaptcha.matrix.Fragment;
+import uncaptcha.matrix.FullMatrix;
+import uncaptcha.matrix.Matrix;
+import uncaptcha.matrix.Transposed;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -14,7 +19,7 @@ public class Uncaptcha {
 
     public static void main(String[] args) throws IOException {
         BufferedImage image = ImageIO.read(new File(args[0]));
-        image = transformOld(image, Integer.parseInt(args[2]),  Double.parseDouble(args[3]));
+        image = transformOld(image, Integer.parseInt(args[2]), Double.parseDouble(args[3]));
         ImageIO.write(image, "png", new File(args[1]));
     }
 
@@ -52,8 +57,34 @@ public class Uncaptcha {
         orig = new Split().apply(orig);
         orig = new Shrink1().apply(orig);
         orig = new Shrink2().apply(orig);
-        new Compact().apply(orig);
+        orig = new Compact().apply(orig);
         return orig;
+    }
+
+    public static String detect(String path) throws IOException {
+        return detect(ImageIO.read(new File(path)));
+    }
+
+    public static String detect(BufferedImage image) {
+        image = new Contrast().apply(image);
+        image = new RemoveHoles().apply(image);
+        BufferedImage orig = image;
+        image = new Count().apply(image);
+        Frame frame = new Frame();
+        image = frame.apply(image);
+        image = new Cut().apply(image);
+        FineFrame fineFrame = new FineFrame();
+        image = fineFrame.apply(image);
+
+        orig = frame.rotation().combine(fineFrame).apply(orig);
+        orig = new Cut().apply(orig);
+        orig = new Window().apply(orig);
+        orig = new Split().apply(orig);
+        orig = new Shrink1().apply(orig);
+        orig = new Shrink2().apply(orig);
+        Compact compact = new Compact();
+        orig = compact.apply(orig);
+        return compact.numbers.toString();
     }
 
     public static class Stretch extends Filter {
@@ -84,62 +115,226 @@ public class Uncaptcha {
     }
 
     public static class Compact extends Filter {
+        StringBuilder numbers = new StringBuilder();
+
 
         @Override
         protected void process(int[] in, int[] out, int width) {
             int sx = 0;
             int sy = 0;
-            int ex = 0;
+            int ex = -1;
             int ey = 0;
 
-            found:
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < in.length / width; y++) {
-                    if (bool(in, width, x, y) == 0) {
-                        sx = x;
-                        sy = y;
-                        break found;
+            System.arraycopy(in, 0, out, 0, in.length);
+
+            while (true) {
+                boolean found = false;
+
+                found:
+                for (int x = ex + 1; x < width; x++) {
+                    for (int y = 0; y < in.length / width; y++) {
+                        if (bool(in, width, x, y) == 0) {
+                            sx = x;
+                            sy = y;
+                            found = true;
+                            break found;
+                        }
                     }
+                }
+
+                if (!found) break;
+
+                ex = sx;
+                ey = sy;
+
+                while (found) {
+                    found = false;
+                    for (int x = sx; x <= ex + 1; x++) {
+                        if (bool(in, width, x, sy - 1) == 0) {
+                            found = true;
+                            sy--;
+                            break;
+                        }
+                    }
+                    for (int x = sx; x <= ex + 1; x++) {
+                        if (bool(in, width, x, ey + 1) == 0) {
+                            found = true;
+                            ey++;
+                            break;
+                        }
+                    }
+                    for (int y = sy; y <= ey + 1; y++) {
+                        if (bool(in, width, sx - 1, y) == 0) {
+                            found = true;
+                            sx--;
+                            break;
+                        }
+                    }
+                    for (int y = sy; y <= ey + 1; y++) {
+                        if (bool(in, width, ex + 1, y) == 0) {
+                            found = true;
+                            ex++;
+                            break;
+                        }
+                    }
+                }
+
+                FullMatrix all = new FullMatrix(out, width);
+
+                int ch = ey - sy + 1;
+                int cw = ex - sx + 1;
+                if (cw < ch * 3 / 5) cw = ch * 3 / 5;
+
+                Fragment cipher = new Fragment(all, ex - cw + 1, sy, cw, ch);
+
+                compactToHeight(cipher, 5);
+                compactToHeight(new Transposed(cipher), 3);
+
+                Fragment number = new Fragment(all, ex - 3 + 1, ey - 5 + 1, 3, 5);
+                if (number.matches("""
+                        x x x
+                        x . x
+                        x x x
+                        x . x
+                        x x x
+                        """)) {
+                    this.numbers.append('8');
+                } else if (number.matches("""
+                        x x x
+                        x . x
+                        x x x
+                        . . x
+                        x x x
+                        """)) {
+                    this.numbers.append('9');
+                } else if (number.matches("""
+                        x x x
+                        x . .
+                        x x x
+                        x . x
+                        x x x
+                        """)) {
+                    this.numbers.append('6');
+                } else if (number.matches("""
+                        x x x
+                        x . x
+                        x . x
+                        x . x
+                        x x x
+                        """)) {
+                    this.numbers.append('0');
+                } else if (number.matches("""
+                        x x x
+                        x . .
+                        x x x
+                        . . x
+                        x x x
+                        """)) {
+                    this.numbers.append('5');
+                } else if (number.matches("""
+                        x x x
+                        . . x
+                        x x x
+                        x . .
+                        x x x
+                        """)) {
+                    this.numbers.append('2');
+                } else if (number.matches("""
+                        x x x
+                        . . x
+                          x x
+                        . . x
+                        x x x
+                        """)) {
+                    this.numbers.append('3');
+                } else if (number.matches("""
+                        x x x
+                        . . x
+                        . x .
+                        . x .
+                          x\s\s
+                        """)) {
+                    this.numbers.append('7');
+                } else if (number.matches("""
+                        . x x
+                        . . x
+                        . . x
+                        . . x
+                        . . x
+                        """)) {
+                    this.numbers.append('1');
+                } else if (number.matches("""
+                          x x
+                        x . x
+                        x x x
+                        . . x
+                        . . x
+                        """)) {
+                    this.numbers.append('4');
+                } else {
+                    this.numbers.append('?');
                 }
             }
 
-            ex = sx;
-            ey = sy;
+            System.out.println(numbers);
+        }
 
-            boolean found = true;
-            while (found) {
-                found = false;
-                for (int x = sx; x <= ex + 1; x++) {
-                    if (bool(in, width, x, sy - 1) == 0) {
-                        found = true;
-                        sy--;
-                        break;
-                    }
-                }
-                for (int x = sx; x <= ex + 1; x++) {
-                    if (bool(in, width, x, ey + 1) == 0) {
-                        found = true;
-                        ey++;
-                        break;
-                    }
-                }
-                for (int y = sy; y <= ey + 1; y++) {
-                    if (bool(in, width, sx - 1, y) == 0) {
-                        found = true;
-                        sx--;
-                        break;
-                    }
-                }
-                for (int y = sy; y <= ey + 1; y++) {
-                    if (bool(in, width, ex + 1, y) == 0) {
-                        found = true;
-                        ex++;
-                        break;
-                    }
+        private void compactToHeight(Matrix cipher, int target) {
+            int height = cipher.getHeight();
+            int toCompact = height - target;
+            double yc = 0;
+            while (toCompact > 1) {
+                int y = (int) yc;
+
+                if (canCompact(cipher, y)) {
+                    compactLine(cipher, y);
+                    yc += (height - 2d) / (toCompact - 1);
+                    height--;
+                    toCompact--;
+                } else {
+                    yc += 1;
                 }
             }
 
-            System.out.println(sx + "x" + sy + " - " + ex + "x" + ey);
+            if (toCompact == 1) {
+                for (int y = cipher.getHeight() - 2; y >= 0; y--) {
+                    if (canCompact(cipher, y)) {
+                        compactLine(cipher, y);
+                        return;
+                    }
+                }
+            }
+        }
+
+        private static boolean canCompact(Matrix cipher, int y) {
+            for (int x = 0; x < cipher.getWidth(); x++) {
+                String naughties = """
+                          x  |  x  |  x x|x x  |
+                        x . x|. . .|x . .|. . x|
+                          x  |  x  |  x x|x x  |
+                        """;
+                if (new Fragment(cipher, x - 1, y, 3, 3).matchesAny(naughties)) {
+                    return false;
+                }
+                if (new Fragment(cipher, x - 1, y - 1, 3, 3).matchesAny(naughties)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static void compactLine(Matrix cipher, int y) {
+            for (int x = 0; x < cipher.getWidth(); x++) {
+                if (cipher.get(x, y) == BLACK) {
+                    cipher.set(x, y + 1, BLACK);
+                }
+            }
+
+            for (int yo = y; yo >= 0; yo--) {
+                for (int x = 0; x < cipher.getWidth(); x++) {
+                    cipher.set(x, yo, cipher.get(x, yo - 1));
+                }
+            }
         }
     }
 
