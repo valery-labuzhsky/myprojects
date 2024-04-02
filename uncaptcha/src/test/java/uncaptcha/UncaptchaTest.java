@@ -9,6 +9,7 @@ public class UncaptchaTest {
     @Test
     public void test() throws IOException {
         check("386917");
+        check("810864");
     }
 
     private static void check(String number) throws IOException {

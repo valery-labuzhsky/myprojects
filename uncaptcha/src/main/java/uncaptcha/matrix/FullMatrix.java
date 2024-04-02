@@ -1,7 +1,11 @@
 package uncaptcha.matrix;
 
+import java.util.Arrays;
+
+import static uncaptcha.Uncaptcha.WHITE;
+
 public class FullMatrix extends Matrix {
-    int[] colors;
+    public int[] colors;
     int width;
 
     public FullMatrix(int[] colors, int width) {
@@ -11,12 +15,24 @@ public class FullMatrix extends Matrix {
 
     @Override
     public int get(int x, int y) {
-        return colors[y * width + x];
+        int i = getI(x, y);
+        if (i<0) return WHITE;
+        return colors[i];
     }
 
     @Override
     public void set(int x, int y, int c) {
-        colors[y * width + x] = c;
+        colors[getI(x, y)] = c;
+    }
+
+    @Override
+    public int get(int i) {
+        return colors[i];
+    }
+
+    @Override
+    public void set(int i, int color) {
+        colors[i] = color;
     }
 
     @Override
@@ -27,5 +43,10 @@ public class FullMatrix extends Matrix {
     @Override
     public int getHeight() {
         return colors.length / width;
+    }
+
+    @Override
+    public void fill(int color) {
+        Arrays.fill(colors, color);
     }
 }

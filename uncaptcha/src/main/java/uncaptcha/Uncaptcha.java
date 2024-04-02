@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static java.lang.Math.*;
+
 public class Uncaptcha {
 
     public static final int WHITE = rgb(0xff);
@@ -20,6 +22,7 @@ public class Uncaptcha {
     public static void main(String[] args) throws IOException {
         BufferedImage image = ImageIO.read(new File(args[0]));
         image = transformOld(image, Integer.parseInt(args[2]), Double.parseDouble(args[3]));
+//        image = transform(image);
         ImageIO.write(image, "png", new File(args[1]));
     }
 
@@ -43,21 +46,42 @@ public class Uncaptcha {
     public static BufferedImage transform(BufferedImage image) {
         image = new Contrast().apply(image);
         image = new RemoveHoles().apply(image);
+        image = new RemoveBalloons().apply(image);
         BufferedImage orig = image;
         image = new Count().apply(image);
-        Frame frame = new Frame();
-        image = frame.apply(image);
-        image = new Cut().apply(image);
-        FineFrame fineFrame = new FineFrame();
-        image = fineFrame.apply(image);
+        Rotate rotation = new FineFrame2();
+        image = rotation.apply(image);
+        image = orig;
 
-        orig = frame.rotation().combine(fineFrame).apply(orig);
+        image = rotation.rotation().apply(image);
+
+        image = new DoubleSlit(12).apply(image);
+        FineFrame2 frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        image = new DoubleSlit(10).apply(image);
+        frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        image = new DoubleSlit(8).apply(image);
+        frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        orig = rotation.apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
         orig = new Split().apply(orig);
+        orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
-        orig = new Shrink2().apply(orig);
+        orig = new Shrink3().apply(orig);
         orig = new Compact().apply(orig);
+        if (true) return orig;
         return orig;
     }
 
@@ -68,23 +92,399 @@ public class Uncaptcha {
     public static String detect(BufferedImage image) {
         image = new Contrast().apply(image);
         image = new RemoveHoles().apply(image);
+        image = new RemoveBalloons().apply(image);
         BufferedImage orig = image;
         image = new Count().apply(image);
-        Frame frame = new Frame();
-        image = frame.apply(image);
-        image = new Cut().apply(image);
-        FineFrame fineFrame = new FineFrame();
-        image = fineFrame.apply(image);
+        Rotate rotation = new FineFrame2();
+        image = rotation.apply(image);
+        image = orig;
 
-        orig = frame.rotation().combine(fineFrame).apply(orig);
+        image = rotation.rotation().apply(image);
+
+        image = new DoubleSlit(12).apply(image);
+        FineFrame2 frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        image = new DoubleSlit(10).apply(image);
+        frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        image = new DoubleSlit(8).apply(image);
+        frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        orig = rotation.apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
         orig = new Split().apply(orig);
+        orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
-        orig = new Shrink2().apply(orig);
+        orig = new Shrink3().apply(orig);
         Compact compact = new Compact();
         orig = compact.apply(orig);
         return compact.numbers.toString();
+    }
+
+    public static class Shrink3 extends Filter {
+
+        private FullMatrix outm;
+
+        @Override
+        public int scale(int x) {
+            return x / 2;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            outm = new FullMatrix(out, scale(width));
+
+            int sw = scale(width);
+            int sh = scale(in.length / width);
+
+            ArrayList<Integer> ones = new ArrayList<>();
+            ArrayList<Integer> twos = new ArrayList<>();
+
+            int[] square = new int[4];
+            for (int x = 0; x < sw; x++) {
+                for (int y = 0; y < sh; y++) {
+                    for (int dx = 0; dx < 2; dx++) {
+                        for (int dy = 0; dy < 2; dy++) {
+                            square[dy * 2 + dx] = bool(in[(y * 2 + dy) * width + x * 2 + dx]);
+                        }
+                    }
+                    int sum = Arrays.stream(square).sum();
+                    int j = y * sw + x;
+                    if (sum < 4) {
+                        out[j] = BLACK;
+                    } else {
+                        out[j] = WHITE;
+                    }
+                    switch (sum) {
+                        case 3 -> ones.add(j);
+                        case 2 -> twos.add(j);
+                    }
+                }
+            }
+
+            ones = process(ones);
+            twos = process(twos);
+            for (int i : ones) {
+                outm.set(i, WHITE);
+            }
+        }
+
+        private ArrayList<Integer> process(ArrayList<Integer> ones) {
+            TreeMap<Double, ArrayList<Integer>> ranked = new TreeMap<>();
+            for (int i : ones) {
+                Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
+                ranked.computeIfAbsent(frag.getPerimeter().mapToDouble(j -> {
+                    if (frag.get(j) == WHITE) return 0;
+                    else if (j % 2 == 0) return 1 / sqrt(2);
+                    else return 1;
+                }).sum(), r -> new ArrayList<>()).add(i);
+            }
+
+            ArrayList<Integer> tips = new ArrayList<>();
+
+            for (Map.Entry<Double, ArrayList<Integer>> entry : ranked.entrySet()) {
+                if (entry.getKey() == 0) {
+                    for (int i : entry.getValue()) {
+                        outm.set(i, WHITE);
+                    }
+                } else if (entry.getKey() < 1.9) {
+                    tips.addAll(entry.getValue());
+                } else {
+                    for (Integer i : entry.getValue()) {
+                        Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
+                        if (!frag.isBridge()) {
+                            outm.set(i, WHITE);
+                        }
+                    }
+                }
+            }
+
+            return tips;
+        }
+
+    }
+
+    public static class DoubleSlit extends Filter {
+
+        private int slit;
+
+        public DoubleSlit(int slit) {
+            this.slit = slit;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            FullMatrix inm = new FullMatrix(in, width);
+            FullMatrix outm = new FullMatrix(out, width);
+            outm.fill(WHITE);
+
+            int lh = 30;
+            int height = inm.getHeight();
+
+            for (int x = 0; x < width; x++) {
+                for (int y = height / 2 - lh / 2 - slit; y < height / 2 - lh / 2 + slit / 2; y++) {
+                    outm.set(x, y + (lh - slit) / 2, inm.get(x, y));
+                    outm.set(x, height - y - 1 - (lh - slit) / 2, inm.get(x, height - y - 1));
+                }
+            }
+        }
+    }
+
+
+    public static class FineFrame2 extends Rotate {
+
+        double rang(double ang) {
+            if (ang > Math.PI / 2) return ang - Math.PI;
+            if (ang < -Math.PI / 2) return ang + Math.PI;
+            return ang;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            measure(in, width);
+            super.process(in, out, width);
+        }
+
+        private void measure(int[] in, int width) {
+            FullMatrix inm = new FullMatrix(in, width);
+
+            ArrayList<Integer> xs1 = new ArrayList<>();
+            ArrayList<Integer> ys1 = new ArrayList<>();
+
+            ArrayList<Integer> xs2 = new ArrayList<>();
+            ArrayList<Integer> ys2 = new ArrayList<>();
+
+            for (int x = 0; x < inm.getWidth() / 2; x++) {
+                for (int y = 0; y < inm.getHeight(); y++) {
+                    int c = 2 - (inm.get(x, y) & 0xFF) / 0x7E;
+                    for (int i = 0; i < c; i++) {
+                        xs1.add(x);
+                        ys1.add(y);
+                    }
+                }
+            }
+
+            for (int x = inm.getWidth() / 2; x < inm.getWidth(); x++) {
+                for (int y = 0; y < inm.getHeight(); y++) {
+                    int c = 2 - (inm.get(x, y) & 0xFF) / 0x7E;
+                    for (int i = 0; i < c; i++) {
+                        xs2.add(x);
+                        ys2.add(y);
+                    }
+                }
+            }
+
+            Collections.sort(xs1);
+            Collections.sort(ys1);
+
+            Collections.sort(xs2);
+            Collections.sort(ys2);
+
+            int x01 = xs1.get(xs1.size() / 2);
+            int y01 = ys1.get(ys1.size() / 2);
+
+            int x02 = xs2.get(xs2.size() / 2);
+            int y02 = ys2.get(ys2.size() / 2);
+
+            if (x01 < inm.getWidth() - x02) {
+                x0 = x01;
+                y0 = y01;
+            } else {
+                x0 = x02;
+                y0 = y02;
+            }
+            x0 -= inm.getWidth() / 2d;
+            y0 -= inm.getHeight() / 2d;
+
+            ang = rang(Math.atan2(y02 - y01, x02 - x01));
+        }
+    }
+
+    public static class RemoveBalloons extends Filter {
+        private FullMatrix inm;
+        HashSet<Integer> visited;
+        double x0, x1, y0, y1;
+        private HashSet<Integer> blob;
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            inm = new FullMatrix(in, width);
+            FullMatrix outm = new FullMatrix(out, width);
+            outm.fill(WHITE);
+
+            visited = new HashSet<>();
+            for (int i = 0; i < in.length; i++) {
+                if (!visited.contains(i)) {
+                    visited.add(i);
+                    if (inm.colors[i] == BLACK) {
+                        blob = new HashSet<>();
+                        blob.add(i);
+                        int x = inm.getX(i);
+                        int y = inm.getY(i);
+                        x0 = x1 = x;
+                        y0 = y1 = y;
+                        visit(x, y);
+
+                        if (Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) > 15) {
+                            for (Integer b : blob) {
+                                outm.colors[b] = BLACK;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void visit(int x, int y) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    int i = inm.getI(x + dx, y + dy);
+                    if (i >= 0 && !visited.contains(i)) {
+                        visited.add(i);
+                        if (inm.colors[i] == BLACK) {
+                            blob.add(i);
+                            if (x0 > x) x0 = x;
+                            else if (x1 < x) x1 = x;
+                            if (y0 > x) y0 = y;
+                            else if (y1 < x) y1 = y;
+                            visit(x + dx, y + dy);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static class Shadow extends Filter {
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            FullMatrix inm = new FullMatrix(in, width);
+            FullMatrix outm = new FullMatrix(out, width);
+            outm.fill(WHITE);
+
+            int high = 17;
+            for (int x = 0; x < inm.getWidth(); x++) {
+                for (int y = 0; y < inm.getHeight() - high * 2; y++) {
+                    if (inm.get(x, y) == BLACK) {
+                        if (y == 0) break;
+                        outm.set(x, y + high, rgb((outm.get(x, y + high) & 0xFF) - 0x7E));
+                        break;
+                    }
+                }
+                for (int y = inm.getHeight() - 1; y >= high * 2; y--) {
+                    if (inm.get(x, y) == BLACK) {
+                        if (y == inm.getHeight() - 1) break;
+                        outm.set(x, y - high, rgb((outm.get(x, y - high) & 0xFF) - 0x7E));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public static class FineFrame extends Rotate {
+
+        double rang(double ang) {
+            if (ang > Math.PI / 2) return ang - Math.PI;
+            if (ang < -Math.PI / 2) return ang + Math.PI;
+            return ang;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            measure(in, width);
+            super.process(in, out, width);
+        }
+
+        private void measure(int[] in, int width) {
+            ArrayList<Integer> xs = new ArrayList<>();
+            ArrayList<Integer> ys = new ArrayList<>();
+
+            int high = 17;
+            int height = in.length / width;
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height - high; y++) {
+                    int i = y * width + x;
+                    if (in[i] == BLACK) {
+                        xs.add(x);
+                        ys.add(y + high);
+                        break;
+                    }
+                }
+                for (int y = height - 1; y >= high; y--) {
+                    int i = y * width + x;
+                    if (in[i] == BLACK) {
+                        xs.add(x);
+                        ys.add(y - high);
+                        break;
+                    }
+                }
+            }
+
+            Collections.sort(xs);
+            Collections.sort(ys);
+
+            x0 = xs.get(xs.size() / 2);
+            y0 = ys.get(ys.size() / 2);
+
+            ArrayList<Double> angs = new ArrayList<>();
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height - high; y++) {
+                    int i = y * width + x;
+                    if (in[i] == BLACK) {
+                        int x1 = (int) (x - x0);
+                        y -= y0;
+                        y += high;
+                        if (Math.sqrt(x1 * x1 + y * y) > 40) {
+                            angs.add(rang(Math.atan2(y, x1)));
+                        }
+                        break;
+                    }
+                }
+                for (int y = height - 1; y >= high; y--) {
+                    int i = y * width + x;
+                    if (in[i] == BLACK) {
+                        int x1 = (int) (x - x0);
+                        y -= y0;
+                        y -= high;
+                        if (Math.sqrt(x1 * x1 + y * y) > 40) {
+                            angs.add(rang(Math.atan2(y, x1)));
+                        }
+                        break;
+                    }
+                }
+            }
+
+            Collections.sort(angs);
+            ang = angs.get(angs.size() / 2);
+            System.out.println(angs.size());
+            System.out.println(ang);
+
+            angs = new ArrayList<>(angs.stream().filter(a -> a > ang - Math.PI / 50 && a < ang + Math.PI / 50).toList());
+            ang = angs.get(angs.size() / 2);
+            System.out.println(angs.size());
+            System.out.println(ang);
+
+            angs = new ArrayList<>(angs.stream().filter(a -> a > ang - Math.PI / 150 && a < ang + Math.PI / 150).toList());
+            ang = angs.get(angs.size() / 2);
+            System.out.println(angs.size());
+            System.out.println(ang);
+
+            int cx = width / 2;
+            int cy = in.length / width / 2;
+            x0 -= cx;
+            y0 -= cy;
+        }
     }
 
     public static class Stretch extends Filter {
@@ -127,6 +527,8 @@ public class Uncaptcha {
 
             System.arraycopy(in, 0, out, 0, in.length);
 
+            int n = 0;
+
             while (true) {
                 boolean found = false;
 
@@ -164,20 +566,15 @@ public class Uncaptcha {
                         }
                     }
                     for (int y = sy; y <= ey + 1; y++) {
-                        if (bool(in, width, sx - 1, y) == 0) {
-                            found = true;
-                            sx--;
-                            break;
-                        }
-                    }
-                    for (int y = sy; y <= ey + 1; y++) {
                         if (bool(in, width, ex + 1, y) == 0) {
                             found = true;
                             ex++;
                             break;
                         }
                     }
+                    if (ex >= (n + 1) * width / 6) break;
                 }
+                n++;
 
                 FullMatrix all = new FullMatrix(out, width);
 
@@ -194,7 +591,7 @@ public class Uncaptcha {
                 if (number.matches("""
                         x x x
                         x . x
-                        x x x
+                          x
                         x . x
                         x x x
                         """)) {
@@ -203,8 +600,8 @@ public class Uncaptcha {
                         x x x
                         x . x
                         x x x
-                        . . x
-                        x x x
+                        .   x
+                        x x
                         """)) {
                     this.numbers.append('9');
                 } else if (number.matches("""
@@ -250,25 +647,25 @@ public class Uncaptcha {
                 } else if (number.matches("""
                         x x x
                         . . x
-                        . x .
-                        . x .
-                          x\s\s
+                        .
+                        . x
+                          x
                         """)) {
                     this.numbers.append('7');
                 } else if (number.matches("""
-                        . x x
-                        . . x
+                        .   x
+                        .   x
                         . . x
                         . . x
                         . . x
                         """)) {
                     this.numbers.append('1');
-                } else if (number.matches("""
-                          x x
-                        x . x
-                        x x x
-                        . . x
-                        . . x
+                } else if (number.matchesAny("""
+                          x x|. . x
+                        x . x|  x x
+                        x x x|x . x
+                        . . x|  x x
+                        . . x|. . x
                         """)) {
                     this.numbers.append('4');
                 } else {
@@ -286,6 +683,10 @@ public class Uncaptcha {
             while (toCompact > 1) {
                 int y = (int) yc;
 
+                if (y >= cipher.getHeight() - 2) {
+                    break;
+                }
+
                 if (canCompact(cipher, y)) {
                     compactLine(cipher, y);
                     yc += (height - 2d) / (toCompact - 1);
@@ -296,12 +697,20 @@ public class Uncaptcha {
                 }
             }
 
-            if (toCompact == 1) {
-                for (int y = cipher.getHeight() - 2; y >= 0; y--) {
-                    if (canCompact(cipher, y)) {
-                        compactLine(cipher, y);
-                        return;
-                    }
+            for (int y = cipher.getHeight() - 2; y >= 0; y--) {
+                if (canCompact(cipher, y)) {
+                    compactLine(cipher, y);
+                    height--;
+                    toCompact--;
+                    break;
+                }
+            }
+
+            for (int y = cipher.getHeight() - height; toCompact > 0 && y < cipher.getHeight(); y++) {
+                if (canCompact(cipher, y)) {
+                    compactLine(cipher, y);
+                    height--;
+                    toCompact--;
                 }
             }
         }
@@ -332,7 +741,8 @@ public class Uncaptcha {
 
             for (int yo = y; yo >= 0; yo--) {
                 for (int x = 0; x < cipher.getWidth(); x++) {
-                    cipher.set(x, yo, cipher.get(x, yo - 1));
+                    if (yo == 0) cipher.set(x, yo, WHITE);
+                    else cipher.set(x, yo, cipher.get(x, yo - 1));
                 }
             }
         }
@@ -452,7 +862,7 @@ public class Uncaptcha {
 
         @Override
         protected void process(int[] in, int[] out, int width) {
-            int[] dxs = new int[]{6, 24, 45, 72, 105, 136, 172};
+            int[] dxs = new int[]{6, 26, 47, 75, 109, 142, 177};
             int height = in.length / width;
             int bestX = 0;
             int bestY = 0;
@@ -503,7 +913,7 @@ public class Uncaptcha {
     public static class Window extends Filter {
         @Override
         protected void process(int[] in, int[] out, int width) {
-            int l = 48;
+            int l = 54;
             int height = in.length / width;
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < (height - l) / 2; y++) {
@@ -514,89 +924,6 @@ public class Uncaptcha {
                     out[y * width + x] = in[y * width + x];
                 }
             }
-        }
-    }
-
-    public static class FineFrame extends Rotate {
-
-        double rang(double ang) {
-            if (ang > Math.PI / 2) return ang - Math.PI;
-            if (ang < -Math.PI / 2) return ang + Math.PI;
-            return ang;
-        }
-
-        @Override
-        protected void process(int[] in, int[] out, int width) {
-            measure(in, width);
-            super.process(in, out, width);
-        }
-
-        private void measure(int[] in, int width) {
-            ArrayList<Integer> xs = new ArrayList<>();
-            ArrayList<Integer> ys = new ArrayList<>();
-
-            int high = 17;
-            int height = in.length / width;
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height - high; y++) {
-                    int i = y * width + x;
-                    if (in[i] == BLACK) {
-                        xs.add(x);
-                        ys.add(y + high);
-                        break;
-                    }
-                }
-                for (int y = height - 1; y >= high; y--) {
-                    int i = y * width + x;
-                    if (in[i] == BLACK) {
-                        xs.add(x);
-                        ys.add(y - high);
-                        break;
-                    }
-                }
-            }
-
-            Collections.sort(xs);
-            Collections.sort(ys);
-
-            x0 = xs.get(xs.size() / 2);
-            y0 = ys.get(ys.size() / 2);
-
-            ArrayList<Double> angs = new ArrayList<>();
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height - high; y++) {
-                    int i = y * width + x;
-                    if (in[i] == BLACK) {
-                        int x1 = (int) (x - x0);
-                        y -= y0;
-                        y += high;
-                        if (Math.sqrt(x1 * x1 + y * y) > 40) {
-                            angs.add(rang(Math.atan2(y, x1)));
-                        }
-                        break;
-                    }
-                }
-                for (int y = height - 1; y >= high; y--) {
-                    int i = y * width + x;
-                    if (in[i] == BLACK) {
-                        int x1 = (int) (x - x0);
-                        y -= y0;
-                        y -= high;
-                        if (Math.sqrt(x1 * x1 + y * y) > 40) {
-                            angs.add(rang(Math.atan2(y, x1)));
-                        }
-                        break;
-                    }
-                }
-            }
-
-            Collections.sort(angs);
-            ang = angs.get(angs.size() / 2);
-
-            int cx = width / 2;
-            int cy = in.length / width / 2;
-            x0 -= cx;
-            y0 -= cy;
         }
     }
 
@@ -639,7 +966,7 @@ public class Uncaptcha {
             int cy = in.length / width / 2;
 
             double horz = -Math.tan(ang / 2);
-            double vert = Math.sin(ang);
+            double vert = sin(ang);
             for (int i = 0; i < out.length; i++) {
                 int x = i % width - cx;
                 int y = i / width - cy;
@@ -668,11 +995,52 @@ public class Uncaptcha {
         }
 
         public Rotate combine(Rotate rotate) {
-            Rotate combine = rotation();
+            Rotate combine = absolute();
+            rotate = rotate.absolute();
             combine.x0 += rotate.x0;
             combine.y0 += rotate.y0;
             combine.ang += rotate.ang;
-            return combine;
+            return combine.relative();
+        }
+
+        public Rotate absolute() {
+            Rotate rotation = rotation();
+//            rotation.x0 = x0 * cos(ang) - y0 * sin(ang) - x0;
+//            rotation.y0 = x0 * sin(ang) + y0 * cos(ang) - y0;
+//            rotation.x0 = x0 * cos(ang) - y0 * sin(ang) - x0;
+//            rotation.y0 = x0 * sin(ang) + y0 * cos(ang);
+            rotation.x0 = x0 * cos(ang) - y0 * sin(ang) - x0;
+            rotation.y0 = x0 * sin(ang) + y0 * cos(ang) - y0 * 2;
+            return rotation;
+        }
+
+        public Rotate relative() {
+            Rotate rotation = rotation();
+
+//            rotation.x0 = (-x0 + y0 * sin(ang) / (1 - cos(ang))) / 2;
+//            rotation.y0 = (-x0 * sin(ang) / (1 - cos(ang)) - y0) / 2;
+
+//            rotation.x0 = (x0 * cos(ang) + y0 * sin(ang)) / (1 - cos(ang));
+//            rotation.y0 = (-x0 * sin(ang) + y0 * (cos(ang) - 1)) / (1 - cos(ang));
+
+//            x0 * (cos(ang) - 2) + y0 * sin(ang) = x0 * (3 - 3 * cos(ang));
+
+//            -x0 * sin(ang) + y0 * (cos(ang) - 1) = y0 * (3 - 3 * cos(ang));
+//            y0 * (cos(ang) - 1) = y0 * (cos(ang) - 2) * (cos(ang) - 1);
+
+            rotation.x0 = (x0 * (cos(ang) - 2) + y0 * sin(ang)) / (1 - cos(ang)) / 3;
+            rotation.y0 = (-x0 * sin(ang) + y0 * (cos(ang) - 1)) / (1 - cos(ang)) / 3;
+
+            return rotation;
+        }
+
+        @Override
+        public String toString() {
+            return "Rotate{" +
+                    "x0=" + x0 +
+                    ", y0=" + y0 +
+                    ", ang=" + ang +
+                    '}';
         }
     }
 

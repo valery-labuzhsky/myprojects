@@ -1,5 +1,10 @@
 package uncaptcha.matrix;
 
+import uncaptcha.Uncaptcha;
+
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import static uncaptcha.Uncaptcha.BLACK;
 import static uncaptcha.Uncaptcha.WHITE;
 
@@ -8,6 +13,58 @@ public abstract class Matrix {
     public abstract int get(int x, int y);
 
     public abstract void set(int x, int y, int c);
+
+    public IntStream getPerimeter() {
+        return Stream.of(IntStream.range(0, getWidth() - 1).map(x -> getI(x, 0)),
+                        IntStream.range(0, getHeight() - 1).map(y -> getI(2, y)),
+                        IntStream.range(0, getWidth() - 1).map(x -> getI(2 - x, 2)),
+                        IntStream.range(0, getHeight() - 1).map(y -> getI(0, 2 - y)))
+                .flatMapToInt(s -> s);
+    }
+
+    public int get(int i) {
+        return get(getX(i), getY(i));
+    }
+
+    public void set(int i, int color) {
+        set(getX(i), getY(i), color);
+    }
+
+    public boolean isBridge() {
+        int[] perimeter = getPerimeter().toArray();
+        int j = 1;
+        boolean black = false;
+        if (get(perimeter[0]) == BLACK) {
+            black = true;
+        } else {
+            j = 3;
+            if (get(perimeter[1]) == BLACK) {
+                black = true;
+            }
+        }
+        int borders = 0;
+        while (j < perimeter.length) {
+            if (black) {
+                if (get(perimeter[j]) == WHITE) {
+                    black = false;
+                    borders++;
+                }
+                if (j % 2 == 0) {
+                    j += 1;
+                } else {
+                    j += 2;
+                }
+            } else {
+                if (get(perimeter[j]) == BLACK) {
+                    black = true;
+                    borders++;
+                }
+                j += 1;
+            }
+        }
+        boolean bridge = borders > 2;
+        return bridge;
+    }
 
     public abstract int getWidth();
 
@@ -55,12 +112,33 @@ public abstract class Matrix {
 
     public String toString() {
         StringBuilder string = new StringBuilder();
-        for (int y=0; y<getHeight(); y++) {
-            for (int x=0; x<getWidth(); x++) {
-                string.append(get(x, y)==BLACK?"x ":". ");
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                string.append(get(x, y) == BLACK ? "x " : ". ");
             }
             string.append('\n');
         }
         return string.toString();
+    }
+
+    public int getX(int i) {
+        return i % getWidth();
+    }
+
+    public int getY(int i) {
+        return i / getWidth();
+    }
+
+    public int getI(int x, int y) {
+        if (x < 0 || x >= getWidth() || y < 0 || y >= getHeight()) return -1;
+        return y * getWidth() + x;
+    }
+
+    public void fill(int color) {
+        for (int x = 0; x < getWidth(); x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                set(x, y, color);
+            }
+        }
     }
 }
