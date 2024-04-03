@@ -76,7 +76,7 @@ public class Uncaptcha {
         orig = rotation.apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
-        orig = new Split().apply(orig);
+        orig = new Split2().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
         orig = new Shrink3().apply(orig);
@@ -84,6 +84,100 @@ public class Uncaptcha {
         if (true) return orig;
         return orig;
     }
+
+    public static class Split2 extends Filter {
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            FullMatrix inm = new FullMatrix(in, width);
+            ArrayList<Integer> borders = new ArrayList<>();
+            int border = findStart(inm);
+            borders.add(border - 5);
+            while (borders.size() < 7) {
+                border = findNext(border, inm);
+                borders.add(border);
+            }
+
+            Arrays.fill(out, WHITE);
+
+            double[] ks = new double[]{2, 1.2, 1, 0.8, 0.8, 0.8};
+            for (int n = 0; n < 6; n++) {
+                int sx = (borders.get(n + 1) + borders.get(n)) / 2;
+                int lw = 33;
+                int tx = 1 + n * lw + lw / 2;
+                double k = ks[n];
+
+                if (lw > (borders.get(n + 1) - borders.get(n)) * k)
+                    lw = (int) ((borders.get(n + 1) - borders.get(n)) * k);
+                for (int x = -lw / 2 + 1; x < lw / 2 + 1; x++) {
+                    for (int y = 0; y < inm.getHeight(); y++) {
+                        int xx = (int) (x / k + sx);
+                        if (xx >= 0 && xx < width) {
+                            out[y * width + x + tx] = in[y * width + xx];
+                        }
+                    }
+                }
+
+//                for (int y = 0; y < height; y++) {
+//                    out[y * width + 1 + n * 33] = BLACK;
+//                }
+            }
+        }
+
+        private static int findNext(int lx, FullMatrix inm) {
+            int lowX = lx + 10;
+            int lowH = 40;
+            for (int x = lx + 10; x < lx + 40; x++) {
+                int up = inm.getHeight();
+                for (int y = 0; y < inm.getHeight(); y++) {
+                    if (inm.get(x, y) == BLACK) {
+                        up = y;
+                        break;
+                    }
+                }
+
+                int down = up;
+                for (int y = inm.getHeight() - 1; y > up; y--) {
+                    if (inm.get(x, y) == BLACK) {
+                        down = y;
+                        break;
+                    }
+                }
+
+                if ((down - up) < lowH) {
+                    lowH = (down - up);
+                    lowX = x;
+                }
+            }
+            return lowX;
+        }
+
+        private static int findStart(FullMatrix inm) {
+            for (int x = 0; x < inm.getWidth(); x++) {
+                int up = inm.getHeight();
+                for (int y = 0; y < inm.getHeight(); y++) {
+                    if (inm.get(x, y) == BLACK) {
+                        up = y;
+                        break;
+                    }
+                }
+
+                int down = up;
+                for (int y = inm.getHeight() - 1; y > up; y--) {
+                    if (inm.get(x, y) == BLACK) {
+                        down = y;
+                        break;
+                    }
+                }
+
+                if ((down - up) > 35) {
+                    return x;
+                }
+            }
+            return inm.getWidth();
+        }
+    }
+
 
     public static String detect(String path) throws IOException {
         return detect(ImageIO.read(new File(path)));
@@ -122,7 +216,7 @@ public class Uncaptcha {
         orig = rotation.apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
-        orig = new Split().apply(orig);
+        orig = new Split2().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
         orig = new Shrink3().apply(orig);
@@ -172,14 +266,14 @@ public class Uncaptcha {
                 }
             }
 
-            ones = process(ones);
-            twos = process(twos);
+            ones = process(ones, 2.1);
+            twos = process(twos, 5);
             for (int i : ones) {
                 outm.set(i, WHITE);
             }
         }
 
-        private ArrayList<Integer> process(ArrayList<Integer> ones) {
+        private ArrayList<Integer> process(ArrayList<Integer> ones, double discard) {
             TreeMap<Double, ArrayList<Integer>> ranked = new TreeMap<>();
             for (int i : ones) {
                 Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
@@ -192,19 +286,40 @@ public class Uncaptcha {
 
             ArrayList<Integer> tips = new ArrayList<>();
 
-            for (Map.Entry<Double, ArrayList<Integer>> entry : ranked.entrySet()) {
-                if (entry.getKey() == 0) {
-                    for (int i : entry.getValue()) {
+            if (ranked.containsKey(0d)) {
+                for (int i : ranked.remove(0d)) {
+                    outm.set(i, WHITE);
+                }
+            }
+
+            {
+                Map.Entry<Double, ArrayList<Integer>> dentry = ranked.higherEntry(discard);
+                while (dentry != null) {
+                    for (int i : dentry.getValue()) {
                         outm.set(i, WHITE);
                     }
-                } else if (entry.getKey() < 1.9) {
-                    tips.addAll(entry.getValue());
-                } else {
-                    for (Integer i : entry.getValue()) {
-                        Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
-                        if (!frag.isBridge()) {
-                            outm.set(i, WHITE);
-                        }
+                    ranked.remove(dentry.getKey());
+                    dentry = ranked.higherEntry(discard);
+                }
+            }
+
+            double tipRank = 1.1;
+            {
+                Map.Entry<Double, ArrayList<Integer>> dentry = ranked.lowerEntry(tipRank);
+                while (dentry != null) {
+                    for (int i : dentry.getValue()) {
+                        outm.set(i, WHITE);
+                    }
+                    ranked.remove(dentry.getKey());
+                    dentry = ranked.lowerEntry(tipRank);
+                }
+            }
+
+            for (Map.Entry<Double, ArrayList<Integer>> entry : ranked.entrySet()) {
+                for (Integer i : entry.getValue()) {
+                    Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
+                    if (!frag.isBridge()) {
+                        outm.set(i, WHITE);
                     }
                 }
             }
@@ -335,7 +450,7 @@ public class Uncaptcha {
                         y0 = y1 = y;
                         visit(x, y);
 
-                        if (Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) > 15) {
+                        if (Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) > 35) {
                             for (Integer b : blob) {
                                 outm.colors[b] = BLACK;
                             }
@@ -355,8 +470,8 @@ public class Uncaptcha {
                             blob.add(i);
                             if (x0 > x) x0 = x;
                             else if (x1 < x) x1 = x;
-                            if (y0 > x) y0 = y;
-                            else if (y1 < x) y1 = y;
+                            if (y0 > y) y0 = y;
+                            else if (y1 < y) y1 = y;
                             visit(x + dx, y + dy);
                         }
                     }
@@ -584,90 +699,109 @@ public class Uncaptcha {
 
                 Fragment cipher = new Fragment(all, ex - cw + 1, sy, cw, ch);
 
-                compactToHeight(cipher, 5);
-                compactToHeight(new Transposed(cipher), 3);
+                ch = compactToHeight(cipher, 5);
+                cw = compactToHeight(new Transposed(cipher), 3);
 
-                Fragment number = new Fragment(all, ex - 3 + 1, ey - 5 + 1, 3, 5);
-                if (number.matches("""
-                        x x x
-                        x . x
-                          x
-                        x . x
-                        x x x
-                        """)) {
-                    this.numbers.append('8');
-                } else if (number.matches("""
-                        x x x
-                        x . x
-                        x x x
-                        .   x
-                        x x
-                        """)) {
-                    this.numbers.append('9');
-                } else if (number.matches("""
-                        x x x
-                        x . .
-                        x x x
-                        x . x
-                        x x x
-                        """)) {
-                    this.numbers.append('6');
-                } else if (number.matches("""
-                        x x x
-                        x . x
-                        x . x
-                        x . x
-                        x x x
-                        """)) {
-                    this.numbers.append('0');
-                } else if (number.matches("""
-                        x x x
-                        x . .
-                        x x x
-                        . . x
-                        x x x
-                        """)) {
-                    this.numbers.append('5');
-                } else if (number.matches("""
-                        x x x
-                        . . x
-                        x x x
-                        x . .
-                        x x x
-                        """)) {
-                    this.numbers.append('2');
-                } else if (number.matches("""
-                        x x x
-                        . . x
-                          x x
-                        . . x
-                        x x x
-                        """)) {
-                    this.numbers.append('3');
-                } else if (number.matches("""
-                        x x x
-                        . . x
-                        .
-                        . x
-                          x
-                        """)) {
-                    this.numbers.append('7');
-                } else if (number.matches("""
-                        .   x
-                        .   x
-                        . . x
-                        . . x
-                        . . x
-                        """)) {
-                    this.numbers.append('1');
-                } else if (number.matchesAny("""
-                          x x|. . x
-                        x . x|  x x
-                        x x x|x . x
-                        . . x|  x x
-                        . . x|. . x
-                        """)) {
-                    this.numbers.append('4');
+                if (ch == 5 && cw == 3) {
+                    Fragment number = new Fragment(all, ex - 3 + 1, ey - 5 + 1, 3, 5);
+                    if (number.matches("""
+                            x x x
+                            x . x
+                              x
+                            x . x
+                            x x x
+                            """)) {
+                        this.numbers.append('8');
+                    } else if (number.matches("""
+                            x x x
+                            x . x
+                            x x x
+                            .   x
+                            x x
+                            """)) {
+                        this.numbers.append('9');
+                    } else if (number.matches("""
+                            x x x
+                            x . .
+                            x x x
+                            x . x
+                            x x x
+                            """)) {
+                        this.numbers.append('6');
+                    } else if (number.matchesAny("""
+                            x x x|x x x
+                            x . x|x . x
+                            x . x|x . x
+                            x . x|x x x
+                            x x x|\s
+                            """)) {
+                        this.numbers.append('0');
+                    } else if (number.matches("""
+                            x x x
+                            x . .
+                            x x x
+                            . . x
+                            x x x
+                            """)) {
+                        this.numbers.append('5');
+                    } else if (number.matches("""
+                            x x x
+                            . . x
+                            x x x
+                            x . .
+                            x x x
+                            """)) {
+                        this.numbers.append('2');
+                    } else if (number.matches("""
+                            x x x
+                            . . x
+                              x x
+                            . . x
+                            x x x
+                            """)) {
+                        this.numbers.append('3');
+                    } else if (number.matches("""
+                            x x x
+                            . . x
+                            .
+                            . x
+                              x
+                            """)) {
+                        this.numbers.append('7');
+                    } else if (number.matches("""
+                            .   x
+                            .   x
+                            . . x
+                            . . x
+                            . . x
+                            """)) {
+                        this.numbers.append('1');
+                    } else if (number.matchesAny("""
+                              x x|.   x|. x x
+                            x . x|  x x|x . x
+                            x x x|x . x|x . x
+                            . . x|  x x|x x x
+                            . . x|. . x|. . x
+                            """)) {
+                        this.numbers.append('4');
+                    } else {
+                        this.numbers.append('?');
+                    }
+                } else if (ch == 7 && cw == 3) {
+                    Fragment number = new Fragment(all, ex - 3 + 1, ey - 7 + 1, 3, 7);
+                    if (number.matchesAny("""
+                              x  |  x
+                            x . x|x . x
+                            x x x|x x x
+                            . . x|x . .
+                            x x x|x x x
+                            x . x|x . x
+                              x  |  x
+                            """)) {
+                        this.numbers.append('8');
+                    } else {
+                        this.numbers.append('?');
+                    }
                 } else {
                     this.numbers.append('?');
                 }
@@ -676,7 +810,7 @@ public class Uncaptcha {
             System.out.println(numbers);
         }
 
-        private void compactToHeight(Matrix cipher, int target) {
+        private int compactToHeight(Matrix cipher, int target) {
             int height = cipher.getHeight();
             int toCompact = height - target;
             double yc = 0;
@@ -697,7 +831,7 @@ public class Uncaptcha {
                 }
             }
 
-            for (int y = cipher.getHeight() - 2; y >= 0; y--) {
+            for (int y = cipher.getHeight() - 2; y >= cipher.getHeight() - height; y--) {
                 if (canCompact(cipher, y)) {
                     compactLine(cipher, y);
                     height--;
@@ -706,21 +840,22 @@ public class Uncaptcha {
                 }
             }
 
-            for (int y = cipher.getHeight() - height; toCompact > 0 && y < cipher.getHeight(); y++) {
+            for (int y = cipher.getHeight() - height; toCompact > 0 && y < cipher.getHeight() - 1; y++) {
                 if (canCompact(cipher, y)) {
                     compactLine(cipher, y);
                     height--;
                     toCompact--;
                 }
             }
+            return height;
         }
 
         private static boolean canCompact(Matrix cipher, int y) {
             for (int x = 0; x < cipher.getWidth(); x++) {
                 String naughties = """
-                          x  |  x  |  x x|x x  |
-                        x . x|. . .|x . .|. . x|
-                          x  |  x  |  x x|x x  |
+                          x  |  x  |  x x|x x  |. x  |  x .|
+                        x . x|. . .|x . .|. . x|. .  |  . .|
+                          x  |  x  |  x x|x x  |x .  |  . x|
                         """;
                 if (new Fragment(cipher, x - 1, y, 3, 3).matchesAny(naughties)) {
                     return false;
@@ -848,7 +983,7 @@ public class Uncaptcha {
                             square[dy * 2 + dx] = bool(in[(y * 2 + dy) * width + x * 2 + dx]);
                         }
                     }
-                    if (Arrays.stream(square).sum() <= 1) {
+                    if (Arrays.stream(square).sum() <= 2) {
                         out[y * sw + x] = BLACK;
                     } else {
                         out[y * sw + x] = WHITE;

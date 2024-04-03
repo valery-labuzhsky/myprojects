@@ -1,7 +1,5 @@
 package uncaptcha.matrix;
 
-import uncaptcha.Uncaptcha;
-
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -33,26 +31,20 @@ public abstract class Matrix {
     public boolean isBridge() {
         int[] perimeter = getPerimeter().toArray();
         int j = 1;
-        boolean black = false;
-        if (get(perimeter[0]) == BLACK) {
-            black = true;
-        } else {
-            j = 3;
-            if (get(perimeter[1]) == BLACK) {
-                black = true;
-            }
-        }
+        boolean black = get(perimeter[0]) == BLACK;
         int borders = 0;
         while (j < perimeter.length) {
             if (black) {
                 if (get(perimeter[j]) == WHITE) {
                     black = false;
                     borders++;
-                }
-                if (j % 2 == 0) {
                     j += 1;
                 } else {
-                    j += 2;
+                    if (j % 2 == 0) {
+                        j += 1;
+                    } else {
+                        j += 2;
+                    }
                 }
             } else {
                 if (get(perimeter[j]) == BLACK) {
@@ -62,8 +54,7 @@ public abstract class Matrix {
                 j += 1;
             }
         }
-        boolean bridge = borders > 2;
-        return bridge;
+        return borders > 2;
     }
 
     public abstract int getWidth();

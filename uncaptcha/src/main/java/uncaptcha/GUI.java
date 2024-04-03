@@ -22,7 +22,7 @@ public class GUI extends Application {
         stage.setHeight(500);
 
         BorderPane root = new BorderPane();
-        BufferedImage image = ImageIO.read(new File("./images/386917.png"));
+        BufferedImage image = ImageIO.read(new File("./images/849104.png"));
         image = transform(image);
 
         double scale = 400d / image.getWidth();
