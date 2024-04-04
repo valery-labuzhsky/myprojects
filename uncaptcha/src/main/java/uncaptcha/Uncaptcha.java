@@ -278,20 +278,20 @@ public class Uncaptcha {
                         . x .
                         """)) {
                     this.numbers.append('8');
-                } else if (cout.matches("""
-                        . x .
-                        x   x
-                        .   x
-                          x x
-                        x x .
+                } else if (cout.matchesAny("""
+                        . x .|. x .
+                        x   x|x   x
+                        .   x|. x x
+                          x x|    x
+                        x x .|x x .
                         """)) {
                     this.numbers.append('9');
-                } else if (cout.matches("""
-                        . x x
-                        x . \s
-                        x x .
-                        x   x
-                        . x .
+                } else if (cout.matchesAny("""
+                        . x .|. x x
+                        x .  |x x \s
+                        x x .|x   .
+                        x   x|x   x
+                        . x .|. x .
                         """)) {
                     this.numbers.append('6');
                 } else if (cout.matches("""
@@ -318,16 +318,16 @@ public class Uncaptcha {
                         x x x
                         """)) {
                     this.numbers.append('2');
-                } else if (cout.matches("""
-                        . x x
-                            x
-                        . x x
-                            x
-                        . x x
+                } else if (cout.matchesAny("""
+                        . x x|. x x
+                            x|  . x
+                        . x x|    x
+                            x|x   x
+                        x x x|. x .
                         """)) {
                     this.numbers.append('3');
                 } else if (cout.matches("""
-                        x x x
+                        x x .
                             x
                           . .
                           x \s
@@ -336,18 +336,18 @@ public class Uncaptcha {
                     this.numbers.append('7');
                 } else if (cout.matches("""
                           . x
-                          . x
+                          . .
                             x
                             x
                             x
                         """)) {
                     this.numbers.append('1');
-                } else if (cout.matches("""
-                          . .
-                          x .
-                        x   x
-                        x x x
-                            x
+                } else if (cout.matchesAny("""
+                          . .|  . .|    x
+                          x .|  x .|  x .
+                        x   x|  x .|x x x
+                        x x x|x   x|    x
+                            x|  x x|    x
                         """)) {
                     this.numbers.append('4');
                 } else {
@@ -555,8 +555,8 @@ public class Uncaptcha {
                             if (y > lowY) {
                                 lowY = y;
                                 lowX = x;
-                                break;
                             }
+                            break;
                         }
                     }
                 }
