@@ -57,6 +57,14 @@ public abstract class Matrix {
         return borders > 2;
     }
 
+    public IntStream getPoints() {
+        return IntStream.range(0, getWidth()).flatMap(x -> IntStream.range(0, getHeight()).map(y -> getI(x, y)));
+    }
+
+    public int count() {
+        return getPoints().map(i -> get(i) == BLACK ? 1 : 0).sum();
+    }
+
     public abstract int getWidth();
 
     public abstract int getHeight();
@@ -93,7 +101,7 @@ public abstract class Matrix {
                 case 'x' -> {
                     if (get(x, y) == WHITE) return false;
                 }
-                case '.' -> {
+                case ' ' -> {
                     if (get(x, y) == BLACK) return false;
                 }
             }
@@ -105,7 +113,13 @@ public abstract class Matrix {
         StringBuilder string = new StringBuilder();
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                string.append(get(x, y) == BLACK ? "x " : ". ");
+                if (get(x, y) == BLACK) {
+                    string.append("x ");
+                } else if (get(x, y) == WHITE) {
+                    string.append("  ");
+                } else {
+                    string.append(". ");
+                }
             }
             string.append('\n');
         }

@@ -1,8 +1,8 @@
 package uncaptcha.matrix;
 
 public class Fragment extends Transmuted {
-    private final int x0;
-    private final int y0;
+    public final int x0;
+    public final int y0;
     private final int width;
     private final int height;
 

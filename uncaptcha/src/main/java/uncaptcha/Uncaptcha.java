@@ -1,9 +1,6 @@
 package uncaptcha;
 
-import uncaptcha.matrix.Fragment;
-import uncaptcha.matrix.FullMatrix;
-import uncaptcha.matrix.Matrix;
-import uncaptcha.matrix.Transposed;
+import uncaptcha.matrix.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -17,6 +14,7 @@ import static java.lang.Math.*;
 public class Uncaptcha {
 
     public static final int WHITE = rgb(0xff);
+    public static final int GREY = rgb(0x7e);
     public static final int BLACK = rgb(0);
 
     public static void main(String[] args) throws IOException {
@@ -76,13 +74,552 @@ public class Uncaptcha {
         orig = rotation.apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
-        orig = new Split2().apply(orig);
+        orig = new Split3().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
-        orig = new Shrink3().apply(orig);
-        orig = new Compact().apply(orig);
+        orig = new Shrink4().apply(orig);
+        orig = new Compact2().apply(orig);
         if (true) return orig;
         return orig;
+    }
+
+    public static class Compact2 extends Filter {
+        StringBuilder numbers = new StringBuilder();
+
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            FullMatrix inm = new FullMatrix(in, width);
+            FullMatrix outm = new FullMatrix(out, width);
+            outm.fill(WHITE);
+
+            int sx = 0;
+            int sy = 0;
+            int ex = -1;
+            int ey = 0;
+
+
+            int n = 0;
+
+            while (true) {
+                boolean found = false;
+
+                found:
+                for (int x = ex + 1; x < width; x++) {
+                    for (int y = 0; y < in.length / width; y++) {
+                        if (bool(in, width, x, y) == 0) {
+                            sx = x;
+                            sy = y;
+                            found = true;
+                            break found;
+                        }
+                    }
+                }
+
+                if (!found) break;
+
+                ex = sx;
+                ey = sy;
+
+                while (found) {
+                    found = false;
+                    for (int x = sx; x <= ex + 1; x++) {
+                        if (bool(in, width, x, sy - 1) == 0) {
+                            found = true;
+                            sy--;
+                            break;
+                        }
+                    }
+                    if (ey < in.length / width - 1) {
+                        for (int x = sx; x <= ex + 1; x++) {
+                            if (inm.get(x, ey + 1) == BLACK) {
+                                found = true;
+                                ey++;
+                                break;
+                            }
+                        }
+                    }
+                    if (ex < (n + 1) * width / 6 && ex < width - 1) {
+                        for (int y = sy; y <= ey + 1; y++) {
+                            if (bool(in, width, ex + 1, y) == 0) {
+                                found = true;
+                                ex++;
+                                break;
+                            }
+                        }
+                    }
+                }
+                n++;
+
+                while (ey - sy + 1 > 10) {
+                    int sc = 0;
+                    int ec = 0;
+                    for (int x = sx; x <= ex; x++) {
+                        if (inm.get(x, sy) == BLACK) {
+                            sc++;
+                        }
+                    }
+                    for (int x = sx; x <= ex; x++) {
+                        if (inm.get(x, ey) == BLACK) {
+                            ec++;
+                        }
+                    }
+                    if (sc > ec) {
+                        for (int x = sx; x <= ex; x++) {
+                            if (inm.get(x, ey) == BLACK) {
+                                inm.set(x, ey - 1, BLACK);
+                                inm.set(x, ey, WHITE);
+                            }
+                        }
+                        ey--;
+                    } else {
+                        for (int x = sx; x <= ex; x++) {
+                            if (inm.get(x, sy) == BLACK) {
+                                inm.set(x, sy + 1, BLACK);
+                                inm.set(x, sy, WHITE);
+                            }
+                        }
+                        sy++;
+                    }
+                }
+                if (ey - sy + 1 < 10) sy = ey + 1 - 10;
+
+                while (ex - sx + 1 > 6) {
+                    int sc = 0;
+                    int ec = 0;
+                    for (int y = sy; y <= ey; y++) {
+                        if (inm.get(sx, y) == BLACK) {
+                            sc++;
+                        }
+                    }
+                    for (int y = sy; y <= ey; y++) {
+                        if (inm.get(ex, y) == BLACK) {
+                            ec++;
+                        }
+                    }
+                    if (sc > ec) {
+                        for (int y = sy; y <= ey; y++) {
+                            if (inm.get(ex, y) == BLACK) {
+                                inm.set(ex - 1, y, BLACK);
+                                inm.set(ex, y, WHITE);
+                            }
+                        }
+                        ex--;
+                    } else {
+                        for (int y = sy; y <= ey; y++) {
+                            if (inm.get(sx, y) == BLACK) {
+                                inm.set(sx + 1, y, BLACK);
+                                inm.set(sx, y, WHITE);
+                            }
+                        }
+                        sx++;
+                    }
+                }
+                if (ex - sx + 1 < 6) sx = ex + 1 - 6;
+
+                int ch = ey - sy + 1;
+                int cw = ex - sx + 1;
+
+                Fragment cipher = new StrictFragment(inm, sx, sy, cw, ch);
+                Fragment cout = new StrictFragment(outm, sx, sy, 3, 6);
+
+                HashMap<Fragment, Double> scores = new HashMap<>();
+                ArrayList<Fragment> grey = new ArrayList<>();
+                for (int x = 0; x < 3; x++) {
+                    for (int y = 0; y < 6; y++) {
+                        Fragment cell = new Fragment(cipher, x * 2, y * 2, 2, 2);
+                        int c = cell.count();
+                        if (c == 2) {
+                            if (cell.get(0, 0) == cell.get(1, 1)) {
+                                c = 4;
+                            }
+                        }
+                        if (c == 0) {
+                            cout.set(x, y, WHITE);
+                        } else if (c == 1 || c == 2) {
+                            grey.add(cell);
+                            scores.put(cell, score(cell));
+                            cout.set(x, y, GREY);
+                        } else {
+                            cout.set(x, y, BLACK);
+                        }
+                    }
+                }
+                grey.sort(Comparator.comparingDouble(scores::get));
+                while (!grey.isEmpty()) {
+                    Fragment cell = grey.remove(grey.size() - 1);
+                    scores.remove(cell);
+                    int x = cell.x0 / 2;
+                    int y = cell.y0 / 2;
+                    Fragment cout0 = new Fragment(cout, x, y, 3, 6);
+                    if (cell.count() > 2) {
+                        cout0.set(0, 0, BLACK);
+                    } else if (cell.count() == 2 && cell.get(0, 0) == cell.get(1, 1)) {
+                        cout0.set(0, 0, BLACK);
+                    } else {
+                        if (canMoveAtAll(cell, cout0)) {
+                            moveAll(cell, cout0);
+                            cout0.set(0, 0, WHITE);
+                            for (Fragment f : grey) {
+                                scores.put(f, score(f));
+                            }
+                            grey.sort(Comparator.comparingDouble(scores::get));
+                        } else {
+                            cout0.set(0, 0, BLACK);
+                        }
+                    }
+                }
+
+                if (cout.matches("""
+                        . x .
+                        x   x
+                        . x .
+                        x   x
+                        . x .
+                        """)) {
+                    this.numbers.append('8');
+                } else if (cout.matches("""
+                        . x .
+                        x   x
+                        .   x
+                          x x
+                        x x .
+                        """)) {
+                    this.numbers.append('9');
+                } else if (cout.matches("""
+                        . x x
+                        x . \s
+                        x x .
+                        x   x
+                        . x .
+                        """)) {
+                    this.numbers.append('6');
+                } else if (cout.matches("""
+                        . x .
+                        x   x
+                        x   x
+                        x   x
+                        . x .
+                        """)) {
+                    this.numbers.append('0');
+                } else if (cout.matches("""
+                        x x x
+                        x   \s
+                        x x x
+                            x
+                        x x x
+                        """)) {
+                    this.numbers.append('5');
+                } else if (cout.matches("""
+                        x x x
+                            x
+                        x x x
+                        x   \s
+                        x x x
+                        """)) {
+                    this.numbers.append('2');
+                } else if (cout.matches("""
+                        . x x
+                            x
+                        . x x
+                            x
+                        . x x
+                        """)) {
+                    this.numbers.append('3');
+                } else if (cout.matches("""
+                        x x x
+                            x
+                          . .
+                          x \s
+                          x \s
+                        """)) {
+                    this.numbers.append('7');
+                } else if (cout.matches("""
+                          . x
+                          . x
+                            x
+                            x
+                            x
+                        """)) {
+                    this.numbers.append('1');
+                } else if (cout.matches("""
+                          . .
+                          x .
+                        x   x
+                        x x x
+                            x
+                        """)) {
+                    this.numbers.append('4');
+                } else {
+                    this.numbers.append('?');
+                }
+            }
+
+            System.out.println(numbers);
+        }
+
+        private static void moveAll(Fragment cell, Fragment cout0) {
+            if (cell.get(0, 0) == BLACK) {
+                moveCorner(cell, cout0);
+            }
+            if (cell.get(1, 0) == BLACK) {
+                Matrix cell2 = new XReflected(cell);
+                Matrix cout2 = new XRotated(cout0);
+                moveCorner(cell2, cout2);
+            }
+            if (cell.get(0, 1) == BLACK) {
+                Matrix cell2 = new YReflected(cell);
+                Matrix cout2 = new YRotated(cout0);
+                moveCorner(cell2, cout2);
+            }
+            if (cell.get(1, 1) == BLACK) {
+                Matrix cell2 = new XReflected(new YReflected(cell));
+                Matrix cout2 = new XRotated(new YRotated(cout0));
+                moveCorner(cell2, cout2);
+            }
+        }
+
+        private static boolean canMoveAtAll(Fragment cell, Fragment cout0) {
+            if (cell.get(0, 0) == BLACK) {
+                if (!canMoveCorner(cell, cout0)) return false;
+            }
+            if (cell.get(1, 0) == BLACK) {
+                Matrix cell2 = new XReflected(cell);
+                Matrix cout2 = new XRotated(cout0);
+                if (!canMoveCorner(cell2, cout2)) return false;
+            }
+            if (cell.get(0, 1) == BLACK) {
+                Matrix cell2 = new YReflected(cell);
+                Matrix cout2 = new YRotated(cout0);
+                if (!canMoveCorner(cell2, cout2)) return false;
+            }
+            if (cell.get(1, 1) == BLACK) {
+                Matrix cell2 = new XReflected(new YReflected(cell));
+                Matrix cout2 = new XRotated(new YRotated(cout0));
+                if (!canMoveCorner(cell2, cout2)) return false;
+            }
+            return true;
+        }
+
+        private static boolean canMoveCorner(Matrix cell, Matrix cout0) {
+            boolean needMoveUp = needMove(cell);
+            boolean canMoveUp = canMove(cout0);
+            if (needMoveUp && !canMoveUp) {
+                return false;
+            }
+            Matrix cell2 = new Transposed(cell);
+            Matrix cout2 = new Transposed(cout0);
+            boolean needMoveLeft = needMove(cell2);
+            boolean canMoveLeft = canMove(cout2);
+            if (needMoveLeft && !canMoveLeft) {
+                return false;
+            }
+            if (!needMoveUp && !needMoveLeft) {
+                if (canMoveUp || canMoveLeft) return true;
+                else return cout0.get(-1, -1) != WHITE;
+            }
+            return true;
+        }
+
+        private static void moveCorner(Matrix cell, Matrix cout0) {
+            boolean needMoveUp = needMove(cell);
+            if (needMoveUp) {
+                cell.set(0, -1, BLACK);
+            }
+            Matrix cell2 = new Transposed(cell);
+            boolean needMoveLeft = needMove(cell2);
+            if (needMoveLeft) {
+                cell.set(-1, 0, BLACK);
+            }
+            if (!needMoveUp && !needMoveLeft) {
+                if (canMove(cout0)) {
+                    cell.set(0, -1, BLACK);
+                } else if (canMove(new Transposed(cout0))) {
+                    cell.set(-1, 0, BLACK);
+                } else {
+                    cell.set(-1, -1, BLACK);
+                }
+            }
+            cell.set(0, 0, WHITE);
+        }
+
+        private static boolean canMove(Matrix cout0) {
+            return cout0.get(0, -1) != WHITE;
+        }
+
+        private static boolean needMove(Matrix cell) {
+            return cell.get(1, 0) == BLACK || cell.get(1, -1) == BLACK;
+        }
+
+        private static double score(Fragment f) {
+            double score = 0;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    if (x != 0 || y != 0) {
+                        score += new Fragment(f, x * 2, y * 2, 2, 2).count();
+                    }
+                }
+            }
+            return score / f.count();
+        }
+
+    }
+
+
+    public static class Split3 extends Filter {
+
+        private FullMatrix inm;
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            inm = new FullMatrix(in, width);
+            FullMatrix outm = new FullMatrix(out, width);
+
+            ArrayList<Cipher> ciphers = new ArrayList<>();
+            Cipher cipher = null;
+            for (int x = 0; x < inm.getWidth(); x++) {
+                int up = inm.getHeight();
+                for (int y = 0; y < inm.getHeight(); y++) {
+                    if (inm.get(x, y) == BLACK) {
+                        up = y;
+                        break;
+                    }
+                }
+
+                int down = up;
+                for (int y = inm.getHeight() - 1; y > up; y--) {
+                    if (inm.get(x, y) == BLACK) {
+                        down = y;
+                        break;
+                    }
+                }
+
+                if (cipher != null && cipher.high > up) cipher.high = up;
+
+                if ((down - up) > 30) {
+                    if (cipher == null) {
+                        cipher = new Cipher();
+                        cipher.start = x;
+                        cipher.high = up;
+                    }
+                } else {
+                    if (cipher != null && up - cipher.high > 35) {
+                        cipher.end = x - 1;
+                        ciphers.add(cipher);
+                        cipher = null;
+                    }
+                }
+            }
+
+            for (Cipher c : ciphers) {
+                cipher:
+                for (int x = c.start - 1; x >= 0; x--) {
+                    for (int y = c.high; y < inm.getHeight(); y++) {
+                        if (inm.get(x, y) == BLACK) {
+                            break;
+                        }
+                        if (y - c.high > 35) {
+                            c.start = x;
+                            break cipher;
+                        }
+                    }
+                }
+
+                cipher:
+                for (int x = c.end + 1; x < inm.getWidth(); x++) {
+                    for (int y = c.high; y < inm.getHeight(); y++) {
+                        if (inm.get(x, y) == BLACK) {
+                            break;
+                        }
+                        if (y - c.high > 35) {
+                            c.end = x;
+                            break cipher;
+                        }
+                    }
+                }
+            }
+
+            while (ciphers.size() < 6) {
+                Cipher fat = ciphers.get(0);
+                for (Cipher c : ciphers) {
+                    if (fat.end - fat.start < c.end - c.start) {
+                        fat = c;
+                    }
+                }
+
+                int lowY = fat.high;
+                int lowX = (fat.start + fat.end) / 2;
+                for (int x = fat.start + (fat.end - fat.start) / 3; x < fat.end - (fat.end - fat.start) / 3; x++) {
+                    for (int y = fat.high; y < inm.getHeight(); y++) {
+                        if (inm.get(x, y) == BLACK || y == inm.getHeight() - 1) {
+                            if (y > lowY) {
+                                lowY = y;
+                                lowX = x;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                Cipher child = new Cipher();
+                child.start = lowX;
+                child.end = fat.end;
+                child.high = fat.high;
+                fat.end = lowX;
+                ciphers.add(ciphers.indexOf(fat) + 1, child);
+
+                fat.findNewHigh();
+                child.findNewHigh();
+            }
+
+//            System.arraycopy(in, 0, out, 0, out.length);
+//            for (Cipher c : ciphers) {
+//                for (int y = 0; y < inm.getHeight(); y++) {
+//                    out[y * width + c.start] = BLACK;
+//                    out[y * width + c.end] = BLACK;
+//                }
+//            }
+
+            for (int x = 0; x < inm.getWidth(); x++) {
+                for (int y = 0; y < inm.getHeight(); y++) {
+                    int ci = x * 6 / inm.getWidth();
+
+                    double[] ks = new double[]{2, 1.2, 1, 0.8, 0.8, 0.8};
+                    Cipher c = ciphers.get(ci);
+                    int ty = (int) (y - inm.getHeight() / 2d + 45 / 2d);
+                    double txd = x - (2d * ci + 1) * inm.getWidth() / 6 / 2;
+                    txd /= ks[ci];
+                    txd += (c.start + c.end) / 2d;
+                    int tx = (int) txd;
+
+                    if (ty < 0 || ty >= 45 || tx < c.start || tx > c.end) {
+                        outm.set(x, y, WHITE);
+                    } else {
+                        outm.set(x, y, inm.get(tx, ty + c.high));
+                    }
+                }
+            }
+        }
+
+        public class Cipher {
+            int start;
+            int end;
+            int high;
+
+            private void findNewHigh() {
+                high = inm.getHeight();
+                for (int x = start; x <= end; x++) {
+                    for (int y = 0; y < inm.getHeight(); y++) {
+                        if (inm.get(x, y) == BLACK) {
+                            if (y < high) {
+                                high = y;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static class Split2 extends Filter {
@@ -91,43 +628,50 @@ public class Uncaptcha {
         protected void process(int[] in, int[] out, int width) {
             FullMatrix inm = new FullMatrix(in, width);
             ArrayList<Integer> borders = new ArrayList<>();
-            int border = findStart(inm);
-            borders.add(border - 5);
+            int border = findStart(inm, 0);
+            borders.add(border - 5); // TODO find backwards?
             while (borders.size() < 7) {
                 border = findNext(border, inm);
                 borders.add(border);
             }
 
+            System.out.println(borders);
+
             Arrays.fill(out, WHITE);
 
-            double[] ks = new double[]{2, 1.2, 1, 0.8, 0.8, 0.8};
-            for (int n = 0; n < 6; n++) {
-                int sx = (borders.get(n + 1) + borders.get(n)) / 2;
-                int lw = 33;
-                int tx = 1 + n * lw + lw / 2;
-                double k = ks[n];
+//            double[] ks = new double[]{2, 1.2, 1, 0.8, 0.8, 0.8};
+//            for (int n = 0; n < 6; n++) {
+//                int sx = (borders.get(n + 1) + borders.get(n)) / 2;
+//                int lw = 33;
+//                int tx = 1 + n * lw + lw / 2;
+//                double k = ks[n];
+//
+//                if (lw > (borders.get(n + 1) - borders.get(n)) * k)
+//                    lw = (int) ((borders.get(n + 1) - borders.get(n)) * k);
+//                for (int x = -lw / 2 + 1; x < lw / 2 + 1; x++) {
+//                    for (int y = 0; y < inm.getHeight(); y++) {
+//                        int xx = (int) (x / k + sx);
+//                        if (xx >= 0 && xx < width) {
+//                            out[y * width + x + tx] = in[y * width + xx];
+//                        }
+//                    }
+//                }
 
-                if (lw > (borders.get(n + 1) - borders.get(n)) * k)
-                    lw = (int) ((borders.get(n + 1) - borders.get(n)) * k);
-                for (int x = -lw / 2 + 1; x < lw / 2 + 1; x++) {
+            System.arraycopy(in, 0, out, 0, out.length);
+            for (int x : borders) {
+                if (x < width) {
                     for (int y = 0; y < inm.getHeight(); y++) {
-                        int xx = (int) (x / k + sx);
-                        if (xx >= 0 && xx < width) {
-                            out[y * width + x + tx] = in[y * width + xx];
-                        }
+                        out[y * width + x] = BLACK;
                     }
                 }
-
-//                for (int y = 0; y < height; y++) {
-//                    out[y * width + 1 + n * 33] = BLACK;
-//                }
             }
         }
 
         private static int findNext(int lx, FullMatrix inm) {
-            int lowX = lx + 10;
+            int start = findStart(inm, lx + 10);
+            int lowX = lx;
             int lowH = 40;
-            for (int x = lx + 10; x < lx + 40; x++) {
+            for (int x = start; x < lx + 40; x++) {
                 int up = inm.getHeight();
                 for (int y = 0; y < inm.getHeight(); y++) {
                     if (inm.get(x, y) == BLACK) {
@@ -152,8 +696,8 @@ public class Uncaptcha {
             return lowX;
         }
 
-        private static int findStart(FullMatrix inm) {
-            for (int x = 0; x < inm.getWidth(); x++) {
+        private static int findStart(FullMatrix inm, int startX) {
+            for (int x = startX; x < inm.getWidth(); x++) {
                 int up = inm.getHeight();
                 for (int y = 0; y < inm.getHeight(); y++) {
                     if (inm.get(x, y) == BLACK) {
@@ -170,7 +714,9 @@ public class Uncaptcha {
                     }
                 }
 
-                if ((down - up) > 35) {
+                System.out.println(x + " - " + (down - up));
+
+                if ((down - up) > 30) {
                     return x;
                 }
             }
@@ -216,13 +762,126 @@ public class Uncaptcha {
         orig = rotation.apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
-        orig = new Split2().apply(orig);
+        orig = new Split3().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
-        orig = new Shrink3().apply(orig);
-        Compact compact = new Compact();
+        orig = new Shrink4().apply(orig);
+        Compact2 compact = new Compact2();
         orig = compact.apply(orig);
         return compact.numbers.toString();
+    }
+
+    public static class Shrink4 extends Filter {
+
+        private FullMatrix outm;
+
+        @Override
+        public int scale(int x) {
+            return x / 2;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            outm = new FullMatrix(out, scale(width));
+            FullMatrix inm = new FullMatrix(in, width);
+
+            for (int x = 0; x < outm.getWidth(); x++) {
+                for (int y = 0; y < outm.getHeight(); y++) {
+                    Fragment square = new Fragment(inm, x * 2, y * 2, 2, 2);
+                    int count = square.count();
+                    if (count >= 3) {
+                        outm.set(x, y, BLACK);
+                    } else if (count == 0) {
+                        outm.set(x, y, WHITE);
+                    } else {
+                        boolean bridge = false;
+                        frag:
+                        for (int x1 = x * 2; x1 < x * 2 + 2; x1++) {
+                            for (int y1 = y * 2; y1 < y * 2 + 2; y1++) {
+                                if (inm.get(x1, y1) == BLACK) {
+                                    Fragment frag = new Fragment(inm, x1 - 1, y1 - 1, 3, 3);
+                                    if (frag.isBridge()) {
+                                        bridge = true;
+                                        break frag;
+                                    } else if (frag.count() != 2) {
+                                        inm.set(x1, y1, WHITE);
+                                    }
+                                }
+                            }
+                        }
+                        if (bridge) {
+                            outm.set(x, y, BLACK);
+                        } else {
+                            outm.set(x, y, WHITE);
+                        }
+                    }
+                }
+            }
+        }
+
+        private ArrayList<Integer> process(ArrayList<Integer> ones, double discard) {
+            TreeMap<Double, ArrayList<Integer>> ranked = new TreeMap<>();
+            for (int i : ones) {
+                Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
+                double rank = frag.getPerimeter().mapToDouble(j -> {
+                    if (frag.get(j) == WHITE) return 0;
+                    else if (j % 2 == 0) return 1 / sqrt(2);
+                    else return 1;
+                }).sum();
+                if (i == 621 || i == 671) {
+                    System.out.println(frag);
+                    System.out.println(rank);
+                }
+                ranked.computeIfAbsent(rank, r -> new ArrayList<>()).add(i);
+            }
+
+            ArrayList<Integer> tips = new ArrayList<>();
+
+            if (ranked.containsKey(0d)) {
+                for (int i : ranked.remove(0d)) {
+                    outm.set(i, WHITE);
+                }
+            }
+
+            {
+                Map.Entry<Double, ArrayList<Integer>> dentry = ranked.higherEntry(discard);
+                while (dentry != null) {
+                    for (int i : dentry.getValue()) {
+                        outm.set(i, WHITE);
+                    }
+                    ranked.remove(dentry.getKey());
+                    dentry = ranked.higherEntry(discard);
+                }
+            }
+
+            double tipRank = 1.1;
+            {
+                Map.Entry<Double, ArrayList<Integer>> dentry = ranked.lowerEntry(tipRank);
+                while (dentry != null) {
+                    for (int i : dentry.getValue()) {
+                        outm.set(i, WHITE);
+                    }
+                    ranked.remove(dentry.getKey());
+                    dentry = ranked.lowerEntry(tipRank);
+                }
+            }
+
+            for (Map.Entry<Double, ArrayList<Integer>> entry : ranked.entrySet()) {
+                for (Integer i : entry.getValue()) {
+                    Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
+                    if (i == 621 || i == 671) {
+                        System.out.println(frag);
+                        System.out.println(frag.isBridge());
+                    }
+                    if (!frag.isBridge()) {
+                        outm.set(i, WHITE);
+                    }
+                }
+            }
+
+            return tips;
+        }
+
     }
 
     public static class Shrink3 extends Filter {
@@ -266,22 +925,37 @@ public class Uncaptcha {
                 }
             }
 
+            System.out.println(new Fragment(outm, 16, 2, 10, 10));
+
+            System.out.println(ones.contains(621));
+            System.out.println(ones.contains(671));
+            System.out.println(twos.contains(621));
+            System.out.println(twos.contains(671));
+
             ones = process(ones, 2.1);
-            twos = process(twos, 5);
+            twos = process(twos, 6);
             for (int i : ones) {
                 outm.set(i, WHITE);
             }
+
+            System.out.println(outm.getI(21, 12));
+            System.out.println(outm.getI(21, 13));
         }
 
         private ArrayList<Integer> process(ArrayList<Integer> ones, double discard) {
             TreeMap<Double, ArrayList<Integer>> ranked = new TreeMap<>();
             for (int i : ones) {
                 Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
-                ranked.computeIfAbsent(frag.getPerimeter().mapToDouble(j -> {
+                double rank = frag.getPerimeter().mapToDouble(j -> {
                     if (frag.get(j) == WHITE) return 0;
                     else if (j % 2 == 0) return 1 / sqrt(2);
                     else return 1;
-                }).sum(), r -> new ArrayList<>()).add(i);
+                }).sum();
+                if (i == 621 || i == 671) {
+                    System.out.println(frag);
+                    System.out.println(rank);
+                }
+                ranked.computeIfAbsent(rank, r -> new ArrayList<>()).add(i);
             }
 
             ArrayList<Integer> tips = new ArrayList<>();
@@ -318,6 +992,10 @@ public class Uncaptcha {
             for (Map.Entry<Double, ArrayList<Integer>> entry : ranked.entrySet()) {
                 for (Integer i : entry.getValue()) {
                     Fragment frag = new Fragment(outm, outm.getX(i) - 1, outm.getY(i) - 1, 3, 3);
+                    if (i == 621 || i == 671) {
+                        System.out.println(frag);
+                        System.out.println(frag.isBridge());
+                    }
                     if (!frag.isBridge()) {
                         outm.set(i, WHITE);
                     }
@@ -561,7 +1239,7 @@ public class Uncaptcha {
                         y -= y0;
                         y += high;
                         if (Math.sqrt(x1 * x1 + y * y) > 40) {
-                            angs.add(rang(Math.atan2(y, x1)));
+                            angs.add(rang(Math.atan2(x1, y)));
                         }
                         break;
                     }
@@ -573,7 +1251,7 @@ public class Uncaptcha {
                         y -= y0;
                         y -= high;
                         if (Math.sqrt(x1 * x1 + y * y) > 40) {
-                            angs.add(rang(Math.atan2(y, x1)));
+                            angs.add(rang(Math.atan2(x1, y)));
                         }
                         break;
                     }
@@ -635,6 +1313,8 @@ public class Uncaptcha {
 
         @Override
         protected void process(int[] in, int[] out, int width) {
+            FullMatrix inm = new FullMatrix(in, width);
+
             int sx = 0;
             int sy = 0;
             int ex = -1;
@@ -673,21 +1353,24 @@ public class Uncaptcha {
                             break;
                         }
                     }
-                    for (int x = sx; x <= ex + 1; x++) {
-                        if (bool(in, width, x, ey + 1) == 0) {
-                            found = true;
-                            ey++;
-                            break;
+                    if (ey < in.length / width - 1) {
+                        for (int x = sx; x <= ex + 1; x++) {
+                            if (inm.get(x, ey + 1) == BLACK) {
+                                found = true;
+                                ey++;
+                                break;
+                            }
                         }
                     }
-                    for (int y = sy; y <= ey + 1; y++) {
-                        if (bool(in, width, ex + 1, y) == 0) {
-                            found = true;
-                            ex++;
-                            break;
+                    if (ex < (n + 1) * width / 6 && ex < width - 1) {
+                        for (int y = sy; y <= ey + 1; y++) {
+                            if (bool(in, width, ex + 1, y) == 0) {
+                                found = true;
+                                ex++;
+                                break;
+                            }
                         }
                     }
-                    if (ex >= (n + 1) * width / 6) break;
                 }
                 n++;
 
@@ -702,6 +1385,7 @@ public class Uncaptcha {
                 ch = compactToHeight(cipher, 5);
                 cw = compactToHeight(new Transposed(cipher), 3);
 
+                // TODO reformat us
                 if (ch == 5 && cw == 3) {
                     Fragment number = new Fragment(all, ex - 3 + 1, ey - 5 + 1, 3, 5);
                     if (number.matches("""
@@ -753,7 +1437,7 @@ public class Uncaptcha {
                             """)) {
                         this.numbers.append('2');
                     } else if (number.matches("""
-                            x x x
+                              x x
                             . . x
                               x x
                             . . x
@@ -850,6 +1534,7 @@ public class Uncaptcha {
             return height;
         }
 
+        // TODO reformat up
         private static boolean canCompact(Matrix cipher, int y) {
             for (int x = 0; x < cipher.getWidth(); x++) {
                 String naughties = """
@@ -1225,7 +1910,7 @@ public class Uncaptcha {
                 y -= y0;
 
                 if (bool(in[i]) == 0 && Math.sqrt(x * x + y * y) > 40) {
-                    angs.add(rang(Math.atan2(y, x)));
+                    angs.add(rang(Math.atan2(x, y)));
                 }
             }
 
