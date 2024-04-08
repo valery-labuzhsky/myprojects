@@ -1,12 +1,21 @@
 package uncaptcha.matrix;
 
+import java.util.Arrays;
+import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static uncaptcha.Uncaptcha.BLACK;
-import static uncaptcha.Uncaptcha.WHITE;
+import static uncaptcha.Uncaptcha.*;
 
 public abstract class Matrix {
+
+    public void forAllXY(BiConsumer<Integer, Integer> action) {
+        for (int x = 0; x < getWidth(); x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                action.accept(x, y);
+            }
+        }
+    }
 
     public abstract int get(int x, int y);
 
@@ -69,6 +78,31 @@ public abstract class Matrix {
 
     public abstract int getHeight();
 
+    public static Matrix create(String template) {
+        String[] lines = template.split("\n");
+        int width = Arrays.stream(lines).mapToInt(line -> (line.length() + 1) / 2).max().orElseThrow();
+        FullMatrix matrix = new FullMatrix(new int[lines.length * width], width);
+        matrix.set(template);
+        return matrix;
+    }
+
+    public void set(String template) {
+        String[] lines = template.split("\n");
+        for (int y = 0; y < lines.length; y++) {
+            int w = (lines[y].length() + 1) / 2;
+            for (int x = 0; x < w; x ++) {
+                switch (lines[y].charAt(x * 2)) {
+                    case 'x' -> set(x, y, BLACK);
+                    case ' ' -> set(x, y, WHITE);
+                    default -> set(x, y, GREY);
+                }
+            }
+            for (int x = w; x < getWidth(); x ++) {
+                set(x, y, WHITE);
+            }
+        }
+    }
+
     public boolean matches(String template) {
         String[] lines = template.split("\n");
         for (int y = 0; y < lines.length; y++) {
@@ -99,10 +133,10 @@ public abstract class Matrix {
         for (int x = 0; x < (line.length() + 1) / 2; x += 1) {
             switch (line.charAt(x * 2)) {
                 case 'x' -> {
-                    if (get(x, y) == WHITE) return false;
+                    if (get(x, y) != BLACK) return false;
                 }
                 case ' ' -> {
-                    if (get(x, y) == BLACK) return false;
+                    if (get(x, y) != WHITE) return false;
                 }
             }
         }

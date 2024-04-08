@@ -10,6 +10,7 @@ public class UncaptchaTest {
     public void test() throws IOException {
         check("810864");
         check("849104");
+        check("483821");
         check("386917");
     }
 
