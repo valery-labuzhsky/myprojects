@@ -7,8 +7,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -16,7 +16,7 @@ import static java.lang.Math.sin;
 public class Uncaptcha {
 
     public static final int WHITE = rgb(0xff);
-    public static final int GREY = rgb(0x7e);
+    public static final int GRAY = rgb(0x7e);
     public static final int BLACK = rgb(0);
 
     public static void main(String[] args) throws IOException {
@@ -232,26 +232,68 @@ public class Uncaptcha {
 
                 for (int x = 0; x < 3; x++) {
                     for (int y = 0; y < 6; y++) {
-                        cout.set(x, y, GREY);
+                        cout.set(x, y, GRAY);
                     }
                 }
 
                 for (int x = 0; x < 3; x++) {
                     for (int y = 0; y < 6; y++) {
                         Fragment cell = new Fragment(cipher, x * 2, y * 2, 2, 2);
+                        int c = cell.count();
+                        if (c == 0) {
+                            cout.set(x, y, WHITE);
+                        } else if (c == 4) {
+                            cout.set(x, y, BLACK);
+                        }
+                    }
+                }
+
+                System.out.println(cout);
+
+                for (int x = 0; x < 3; x++) {
+                    for (int y = 0; y < 6; y++) {
+                        Fragment cell = new Fragment(cipher, x * 2, y * 2, 2, 2);
                         Fragment cout0 = new Fragment(cout, x, y, 1, 1);
-                        matcher(cell)
-                                .whenMatches("""
-                                        x x
-                                          \s
-                                        """)
-                                .out(cout0, 0, -1)
-                                .whenMatches(" ")
-                                .fit("""
-                                        .
-                                        x
-                                        \s
-                                        """);
+
+                        Strider strider = new Strider(cell, cout0);
+                        if (strider.findInMatchingRotation("""
+                                x \s
+                                  \s
+                                """, s1 -> s1.change(0, 0, ".", " "))) continue;
+                        if (strider.findInMatchingRotation("""
+                                x x
+                                  \s
+                                """, s1 -> {
+                            if (s1.change(0, -1, """
+                                    \s
+                                    .
+                                    *
+                                    +
+                                    """, """
+                                    .
+                                    x
+                                    \s
+                                    """)) return;
+                            if (s1.change(-1, -1, """
+                                    . + .
+                                    + * +
+                                    . + .
+                                    """, """
+                                    . . .
+                                    .   .
+                                    . . .
+                                    """)) return;
+                            s1.change(Symmetry.X, -1, -1, """
+                                      +
+                                      .
+                                      +
+                                    """, """
+                                    . .
+                                    . \s
+                                    . .
+                                    """);
+                        })) continue;
+
                     }
                 }
 
@@ -312,7 +354,7 @@ public class Uncaptcha {
                             x|    x
                         x x x|    x
                         x    |  x \s
-                        x x x|  x x
+                        x x x|. x x
                         """)) {
                     this.numbers.append('2');
                 } else if (cout.matchesAny("""
@@ -323,12 +365,12 @@ public class Uncaptcha {
                         x x .|. x .
                         """)) {
                     this.numbers.append('3');
-                } else if (cout.matches("""
-                        x x .
-                            x
-                          . .
-                          x \s
-                          x \s
+                } else if (cout.matchesAny("""
+                        x x .|x   \s
+                            x|  x x
+                          . .|    x
+                          x  |  x \s
+                          x  |x x \s
                         """)) {
                     this.numbers.append('7');
                 } else if (cout.matches("""
@@ -340,11 +382,11 @@ public class Uncaptcha {
                         """)) {
                     this.numbers.append('1');
                 } else if (cout.matchesAny("""
-                          . .|  . .|    x|    x|  x .|  x x
-                          x .|  x .|  x .|    x|  x .|x   x
-                        x   x|  x .|x x x|  x x|x x x|x   x
-                        . x x|x   x|    x|.   x|    x|x x x
-                            x|  x x|    x|. . .|    x|    x
+                          . .|  . .|  x x
+                          x .|  x .|x   x
+                        x   x|  x .|x   x
+                        . x x|x   x|x x x
+                          . x|  x x|    x
                         """)) {
                     this.numbers.append('4');
                 } else {
@@ -355,33 +397,94 @@ public class Uncaptcha {
             System.out.println(numbers);
         }
 
-        private static CellRule matcher(Fragment cell) {
-            return new CellRule(cell);
-        }
+        public static class Strider {
+            private final Matrix in;
+            private final Matrix out;
 
-        public static class CellRule {
-            private final Fragment cell;
-
-            public CellRule(Fragment cell) {
-                this.cell = cell;
+            public Strider(Matrix in, Matrix out) {
+                this.in = in;
+                this.out = out;
             }
 
-            public CellMatch whenMatches(String pattern) {
-                // it won't work if cell has one color, who cares
+            public boolean findInMatchingRotation(String pattern, Consumer<Strider> action) {
                 for (Rotation r : Rotation.values()) {
-                    if (r.t.apply(cell).matches(pattern)) {
-                        return new CellMatch(this, r.t);
+                    if (r.t.apply(in).matches(pattern)) {
+                        action.accept(transform(r.t));
+                        return true;
                     }
                 }
-                return CellMatch.NO_MATCH;
+                return false;
             }
 
-            public Stream<CellMatch> forEachMatching(String pattern) {
-                return Arrays.stream(Rotation.values()).filter(r -> r.t.apply(cell).matches(pattern)).map(r -> new CellMatch(this, r.t));
+            public void forEachInMatchingRotation(String pattern, Consumer<Strider> action) {
+                for (Rotation r : Rotation.values()) {
+                    if (r.t.apply(in).matches(pattern)) {
+                        action.accept(transform(r.t));
+                    }
+                }
             }
 
-            private Stream<CellMatch> forEachMatching(String pattern, Symmetry symmetry) {
-                return forEachMatching(pattern).flatMap(m -> m.forAllSymmetries(symmetry));
+            public void forAllSymmetries(Symmetry symmetry, Consumer<Strider> action) {
+                action.accept(this);
+                action.accept(transform(symmetry.t));
+            }
+
+            private Strider transform(Function<Matrix, Matrix> t) {
+                return new Strider(t.apply(in), t.apply(out));
+            }
+
+            public boolean change(int dx, int dy, String from, String to) {
+                return move(dx, dy).ifOutMatches(from, s -> s.fit(to));
+            }
+
+            public void change(Symmetry symmetry, int dx, int dy, String from, String to) {
+                forAllSymmetries(symmetry, s -> s.change(dx, dy, from, to));
+            }
+
+            public Strider move(int dx, int dy) {
+                return new Strider(new Fragment(in, dx * 2, dy * 2, 2, 2),
+                        new Fragment(out, dx, dy, 1, 1));
+            }
+
+            public boolean ifOutMatches(String pattern, Consumer<Strider> action) {
+                if (out.matches(pattern)) {
+                    action.accept(this);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            public void fit(String pattern) {
+                Matrix template = Matrix.create(pattern);
+                template.forAllXY((x, y) -> {
+                    if (template.get(x, y) == WHITE) {
+                        Strider f = move(x, y);
+                        f.forEachInMatchingRotation("x", f1 -> {
+                            f1.forAllSymmetries(Symmetry.TRANSPOSED, f2 -> {
+                                Fragment up = new Fragment(f2.in, 0, -1, 2, 2);
+                                if (up.matchesAny("""
+                                          x|  .
+                                        x .|x x
+                                        """)) {
+                                    up.set(0, 0, BLACK);
+                                }
+                            });
+                            f1.in.set(0, 0, WHITE);
+                        });
+                    }
+                });
+                template.forAllXY((x, y) -> {
+                    if (template.get(x, y) == BLACK) {
+                        Fragment frag = new Fragment(in, x * 2, y * 2, 2, 2);
+                        frag.forAllXY((fx, fy) -> frag.set(fx, fy, BLACK));
+                        out.set(x, y, BLACK);
+                    }
+                });
+
+                System.out.println(pattern + "-");
+                System.out.println(new Fragment(in, -4, -4, 10, 10) + "-");
+                System.out.println(new Fragment(out, -2, -2, 5, 5) + "-");
             }
         }
 
@@ -409,610 +512,6 @@ public class Uncaptcha {
                 this.t = t;
             }
         }
-
-        public static class OutMatch {
-            public static final OutMatch NO_MATCH = new OutMatch(null) {
-                @Override
-                public void fit(String pattern) {
-                }
-            };
-            private final OutRule rule;
-
-            public OutMatch(OutRule rule) {
-                this.rule = rule;
-            }
-
-            public void fit(String pattern) {
-                Fragment cout = rule.getCout();
-                Matrix cell = rule.getCell();
-                Matrix template = Matrix.create(pattern);
-                template.forAllXY((x, y) -> {
-                    if (template.get(x, y) == WHITE) {
-                        Fragment frag = new Fragment(cell, x * 2, y * 2, 2, 2);
-                        matcher(frag).forEachMatching("x")
-                                .forEach(r -> {
-                                    r.forAllSymmetries(Symmetry.TRANSPOSED)
-                                            .forEach(m -> {
-                                                Fragment up = new Fragment(m.getCell(), 0, -1, 2, 2);
-                                                if (up.matchesAny("""
-                                                          *|  .
-                                                        * .|* *
-                                                        """)) {
-                                                    up.set(0, 0, BLACK);
-                                                }
-                                            });
-                                    r.getCell().set(0, 0, WHITE);
-                                });
-                        cout.set(x, y, WHITE);
-                    }
-                });
-                template.forAllXY((x, y) -> {
-                    if (template.get(x, y) == BLACK) {
-                        Fragment frag = new Fragment(cell, x * 2, y * 2, 2, 2);
-                        frag.forAllXY((fx, fy) -> frag.set(fx, fy, BLACK));
-                        cout.set(x, y, BLACK);
-                    }
-                });
-            }
-
-        }
-
-        public static class OutRule {
-
-            public static final OutRule NO_MATCH = new OutRule(null, null, 0, 0) {
-                @Override
-                public OutMatch whenMatches(String pattern) {
-                    return OutMatch.NO_MATCH;
-                }
-            };
-            private final CellMatch cell;
-            private final Fragment cout;
-            private final int x0;
-            private final int y0;
-
-            public OutRule(CellMatch cell, Fragment cout, int x0, int y0) {
-                this.cell = cell;
-                this.cout = cout;
-                this.x0 = x0;
-                this.y0 = y0;
-            }
-
-            public OutMatch whenMatches(String pattern) {
-                // TODO will need adding symmetries here later
-                if (getCout().matches(pattern)) {
-                    return new OutMatch(this);
-                }
-                return OutMatch.NO_MATCH;
-            }
-
-            private Fragment getCout() {
-                return new Fragment(cell.t.apply(cout), x0, y0, 1, 1);
-            }
-
-            private Matrix getCell() {
-                return new Fragment(cell.getCell(), x0 * 2, y0 * 2, 2, 2);
-            }
-        }
-
-        public static class CellMatch {
-            public static final CellMatch NO_MATCH = new CellMatch(null, null) {
-                @Override
-                public OutRule out(Fragment cout0, int x, int y) {
-                    return OutRule.NO_MATCH;
-                }
-            };
-            private final CellRule rule;
-            private final Function<Matrix, Matrix> t;
-
-            public CellMatch(CellRule rule, Function<Matrix, Matrix> t) {
-                this.rule = rule;
-                this.t = t;
-            }
-
-            public OutRule out(Fragment cout0, int x, int y) {
-                return new OutRule(this, cout0, x, y);
-            }
-
-            public Matrix getCell() {
-                return t.apply(rule.cell);
-            }
-
-            public Stream<CellMatch> forAllSymmetries(Symmetry symmetry) {
-                return Stream.of(this, new CellMatch(rule, t.andThen(symmetry.t)));
-            }
-        }
-
-        private static void moveAll(Fragment cell, Fragment cout0) {
-            if (cell.get(0, 0) == BLACK) {
-                moveCorner(cell, cout0);
-            }
-            if (cell.get(1, 0) == BLACK) {
-                Matrix cell2 = new XReflected(cell);
-                Matrix cout2 = new XRotated(cout0);
-                moveCorner(cell2, cout2);
-            }
-            if (cell.get(0, 1) == BLACK) {
-                Matrix cell2 = new YReflected(cell);
-                Matrix cout2 = new YRotated(cout0);
-                moveCorner(cell2, cout2);
-            }
-            if (cell.get(1, 1) == BLACK) {
-                Matrix cell2 = new XReflected(new YReflected(cell));
-                Matrix cout2 = new XRotated(new YRotated(cout0));
-                moveCorner(cell2, cout2);
-            }
-        }
-
-        private static boolean canMoveAtAll(Fragment cell, Fragment cout0) {
-            if (cell.get(0, 0) == BLACK) {
-                if (!canMoveCorner(cell, cout0)) return false;
-            }
-            if (cell.get(1, 0) == BLACK) {
-                Matrix cell2 = new XReflected(cell);
-                Matrix cout2 = new XRotated(cout0);
-                if (!canMoveCorner(cell2, cout2)) return false;
-            }
-            if (cell.get(0, 1) == BLACK) {
-                Matrix cell2 = new YReflected(cell);
-                Matrix cout2 = new YRotated(cout0);
-                if (!canMoveCorner(cell2, cout2)) return false;
-            }
-            if (cell.get(1, 1) == BLACK) {
-                Matrix cell2 = new XReflected(new YReflected(cell));
-                Matrix cout2 = new XRotated(new YRotated(cout0));
-                if (!canMoveCorner(cell2, cout2)) return false;
-            }
-            return true;
-        }
-
-        private static boolean canMoveCorner(Matrix cell, Matrix cout0) {
-            boolean needMoveUp = needMove(cell);
-            boolean canMoveUp = canMove(cout0);
-            if (needMoveUp && !canMoveUp) {
-                return false;
-            }
-            Matrix cell2 = new Transposed(cell);
-            Matrix cout2 = new Transposed(cout0);
-            boolean needMoveLeft = needMove(cell2);
-            boolean canMoveLeft = canMove(cout2);
-            if (needMoveLeft && !canMoveLeft) {
-                return false;
-            }
-            if (!needMoveUp && !needMoveLeft) {
-                if (canMoveUp || canMoveLeft) return true;
-                else return cout0.get(-1, -1) != WHITE;
-            }
-            return true;
-        }
-
-        private static void moveCorner(Matrix cell, Matrix cout0) {
-            boolean needMoveUp = needMove(cell);
-            if (needMoveUp) {
-                cell.set(0, -1, BLACK);
-            }
-            Matrix cell2 = new Transposed(cell);
-            boolean needMoveLeft = needMove(cell2);
-            if (needMoveLeft) {
-                cell.set(-1, 0, BLACK);
-            }
-            if (!needMoveUp && !needMoveLeft) {
-                if (canMove(cout0)) {
-                    cell.set(0, -1, BLACK);
-                } else if (canMove(new Transposed(cout0))) {
-                    cell.set(-1, 0, BLACK);
-                } else {
-                    cell.set(-1, -1, BLACK);
-                }
-            }
-            cell.set(0, 0, WHITE);
-        }
-
-        private static boolean canMove(Matrix cout0) {
-            return cout0.get(0, -1) != WHITE;
-        }
-
-        private static boolean needMove(Matrix cell) {
-            return cell.get(1, 0) == BLACK || cell.get(1, -1) == BLACK;
-        }
-
-        private static double score(Fragment f) {
-            double score = 0;
-            for (int x = -1; x <= 1; x++) {
-                for (int y = -1; y <= 1; y++) {
-                    if (x != 0 || y != 0) {
-                        score += new Fragment(f, x * 2, y * 2, 2, 2).count();
-                    }
-                }
-            }
-            return score / f.count();
-        }
-
-    }
-
-    public static class Compact2 extends Filter {
-        StringBuilder numbers = new StringBuilder();
-
-
-        @Override
-        protected void process(int[] in, int[] out, int width) {
-            FullMatrix inm = new FullMatrix(in, width);
-            FullMatrix outm = new FullMatrix(out, width);
-            outm.fill(WHITE);
-
-            int sx = 0;
-            int sy = 0;
-            int ex = -1;
-            int ey = 0;
-
-
-            int n = 0;
-
-            while (true) {
-                boolean found = false;
-
-                found:
-                for (int x = ex + 1; x < width; x++) {
-                    for (int y = 0; y < in.length / width; y++) {
-                        if (bool(in, width, x, y) == 0) {
-                            sx = x;
-                            sy = y;
-                            found = true;
-                            break found;
-                        }
-                    }
-                }
-
-                if (!found) break;
-
-                ex = sx;
-                ey = sy;
-
-                while (found) {
-                    found = false;
-                    for (int x = sx; x <= ex + 1; x++) {
-                        if (bool(in, width, x, sy - 1) == 0) {
-                            found = true;
-                            sy--;
-                            break;
-                        }
-                    }
-                    if (ey < in.length / width - 1) {
-                        for (int x = sx; x <= ex + 1; x++) {
-                            if (inm.get(x, ey + 1) == BLACK) {
-                                found = true;
-                                ey++;
-                                break;
-                            }
-                        }
-                    }
-                    if (ex < (n + 1) * width / 6 && ex < width - 1) {
-                        for (int y = sy; y <= ey + 1; y++) {
-                            if (bool(in, width, ex + 1, y) == 0) {
-                                found = true;
-                                ex++;
-                                break;
-                            }
-                        }
-                    }
-                }
-                n++;
-
-                while (ey - sy + 1 > 10) {
-                    int sc = 0;
-                    int ec = 0;
-                    for (int x = sx; x <= ex; x++) {
-                        if (inm.get(x, sy) == BLACK) {
-                            sc++;
-                        }
-                    }
-                    for (int x = sx; x <= ex; x++) {
-                        if (inm.get(x, ey) == BLACK) {
-                            ec++;
-                        }
-                    }
-                    if (sc > ec) {
-                        for (int x = sx; x <= ex; x++) {
-                            if (inm.get(x, ey) == BLACK) {
-                                inm.set(x, ey - 1, BLACK);
-                                inm.set(x, ey, WHITE);
-                            }
-                        }
-                        ey--;
-                    } else {
-                        for (int x = sx; x <= ex; x++) {
-                            if (inm.get(x, sy) == BLACK) {
-                                inm.set(x, sy + 1, BLACK);
-                                inm.set(x, sy, WHITE);
-                            }
-                        }
-                        sy++;
-                    }
-                }
-                if (ey - sy + 1 < 10) sy = ey + 1 - 10;
-                if (sy < 0) {
-                    ey -= sy;
-                    sy = 0;
-                }
-
-                while (ex - sx + 1 > 6) {
-                    int sc = 0;
-                    int ec = 0;
-                    for (int y = sy; y <= ey; y++) {
-                        if (inm.get(sx, y) == BLACK) {
-                            sc++;
-                        }
-                    }
-                    for (int y = sy; y <= ey; y++) {
-                        if (inm.get(ex, y) == BLACK) {
-                            ec++;
-                        }
-                    }
-                    if (sc > ec) {
-                        for (int y = sy; y <= ey; y++) {
-                            if (inm.get(ex, y) == BLACK) {
-                                inm.set(ex - 1, y, BLACK);
-                                inm.set(ex, y, WHITE);
-                            }
-                        }
-                        ex--;
-                    } else {
-                        for (int y = sy; y <= ey; y++) {
-                            if (inm.get(sx, y) == BLACK) {
-                                inm.set(sx + 1, y, BLACK);
-                                inm.set(sx, y, WHITE);
-                            }
-                        }
-                        sx++;
-                    }
-                }
-                if (ex - sx + 1 < 6) sx = ex + 1 - 6;
-
-                int ch = ey - sy + 1;
-                int cw = ex - sx + 1;
-
-                Fragment cipher = new StrictFragment(inm, sx, sy, cw, ch);
-                Fragment cout = new StrictFragment(outm, sx, sy, 3, 6);
-
-                HashMap<Fragment, Double> scores = new HashMap<>();
-                ArrayList<Fragment> grey = new ArrayList<>();
-                for (int x = 0; x < 3; x++) {
-                    for (int y = 0; y < 6; y++) {
-                        Fragment cell = new Fragment(cipher, x * 2, y * 2, 2, 2);
-                        int c = cell.count();
-                        if (c == 2) {
-                            if (cell.get(0, 0) == cell.get(1, 1)) {
-                                c = 4;
-                            }
-                        }
-                        if (c == 0) {
-                            cout.set(x, y, WHITE);
-                        } else if (c == 1 || c == 2) {
-                            grey.add(cell);
-                            scores.put(cell, score(cell));
-                            cout.set(x, y, GREY);
-                        } else {
-                            cout.set(x, y, BLACK);
-                        }
-                    }
-                }
-                grey.sort(Comparator.comparingDouble(scores::get));
-                while (!grey.isEmpty()) {
-                    Fragment cell = grey.remove(grey.size() - 1);
-                    scores.remove(cell);
-                    int x = cell.x0 / 2;
-                    int y = cell.y0 / 2;
-                    Fragment cout0 = new Fragment(cout, x, y, 3, 6);
-                    if (cell.count() > 2) {
-                        cout0.set(0, 0, BLACK);
-                    } else if (cell.count() == 2 && cell.get(0, 0) == cell.get(1, 1)) {
-                        cout0.set(0, 0, BLACK);
-                    } else {
-                        if (canMoveAtAll(cell, cout0)) {
-                            moveAll(cell, cout0);
-                            cout0.set(0, 0, WHITE);
-                            for (Fragment f : grey) {
-                                scores.put(f, score(f));
-                            }
-                            grey.sort(Comparator.comparingDouble(scores::get));
-                        } else {
-                            cout0.set(0, 0, BLACK);
-                        }
-                    }
-                }
-
-                if (cout.matchesAny("""
-                        . x .|x x \s
-                        x   x|  x \s
-                        . x .|x   x
-                        x   x|x   x
-                        . x .|x x x
-                        """)) {
-                    this.numbers.append('8');
-                } else if (cout.matchesAny("""
-                        . x .|. x .
-                        x   x|x   x
-                        .   x|. x x
-                          x x|    x
-                        x x .|x x .
-                        """)) {
-                    this.numbers.append('9');
-                } else if (cout.matchesAny("""
-                        . x .|. x x
-                        x .  |x x \s
-                        x x .|x   .
-                        x   x|x   x
-                        . x .|. x .
-                        """)) {
-                    this.numbers.append('6');
-                } else if (cout.matches("""
-                        . x .
-                        x   x
-                        x   x
-                        x   x
-                        . x .
-                        """)) {
-                    this.numbers.append('0');
-                } else if (cout.matches("""
-                        x x x
-                        x   \s
-                        x x x
-                            x
-                        x x x
-                        """)) {
-                    this.numbers.append('5');
-                } else if (cout.matchesAny("""
-                        x x x|  x x
-                            x|    x
-                        x x x|    x
-                        x    |  x \s
-                        x x x|  x x
-                        """)) {
-                    this.numbers.append('2');
-                } else if (cout.matchesAny("""
-                        . x .|. x x
-                            x|  . x
-                        . x .|    x
-                            x|x   x
-                        x x .|. x .
-                        """)) {
-                    this.numbers.append('3');
-                } else if (cout.matches("""
-                        x x .
-                            x
-                          . .
-                          x \s
-                          x \s
-                        """)) {
-                    this.numbers.append('7');
-                } else if (cout.matches("""
-                          . .
-                          . .
-                            x
-                            x
-                            x
-                        """)) {
-                    this.numbers.append('1');
-                } else if (cout.matchesAny("""
-                          . .|  . .|    x|    x|  x .|  x x
-                          x .|  x .|  x .|    x|  x .|x   x
-                        x   x|  x .|x x x|  x x|x x x|x   x
-                        . x x|x   x|    x|.   x|    x|x x x
-                            x|  x x|    x|. . .|    x|    x
-                        """)) {
-                    this.numbers.append('4');
-                } else {
-                    this.numbers.append('?');
-                }
-            }
-
-            System.out.println(numbers);
-        }
-
-        private static void moveAll(Fragment cell, Fragment cout0) {
-            if (cell.get(0, 0) == BLACK) {
-                moveCorner(cell, cout0);
-            }
-            if (cell.get(1, 0) == BLACK) {
-                Matrix cell2 = new XReflected(cell);
-                Matrix cout2 = new XRotated(cout0);
-                moveCorner(cell2, cout2);
-            }
-            if (cell.get(0, 1) == BLACK) {
-                Matrix cell2 = new YReflected(cell);
-                Matrix cout2 = new YRotated(cout0);
-                moveCorner(cell2, cout2);
-            }
-            if (cell.get(1, 1) == BLACK) {
-                Matrix cell2 = new XReflected(new YReflected(cell));
-                Matrix cout2 = new XRotated(new YRotated(cout0));
-                moveCorner(cell2, cout2);
-            }
-        }
-
-        private static boolean canMoveAtAll(Fragment cell, Fragment cout0) {
-            if (cell.get(0, 0) == BLACK) {
-                if (!canMoveCorner(cell, cout0)) return false;
-            }
-            if (cell.get(1, 0) == BLACK) {
-                Matrix cell2 = new XReflected(cell);
-                Matrix cout2 = new XRotated(cout0);
-                if (!canMoveCorner(cell2, cout2)) return false;
-            }
-            if (cell.get(0, 1) == BLACK) {
-                Matrix cell2 = new YReflected(cell);
-                Matrix cout2 = new YRotated(cout0);
-                if (!canMoveCorner(cell2, cout2)) return false;
-            }
-            if (cell.get(1, 1) == BLACK) {
-                Matrix cell2 = new XReflected(new YReflected(cell));
-                Matrix cout2 = new XRotated(new YRotated(cout0));
-                if (!canMoveCorner(cell2, cout2)) return false;
-            }
-            return true;
-        }
-
-        private static boolean canMoveCorner(Matrix cell, Matrix cout0) {
-            boolean needMoveUp = needMove(cell);
-            boolean canMoveUp = canMove(cout0);
-            if (needMoveUp && !canMoveUp) {
-                return false;
-            }
-            Matrix cell2 = new Transposed(cell);
-            Matrix cout2 = new Transposed(cout0);
-            boolean needMoveLeft = needMove(cell2);
-            boolean canMoveLeft = canMove(cout2);
-            if (needMoveLeft && !canMoveLeft) {
-                return false;
-            }
-            if (!needMoveUp && !needMoveLeft) {
-                if (canMoveUp || canMoveLeft) return true;
-                else return cout0.get(-1, -1) != WHITE;
-            }
-            return true;
-        }
-
-        private static void moveCorner(Matrix cell, Matrix cout0) {
-            boolean needMoveUp = needMove(cell);
-            if (needMoveUp) {
-                cell.set(0, -1, BLACK);
-            }
-            Matrix cell2 = new Transposed(cell);
-            boolean needMoveLeft = needMove(cell2);
-            if (needMoveLeft) {
-                cell.set(-1, 0, BLACK);
-            }
-            if (!needMoveUp && !needMoveLeft) {
-                if (canMove(cout0)) {
-                    cell.set(0, -1, BLACK);
-                } else if (canMove(new Transposed(cout0))) {
-                    cell.set(-1, 0, BLACK);
-                } else {
-                    cell.set(-1, -1, BLACK);
-                }
-            }
-            cell.set(0, 0, WHITE);
-        }
-
-        private static boolean canMove(Matrix cout0) {
-            return cout0.get(0, -1) != WHITE;
-        }
-
-        private static boolean needMove(Matrix cell) {
-            return cell.get(1, 0) == BLACK || cell.get(1, -1) == BLACK;
-        }
-
-        private static double score(Fragment f) {
-            double score = 0;
-            for (int x = -1; x <= 1; x++) {
-                for (int y = -1; y <= 1; y++) {
-                    if (x != 0 || y != 0) {
-                        score += new Fragment(f, x * 2, y * 2, 2, 2).count();
-                    }
-                }
-            }
-            return score / f.count();
-        }
-
     }
 
 

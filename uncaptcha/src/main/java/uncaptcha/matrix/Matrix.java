@@ -94,7 +94,7 @@ public abstract class Matrix {
                 switch (lines[y].charAt(x * 2)) {
                     case 'x' -> set(x, y, BLACK);
                     case ' ' -> set(x, y, WHITE);
-                    default -> set(x, y, GREY);
+                    default -> set(x, y, GRAY);
                 }
             }
             for (int x = w; x < getWidth(); x ++) {
@@ -137,6 +137,15 @@ public abstract class Matrix {
                 }
                 case ' ' -> {
                     if (get(x, y) != WHITE) return false;
+                }
+                case '+' -> {
+                    if (get(x, y) == WHITE) return false;
+                }
+                case '-' -> {
+                    if (get(x, y) == BLACK) return false;
+                }
+                case '*' -> {
+                    if (get(x, y) != GRAY) return false;
                 }
             }
         }
