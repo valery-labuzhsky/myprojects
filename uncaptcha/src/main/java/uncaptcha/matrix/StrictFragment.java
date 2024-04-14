@@ -9,7 +9,14 @@ public class StrictFragment extends Fragment {
 
     @Override
     public int get(int x, int y) {
-        if (x<0 || x >= getWidth() || y < 0 || y >= getHeight()) return WHITE;
+        if (x < 0 || x >= getWidth() || y < 0 || y >= getHeight()) return WHITE;
         return super.get(x, y);
+    }
+
+    @Override
+    public void set(int x, int y, int c) {
+        if (x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+            if (c != WHITE) throw new RuntimeException("Out of borders");
+        super.set(x, y, c);
     }
 }
