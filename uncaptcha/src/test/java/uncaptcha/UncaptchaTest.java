@@ -8,7 +8,7 @@ import java.io.IOException;
 public class UncaptchaTest {
     @Test
     public void test() throws IOException {
-//        check("483821");
+        check("483821");
         check("849104");
         check("386917");
         check("810864");
