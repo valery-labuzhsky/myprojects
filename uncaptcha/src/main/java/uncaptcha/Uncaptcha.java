@@ -77,6 +77,7 @@ public class Uncaptcha {
         orig = rotation.apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
+        orig = new RemoveBalloons().apply(orig);
         orig = new Split3().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
@@ -129,11 +130,13 @@ public class Uncaptcha {
 
                 while (found) {
                     found = false;
-                    for (int x = sx; x <= ex + 1; x++) {
-                        if (bool(in, width, x, sy - 1) == 0) {
-                            found = true;
-                            sy--;
-                            break;
+                    if (sy > 0) {
+                        for (int x = sx; x <= ex + 1; x++) {
+                            if (bool(in, width, x, sy - 1) == 0) {
+                                found = true;
+                                sy--;
+                                break;
+                            }
                         }
                     }
                     if (ey < in.length / width - 1) {
@@ -264,7 +267,7 @@ public class Uncaptcha {
                         x   x|x   x
                         .   x|. x x
                           x x|    x
-                        x x .|x x .
+                        x x .|. x .
                         """)) {
                     this.numbers.append('9');
                 } else if (cout.matchesAny("""
@@ -318,7 +321,7 @@ public class Uncaptcha {
                 } else if (cout.matches("""
                           . .
                           . .
-                            x
+                          . .
                             x
                             x
                         """)) {
@@ -340,8 +343,8 @@ public class Uncaptcha {
         }
 
         private void evolve(Strider s) {
-//            log(s.x + ", " + s.y);
-//            log(cipher);
+            log(s.x + ", " + s.y);
+            log(cipher);
 //            log(cout);
             switch (s.in.count()) {
                 case 0:
@@ -381,7 +384,9 @@ public class Uncaptcha {
                     break;
                 case 3:
                     if (!s.tryExpand() && !s.tryCollapse()) {
-                        s.withForce(1).cutCorners().tryCollapse();
+                        if (!s.withForce(1).cutCorners().tryCollapse()) {
+                            s.withForce(1).cutCorners().tryExpand();
+                        }
                     }
                     break;
                 case 4:
@@ -505,7 +510,7 @@ public class Uncaptcha {
             }
 
             public void log(Object o) {
-                if (x == 1 && y == 4) {
+                if (x == 1 && y == 2) {
                     Compact3.this.log(o);
                 }
             }
@@ -554,11 +559,12 @@ public class Uncaptcha {
                               x|  .
                             x .|x x
                             """)) {
-                        Fragment left = new Fragment(up, -1, 0, 2, 2);
+                        Fragment left = new Fragment(up, -1, 0, 2, 3);
                         // just remove it when it's not needed
                         if (!cutCorners || !left.matches("""
                                   \s
                                   x
+                                  \s
                                 """)) {
                             f2.corner(0, -1).expandCorner();
                         }
@@ -680,7 +686,7 @@ public class Uncaptcha {
                 if (force == 0) {
                     throw new RuntimeException("Out of force");
                 } else {
-                    return new Strider(new Fragment(in, dx, dy, 2, 2), new Fragment(out, dx/2, dy/2, 1, 1), force - 1, cutCorners, -1, -1);
+                    return new Strider(new Fragment(in, dx, dy, 2, 2), new Fragment(out, dx / 2, dy / 2, 1, 1), force - 1, cutCorners, -1, -1);
                 }
             }
 
@@ -815,7 +821,7 @@ public class Uncaptcha {
         }
 
         private void log(Object log) {
-            if (n == 5) System.out.println(log);
+            if (n == 4) System.out.println(log);
         }
 
         public enum Rotation {
@@ -873,13 +879,17 @@ public class Uncaptcha {
                     }
                 }
 
-                if (cipher != null && cipher.high > up) cipher.high = up;
+                if (cipher != null && cipher.high > up) {
+                    cipher.high = up;
+                    cipher.highX = x;
+                }
 
-                if ((down - up) > 30) {
+                if ((down - up) > 20) {
                     if (cipher == null) {
                         cipher = new Cipher();
                         cipher.start = x;
                         cipher.high = up;
+                        cipher.highX = x;
                     }
                 } else {
                     if (cipher != null && up - cipher.high > 35) {
@@ -944,11 +954,27 @@ public class Uncaptcha {
                 child.start = lowX;
                 child.end = fat.end;
                 child.high = fat.high;
+                child.highX = (child.start + child.end) / 2;
                 fat.end = lowX;
                 ciphers.add(ciphers.indexOf(fat) + 1, child);
 
                 fat.findNewHigh();
                 child.findNewHigh();
+            }
+
+            for (Cipher c : ciphers) {
+                cipher:
+                for (int x = c.highX; x > c.start; x--) {
+                    for (int y = c.high; y < inm.getHeight(); y++) {
+                        if (inm.get(x, y) == BLACK) {
+                            if (y - c.high > 30) {
+                                c.start = x;
+                                break cipher;
+                            }
+                            break;
+                        }
+                    }
+                }
             }
 
 //            System.arraycopy(in, 0, out, 0, out.length);
@@ -984,14 +1010,17 @@ public class Uncaptcha {
             int start;
             int end;
             int high;
+            int highX;
 
             private void findNewHigh() {
                 high = inm.getHeight();
+                highX = (start + end) / 2;
                 for (int x = start; x <= end; x++) {
                     for (int y = 0; y < inm.getHeight(); y++) {
                         if (inm.get(x, y) == BLACK) {
                             if (y < high) {
                                 high = y;
+                                highX = x;
                                 break;
                             }
                         }
@@ -1039,6 +1068,7 @@ public class Uncaptcha {
         orig = rotation.apply(orig);
         orig = new Cut().apply(orig);
         orig = new Window().apply(orig);
+        orig = new RemoveBalloons().apply(orig);
         orig = new Split3().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
