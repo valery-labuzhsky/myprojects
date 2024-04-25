@@ -294,11 +294,11 @@ public class Uncaptcha {
                         """)) {
                     this.numbers.append('5');
                 } else if (cout.matchesAny("""
-                        . x .|. x x
-                            x|.   x
-                        . x x|  . x
-                        x    |. x \s
-                        x x x|. x x
+                        . x .|. x x|x x x
+                          . x|.   x|.   x
+                        . x .|  . x|  . x
+                        x    |  x  |x x \s
+                        x x x|  x x|x x x
                         """)) {
                     this.numbers.append('2');
                 } else if (cout.matchesAny("""
@@ -310,11 +310,11 @@ public class Uncaptcha {
                         """)) {
                     this.numbers.append('3');
                 } else if (cout.matchesAny("""
-                        x x .|x x x|x x \s
-                            x|  x .|  x x
-                          . .|  x  |    x
+                        x x .|x x x|x x .
+                            x|  x .|  . x
+                          . .|  x  |  . x
                           x  |. x  |  x x
-                        . .  |x    |x x \s
+                        . . .|x .  |x x \s
                         """)) {
                     this.numbers.append('7');
                 } else if (cout.matchesAny("""
