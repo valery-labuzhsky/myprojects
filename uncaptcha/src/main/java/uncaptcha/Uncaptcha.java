@@ -10,8 +10,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import static java.lang.Math.*;
 
 public class Uncaptcha {
 
@@ -295,43 +294,43 @@ public class Uncaptcha {
                         """)) {
                     this.numbers.append('5');
                 } else if (cout.matchesAny("""
-                        . x .|  x x
-                            x|    x
-                        . x x|    x
-                        x    |  x \s
+                        . x .|. x x
+                            x|.   x
+                        . x x|  . x
+                        x    |. x \s
                         x x x|. x x
                         """)) {
                     this.numbers.append('2');
                 } else if (cout.matchesAny("""
                         . x .|. x x
-                            x|  . x
+                            x|.   x
                         . x .|    x
                             x|x   x
-                        x x .|. x .
+                        . x .|. x .
                         """)) {
                     this.numbers.append('3');
-                } else if (cout.matches("""
-                        x x .
-                            x
-                          . .
-                          x \s
-                        . x \s
+                } else if (cout.matchesAny("""
+                        x x .|x x x|x x \s
+                            x|  x .|  x x
+                          . .|  x  |    x
+                          x  |. x  |  x x
+                        . .  |x    |x x \s
                         """)) {
                     this.numbers.append('7');
-                } else if (cout.matches("""
-                          . .
-                          . .
-                          . .
-                            x
-                            x
+                } else if (cout.matchesAny("""
+                          . .|. . \s
+                          . .|. . .
+                          . .|  . .
+                          . .|  . .
+                          . .|  . .
                         """)) {
                     this.numbers.append('1');
                 } else if (cout.matchesAny("""
-                          . .|  . .|  x x
-                          x .|  . .|x   x
-                        x   x|  x .|x   x
-                        . x .|x   x|x x x
-                        . . x|. x .|    x
+                          . .|  . .|  x .|  x x|  x x
+                        . x .|  . .|x   x|  x x|x   x
+                        x   x|  x .|x   x|x   x|x x x
+                        . x .|x   x|x x x|x   x|  x x
+                        . . x|. x .|    x|  x  |  x x
                         """)) {
                     this.numbers.append('4');
                 } else {
@@ -351,14 +350,14 @@ public class Uncaptcha {
                     s.out.set(0, 0, WHITE);
                     break;
                 case 1:
-                    if (!s.tryCollapse()) s.tryExpand();
+                    if (!s.tryExpand()) s.tryCollapse();
                     break;
                 case 2:
                     if (s.in.matchesAny("""
                               x|  \s
                               x|x x
                             """)) {
-                        if (!s.tryCollapse() && !s.tryExpand()) {
+                        if (!s.tryExpand() && !s.tryCollapse()) {
                             s.findInMatchingRotation("""
                                       \s
                                     x x
@@ -375,7 +374,7 @@ public class Uncaptcha {
                             x  |x x
                             x  |  \s
                             """)) {
-                        if (!s.tryCollapse() && !s.tryExpand()) {
+                        if (!s.tryExpand() && !s.tryCollapse()) {
                             s.withForce(1).cutCorners().tryExpand();
                         }
                     } else {
@@ -384,8 +383,8 @@ public class Uncaptcha {
                     break;
                 case 3:
                     if (!s.tryExpand() && !s.tryCollapse()) {
-                        if (!s.withForce(1).cutCorners().tryCollapse()) {
-                            s.withForce(1).cutCorners().tryExpand();
+                        if (!s.withForce(1).cutCorners().tryExpand()) {
+                            s.withForce(1).cutCorners().tryCollapse();
                         }
                     }
                     break;
@@ -408,7 +407,7 @@ public class Uncaptcha {
             Fragment cell = new Fragment(cipher, x * 2, y * 2, 2, 2);
             Fragment cout0 = new Fragment(cout, x, y, 1, 1);
 
-            return new Strider(cell, cout0, 0);
+            return new Strider(cell, cout0, 0, false, x, y);
         }
 
         public class Strider {
@@ -419,17 +418,22 @@ public class Uncaptcha {
             private final int x;
             private final int y;
 
-            public Strider(Matrix in, Fragment out, int force) {
-                this(in, out, force, false, out.x0, out.y0);
-            }
+            private final int cx;
+            private final int cy;
 
             public Strider(Matrix in, Matrix out, int force, boolean cutCorners, int x, int y) {
+                this(in, out, force, cutCorners, x, y, 0, 0);
+            }
+
+            public Strider(Matrix in, Matrix out, int force, boolean cutCorners, int x, int y, int cx, int cy) {
                 this.in = in;
                 this.out = out;
                 this.force = force;
                 this.cutCorners = cutCorners;
                 this.x = x;
                 this.y = y;
+                this.cx = cx;
+                this.cy = cy;
             }
 
             public boolean findInMatchingRotation(String pattern, Consumer<Strider> action) {
@@ -471,7 +475,7 @@ public class Uncaptcha {
 
             public Strider move(int dx, int dy) {
                 return new Strider(new Fragment(in, dx * 2, dy * 2, 2, 2),
-                        new Fragment(out, dx, dy, 1, 1), force);
+                        new Fragment(out, dx, dy, 1, 1), force, cutCorners, x, y);
             }
 
             public boolean ifOutMatches(String pattern, Consumer<Strider> action) {
@@ -510,7 +514,7 @@ public class Uncaptcha {
             }
 
             public void log(Object o) {
-                if (x == 1 && y == 2) {
+                if (x == 1 && y == 1) {
                     Compact3.this.log(o);
                 }
             }
@@ -553,24 +557,75 @@ public class Uncaptcha {
             }
 
             public void collapseCorner() {
-                forAllSymmetries(Symmetry.TRANSPOSED, f2 -> {
-                    Fragment up = new Fragment(f2.in, 0, -1, 2, 2);
-                    if (up.matchesAny("""
-                              x|  .
-                            x .|x x
-                            """)) {
-                        Fragment left = new Fragment(up, -1, 0, 2, 3);
-                        // just remove it when it's not needed
-                        if (!cutCorners || !left.matches("""
-                                  \s
-                                  x
-                                  \s
-                                """)) {
-                            f2.corner(0, -1).expandCorner();
-                        }
-                    }
-                });
-                this.in.set(0, 0, WHITE);
+                Fragment up = new Fragment(in, -1 + cx, -1 + cy, 3, 3);
+                log("Collapse before "+force);
+                log(new Fragment(up, -1, -1, 5, 5));
+                if (!cutCorners && up.matchesAny("""
+                             |    \s
+                          x x|x x \s
+                             |    \s
+                        """
+                )) {
+                    throw new RuntimeException("Corner");
+                }
+                if (up.matchesAny("""
+                        . . .
+                        . x \s
+                        . . x
+                        """)) {
+                    corner(1, 0).expandCorner();
+                }
+                if (up.matchesAny("""
+                        . . .
+                          x .
+                        x . .
+                        """)) {
+                    corner(-1, 0).expandCorner();
+                }
+                if (up.matchesAny("""
+                        .   .|.   x
+                        . x x|. x .
+                        """) && up.matchesAny("""
+                        .   .|x   .
+                        x x .|. x .
+                        """)) {
+                    corner(0, -1).expandCorner();
+                }
+                if (up.matchesAny("""
+                        .   x
+                        . x \s
+                        . . .
+                        """)) {
+                    corner(1, 0).expandCorner();
+                }
+                if (up.matchesAny("""
+                        x   .
+                          x .
+                        . . .
+                        """)) {
+                    corner(-1, 0).expandCorner();
+                }
+//                forAllSymmetries(Symmetry.TRANSPOSED, f2 -> {
+//                    Fragment up = new Fragment(f2.in, 0, -1, 2, 2);
+//                    if (up.matchesAny("""
+//                              x|  .
+//                            x .|x x
+//                            """)) {
+//                        Fragment left = new Fragment(up, -1, 0, 2, 3);
+//                        // just remove it when it's not needed
+//                        if (!cutCorners || !left.matches("""
+//                                  \s
+//                                  x
+//                                  \s
+//                                """)) {
+//                            f2.corner(0, -1).expandCorner();
+//                        }
+//                    }
+//                });
+                this.in.set(cx, cy, WHITE);
+                log("Collapse after");
+                log(up);
+                if (out.get(0, 0)==BLACK) collapse();
             }
 
             private boolean tryCollapseCorner() {
@@ -686,7 +741,29 @@ public class Uncaptcha {
                 if (force == 0) {
                     throw new RuntimeException("Out of force");
                 } else {
-                    return new Strider(new Fragment(in, dx, dy, 2, 2), new Fragment(out, dx / 2, dy / 2, 1, 1), force - 1, cutCorners, -1, -1);
+                    dx += cx;
+                    int bx = 0;
+                    while (dx < 0) {
+                        bx--;
+                        dx += 2;
+                    }
+                    while (dx > 1) {
+                        bx++;
+                        dx -= 2;
+                    }
+
+                    dy += cy;
+                    int by = 0;
+                    while (dy < 0) {
+                        by--;
+                        dy += 2;
+                    }
+                    while (dy > 1) {
+                        by++;
+                        dy -= 2;
+                    }
+
+                    return new Strider(new Fragment(in, bx * 2, by * 2, 2, 2), new Fragment(out, bx, by, 1, 1), force - 1, cutCorners, x, y, dx, dy);
                 }
             }
 
@@ -772,9 +849,22 @@ public class Uncaptcha {
                 }
             }
 
+//            x x x x x x
+//            x x v x x x
+//            x x     x
+//            x x x   x
+//            x x   x x
+//            x       x x
+//            x       x
+//            x x   x x
+//            x x x x x
+//            x x x
+
             public void expandCorner() {
                 // TODO I assume that I have a black square down
-                Fragment up = new Fragment(in, -1, -1, 3, 2);
+                Fragment up = new Fragment(in, -1 + cx, -1 + cy, 3, 3);
+                log("Expand Before "+force);
+                log(up);
                 if (!cutCorners && up.matchesAny("""
                         . x x|x x .
                         x    |    x
@@ -807,7 +897,12 @@ public class Uncaptcha {
                         """)) {
                     corner(-1, -1).collapseCorner();
                 }
-                this.in.set(0, 0, BLACK);
+                this.in.set(cx, cy, BLACK);
+                log("Expand After");
+                log(up);
+                if (out.get(0, 0)==WHITE) {
+                    expand();
+                }
             }
 
             public Strider withForce(int force) {
@@ -821,7 +916,7 @@ public class Uncaptcha {
         }
 
         private void log(Object log) {
-            if (n == 4) System.out.println(log);
+//            if (n == 4) System.out.println(log);
         }
 
         public enum Rotation {
@@ -860,69 +955,31 @@ public class Uncaptcha {
             inm = new FullMatrix(in, width);
             FullMatrix outm = new FullMatrix(out, width);
 
-            ArrayList<Cipher> ciphers = new ArrayList<>();
-            Cipher cipher = null;
-            for (int x = 0; x < inm.getWidth(); x++) {
-                int up = inm.getHeight();
-                for (int y = 0; y < inm.getHeight(); y++) {
-                    if (inm.get(x, y) == BLACK) {
-                        up = y;
-                        break;
-                    }
-                }
+            LinkedList<Cipher> ciphers0 = detectCiphers(0, inm.getWidth() - 1, 0, inm.getHeight() * 2 / 3);
+            mergeIntersections(ciphers0);
 
-                int down = up;
-                for (int y = inm.getHeight() - 1; y > up; y--) {
-                    if (inm.get(x, y) == BLACK) {
-                        down = y;
-                        break;
-                    }
-                }
+//            Cipher toCheck = ciphers0.get(0);
+//            ciphers0.removeIf(c -> c != toCheck);
 
-                if (cipher != null && cipher.high > up) {
-                    cipher.high = up;
-                    cipher.highX = x;
-                }
-
-                if ((down - up) > 20) {
-                    if (cipher == null) {
-                        cipher = new Cipher();
-                        cipher.start = x;
-                        cipher.high = up;
-                        cipher.highX = x;
-                    }
-                } else {
-                    if (cipher != null && up - cipher.high > 35) {
-                        cipher.end = x - 1;
-                        ciphers.add(cipher);
-                        cipher = null;
-                    }
-                }
+            LinkedList<Cipher> ciphers = new LinkedList<>();
+//            ciphers = ciphers0;
+            for (Cipher cipher : ciphers0) {
+                ciphers.addAll(detectCiphers(cipher.start - 5, cipher.end + 5, cipher.high, cipher.high + 30));
             }
+            mergeIntersections(ciphers);
 
-            for (Cipher c : ciphers) {
-                cipher:
-                for (int x = c.start - 1; x >= 0; x--) {
-                    for (int y = c.high; y < inm.getHeight(); y++) {
-                        if (inm.get(x, y) == BLACK) {
-                            break;
-                        }
-                        if (y - c.high > 30) {
-                            c.start = x;
-                            break cipher;
-                        }
-                    }
+            for (Iterator<Cipher> iterator = ciphers.iterator(); iterator.hasNext(); ) {
+                Cipher cipher = iterator.next();
+                if (cipher.start==0) {
+                    iterator.remove();
+                    continue;
                 }
-
-                cipher:
-                for (int x = c.end + 1; x < inm.getWidth(); x++) {
-                    for (int y = c.high; y < inm.getHeight(); y++) {
+                y:
+                for (int y = inm.getHeight() - 1; y > cipher.high; y--) {
+                    for (int x = cipher.start; x <= cipher.end; x++) {
                         if (inm.get(x, y) == BLACK) {
-                            break;
-                        }
-                        if (y - c.high > 30) {
-                            c.end = x;
-                            break cipher;
+                            if (y - cipher.high < 35) iterator.remove();
+                            break y;
                         }
                     }
                 }
@@ -962,26 +1019,11 @@ public class Uncaptcha {
                 child.findNewHigh();
             }
 
-            for (Cipher c : ciphers) {
-                cipher:
-                for (int x = c.highX; x > c.start; x--) {
-                    for (int y = c.high; y < inm.getHeight(); y++) {
-                        if (inm.get(x, y) == BLACK) {
-                            if (y - c.high > 30) {
-                                c.start = x;
-                                break cipher;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
 //            System.arraycopy(in, 0, out, 0, out.length);
 //            for (Cipher c : ciphers) {
 //                for (int y = 0; y < inm.getHeight(); y++) {
-//                    out[y * width + c.start] = BLACK;
-//                    out[y * width + c.end] = BLACK;
+//                    out[y * width + c.start] = (255 << 24) + (0xFF << 16);
+//                    out[y * width + c.end] = (255 << 24) + (0xFF << 8);
 //                }
 //            }
 
@@ -1006,7 +1048,175 @@ public class Uncaptcha {
             }
         }
 
-        public class Cipher {
+        private LinkedList<Cipher> detectCiphers(int sx, int ex, int sy, int ey) {
+            if (sx < 0) sx = 0;
+            if (ex > inm.getWidth() - 1) ex = inm.getWidth() - 1;
+            LinkedList<Cipher> ciphers = new LinkedList<>();
+            LinkedList<Cipher> locals = new LinkedList<>();
+
+            for (int y = sy; y < ey; y++) {
+//                System.out.println(y + ": " + ciphers);
+                int startX = sx;
+                int endX = ex;
+                ListIterator<Cipher> cit = locals.listIterator();
+                ListIterator<Cipher> mit = ciphers.listIterator();
+                Cipher next = null;
+                Cipher mext = null;
+                while (startX <= endX) {
+                    Cipher prev = next;
+                    Cipher mrev = mext;
+                    next = null;
+                    if (prev != null) {
+                        startX = prev.end + 1;
+                    }
+
+                    while (cit.hasNext()) {
+                        next = cit.next();
+                        mext = mit.next();
+                        int x = next.start;
+                        if (inm.get(x, y) == BLACK) {
+                            next.start = startX;
+                            for (x = x - 1; x >= startX; x--) {
+                                if (inm.get(x, y) == WHITE) {
+                                    next.start = x + 1;
+                                    break;
+                                }
+                            }
+                            if (mext.start > next.start) mext.start = next.start;
+                            endX = next.start - 1;
+                        } else {
+                            endX = next.start - 1;
+                            next.start = next.end + 1;
+                            for (x = x + 1; x <= next.end; x++) {
+                                if (inm.get(x, y) == BLACK) {
+                                    next.start = x;
+                                    break;
+                                }
+                            }
+                            if (next.start > next.end) {
+                                cit.remove();
+                                mit.remove();
+                                next = null;
+                                continue;
+                            }
+                        }
+                        break;
+                    }
+
+                    if (prev != null) {
+                        int x = prev.end;
+                        if (inm.get(x, y) == BLACK) {
+                            prev.end = endX;
+                            for (x = x + 1; x <= endX; x++) {
+                                if (inm.get(x, y) == WHITE) {
+                                    prev.end = x - 1;
+                                    break;
+                                }
+                            }
+                            startX = prev.end + 1;
+                            if (mrev.end < prev.end) mrev.end = prev.end;
+                            if (next != null && prev.end + 1 >= next.start) {
+                                prev.end = next.end;
+                                mrev.end = mext.end;
+                                if (prev.high > next.high) {
+                                    prev.high = next.high;
+                                    prev.highX = next.highX;
+                                    mrev.high = mext.high;
+                                    mrev.highX = mext.highX;
+                                }
+                                if (mrev.start > mext.start) {
+                                    mrev.start = mext.start;
+                                }
+                                cit.remove();
+                                mit.remove();
+                                next = prev;
+                                mext = mrev;
+                                endX = ex;
+                                continue;
+                            }
+                        } else {
+                            for (x = x - 1; x > prev.start; x--) {
+                                if (inm.get(x, y) == BLACK) {
+                                    prev.end = x;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+
+                    Cipher novo = null;
+                    Cipher movo = null;
+                    for (int x = startX; x <= endX; x++) {
+                        if (inm.get(x, y) == BLACK) {
+                            if (novo == null) {
+                                novo = new Cipher();
+                                novo.start = x;
+                                novo.end = x;
+                                novo.high = y;
+                                novo.highX = x;
+                                movo = novo.clone();
+                                if (next == null) {
+                                    cit.add(novo);
+                                    mit.add(movo);
+                                } else {
+                                    cit.previous();
+                                    cit.add(novo);
+                                    cit.next();
+                                    mit.previous();
+                                    mit.add(movo);
+                                    mit.next();
+                                }
+                            }
+                        } else {
+                            if (novo != null) {
+                                novo.end = x - 1;
+                                movo.end = novo.end;
+                                novo = null;
+                            }
+                        }
+                    }
+
+                    startX = endX + 1;
+                    endX = ex;
+                }
+            }
+            return ciphers;
+        }
+
+        private static void mergeIntersections(LinkedList<Cipher> ciphers) {
+            Cipher next;
+            Cipher prev = null;
+            for (ListIterator<Cipher> iterator = ciphers.listIterator(); iterator.hasNext(); ) {
+                next = iterator.next();
+                if (next.end - next.start < 10 && next.start > 50) {
+                    iterator.remove();
+                    continue;
+                }
+                if (prev != null) {
+                    if (prev.end > next.start) {
+                        prev.start = min(prev.start, next.start);
+                        prev.end = max(prev.end, next.end);
+                        if (prev.high > next.high) {
+                            prev.high = next.high;
+                            prev.highX = next.highX;
+                        }
+                        iterator.remove();
+                        iterator.previous();
+                        if (iterator.hasPrevious()) {
+                            prev = iterator.previous();
+                            iterator.next();
+                        } else {
+                            prev = null;
+                        }
+                        continue;
+                    }
+                }
+                prev = next;
+            }
+        }
+
+        public class Cipher implements Cloneable {
             int start;
             int end;
             int high;
@@ -1026,6 +1236,19 @@ public class Uncaptcha {
                         }
                     }
                 }
+            }
+
+            @Override
+            public Cipher clone() {
+                try {
+                    return (Cipher) super.clone();
+                } catch (CloneNotSupportedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            public String toString() {
+                return start + "-" + end;
             }
         }
     }

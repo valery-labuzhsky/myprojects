@@ -4,19 +4,38 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class UncaptchaTest {
     @Test
     public void test() throws IOException {
+        check("250787");
+        check("341373");
+        check("977334");
         check("149881");
         check("283852");
-        check("483821");
+//        check("483821");
         check("564549");
         check("849104");
         check("386917");
         check("810864");
         check("458958");
         check("691551");
+    }
+
+    @Test
+    public void iterator() {
+        LinkedList<String> list = new LinkedList<>();
+        list.add("2");
+        ListIterator<String> iterator = list.listIterator();
+        iterator.next();
+        iterator.previous();
+        iterator.add("1");
+        iterator.next();
+        System.out.println(list);
+        System.out.println(iterator.hasNext());
+        System.out.println(iterator.next());
     }
 
     private static void check(String number) throws IOException {
