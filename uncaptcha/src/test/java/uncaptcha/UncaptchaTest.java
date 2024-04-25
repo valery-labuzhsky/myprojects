@@ -10,6 +10,9 @@ import java.util.ListIterator;
 public class UncaptchaTest {
     @Test
     public void test() throws IOException {
+        check("146254");
+        check("166850");
+        check("882116");
         check("907850");
         check("583747");
         check("267722");

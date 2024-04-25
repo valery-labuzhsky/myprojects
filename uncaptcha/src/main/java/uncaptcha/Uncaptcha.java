@@ -19,10 +19,11 @@ public class Uncaptcha {
     public static final int BLACK = rgb(0);
 
     public static void main(String[] args) throws IOException {
-        BufferedImage image = ImageIO.read(new File(args[0]));
-        image = transformOld(image, Integer.parseInt(args[2]), Double.parseDouble(args[3]));
+        detect(args[0]);
+//        BufferedImage image = ImageIO.read(new File(args[0]));
+//        image = transformOld(image, Integer.parseInt(args[2]), Double.parseDouble(args[3]));
 //        image = transform(image);
-        ImageIO.write(image, "png", new File(args[1]));
+//        ImageIO.write(image, "png", new File(args[1]));
     }
 
     public static BufferedImage transformOld(BufferedImage image, int x0, double c) {
@@ -253,92 +254,96 @@ public class Uncaptcha {
                     }
                 });
 
-                if (cout.matches("""
-                        . x .
-                        x   x
-                        . x .
-                        x   x
-                        . x .
-                        """)) {
-                    this.numbers.append('8');
-                } else if (cout.matchesAny("""
-                        . x .|. x .
-                        x   x|x   x
-                        .   x|. x x
-                          x x|    x
-                        x x .|. x .
-                        """)) {
-                    this.numbers.append('9');
-                } else if (cout.matchesAny("""
-                        . x .|. x x
-                        x .  |x x \s
-                        x x .|x   .
-                        x   x|x   x
-                        . x .|. x .
-                        """)) {
-                    this.numbers.append('6');
-                } else if (cout.matches("""
-                        . x .
-                        x   x
-                        x   x
-                        x   x
-                        . x .
-                        """)) {
-                    this.numbers.append('0');
-                } else if (cout.matches("""
-                        x x .
-                        x   \s
-                        . x .
-                            x
-                        . x .
-                        """)) {
-                    this.numbers.append('5');
-                } else if (cout.matchesAny("""
-                        . x .|. x x|x x x
-                          . x|.   x|.   x
-                        . x .|  . x|  . x
-                        x    |  x  |x x \s
-                        x x x|  x x|x x x
-                        """)) {
-                    this.numbers.append('2');
-                } else if (cout.matchesAny("""
-                        . x .|. x x
-                            x|.   x
-                        . x .|    x
-                            x|x   x
-                        . x .|. x .
-                        """)) {
-                    this.numbers.append('3');
-                } else if (cout.matchesAny("""
-                        x x .|x x x|x x .
-                            x|  x .|  . x
-                          . .|  x  |  . x
-                          x  |. x  |  x x
-                        . . .|x .  |x x \s
-                        """)) {
-                    this.numbers.append('7');
-                } else if (cout.matchesAny("""
-                          . .|. . \s
-                          . .|. . .
-                          . .|  . .
-                          . .|  . .
-                          . .|  . .
-                        """)) {
-                    this.numbers.append('1');
-                } else if (cout.matchesAny("""
-                          . .|  . .|  x .|  x x|  x x
-                        . x .|  . .|x   x|  x x|x   x
-                        x   x|  x .|x   x|x   x|x x x
-                        . x .|x   x|x x x|x   x|  x x
-                        . . x|. x .|    x|  x  |  x x
-                        """)) {
-                    this.numbers.append('4');
-                } else {
-                    this.numbers.append('?');
-                }
+                tellNumber();
             }
 
             System.out.println(numbers);
+        }
+
+        private void tellNumber() {
+            if (cout.matches("""
+                    . x .
+                    x   x
+                    . x .
+                    x   x
+                    . x .
+                    """)) {
+                this.numbers.append('8');
+            } else if (cout.matchesAny("""
+                    . x .|. x .
+                    x   x|x   x
+                    .   x|. x x
+                      x x|    x
+                    x x .|. x .
+                    """)) {
+                this.numbers.append('9');
+            } else if (cout.matchesAny("""
+                    . x .|. x x
+                    x .  |x x \s
+                    x x .|x   .
+                    x   x|x   x
+                    . x .|. x .
+                    """)) {
+                this.numbers.append('6');
+            } else if (cout.matches("""
+                    . x .
+                    x   x
+                    x   x
+                    x   x
+                    . x .
+                    """)) {
+                this.numbers.append('0');
+            } else if (cout.matches("""
+                    x x .
+                    x   \s
+                    . x .
+                        x
+                    . x .
+                    """)) {
+                this.numbers.append('5');
+            } else if (cout.matchesAny("""
+                    . x .|. x x|x x x
+                      . x|.   x|.   x
+                    . x .|  . x|  . x
+                    x    |  x  |x x \s
+                    x x x|  x x|x x x
+                    """)) {
+                this.numbers.append('2');
+            } else if (cout.matchesAny("""
+                    . x .|. x x
+                        x|.   x
+                    . x .|    x
+                        x|x   x
+                    . x .|. x .
+                    """)) {
+                this.numbers.append('3');
+            } else if (cout.matchesAny("""
+                    x x .|x x x|x x .
+                        x|  x .|  . x
+                      . .|  x  |  . x
+                      x  |. x  |  x x
+                    . . .|x .  |x x \s
+                    """)) {
+                this.numbers.append('7');
+            } else if (cout.matchesAny("""
+                      . .|. .  |  x x|
+                      . .|. . .|x x x|
+                      . .|  . .|    x|
+                      . .|  . .|    x|
+                      . .|  . .|    x|
+                    """)) {
+                this.numbers.append('1');
+            } else if (cout.matchesAny("""
+                      . .|  . .|  x .|  x x|  x x
+                    . x .|  . .|x   x|  x x|x   x
+                    x   x|  x .|x   x|x   x|x x x
+                    . x .|x   x|x x x|x   x|  x x
+                    . . x|. x .|    x|  x  |  x x
+                    """)) {
+                this.numbers.append('4');
+            } else {
+                this.numbers.append('?');
+            }
         }
 
         private void evolve(Strider s) {
