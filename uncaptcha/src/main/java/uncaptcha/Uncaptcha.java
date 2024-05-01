@@ -21,13 +21,10 @@ public class Uncaptcha {
     public static void main(String[] args) throws IOException {
         try {
             detect(args[0]);
-        } catch (IOException e) {
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
             System.exit(1);
         }
-//        BufferedImage image = ImageIO.read(new File(args[0]));
-//        image = transformOld(image, Integer.parseInt(args[2]), Double.parseDouble(args[3]));
-//        image = transform(image);
-//        ImageIO.write(image, "png", new File(args[1]));
     }
 
     public static BufferedImage transformOld(BufferedImage image, int x0, double c) {
@@ -568,7 +565,7 @@ public class Uncaptcha {
 
             public void collapseCorner() {
                 Fragment up = new Fragment(in, -1 + cx, -1 + cy, 3, 3);
-                log("Collapse before "+force);
+                log("Collapse before " + force);
                 log(new Fragment(up, -1, -1, 5, 5));
                 if (!cutCorners && up.matchesAny("""
                              |    \s
@@ -635,7 +632,7 @@ public class Uncaptcha {
                 this.in.set(cx, cy, WHITE);
                 log("Collapse after");
                 log(up);
-                if (out.get(0, 0)==BLACK) collapse();
+                if (out.get(0, 0) == BLACK) collapse();
             }
 
             private boolean tryCollapseCorner() {
@@ -873,7 +870,7 @@ public class Uncaptcha {
             public void expandCorner() {
                 // TODO I assume that I have a black square down
                 Fragment up = new Fragment(in, -1 + cx, -1 + cy, 3, 3);
-                log("Expand Before "+force);
+                log("Expand Before " + force);
                 log(up);
                 if (!cutCorners && up.matchesAny("""
                         . x x|x x .
@@ -910,7 +907,7 @@ public class Uncaptcha {
                 this.in.set(cx, cy, BLACK);
                 log("Expand After");
                 log(up);
-                if (out.get(0, 0)==WHITE) {
+                if (out.get(0, 0) == WHITE) {
                     expand();
                 }
             }
@@ -980,7 +977,7 @@ public class Uncaptcha {
 
             for (Iterator<Cipher> iterator = ciphers.iterator(); iterator.hasNext(); ) {
                 Cipher cipher = iterator.next();
-                if (cipher.start==0) {
+                if (cipher.start == 0) {
                     iterator.remove();
                     continue;
                 }
@@ -1934,12 +1931,12 @@ public class Uncaptcha {
                     }
                 }
             }
-
-            for (int x = 0; x < width; x++) {
+            int height = in.length / width;
+            for (int x = 0; x < height; x++) {
                 out[x] = WHITE;
-                out[(width - 1) * width + x] = WHITE;
-                out[x * width] = WHITE;
-                out[x * width + width - 1] = WHITE;
+                out[(height - 1) * width + x] = WHITE;
+                out[x * height] = WHITE;
+                out[x * height + width - 1] = WHITE;
             }
 //            for (int i = 0; i < lvls.length; i++) {
 //                float lvl = lvls[i];
