@@ -19,7 +19,11 @@ public class Uncaptcha {
     public static final int BLACK = rgb(0);
 
     public static void main(String[] args) throws IOException {
-        detect(args[0]);
+        try {
+            detect(args[0]);
+        } catch (IOException e) {
+            System.exit(1);
+        }
 //        BufferedImage image = ImageIO.read(new File(args[0]));
 //        image = transformOld(image, Integer.parseInt(args[2]), Double.parseDouble(args[3]));
 //        image = transform(image);
@@ -44,10 +48,11 @@ public class Uncaptcha {
     }
 
     public static BufferedImage transform(BufferedImage image) {
+        image = new Square().apply(image);
         image = new Contrast().apply(image);
         image = new RemoveHoles().apply(image);
         image = new RemoveBalloons().apply(image);
-//        if (true) return image;
+        if (true) return image;
         BufferedImage orig = image;
         image = new Count().apply(image);
         Rotate rotation = new FineFrame2();
@@ -1264,6 +1269,7 @@ public class Uncaptcha {
     }
 
     public static String detect(BufferedImage image) {
+        image = new Square().apply(image);
         image = new Contrast().apply(image);
         image = new RemoveHoles().apply(image);
         image = new RemoveBalloons().apply(image);
@@ -2020,6 +2026,30 @@ public class Uncaptcha {
 
         }
 
+    }
+
+    public static class Square extends Filter {
+        @Override
+        protected int scaleHeight(int height) {
+            return 200;
+        }
+
+        @Override
+        protected int scaleWidth(int width) {
+            return 200;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            FullMatrix inm = new FullMatrix(in, width);
+            FullMatrix outm = new FullMatrix(out, 200);
+            outm.fill(WHITE);
+            for (int x=0; x<min(inm.getWidth(), outm.getWidth()); x++) {
+                for (int y=0; y<min(inm.getHeight(), outm.getHeight()); y++) {
+                    outm.set(x, y, inm.get(x, y));
+                }
+            }
+        }
     }
 
     public static class Contrast extends Filter {
