@@ -1,14 +1,14 @@
 package uncaptcha;
 
-import uncaptcha.matrix.*;
+import uncaptcha.matrix.Fragment;
+import uncaptcha.matrix.FullMatrix;
+import uncaptcha.matrix.StrictFragment;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static java.lang.Math.*;
 
@@ -27,29 +27,17 @@ public class Uncaptcha {
         }
     }
 
-    public static BufferedImage transformOld(BufferedImage image, int x0, double c) {
-        BufferedImage orig = image;
-        image = new Contrast().apply(image);
-        image = new RemoveHoles().apply(image);
-        image = new Count().apply(image);
-        Frame frame = new Frame();
-        image = frame.apply(image);
-        image = new Cut().apply(image);
-        FineFrame fineFrame = new FineFrame();
-        image = fineFrame.apply(image);
-
-        orig = frame.rotation().combine(fineFrame).apply(orig);
-        orig = new Cut().apply(orig);
-        orig = new Stretch(x0, c).apply(orig);
-        return orig;
+    public static BufferedImage transform2(BufferedImage image) {
+        image = new RemoveHoles2().apply(image);
+        return image;
     }
 
     public static BufferedImage transform(BufferedImage image) {
         image = new Square().apply(image);
+//        if (true) return image;
         image = new Contrast().apply(image);
         image = new RemoveHoles().apply(image);
         image = new RemoveBalloons().apply(image);
-        if (true) return image;
         BufferedImage orig = image;
         image = new Count().apply(image);
         Rotate rotation = new FineFrame2();
@@ -83,17 +71,72 @@ public class Uncaptcha {
         orig = new Split3().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
-        orig = new Shrink4().apply(orig);
+//        orig = new Shrink4().apply(orig);
+        orig = new RoughCompact().apply(orig);
         orig = new Compact3().apply(orig);
         if (true) return orig;
         return orig;
     }
 
-    public static class Compact3 extends Filter {
+    public static class RoughCompact extends SuperCompact {
+        @Override
+        public int scale(int x) {
+            return x / 2;
+        }
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            cipher = new FullMatrix(in, width);
+            cout = new FullMatrix(out, scale(width));
+            cout.fill(GRAY);
+
+            n = 0;
+
+            forAllCells(s -> {
+                evolve(s);
+            });
+
+            forAllCells(s -> {
+                switch (s.in.count()) {
+                    case 2:
+                    case 3:
+                        s.out.set(0, 0, BLACK);
+                }
+            });
+        }
+
+        @Override
+        protected void evolve(Strider s) {
+            log(s.x + ", " + s.y);
+            log(cipher);
+//            log(cout);
+            switch (s.in.count()) {
+                case 0:
+                    s.out.set(0, 0, WHITE);
+                    break;
+                case 1:
+                    if (!s.tryCollapse()) s.tryExpand();
+                    break;
+                case 2:
+                    if (!s.tryCollapse()) s.tryExpand();
+                    break;
+                case 3:
+                    if (!s.tryExpand()) s.tryCollapse();
+                    break;
+                case 4:
+                    s.out.set(0, 0, BLACK);
+                    break;
+            }
+        }
+
+        @Override
+        void log(Object log) {
+//            if (n == 1) System.out.println(log);
+        }
+    }
+
+    public static class Compact3 extends SuperCompact {
         StringBuilder numbers = new StringBuilder();
-        private int n;
-        private Fragment cipher;
-        private Fragment cout;
 
 
         @Override
@@ -244,11 +287,30 @@ public class Uncaptcha {
                     }
                 }
 
-                forAllCells(cipher, cout, s -> {
+//                forAllCells(cipher, cout, s -> {
+//                    evolveCorners(s);
+//                });
+//                forAllCells(cipher, cout, s -> {
+//                    switch (s.in.count()) {
+//                        case 0,4: evolve(s);
+//                    }
+//                });
+//                forAllCells(cipher, cout, s -> {
+//                    if (s.in.count() == 3) {
+//                        evolve(s);
+//                    }
+//                });
+//                forAllCells(cipher, cout, s -> {
+//                    switch (s.in.count()) {
+//                        case 0,2,3,4: evolve(s);
+//                    }
+//                });
+                forAllCells(s -> {
                     evolve(s);
                 });
+                log(cipher);
 
-                forAllCells(cipher, cout, s -> {
+                forAllCells(s -> {
                     switch (s.in.count()) {
                         case 2:
                         case 3:
@@ -272,11 +334,11 @@ public class Uncaptcha {
                     """)) {
                 this.numbers.append('8');
             } else if (cout.matchesAny("""
-                    . x .|. x .
-                    x   x|x   x
-                    .   x|. x x
-                      x x|    x
-                    x x .|. x .
+                    . x .|. x .|. x .|x x .
+                    x   x|x   x|x   x|x   x
+                    .   x|. x .|. x x|. x x
+                      x x|    x|  x x|    x
+                    x x .|x x .|x x .|  x x
                     """)) {
                 this.numbers.append('9');
             } else if (cout.matchesAny("""
@@ -287,60 +349,60 @@ public class Uncaptcha {
                     . x .|. x .
                     """)) {
                 this.numbers.append('6');
-            } else if (cout.matches("""
-                    . x .
-                    x   x
-                    x   x
-                    x   x
-                    . x .
+            } else if (cout.matchesAny("""
+                    . x .|x x x
+                    x   x|x   x
+                    x   x|x   x
+                    x   x|x x x
+                    . x .|x x x
                     """)) {
                 this.numbers.append('0');
-            } else if (cout.matches("""
-                    x x .
-                    x   \s
-                    . x .
-                        x
-                    . x .
+            } else if (cout.matchesAny("""
+                    x x .|x x x
+                    x    |x x \s
+                    . x .|    x
+                        x|x   x
+                    . x .|x x x
                     """)) {
                 this.numbers.append('5');
             } else if (cout.matchesAny("""
-                    . x .|. x x|x x x
-                      . x|.   x|.   x
-                    . x .|  . x|  . x
-                    x    |  x  |x x \s
-                    x x x|  x x|x x x
+                    . x .|. x x|x x x|x x x|x x x|x x \s
+                      . x|.   x|x   x|    x|  x x|  x \s
+                    . x .|  . x|    x|. . x|x   .|  x \s
+                    x .  |  x  |x x .|x x .|x    |x   \s
+                    x x x|. x x|x x x|x x x|x x x|x x x
                     """)) {
                 this.numbers.append('2');
             } else if (cout.matchesAny("""
-                    . x .|. x x
-                        x|.   x
-                    . x .|    x
-                        x|x   x
-                    . x .|. x .
+                    . x .|. x x|x x .
+                        x|.   x|  . x
+                    . x .|    x|. x .
+                        x|x   x|    x
+                    . x .|. x .|. x .
                     """)) {
                 this.numbers.append('3');
             } else if (cout.matchesAny("""
-                    x x .|x x x|x x .
-                        x|  x .|  . x
-                      . .|  x  |  . x
-                      x  |. x  |  x x
-                    . . .|x .  |x x \s
+                    x x .|x x x|x x  |x x .|x x x
+                        x|  x .|  x x|. . x|. . x
+                      . .|  x  |  x  |  . x|  x .
+                      x  |. x  |. x  |. x .|. x \s
+                    . . .|x .  |x .  |. x  |x x \s
                     """)) {
                 this.numbers.append('7');
             } else if (cout.matchesAny("""
-                      . .|. .  |  x x|
-                      . .|. . .|x x x|
+                      . .|. .  |  . x|
+                      . .|. . .|. x .|
                       . .|  . .|    x|
                       . .|  . .|    x|
                       . .|  . .|    x|
                     """)) {
                 this.numbers.append('1');
             } else if (cout.matchesAny("""
-                      . .|  . .|  x .|  x x|  x x
-                    . x .|  . .|x   x|  x x|x   x
+                      . .|  . .|. x .|  x x|  x .
+                    . x .|  . .|x . x|  x x|x   x
                     x   x|  x .|x   x|x   x|x x x
-                    . x .|x   x|x x x|x   x|  x x
-                    . . x|. x .|    x|  x  |  x x
+                    . x .|x   x|. x x|x   x|. . x
+                    . . .|. x .|  . .|  x  |. . .
                     """)) {
                 this.numbers.append('4');
             } else {
@@ -348,608 +410,6 @@ public class Uncaptcha {
             }
         }
 
-        private void evolve(Strider s) {
-            log(s.x + ", " + s.y);
-            log(cipher);
-//            log(cout);
-            switch (s.in.count()) {
-                case 0:
-                    s.out.set(0, 0, WHITE);
-                    break;
-                case 1:
-                    if (!s.tryExpand()) s.tryCollapse();
-                    break;
-                case 2:
-                    if (s.in.matchesAny("""
-                              x|  \s
-                              x|x x
-                            """)) {
-                        if (!s.tryExpand() && !s.tryCollapse()) {
-                            s.findInMatchingRotation("""
-                                      \s
-                                    x x
-                                    """, s1 -> {
-                                if (s1.withForce(1).move(0, -1).tryMegaCollapse()) {
-                                    // TODO need to make it in one transaction?
-                                    s1.tryExpand();
-                                } else {
-                                    s1.withForce(1).cutCorners().tryCollapse();
-                                }
-                            });
-                        }
-                    } else if (s.in.matchesAny("""
-                            x  |x x
-                            x  |  \s
-                            """)) {
-                        if (!s.tryExpand() && !s.tryCollapse()) {
-                            s.withForce(1).cutCorners().tryExpand();
-                        }
-                    } else {
-                        s.tryExpand();
-                    }
-                    break;
-                case 3:
-                    if (!s.tryExpand() && !s.tryCollapse()) {
-                        if (!s.withForce(1).cutCorners().tryExpand()) {
-                            s.withForce(1).cutCorners().tryCollapse();
-                        }
-                    }
-                    break;
-                case 4:
-                    s.out.set(0, 0, BLACK);
-                    break;
-            }
-        }
-
-        private void forAllCells(Matrix cipher, Matrix cout, Consumer<Strider> consumer) {
-            for (int y = 0; y < 5; y++) {
-                for (int x = 0; x < 3; x++) {
-                    Strider strider = createStrider(cipher, cout, x, y);
-                    consumer.accept(strider);
-                }
-            }
-        }
-
-        private Strider createStrider(Matrix cipher, Matrix cout, int x, int y) {
-            Fragment cell = new Fragment(cipher, x * 2, y * 2, 2, 2);
-            Fragment cout0 = new Fragment(cout, x, y, 1, 1);
-
-            return new Strider(cell, cout0, 0, false, x, y);
-        }
-
-        public class Strider {
-            private final Matrix in;
-            private final Matrix out;
-            private final int force;
-            private final boolean cutCorners;
-            private final int x;
-            private final int y;
-
-            private final int cx;
-            private final int cy;
-
-            public Strider(Matrix in, Matrix out, int force, boolean cutCorners, int x, int y) {
-                this(in, out, force, cutCorners, x, y, 0, 0);
-            }
-
-            public Strider(Matrix in, Matrix out, int force, boolean cutCorners, int x, int y, int cx, int cy) {
-                this.in = in;
-                this.out = out;
-                this.force = force;
-                this.cutCorners = cutCorners;
-                this.x = x;
-                this.y = y;
-                this.cx = cx;
-                this.cy = cy;
-            }
-
-            public boolean findInMatchingRotation(String pattern, Consumer<Strider> action) {
-                for (Rotation r : Rotation.values()) {
-                    if (r.t.apply(in).matches(pattern)) {
-                        action.accept(transform(r.t));
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            public void forEachInMatchingRotation(String pattern, Consumer<Strider> action) {
-                for (Rotation r : Rotation.values()) {
-                    Matrix apply = r.t.apply(in);
-//                    log(apply);
-                    if (apply.matches(pattern)) {
-                        action.accept(transform(r.t));
-                    }
-                }
-            }
-
-            public void forAllSymmetries(Symmetry symmetry, Consumer<Strider> action) {
-                action.accept(this);
-                action.accept(transform(symmetry.t));
-            }
-
-            private Strider transform(Function<Matrix, Matrix> t) {
-                return new Strider(t.apply(in), t.apply(out), force, cutCorners, x, y);
-            }
-
-            public boolean change(int dx, int dy, String from, String to) {
-                return move(dx, dy).ifOutMatches(from, s -> s.fit(to));
-            }
-
-            public void change(Symmetry symmetry, int dx, int dy, String from, String to) {
-                forAllSymmetries(symmetry, s -> s.change(dx, dy, from, to));
-            }
-
-            public Strider move(int dx, int dy) {
-                return new Strider(new Fragment(in, dx * 2, dy * 2, 2, 2),
-                        new Fragment(out, dx, dy, 1, 1), force, cutCorners, x, y);
-            }
-
-            public boolean ifOutMatches(String pattern, Consumer<Strider> action) {
-                if (out.matches(pattern)) {
-                    action.accept(this);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-
-            public void fit(String pattern) {
-                Matrix template = Matrix.create(pattern);
-                template.forAllXY((x, y) -> {
-                    if (template.get(x, y) == WHITE) {
-                        move(x, y).collapse();
-                    }
-                });
-                template.forAllXY((x, y) -> {
-                    if (template.get(x, y) == BLACK) {
-                        move(x, y).expand();
-                    }
-                });
-            }
-
-            public boolean tryCollapse() {
-                Fragment reach = new Fragment(in, -force, -force, 2 + force * 2, 2 + force * 2);
-                String backup = reach.toString();
-                try {
-                    collapse();
-                    return true;
-                } catch (RuntimeException e) {
-                    reach.set(backup);
-                    return false;
-                }
-            }
-
-            public void log(Object o) {
-                if (x == 1 && y == 1) {
-                    Compact3.this.log(o);
-                }
-            }
-
-            public boolean tryExpand() {
-                Fragment reach = new Fragment(in, -force, -force, 2 + force * 2, 2 + force * 2);
-                String backup = reach.toString();
-                try {
-                    expand();
-                    return true;
-                } catch (RuntimeException e) {
-                    reach.set(backup);
-                    return false;
-                }
-            }
-
-            public void collapse() {
-                findInMatchingRotation("""
-                        x
-                        \s
-                        """, s1 -> {
-                    s1.forEachInMatchingRotation("""
-                            x
-                            \s
-                            """, Strider::tryCollapseCorner);
-                });
-
-                transform(Symmetry.TRANSPOSED.t).findInMatchingRotation("""
-                        x
-                        \s
-                        """, s1 -> {
-                    s1.forEachInMatchingRotation("""
-                            x
-                            \s
-                            """, Strider::tryCollapseCorner);
-                });
-
-                if (in.count() != 0) throw new RuntimeException("Couldn't");
-                out.set(0, 0, WHITE);
-            }
-
-            public void collapseCorner() {
-                Fragment up = new Fragment(in, -1 + cx, -1 + cy, 3, 3);
-                log("Collapse before " + force);
-                log(new Fragment(up, -1, -1, 5, 5));
-                if (!cutCorners && up.matchesAny("""
-                             |    \s
-                          x x|x x \s
-                             |    \s
-                        """
-                )) {
-                    throw new RuntimeException("Corner");
-                }
-                if (up.matchesAny("""
-                        . . .
-                        . x \s
-                        . . x
-                        """)) {
-                    corner(1, 0).expandCorner();
-                }
-                if (up.matchesAny("""
-                        . . .
-                          x .
-                        x . .
-                        """)) {
-                    corner(-1, 0).expandCorner();
-                }
-                if (up.matchesAny("""
-                        .   .|.   x
-                        . x x|. x .
-                        """) && up.matchesAny("""
-                        .   .|x   .
-                        x x .|. x .
-                        """)) {
-                    corner(0, -1).expandCorner();
-                }
-                if (up.matchesAny("""
-                        .   x
-                        . x \s
-                        . . .
-                        """)) {
-                    corner(1, 0).expandCorner();
-                }
-                if (up.matchesAny("""
-                        x   .
-                          x .
-                        . . .
-                        """)) {
-                    corner(-1, 0).expandCorner();
-                }
-//                forAllSymmetries(Symmetry.TRANSPOSED, f2 -> {
-//                    Fragment up = new Fragment(f2.in, 0, -1, 2, 2);
-//                    if (up.matchesAny("""
-//                              x|  .
-//                            x .|x x
-//                            """)) {
-//                        Fragment left = new Fragment(up, -1, 0, 2, 3);
-//                        // just remove it when it's not needed
-//                        if (!cutCorners || !left.matches("""
-//                                  \s
-//                                  x
-//                                  \s
-//                                """)) {
-//                            f2.corner(0, -1).expandCorner();
-//                        }
-//                    }
-//                });
-                this.in.set(cx, cy, WHITE);
-                log("Collapse after");
-                log(up);
-                if (out.get(0, 0) == BLACK) collapse();
-            }
-
-            private boolean tryCollapseCorner() {
-                Fragment reach = new Fragment(in, -force, -force, 2 + force * 2, 2 + force * 2);
-                String save = reach.toString();
-                try {
-                    collapseCorner();
-                    return true;
-                } catch (RuntimeException e) {
-                    reach.set(save);
-                    return false;
-                }
-            }
-
-
-            public boolean tryMegaCollapse() {
-                Fragment reachIn = new Fragment(in, -force * 2, -force * 2, 2 + force * 4, 2 + force * 4);
-                Fragment reachOut = new Fragment(in, -force, -force, 1 + force * 2, 1 + force * 2);
-                String saveIn = reachIn.toString();
-                String saveOut = reachOut.toString();
-                try {
-                    megaCollapse();
-                    return true;
-                } catch (RuntimeException e) {
-                    reachIn.set(saveIn);
-                    reachOut.set(saveOut);
-                    return false;
-                }
-            }
-
-            public void megaCollapse() {
-                Fragment bigIn = new Fragment(in, -1, -1, 4, 4);
-                Fragment bigOut = new Fragment(in, -1, -1, 3, 3);
-                if (bigIn.matches("""
-                        . . . .
-                        . x x .
-                        . x x .
-                        . . . x
-                        """)) {
-                    if (bigOut.matches("""
-                            . . .
-                            . x \s
-                            . . .
-                            """)) {
-                        corner(2, 0).megaExpand();
-                    } else {
-                        corner(2, 0).expand();
-                    }
-                }
-                if (bigIn.matches("""
-                        . . . .
-                        . x x .
-                        . x x .
-                        x . . .
-                        """)) {
-                    if (bigOut.matches("""
-                            . . .
-                              x .
-                            . . .
-                            """)) {
-                        corner(-2, 0).megaExpand();
-                    } else {
-                        corner(-2, 0).expand();
-                    }
-                }
-                if (bigOut.matchesAny("""
-                        x . .|. . .
-                        . x .|x x .
-                        . . .|. . .
-                        """) && bigOut.matchesAny("""
-                        . . x|. . .
-                        . x .|. x x
-                        . . .|. . .
-                        """)) {
-                    corner(0, -2).megaExpand();
-                }
-                this.out.set(0, 0, WHITE);
-                this.in.set("""
-                          \s
-                          \s
-                        """);
-            }
-
-            public void megaExpand() {
-                Fragment up = new Fragment(out, -1, -1, 3, 2);
-                if (up.matches("""
-                        . x .
-                        .   .
-                        """)) {
-                    corner(0, -2).collapseCorner();
-                }
-                if (up.matches("""
-                        .   x
-                        .   \s
-                        """)) {
-                    corner(2, -2).collapseCorner();
-                }
-                if (up.matches("""
-                        x   .
-                            .
-                        """)) {
-                    corner(-2, -2).collapseCorner();
-                }
-                this.out.set(0, 0, BLACK);
-                this.in.set("""
-                        x x
-                        x x
-                        """);
-            }
-
-
-            private Strider corner(int dx, int dy) {
-                if (force == 0) {
-                    throw new RuntimeException("Out of force");
-                } else {
-                    dx += cx;
-                    int bx = 0;
-                    while (dx < 0) {
-                        bx--;
-                        dx += 2;
-                    }
-                    while (dx > 1) {
-                        bx++;
-                        dx -= 2;
-                    }
-
-                    dy += cy;
-                    int by = 0;
-                    while (dy < 0) {
-                        by--;
-                        dy += 2;
-                    }
-                    while (dy > 1) {
-                        by++;
-                        dy -= 2;
-                    }
-
-                    return new Strider(new Fragment(in, bx * 2, by * 2, 2, 2), new Fragment(out, bx, by, 1, 1), force - 1, cutCorners, x, y, dx, dy);
-                }
-            }
-
-            public void expand() {
-                switch (in.count()) {
-                    case 1:
-                        findInMatchingRotation("""
-                                  \s
-                                  x
-                                """, s1 -> {
-                            s1.transform(Rotation.RIGHT.t).expandCorner();
-                            s1.expandCorner();
-                            s1.transform(Symmetry.X.t).expandCorner();
-                        });
-                        break;
-                    case 2:
-                        findInMatchingRotation("""
-                                  \s
-                                x x
-                                """, s1 -> {
-                            s1.expandCorner();
-                            s1.transform(Symmetry.X.t).expandCorner();
-                        });
-                        findInMatchingRotation("""
-                                  x
-                                x \s
-                                """, s1 -> {
-                            s1.expandCorner();
-                            s1.transform(Rotation.AROUND.t).expandCorner();
-                        });
-                        break;
-                    case 3:
-                        findInMatchingRotation("""
-                                  x
-                                x x
-                                """, s1 -> {
-                            s1.expandCorner();
-                        });
-                        break;
-                }
-
-//                findInMatchingRotation("""
-//                        \s
-//                        x
-//                        """, s1 -> {
-//                    s1.forEachInMatchingRotation("""
-//                            \s
-//                            x
-//                            """, Strider::tryExpandCorner);
-//                });
-
-//                transform(Symmetry.TRANSPOSED.t).findInMatchingRotation("""
-//                        \s
-//                        x
-//                        """, s1 -> {
-//                    s1.forEachInMatchingRotation("""
-//                            \s
-//                            x
-//                            """, Strider::tryExpandCorner);
-//                });
-                if (in.count() != 4) throw new RuntimeException("Couldn't");
-
-//                forEachInMatchingRotation("""
-//                        \s
-//                        x
-//                        """, Strider::expandCorner);
-//                forEachInMatchingRotation("""
-//                        \s
-//                        x
-//                        """, Strider::expandCorner);
-                out.set(0, 0, BLACK);
-            }
-
-            private boolean tryExpandCorner() {
-                Fragment reach = new Fragment(in, -force, -force, 2 + force * 2, 2 + force * 2);
-                String save = reach.toString();
-                try {
-                    expandCorner();
-                    return true;
-                } catch (RuntimeException e) {
-                    reach.set(save);
-                    return false;
-                }
-            }
-
-//            x x x x x x
-//            x x v x x x
-//            x x     x
-//            x x x   x
-//            x x   x x
-//            x       x x
-//            x       x
-//            x x   x x
-//            x x x x x
-//            x x x
-
-            public void expandCorner() {
-                // TODO I assume that I have a black square down
-                Fragment up = new Fragment(in, -1 + cx, -1 + cy, 3, 3);
-                log("Expand Before " + force);
-                log(up);
-                if (!cutCorners && up.matchesAny("""
-                        . x x|x x .
-                        x    |    x
-                        . x x|x x .
-                        """
-                )) {
-                    throw new RuntimeException("Corner");
-                }
-                if (up.matches("""
-                        . x .
-                        x   x
-                        """)) {
-                    corner(0, -1).collapseCorner();
-                }
-                if (up.matches("""
-                        . x .
-                            \s
-                        """)) {
-                    corner(0, -1).collapseCorner();
-                }
-                if (up.matches("""
-                        .   x
-                        .   \s
-                        """)) {
-                    corner(1, -1).collapseCorner();
-                }
-                if (up.matches("""
-                        x   .
-                            .
-                        """)) {
-                    corner(-1, -1).collapseCorner();
-                }
-                this.in.set(cx, cy, BLACK);
-                log("Expand After");
-                log(up);
-                if (out.get(0, 0) == WHITE) {
-                    expand();
-                }
-            }
-
-            public Strider withForce(int force) {
-                return new Strider(in, out, force, cutCorners, x, y);
-            }
-
-            public Strider cutCorners() {
-                return new Strider(in, out, force, true, x, y);
-            }
-
-        }
-
-        private void log(Object log) {
-//            if (n == 4) System.out.println(log);
-        }
-
-        public enum Rotation {
-            ZERO(m -> m),
-            RIGHT(m -> new XReflected(new Transposed(m))),
-            AROUND(m -> new XReflected(new YReflected(m))),
-            LEFT(m -> new YReflected(new Transposed(m)));
-
-            Function<Matrix, Matrix> t;
-
-            Rotation(Function<Matrix, Matrix> t) {
-                this.t = t;
-            }
-        }
-
-        public enum Symmetry {
-            TRANSPOSED(m -> new Transposed(m)),
-            X(m -> new XReflected(m)),
-            Y(m -> new YReflected(m));
-
-            Function<Matrix, Matrix> t;
-
-            Symmetry(Function<Matrix, Matrix> t) {
-                this.t = t;
-            }
-        }
     }
 
 
@@ -1303,7 +763,8 @@ public class Uncaptcha {
         orig = new Split3().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
-        orig = new Shrink4().apply(orig);
+//        orig = new Shrink4().apply(orig);
+        orig = new RoughCompact().apply(orig);
         Compact3 compact = new Compact3();
         orig = compact.apply(orig);
         return compact.numbers.toString();
@@ -1967,6 +1428,27 @@ public class Uncaptcha {
 
     }
 
+    public static class RemoveHoles2 extends Filter {
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            System.arraycopy(in, 0, out, 0, in.length);
+            FullMatrix outm = new FullMatrix(out, width);
+
+            for (int x = 1; x < width - 1; x++) {
+                for (int y = 1; y < in.length / width - 1; y++) {
+                    Fragment frag = new Fragment(outm, x - 1, y - 1, 3, 3);
+                    long sum = frag.getPerimeter().mapToLong(i -> frag.get(i) & 0xFF).sum();
+                    if (sum < 300) {
+                        outm.set(x, y, BLACK);
+                    } else if (sum > 1700) {
+                        outm.set(x, y, WHITE);
+                    }
+                }
+            }
+        }
+
+    }
+
 
     public static class RemoveHoles extends Filter {
         @Override
@@ -2041,8 +1523,8 @@ public class Uncaptcha {
             FullMatrix inm = new FullMatrix(in, width);
             FullMatrix outm = new FullMatrix(out, 200);
             outm.fill(WHITE);
-            for (int x=0; x<min(inm.getWidth(), outm.getWidth()); x++) {
-                for (int y=0; y<min(inm.getHeight(), outm.getHeight()); y++) {
+            for (int x = 0; x < min(inm.getWidth(), outm.getWidth()); x++) {
+                for (int y = 0; y < min(inm.getHeight(), outm.getHeight()); y++) {
                     outm.set(x, y, inm.get(x, y));
                 }
             }

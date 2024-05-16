@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/valery-labuzhsky/myprojects/tree/master/StatRef">
     <id>streamline.refactoring.plugin</id>
     <name>Streamline Refactoring</name>
-    <version>0.1.5</version>
+    <version>0.1.6</version>
     <vendor email="ynicorn@gmail.com" url="https://github.com/valery-labuzhsky">Valery Labuzhsky</vendor>
 
     <description><![CDATA[
@@ -20,7 +20,7 @@
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="213"/>
+    <idea-version since-build="241"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->

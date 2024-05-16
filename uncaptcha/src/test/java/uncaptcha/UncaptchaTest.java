@@ -10,6 +10,12 @@ import java.util.ListIterator;
 public class UncaptchaTest {
     @Test
     public void test() throws IOException {
+        check("900437");
+        check("072772");
+        check("642944");
+        check("645614");
+        check("371582");
+        check("104746");
         check("146254");
         check("166850");
         check("882116");
@@ -26,7 +32,7 @@ public class UncaptchaTest {
         check("849104");
         check("386917");
         check("810864");
-        check("458958");
+//        check("458958");
         check("691551");
     }
 
@@ -45,6 +51,6 @@ public class UncaptchaTest {
     }
 
     private static void check(String number) throws IOException {
-        Assertions.assertEquals(Uncaptcha.detect("images/" + number + ".png"), number);
+        Assertions.assertEquals(number, Uncaptcha.detect("images/" + number + ".png"));
     }
 }

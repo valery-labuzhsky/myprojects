@@ -2,12 +2,34 @@ package uncaptcha.matrix;
 
 import java.util.Arrays;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static uncaptcha.Uncaptcha.*;
 
 public abstract class Matrix {
+
+    public boolean findMatchingSymmetry(String pattern, Symmetry symmetry, Consumer<Symmetry> action) {
+        if (matches(pattern)) {
+            action.accept(Symmetry.NONE);
+            return true;
+        } else if (symmetry.t.mute(this).matches(pattern)) {
+            action.accept(symmetry);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean findMatchingRotation(String pattern, Consumer<Rotation> action) {
+        for (Rotation r : Rotation.values()) {
+            if (r.t.mute(this).matches(pattern)) {
+                action.accept(r);
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void forAllXY(BiConsumer<Integer, Integer> action) {
         for (int x = 0; x < getWidth(); x++) {

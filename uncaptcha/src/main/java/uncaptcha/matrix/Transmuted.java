@@ -1,36 +1,31 @@
 package uncaptcha.matrix;
 
-public abstract class Transmuted extends Matrix {
+public class Transmuted extends Matrix {
     Matrix base;
+    private final Transmutation mute;
 
-    public Transmuted(Matrix base) {
+    public Transmuted(Matrix base, Transmutation mute) {
         this.base = base;
+        this.mute = mute;
     }
 
     @Override
     public int get(int x, int y) {
-        return base.get(transmuteX(x, y), transmuteY(x, y));
+        return base.get(mute.transmuteX(x, y, base), mute.transmuteY(x, y, base));
     }
 
     @Override
     public void set(int x, int y, int c) {
-        base.set(transmuteX(x, y), transmuteY(x, y), c);
-    }
-
-    protected int transmuteX(int x, int y) {
-        return x;
-    }
-    protected int transmuteY(int x, int y) {
-        return y;
+        base.set(mute.transmuteX(x, y, base), mute.transmuteY(x, y, base), c);
     }
 
     @Override
     public int getWidth() {
-        return base.getWidth();
+        return Math.abs(mute.transmuteX(base.getWidth(), base.getHeight(), base) - mute.transmuteX(0, 0, base));
     }
 
     @Override
     public int getHeight() {
-        return base.getHeight();
+        return Math.abs(mute.transmuteY(base.getWidth(), base.getHeight(), base) - mute.transmuteY(0, 0, base));
     }
 }

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "labuzhskiy.valery.statref"
-version = "0.1.4"
+version = "0.1.5"
 
 repositories {
     mavenCentral()
@@ -13,7 +13,7 @@ repositories {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("231.6890.12-EAP-SNAPSHOT")
+    version.set("241.14494.240")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf("com.intellij.java"))

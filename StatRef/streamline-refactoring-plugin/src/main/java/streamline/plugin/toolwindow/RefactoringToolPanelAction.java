@@ -1,5 +1,6 @@
 package streamline.plugin.toolwindow;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -29,5 +30,10 @@ public abstract class RefactoringToolPanelAction extends AnAction {
             return;
         }
         e.getPresentation().setEnabled(true);
+    }
+
+    @Override
+    public ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 }
