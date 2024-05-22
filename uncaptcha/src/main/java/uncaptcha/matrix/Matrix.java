@@ -100,6 +100,10 @@ public abstract class Matrix {
 
     public abstract int getHeight();
 
+    public static Matrix create(int width, int height) {
+        return new FullMatrix(new int[width * height], width);
+    }
+
     public static Matrix create(String template) {
         String[] lines = template.split("\n");
         int width = Arrays.stream(lines).mapToInt(line -> (line.length() + 1) / 2).max().orElseThrow();
@@ -204,11 +208,12 @@ public abstract class Matrix {
         return y * getWidth() + x;
     }
 
-    public void fill(int color) {
+    public Matrix fill(int color) {
         for (int x = 0; x < getWidth(); x++) {
             for (int y = 0; y < getHeight(); y++) {
                 set(x, y, color);
             }
         }
+        return this;
     }
 }

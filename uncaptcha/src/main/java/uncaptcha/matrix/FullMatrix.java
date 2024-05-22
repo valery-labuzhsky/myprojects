@@ -22,7 +22,8 @@ public class FullMatrix extends Matrix {
 
     @Override
     public void set(int x, int y, int c) {
-        colors[getI(x, y)] = c;
+        int i = getI(x, y);
+        if (i>=0) colors[i] = c;
     }
 
     @Override
@@ -46,7 +47,8 @@ public class FullMatrix extends Matrix {
     }
 
     @Override
-    public void fill(int color) {
+    public Matrix fill(int color) {
         Arrays.fill(colors, color);
+        return this;
     }
 }

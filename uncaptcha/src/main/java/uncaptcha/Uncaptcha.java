@@ -1,8 +1,6 @@
 package uncaptcha;
 
-import uncaptcha.matrix.Fragment;
-import uncaptcha.matrix.FullMatrix;
-import uncaptcha.matrix.StrictFragment;
+import uncaptcha.matrix.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -73,9 +71,144 @@ public class Uncaptcha {
         orig = new Shrink1().apply(orig);
 //        orig = new Shrink4().apply(orig);
         orig = new RoughCompact().apply(orig);
-        orig = new Compact3().apply(orig);
+        orig = new Emerge().apply(orig);
         if (true) return orig;
         return orig;
+    }
+
+    public static String detect(String path) throws IOException {
+        return detect(ImageIO.read(new File(path)));
+    }
+
+    public static String detect(BufferedImage image) {
+        image = new Square().apply(image);
+        image = new Contrast().apply(image);
+        image = new RemoveHoles().apply(image);
+        image = new RemoveBalloons().apply(image);
+        BufferedImage orig = image;
+        image = new Count().apply(image);
+        Rotate rotation = new FineFrame2();
+        image = rotation.apply(image);
+        image = orig;
+
+        image = rotation.rotation().apply(image);
+
+        image = new DoubleSlit(12).apply(image);
+        FineFrame2 frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        image = new DoubleSlit(10).apply(image);
+        frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        image = new DoubleSlit(8).apply(image);
+        frame = new FineFrame2();
+        image = frame.apply(image);
+        rotation = rotation.combine(frame);
+        image = rotation.apply(orig);
+
+        orig = rotation.apply(orig);
+        orig = new Cut().apply(orig);
+        orig = new Window().apply(orig);
+        orig = new RemoveBalloons().apply(orig);
+        orig = new Split3().apply(orig);
+        orig = new RemoveBalloons().apply(orig);
+        orig = new Shrink1().apply(orig);
+//        orig = new Shrink4().apply(orig);
+        orig = new RoughCompact().apply(orig);
+        Emerge compact = new Emerge();
+        orig = compact.apply(orig);
+        return compact.numbers.toString();
+    }
+
+    public static char tellNumber(Matrix cipher) {
+        if (cipher.matches("""
+                . x .
+                x   x
+                . x .
+                x   x
+                . x .
+                """)) {
+            return '8';
+        } else if (cipher.matchesAny("""
+                . x .|. x .|. x .|x x .
+                x   x|x   x|x   x|x   x
+                .   x|. x .|. x x|. x x
+                  x x|    x|  x x|    x
+                x x .|x x .|x x .|  x x
+                """)) {
+            return '9';
+        } else if (cipher.matchesAny("""
+                . x .|. x x
+                x .  |x x \s
+                x x .|x   .
+                x   x|x   x
+                . x .|. x .
+                """)) {
+            return '6';
+        } else if (cipher.matchesAny("""
+                . x .|x x x
+                x   x|x   x
+                x   x|x   x
+                x   x|x x x
+                . x .|x x x
+                """)) {
+            return '0';
+        } else if (cipher.matchesAny("""
+                x x .|x x x
+                x    |x x \s
+                . x .|    x
+                    x|x   x
+                . x .|x x x
+                """)) {
+            return '5';
+        } else if (cipher.matchesAny("""
+                . x .|. x x|x x x|x x x|x x x|x x \s
+                  . x|.   x|x   x|    x|  x x|  x \s
+                . x .|  . x|    x|. . x|x   .|  x \s
+                x .  |  x  |x x .|x x .|x    |x   \s
+                x x x|. x x|x x x|x x x|x x x|x x x
+                """)) {
+            return '2';
+        } else if (cipher.matchesAny("""
+                . x .|. x x|x x .
+                    x|.   x|  . x
+                . x .|    x|. x .
+                    x|x   x|    x
+                . x .|. x .|. x .
+                """)) {
+            return '3';
+        } else if (cipher.matchesAny("""
+                x x .|x x x|x x  |x x .|x x x
+                    x|  x .|  x x|. . x|. . x
+                  . .|  x  |  x  |  . x|  x .
+                  x  |. x  |. x  |. x .|. x \s
+                . . .|x .  |x .  |. x  |x x \s
+                """)) {
+            return '7';
+        } else if (cipher.matchesAny("""
+                  . .|. .  |  . x|
+                  . .|. . .|. x .|
+                  . .|  . .|    x|
+                  . .|  . .|    x|
+                  . .|  . .|    x|
+                """)) {
+            return '1';
+        } else if (cipher.matchesAny("""
+                  . .|  . .|. x .|  x x|  x .
+                . x .|  . .|x . x|  x x|x   x
+                x   x|  x .|x   x|x   x|x x x
+                . x .|x   x|. x x|x   x|. . x
+                . . .|. x .|  . .|  x  |. . .
+                """)) {
+            return '4';
+        } else {
+            return '?';
+        }
     }
 
     public static class RoughCompact extends SuperCompact {
@@ -133,6 +266,576 @@ public class Uncaptcha {
         void log(Object log) {
 //            if (n == 1) System.out.println(log);
         }
+    }
+
+    public static class Emerge extends Uncaptcha.Filter {
+        protected int n;
+        protected Matrix cipher;
+        protected Matrix cout;
+        StringBuilder numbers = new StringBuilder();
+        private Matrix whites;
+        private Matrix blacks;
+
+        @Override
+        protected void process(int[] in, int[] out, int width) {
+            FullMatrix inm = new FullMatrix(in, width);
+            FullMatrix outm = new FullMatrix(out, width);
+            outm.fill(WHITE);
+
+            int sx = 0;
+            int sy = 0;
+            int ex = -1;
+            int ey = 0;
+
+
+            n = 0;
+
+            while (true) {
+                boolean found = false;
+
+                found:
+                for (int x = ex + 1; x < width; x++) {
+                    for (int y = 0; y < in.length / width; y++) {
+                        if (bool(in, width, x, y) == 0) {
+                            sx = x;
+                            sy = y;
+                            found = true;
+                            break found;
+                        }
+                    }
+                }
+
+                if (!found) break;
+
+                ex = sx;
+                ey = sy;
+
+                while (found) {
+                    found = false;
+                    if (sy > 0) {
+                        for (int x = sx; x <= ex + 1; x++) {
+                            if (bool(in, width, x, sy - 1) == 0) {
+                                found = true;
+                                sy--;
+                                break;
+                            }
+                        }
+                    }
+                    if (ey < in.length / width - 1) {
+                        for (int x = sx; x <= ex + 1; x++) {
+                            if (inm.get(x, ey + 1) == BLACK) {
+                                found = true;
+                                ey++;
+                                break;
+                            }
+                        }
+                    }
+                    if (ex < (n + 1) * width / 6 && ex < width - 1) {
+                        for (int y = sy; y <= ey + 1; y++) {
+                            if (bool(in, width, ex + 1, y) == 0) {
+                                found = true;
+                                ex++;
+                                break;
+                            }
+                        }
+                    }
+                }
+                n++;
+
+                while (ey - sy + 1 > 10) {
+                    int sc = 0;
+                    int ec = 0;
+                    for (int x = sx; x <= ex; x++) {
+                        if (inm.get(x, sy) == BLACK) {
+                            sc++;
+                        }
+                    }
+                    for (int x = sx; x <= ex; x++) {
+                        if (inm.get(x, ey) == BLACK) {
+                            ec++;
+                        }
+                    }
+                    if (sc > ec) {
+                        for (int x = sx; x <= ex; x++) {
+                            if (inm.get(x, ey) == BLACK) {
+                                inm.set(x, ey - 1, BLACK);
+                                inm.set(x, ey, WHITE);
+                            }
+                        }
+                        ey--;
+                    } else {
+                        for (int x = sx; x <= ex; x++) {
+                            if (inm.get(x, sy) == BLACK) {
+                                inm.set(x, sy + 1, BLACK);
+                                inm.set(x, sy, WHITE);
+                            }
+                        }
+                        sy++;
+                    }
+                }
+                if (ey - sy + 1 < 10) sy = ey + 1 - 10;
+                if (sy < 0) {
+                    ey -= sy;
+                    sy = 0;
+                }
+
+                while (ex - sx + 1 > 6) {
+                    int sc = 0;
+                    int ec = 0;
+                    for (int y = sy; y <= ey; y++) {
+                        if (inm.get(sx, y) == BLACK) {
+                            sc++;
+                        }
+                    }
+                    for (int y = sy; y <= ey; y++) {
+                        if (inm.get(ex, y) == BLACK) {
+                            ec++;
+                        }
+                    }
+                    if (sc > ec) {
+                        for (int y = sy; y <= ey; y++) {
+                            if (inm.get(ex, y) == BLACK) {
+                                inm.set(ex - 1, y, BLACK);
+                                inm.set(ex, y, WHITE);
+                            }
+                        }
+                        ex--;
+                    } else {
+                        for (int y = sy; y <= ey; y++) {
+                            if (inm.get(sx, y) == BLACK) {
+                                inm.set(sx + 1, y, BLACK);
+                                inm.set(sx, y, WHITE);
+                            }
+                        }
+                        sx++;
+                    }
+                }
+                if (ex - sx + 1 < 6) sx = ex + 1 - 6;
+
+                int ch = ey - sy + 1;
+                int cw = ex - sx + 1;
+
+                cipher = new StrictFragment(inm, sx, sy, cw, ch);
+                cout = new StrictFragment(outm, sx, sy, 3, 5);
+
+                for (int y = 0; y < 5; y++) {
+                    for (int x = 0; x < 3; x++) {
+                        Fragment f = new Fragment(cipher, x * 2, y * 2, 2, 2);
+                        double v = switch (f.count()) {
+                            case 0 -> 0.5;
+                            case 1 -> -0.1;
+                            case 2 -> -0.25;
+                            case 3 -> -0.5;
+                            case 4 -> -0.75;
+                            default -> 0.5;
+                        };
+                        v = 0.5 + v / 2;
+                        cout.set(x, y, rgb((int) (v * 255)));
+//                        cout.set(x, y, GRAY);
+                    }
+                }
+
+                log(cipher);
+                for (int i = 0; i < 10; i++) evolve();
+
+                for (int y = 0; y < 5; y++) {
+                    for (int x = 0; x < 3; x++) {
+                        int c = cout.get(x, y) & 0xFF;
+                        cout.set(x, y, c > 128 ? WHITE : BLACK);
+                    }
+                }
+
+                this.numbers.append(tellNumber(cout));
+            }
+
+            System.out.println(numbers);
+        }
+
+        private class Frame {
+
+            private final Matrix f;
+            private final Matrix cf;
+            private final Matrix bf;
+            private final Matrix wf;
+            private final int x;
+            private final int y;
+            ArrayList<Trace> templates = new ArrayList<>();
+            ArrayList<Double> scores = new ArrayList<>();
+
+            public Frame(int x, int y) {
+                this.x = x;
+                this.y = y;
+                f = new Fragment(cipher, x * 2, y * 2, 2, 2);
+                cf = new Fragment(cout, x - 1, y - 1, 3, 3);
+                bf = new Fragment(blacks, x - 1, y - 1, 3, 3);
+                wf = new Fragment(whites, x - 1, y - 1, 3, 3);
+            }
+
+            private void vote() {
+                double sum = 0;
+                double first = 0;
+                double second = 0;
+                for (double score : scores) {
+                    sum += score;
+                    double abs = abs(score);
+                    if (abs > first) {
+                        second = first;
+                        first = abs;
+                    } else if (abs > second) {
+                        second = abs;
+                    }
+                }
+                double anx = second / first;
+                for (int i = 0; i < this.scores.size(); i++) {
+                    double score = this.scores.get(i) * anx / sum;
+                    vote(this.templates.get(i), score);
+                }
+            }
+
+            private void vote(Trace trace, double score) {
+//                log(score);
+//                log(trace.trace);
+                Matrix template = trace.template;
+                int si = toInt(score);
+                for (int y = 0; y < template.getHeight(); y++) {
+                    for (int x = 0; x < template.getWidth(); x++) {
+                        int c = template.get(x, y);
+                        if (c == WHITE) {
+                            vote(x, y, si, trace);
+                        } else if (c == BLACK) {
+                            vote(x, y, -si, trace);
+                        }
+                    }
+                }
+            }
+
+            Trace CELL = new Trace(Matrix.create("x"));
+
+            private void vote(double score) {
+                vote(1, 1, toInt(score), CELL);
+            }
+
+            private void vote(int x, int y, int vote, Trace trace) {
+                if (this.x + x - 1 == 2 && this.y + y - 1 == 3) {
+                    Emerge.this.log(vote);
+                    Emerge.this.log(this.x + "x" + this.y);
+                    Emerge.this.log(trace.trace);
+                }
+                if (vote < 0) {
+                    vote(bf, x, y, -vote);
+                } else {
+                    vote(wf, x, y, vote);
+                }
+            }
+
+            private void vote(Matrix votes, int x, int y, int vote) {
+                int w = votes.get(x, y);
+                if (w < vote) votes.set(x, y, vote);
+            }
+
+            private static int toInt(double score) {
+                return (int) (score * 1_000_000);
+            }
+
+            private static double toDouble(int score) {
+                return score / 1_000_000.0;
+            }
+
+            private double react(Transmutation mute, String template) {
+                return react(1, mute, template);
+            }
+
+            private double react(double pie, Transmutation mute, String template) {
+                Matrix mif = mute.back().mute(Matrix.create(template));
+                Matrix men = Matrix.create(mif.getWidth(), mif.getHeight()).fill(GRAY);
+                men.set(1, 1, mif.get(1, 1));
+                mif.set(1, 1, GRAY);
+                double score = pie * howSimilar(cf, mif);
+                pie -= score;
+                this.templates.add(new Trace(men, mute.back().mute(Matrix.create(template))));
+                scores.add(score);
+                return pie;
+            }
+
+            private double allow(double pie, Transmutation mute, String template) {
+                Matrix mif = mute.back().mute(Matrix.create(template));
+                Matrix men = Matrix.create(mif.getWidth(), mif.getHeight()).fill(GRAY);
+                double score = pie * howSimilar(cf, mif);
+                pie -= score;
+                this.templates.add(new Trace(men, mute.back().mute(Matrix.create(template))));
+                scores.add(score);
+                return pie;
+            }
+
+            public double orElses(double pie, Transmutation mute, String... templates) {
+                for (String template : templates) {
+                    Matrix matrix = mute.back().mute(Matrix.create(template));
+                    double score = pie * howSimilar(cf, matrix);
+                    pie -= score;
+                    this.templates.add(new Trace(matrix));
+                    scores.add(score);
+                }
+                return pie;
+            }
+
+            private double orElses(Transmutation mute, String... templates) {
+                return orElses(1, mute, templates);
+            }
+
+            private void log(Object o) {
+                if (x == 0 && y == 3) Emerge.this.log(o);
+            }
+
+            private class Trace {
+                Matrix template;
+                Matrix trace;
+
+                public Trace(Matrix template) {
+                    this(template, template);
+                }
+
+                public Trace(Matrix template, Matrix trace) {
+                    this.template = template;
+                    this.trace = trace;
+                }
+            }
+
+            private double howSimilar(Matrix matrix, Matrix template) {
+                double yes = 0;
+                double votes = 0;
+                double no = 1;
+                for (int y = 0; y < template.getHeight(); y++) {
+                    for (int x = 0; x < template.getWidth(); x++) {
+                        double m = (matrix.get(x, y) & 0xFF) / 255.0;
+                        int c = template.get(x, y);
+//                    double t = (template.get(x, y) & 0xFF) / 255.0;
+                        double t;
+                        if (c == WHITE) {
+                            t = 1;
+                        } else if (c == BLACK) {
+                            t = 0;
+                        } else {
+                            t = 0.5;
+                        }
+//                    double w = (c == BLACK || c == WHITE) ? 1 : 0;
+                        double w = Math.pow(t * 2 - 1, 2);
+                        double eq = eq(m, t);
+                        if (w > 0.5) {
+                            votes += w;
+                            if (template.matches("""
+                                    . . .
+                                    . . .
+                                    . . x
+                                    """)) log(m + "~" + t + "=" + eq);
+                            yes += eq * w;
+                            if (eq < 0.5) {
+                                no *= eq * 2;
+                            }
+                        }
+                    }
+                }
+//                if (template.matches("""
+//                                    . . .
+//                                    . . .
+//                                    . . x
+//                                    """)) log(yes + "~" + votes + "=" + no);
+                return yes / votes * no;
+            }
+
+        }
+
+        private void evolve() {
+            whites = Matrix.create(3, 5).fill(0);
+            blacks = Matrix.create(3, 5).fill(0);
+            for (int y = 0; y < 5; y++) {
+                for (int x = 0; x < 3; x++) {
+                    Frame frame = new Frame(x, y);
+                    switch (frame.f.count()) {
+                        case 0 -> {
+                            frame.vote(0.025);
+                        }
+                        case 1 -> {
+                            frame.vote(-0.01);
+                            frame.f.findMatchingRotation("x", r -> {
+                                frame.react(r.t, """
+                                        . x .
+                                        x   .
+                                        . . .
+                                        """);
+                                frame.react(r.t, """
+                                        . . .
+                                        .   .
+                                        . . x
+                                        """);
+
+                                Symmetry.TRANSPOSE.stream().forEach(s -> {
+                                    Transmutation t = r.t.then(s.t);
+                                    frame.react(t, """
+                                            . x .
+                                              x \s
+                                                \s
+                                            """);
+                                    if (t.mute(frame.f).get(1, -1) == BLACK) {
+                                        frame.react(t, """
+                                                .   .
+                                                . x .
+                                                . . .
+                                                """);
+                                    } else {
+                                        frame.react(t, """
+                                                .   x
+                                                .   .
+                                                . . .
+                                                """);
+                                    }
+                                    frame.react(t, """
+                                            . . .
+                                            .   x
+                                            . . .
+                                            """);
+                                });
+                            });
+                        }
+                        case 2 -> {
+                            frame.vote(-0.025);
+                            if (frame.f.matchesAny("""
+                                    x  |  x
+                                      x|x \s
+                                    """)) {
+                                frame.f.findMatchingSymmetry("""
+                                        x \s
+                                          x
+                                        """, Symmetry.X, r -> {
+                                    double pie = frame.orElses(0.5, r.t, """
+                                            . . .
+                                            . x .
+                                            . . .
+                                            """) * 2;
+                                    Symmetry.TRANSPOSE.stream().forEach(s -> {
+                                        frame.orElses(pie, r.t.then(s.t), """
+                                                . x .
+                                                .   x
+                                                . . .
+                                                """);
+                                    });
+                                });
+                            } else {
+                                frame.f.findMatchingRotation("x x", r -> {
+                                    double pie = frame.orElses(r.t, """
+                                            . . .
+                                            . x .
+                                            .   .
+                                            """, """
+                                            . x .
+                                            .   .
+                                            . . .
+                                            """);
+                                    {
+                                        double lie = pie;
+                                        pie = Symmetry.X.stream().mapToDouble(s -> {
+                                            Transmutation t = r.t.then(s.t);
+                                            return Math.max(
+                                                    frame.react(lie, t, """
+                                                            .   .
+                                                            x x .
+                                                            . x \s
+                                                            """),
+                                                    frame.react(lie, t, """
+                                                            .   .
+                                                            x x \s
+                                                            . x .
+                                                            """));
+                                        }).max().orElse(1);
+                                    }
+                                    pie = frame.allow(pie, r.t, """
+                                            .   .
+                                            x   x
+                                            .   .
+                                            """);
+
+                                    frame.react(r.t, """
+                                            . x .
+                                            .   .
+                                            . . .
+                                            """);
+
+                                });
+                            }
+                        }
+                        case 3 -> {
+                            frame.vote(-0.05);
+                        }
+                        case 4 -> {
+                            frame.vote(-0.075);
+                        }
+                    }
+                    frame.vote();
+                    openBooth();
+                }
+            }
+        }
+
+
+        private void openBooth() {
+            for (int y = 0; y < cout.getHeight(); y++) {
+                for (int x = 0; x < cout.getWidth(); x++) {
+                    double c = cout.get(x, y) & 0xFF;
+                    c /= 255;
+                    c = unsigma(c);
+                    double w = Frame.toDouble(whites.get(x, y));
+                    double b = Frame.toDouble(blacks.get(x, y));
+                    if (w > b) {
+                        c += w;
+                    } else if (b > w) {
+                        c -= b;
+                    }
+//                    c += w;
+//                    c -= b;
+//                    cipher.set(x, y, rgb((int) ((0.5-toDouble(blacks.get(x, y))*0.5) * 255)));
+//                    cipher.set(x, y, rgb((int) (toDouble(whites.get(x, y)) * 255)));
+                    cout.set(x, y, rgb((int) (sigma(c) * 255)));
+                }
+            }
+            log("DONE");
+            whites = Matrix.create(3, 5).fill(0);
+            blacks = Matrix.create(3, 5).fill(0);
+        }
+
+        public void log(Object o) {
+            if (n == 3) {
+                System.out.println(o);
+            }
+        }
+
+        public double not(double v) {
+            return 1 - v;
+        }
+
+        public double and(double x, double y) {
+            return x * y;
+        }
+
+        public double or(double x, double y) {
+            return not(and(not(x), not(y)));
+        }
+
+        public double xor(double x, double y) {
+            return or(and(x, not(y)), and(not(x), y));
+        }
+
+        public double eq(double x, double y) {
+            return or(and(x, y), and(not(x), not(y)));
+        }
+
+        public double sigma(double v) {
+            double e = exp(v);
+            return e / (1.0 + e);
+        }
+
+        public double unsigma(double v) {
+            return Math.log(v / (1 - v));
+        }
+
     }
 
     public static class Compact3 extends SuperCompact {
@@ -318,100 +1021,13 @@ public class Uncaptcha {
                     }
                 });
 
-                tellNumber();
+                this.numbers.append(tellNumber(cout));
             }
 
             System.out.println(numbers);
         }
 
-        private void tellNumber() {
-            if (cout.matches("""
-                    . x .
-                    x   x
-                    . x .
-                    x   x
-                    . x .
-                    """)) {
-                this.numbers.append('8');
-            } else if (cout.matchesAny("""
-                    . x .|. x .|. x .|x x .
-                    x   x|x   x|x   x|x   x
-                    .   x|. x .|. x x|. x x
-                      x x|    x|  x x|    x
-                    x x .|x x .|x x .|  x x
-                    """)) {
-                this.numbers.append('9');
-            } else if (cout.matchesAny("""
-                    . x .|. x x
-                    x .  |x x \s
-                    x x .|x   .
-                    x   x|x   x
-                    . x .|. x .
-                    """)) {
-                this.numbers.append('6');
-            } else if (cout.matchesAny("""
-                    . x .|x x x
-                    x   x|x   x
-                    x   x|x   x
-                    x   x|x x x
-                    . x .|x x x
-                    """)) {
-                this.numbers.append('0');
-            } else if (cout.matchesAny("""
-                    x x .|x x x
-                    x    |x x \s
-                    . x .|    x
-                        x|x   x
-                    . x .|x x x
-                    """)) {
-                this.numbers.append('5');
-            } else if (cout.matchesAny("""
-                    . x .|. x x|x x x|x x x|x x x|x x \s
-                      . x|.   x|x   x|    x|  x x|  x \s
-                    . x .|  . x|    x|. . x|x   .|  x \s
-                    x .  |  x  |x x .|x x .|x    |x   \s
-                    x x x|. x x|x x x|x x x|x x x|x x x
-                    """)) {
-                this.numbers.append('2');
-            } else if (cout.matchesAny("""
-                    . x .|. x x|x x .
-                        x|.   x|  . x
-                    . x .|    x|. x .
-                        x|x   x|    x
-                    . x .|. x .|. x .
-                    """)) {
-                this.numbers.append('3');
-            } else if (cout.matchesAny("""
-                    x x .|x x x|x x  |x x .|x x x
-                        x|  x .|  x x|. . x|. . x
-                      . .|  x  |  x  |  . x|  x .
-                      x  |. x  |. x  |. x .|. x \s
-                    . . .|x .  |x .  |. x  |x x \s
-                    """)) {
-                this.numbers.append('7');
-            } else if (cout.matchesAny("""
-                      . .|. .  |  . x|
-                      . .|. . .|. x .|
-                      . .|  . .|    x|
-                      . .|  . .|    x|
-                      . .|  . .|    x|
-                    """)) {
-                this.numbers.append('1');
-            } else if (cout.matchesAny("""
-                      . .|  . .|. x .|  x x|  x .
-                    . x .|  . .|x . x|  x x|x   x
-                    x   x|  x .|x   x|x   x|x x x
-                    . x .|x   x|. x x|x   x|. . x
-                    . . .|. x .|  . .|  x  |. . .
-                    """)) {
-                this.numbers.append('4');
-            } else {
-                this.numbers.append('?');
-            }
-        }
-
     }
-
 
     public static class Split3 extends Filter {
 
@@ -720,55 +1336,6 @@ public class Uncaptcha {
         }
     }
 
-
-    public static String detect(String path) throws IOException {
-        return detect(ImageIO.read(new File(path)));
-    }
-
-    public static String detect(BufferedImage image) {
-        image = new Square().apply(image);
-        image = new Contrast().apply(image);
-        image = new RemoveHoles().apply(image);
-        image = new RemoveBalloons().apply(image);
-        BufferedImage orig = image;
-        image = new Count().apply(image);
-        Rotate rotation = new FineFrame2();
-        image = rotation.apply(image);
-        image = orig;
-
-        image = rotation.rotation().apply(image);
-
-        image = new DoubleSlit(12).apply(image);
-        FineFrame2 frame = new FineFrame2();
-        image = frame.apply(image);
-        rotation = rotation.combine(frame);
-        image = rotation.apply(orig);
-
-        image = new DoubleSlit(10).apply(image);
-        frame = new FineFrame2();
-        image = frame.apply(image);
-        rotation = rotation.combine(frame);
-        image = rotation.apply(orig);
-
-        image = new DoubleSlit(8).apply(image);
-        frame = new FineFrame2();
-        image = frame.apply(image);
-        rotation = rotation.combine(frame);
-        image = rotation.apply(orig);
-
-        orig = rotation.apply(orig);
-        orig = new Cut().apply(orig);
-        orig = new Window().apply(orig);
-        orig = new RemoveBalloons().apply(orig);
-        orig = new Split3().apply(orig);
-        orig = new RemoveBalloons().apply(orig);
-        orig = new Shrink1().apply(orig);
-//        orig = new Shrink4().apply(orig);
-        orig = new RoughCompact().apply(orig);
-        Compact3 compact = new Compact3();
-        orig = compact.apply(orig);
-        return compact.numbers.toString();
-    }
 
     public static class Shrink4 extends Filter {
 
