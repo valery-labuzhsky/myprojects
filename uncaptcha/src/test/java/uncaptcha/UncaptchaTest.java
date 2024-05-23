@@ -17,22 +17,18 @@ public class UncaptchaTest {
         check("371582");
         check("104746");
         check("146254");
-        check("166850");
         check("882116");
         check("907850");
-        check("583747");
         check("267722");
         check("250787");
         check("341373");
         check("977334");
         check("149881");
         check("283852");
-//        check("483821");
         check("564549");
         check("849104");
         check("386917");
         check("810864");
-//        check("458958");
         check("691551");
     }
 

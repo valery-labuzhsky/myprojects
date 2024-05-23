@@ -14,10 +14,13 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
     protected Matrix cout;
 
     protected void evolve(Strider s) {
-        log(s.x + ", " + s.y);
-        log(cipher);
+        int count = s.in.count();
+        if (count!=0 && count!=4) {
+            log(s.x + ", " + s.y);
+            log(cipher);
+        }
 //            log(cout);
-        switch (s.in.count()) {
+        switch (count) {
             case 0:
                 s.out.set(0, 0, Uncaptcha.WHITE);
                 break;
@@ -61,6 +64,7 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
                     } else {
                         if (!s.tryCollapse() &&
                                 !s.withForce(1).tryExpand() &&
+                                !s.withForce(2).tryExpand() &&
                                 !s.withForce(1).tryCollapse())
                             s.beBrave().cutCorners().withForce(3).tryExpand();
                     }
@@ -110,7 +114,7 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
                         }
                     } else {
                         if (!s.withForce(1).tryExpand() && !s.withForce(1).tryCollapse()) {
-                            s.withForce(1).cutCorners().tryCollapse();
+                            s.withForce(2).cutCorners().tryExpand();
                         }
                     }
                 }
@@ -219,7 +223,7 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
     }
 
     void log(Object log) {
-        if (n == 1) System.out.println(log);
+//        if (n == 3) System.out.println(log);
     }
 
     public class Strider implements Cloneable {
@@ -351,7 +355,7 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
         }
 
         public void log(Object o) {
-            if (path.startsWith("1,4"))
+            if (path.startsWith("2,2"))
                 SuperCompact.this.log(o);
         }
 
@@ -709,8 +713,10 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
                               \s
                             x x
                             """, s1 -> {
-                        s1.expandCorner();
-                        s1.transform(Symmetry.X.t).expandCorner();
+                        if (!s1.tryExpandCorner() || !s1.transform(Symmetry.X.t).tryExpandCorner()) {
+                            s1.transform(Symmetry.X.t).expandCorner();
+                            s1.tryExpandCorner();
+                        }
                     });
                     findInMatchingRotation("""
                               x
@@ -808,7 +814,7 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
                                     x
                                 x x .
                                 """)) {
-                            transformCorner(Transmutation.ROTATE_RIGHT).expandCorner();
+                            transformCorner(Transmutation.ROTATE_RIGHT).tryExpandCorner();
                         } else if (up.matches("""
                                 . x .
                                 x   \s
@@ -818,7 +824,7 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
                                 x   \s
                                 . x x
                                 """)) {
-                            transformCorner(Transmutation.ROTATE_LEFT).expandCorner();
+                            transformCorner(Transmutation.ROTATE_LEFT).tryExpandCorner();
                         } else {
                             corner(0, -1).collapseCorner();
                         }
@@ -898,7 +904,7 @@ public abstract class SuperCompact extends Uncaptcha.Filter {
                 log(cipher);
                 if (out.get(0, 0) == Uncaptcha.WHITE) {
                     out.set(0, 0, GRAY);
-                    withForce(force + 1).orderExpand();
+//                    withForce(force + 1).orderExpand();
                 }
             } catch (RuntimeException e) {
                 log("NO: " + e.getMessage() + "\n");

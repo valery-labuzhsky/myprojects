@@ -32,10 +32,10 @@ public class Uncaptcha {
 
     public static BufferedImage transform(BufferedImage image) {
         image = new Square().apply(image);
-//        if (true) return image;
         image = new Contrast().apply(image);
         image = new RemoveHoles().apply(image);
         image = new RemoveBalloons().apply(image);
+//        if (true) return image;
         BufferedImage orig = image;
         image = new Count().apply(image);
         Rotate rotation = new FineFrame2();
@@ -69,10 +69,10 @@ public class Uncaptcha {
         orig = new Split3().apply(orig);
         orig = new RemoveBalloons().apply(orig);
         orig = new Shrink1().apply(orig);
+        if (true) return orig;
 //        orig = new Shrink4().apply(orig);
         orig = new RoughCompact().apply(orig);
-        orig = new Emerge().apply(orig);
-        if (true) return orig;
+        orig = new Compact3().apply(orig);
         return orig;
     }
 
@@ -120,7 +120,7 @@ public class Uncaptcha {
         orig = new Shrink1().apply(orig);
 //        orig = new Shrink4().apply(orig);
         orig = new RoughCompact().apply(orig);
-        Emerge compact = new Emerge();
+        Compact3 compact = new Compact3();
         orig = compact.apply(orig);
         return compact.numbers.toString();
     }
@@ -135,7 +135,7 @@ public class Uncaptcha {
                 """)) {
             return '8';
         } else if (cipher.matchesAny("""
-                . x .|. x .|. x .|x x .
+                . x .|. x .|. x .|. x .
                 x   x|x   x|x   x|x   x
                 .   x|. x .|. x x|. x x
                   x x|    x|  x x|    x
@@ -144,8 +144,8 @@ public class Uncaptcha {
             return '9';
         } else if (cipher.matchesAny("""
                 . x .|. x x
-                x .  |x x \s
-                x x .|x   .
+                x .  |. x \s
+                x x .|x   x
                 x   x|x   x
                 . x .|. x .
                 """)) {
@@ -159,7 +159,7 @@ public class Uncaptcha {
                 """)) {
             return '0';
         } else if (cipher.matchesAny("""
-                x x .|x x x
+                . x .|x x x
                 x    |x x \s
                 . x .|    x
                     x|x   x
@@ -169,17 +169,17 @@ public class Uncaptcha {
         } else if (cipher.matchesAny("""
                 . x .|. x x|x x x|x x x|x x x|x x \s
                   . x|.   x|x   x|    x|  x x|  x \s
-                . x .|  . x|    x|. . x|x   .|  x \s
+                . x .|  . .|    x|. . x|x   .|  x \s
                 x .  |  x  |x x .|x x .|x    |x   \s
-                x x x|. x x|x x x|x x x|x x x|x x x
+                . x x|. x x|x x x|x x x|x x x|x x x
                 """)) {
             return '2';
         } else if (cipher.matchesAny("""
-                . x .|. x x|x x .
-                    x|.   x|  . x
-                . x .|    x|. x .
-                    x|x   x|    x
-                . x .|. x .|. x .
+                . x .|. x x|x x .|. x x
+                    x|.   x|  . x|.   x
+                . x .|    x|. x .|    x
+                    x|x   x|    x|    x
+                . x .|. x .|. x .|x x .
                 """)) {
             return '3';
         } else if (cipher.matchesAny("""
@@ -191,18 +191,18 @@ public class Uncaptcha {
                 """)) {
             return '7';
         } else if (cipher.matchesAny("""
-                  . .|. .  |  . x|
-                  . .|. . .|. x .|
+                  . .|. .  |. . x|
+                  . .|. . .|. . .|
                   . .|  . .|    x|
                   . .|  . .|    x|
-                  . .|  . .|    x|
+                  . .|  . .|  . x|
                 """)) {
             return '1';
         } else if (cipher.matchesAny("""
                   . .|  . .|. x .|  x x|  x .
                 . x .|  . .|x . x|  x x|x   x
                 x   x|  x .|x   x|x   x|x x x
-                . x .|x   x|. x x|x   x|. . x
+                . x .|x   x|. x .|x   x|. . x
                 . . .|. x .|  . .|  x  |. . .
                 """)) {
             return '4';
@@ -264,7 +264,7 @@ public class Uncaptcha {
 
         @Override
         void log(Object log) {
-//            if (n == 1) System.out.println(log);
+            if (n == 4) System.out.println(log);
         }
     }
 
@@ -487,7 +487,8 @@ public class Uncaptcha {
                 }
                 double anx = second / first;
                 for (int i = 0; i < this.scores.size(); i++) {
-                    double score = this.scores.get(i) * anx / sum;
+//                    double score = this.scores.get(i) * anx / sum;
+                    double score = this.scores.get(i) / sum;
                     vote(this.templates.get(i), score);
                 }
             }
@@ -496,14 +497,16 @@ public class Uncaptcha {
 //                log(score);
 //                log(trace.trace);
                 Matrix template = trace.template;
-                int si = toInt(score);
                 for (int y = 0; y < template.getHeight(); y++) {
                     for (int x = 0; x < template.getWidth(); x++) {
                         int c = template.get(x, y);
+                        double v = (cf.get(x, y) & 0XFF) / 255.0 * 2 - 1;
                         if (c == WHITE) {
+                            int si = toInt(score - score * v);
                             vote(x, y, si, trace);
                         } else if (c == BLACK) {
-                            vote(x, y, -si, trace);
+                            int si = toInt(-score - score * v);
+                            vote(x, y, si, trace);
                         }
                     }
                 }
@@ -993,21 +996,21 @@ public class Uncaptcha {
 //                forAllCells(cipher, cout, s -> {
 //                    evolveCorners(s);
 //                });
-//                forAllCells(cipher, cout, s -> {
-//                    switch (s.in.count()) {
-//                        case 0,4: evolve(s);
-//                    }
-//                });
-//                forAllCells(cipher, cout, s -> {
-//                    if (s.in.count() == 3) {
-//                        evolve(s);
-//                    }
-//                });
-//                forAllCells(cipher, cout, s -> {
-//                    switch (s.in.count()) {
-//                        case 0,2,3,4: evolve(s);
-//                    }
-//                });
+                forAllCells(s -> {
+                    switch (s.in.count()) {
+                        case 0,4: evolve(s);
+                    }
+                });
+                forAllCells(s -> {
+                    if (s.in.count() == 3) {
+                        evolve(s);
+                    }
+                });
+                forAllCells(s -> {
+                    switch (s.in.count()) {
+                        case 0,2,3,4: evolve(s);
+                    }
+                });
                 forAllCells(s -> {
                     evolve(s);
                 });

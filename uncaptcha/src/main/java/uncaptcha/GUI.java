@@ -23,7 +23,7 @@ public class GUI extends Application {
 
         BorderPane root = new BorderPane();
 //        BufferedImage image = ImageIO.read(new File("./images/ocrfail-978062-20240501_092428.png"));
-        BufferedImage image = ImageIO.read(new File("./images/642944.png"));
+        BufferedImage image = ImageIO.read(new File("./images/979062.png"));
         image = transform(image);
 
         double scale = 400d / image.getWidth();
