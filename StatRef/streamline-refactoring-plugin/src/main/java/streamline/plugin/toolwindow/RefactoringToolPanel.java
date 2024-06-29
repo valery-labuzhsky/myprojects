@@ -8,7 +8,6 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
-import org.jetbrains.annotations.NotNull;
 import streamline.plugin.nodes.guts.KeyEventDispatcher;
 import streamline.plugin.nodes.guts.NodeComponent;
 import streamline.plugin.nodes.guts.RefactoringNode;
@@ -170,7 +169,7 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
     private void setupToolbar() {
         DefaultActionGroup actionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction(RefactoringToolPanel.class.getName() + ".toolbar");
 
-        for (AnAction action : actionGroup.getChildren(originalEvent)) {
+        for (AnAction action : actionGroup.getChildActionsOrStubs()) {
             action.registerCustomShortcutSet(tree, null);
         }
 
