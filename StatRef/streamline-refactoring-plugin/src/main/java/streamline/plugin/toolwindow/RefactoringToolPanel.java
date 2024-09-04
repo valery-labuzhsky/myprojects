@@ -146,8 +146,7 @@ public class RefactoringToolPanel extends SimpleToolWindowPanel {
                 MouseEvent newEvent = new MouseEvent(activeComponent,
                         event.getID(),
                         event.getWhen(),
-                        event.getModifiers()
-                                | event.getModifiersEx(),
+                        event.getModifiersEx(),
                         componentPoint.x, componentPoint.y,
                         event.getXOnScreen(),
                         event.getYOnScreen(),

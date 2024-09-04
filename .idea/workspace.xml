@@ -8,7 +8,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <list id="a2f0e863-7463-4e64-9a4d-9b41558c88df" name="Workspace" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KSP/Script/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/KSP/Script/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -67,6 +66,18 @@
     </option>
     <option name="RESET_MODE" value="KEEP" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "valery-labuzhsky"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/valery-labuzhsky/myprojects",
+    "accountId": "3e6c0853-0f2c-4da8-bdac-24b9acdfed7a"
+  }
+}]]></component>
   <component name="GradleLocalSettings">
     <option name="externalProjectsViewState">
       <projects_view />
@@ -103,28 +114,12 @@
       </list>
     </option>
   </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/.idea/workspace.xml">
-      <ranges>
-        <range start1="2" end1="2" start2="2" end2="5" changelist="a2f0e863-7463-4e64-9a4d-9b41558c88df" />
-        <range start1="3" end1="11" start2="6" end2="8" changelist="c8d70c46-8a79-4ca4-9f06-277d190d8398" />
-        <range start1="12" end1="41" start2="9" end2="9" changelist="a2f0e863-7463-4e64-9a4d-9b41558c88df" />
-        <range start1="42" end1="85" start2="10" end2="10" changelist="a2f0e863-7463-4e64-9a4d-9b41558c88df" />
-        <range start1="181" end1="181" start2="106" end2="109" changelist="a2f0e863-7463-4e64-9a4d-9b41558c88df" />
-        <range start1="221" end1="235" start2="149" end2="152" changelist="a2f0e863-7463-4e64-9a4d-9b41558c88df" />
-        <range start1="236" end1="236" start2="153" end2="161" changelist="a2f0e863-7463-4e64-9a4d-9b41558c88df" />
-        <range start1="286" end1="286" start2="211" end2="220" changelist="a2f0e863-7463-4e64-9a4d-9b41558c88df" />
-        <range start1="311" end1="320" start2="245" end2="245" changelist="a2f0e863-7463-4e64-9a4d-9b41558c88df" />
-        <range start1="332" end1="332" start2="257" end2="258" changelist="c8d70c46-8a79-4ca4-9f06-277d190d8398" />
-      </ranges>
-    </file>
-  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="1888" />
     <option name="y" value="150" />
@@ -174,7 +169,8 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/valery/projects/myprojects"
+    "last_opened_file_path": "C:/valery/projects/myprojects",
+    "settings.editor.selected.configurable": "Errors"
   }
 }]]></component>
   <component name="PsiViewer.ProjectComponent">
