@@ -1,9 +1,6 @@
 package streamline.plugin;
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -87,7 +84,7 @@ public class SLInlineAction extends AnAction {
     }
 
     private void invokeNative(@NotNull AnActionEvent event) {
-        ActionManager.getInstance().getAction("Inline").actionPerformed(event);
+        ActionWrapperUtil.actionPerformed(event, this, ActionManager.getInstance().getAction("Inline"));
     }
 
     private <P extends PsiElement> P getPsiElement(AnActionEvent event, Class<P> aClass) {

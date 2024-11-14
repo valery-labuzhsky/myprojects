@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "labuzhskiy.valery.statref"
-version = "0.1.8"
+version = "0.1.9"
 
 repositories {
     mavenCentral()
@@ -13,7 +13,7 @@ repositories {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2024.2.0.2")
+    version.set("2024.3")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf("com.intellij.java"))
@@ -40,7 +40,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("242.20224.419")
+        sinceBuild.set("243.21565.193")
     }
 
     signPlugin {
