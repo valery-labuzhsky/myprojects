@@ -26,7 +26,6 @@
           <entry name="$PROJECT_DIR$/model-mirror/build/libs/model-mirror-0.1.4.jar" />
           <entry name="$PROJECT_DIR$/model/build/libs/model-0.1.4.jar" />
         </processorPath>
-        <module name="labuzhskiy.valery.statref.StatRef.example.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="17" />
